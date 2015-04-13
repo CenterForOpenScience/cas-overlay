@@ -7,14 +7,9 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cas-server-webapp</artifactId>
   <packaging>war</packaging>
-  <name>Jasig CAS Web Application</name>
+  <name>Apereo CAS Web Application</name>
 
   <dependencies>
-    <dependency>
-      <groupId>org.jasig.cas</groupId>
-      <artifactId>cas-server-core</artifactId>
-      <type>test-jar</type>
-    </dependency>
     <dependency>
       <groupId>io.cos.cas</groupId>
       <artifactId>cas-server-support-jdbc</artifactId>

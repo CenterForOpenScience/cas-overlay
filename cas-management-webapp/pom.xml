@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cas-management-webapp</artifactId>
   <packaging>war</packaging>
-  <name>Jasig CAS Management Web Application</name>
+  <name>Apereo CAS Management Web Application</name>
 
   <dependencies>
     <dependency>

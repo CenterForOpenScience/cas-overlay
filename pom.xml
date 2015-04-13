@@ -5,8 +5,8 @@
 	<artifactId>cas-server</artifactId>
 	<version>4.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Jasig Central Authentication Service</name>
-  <description>Jasig CAS SSO server libraries and Web application.</description>
+	<name>Apereo Central Authentication Service</name>
+  <description>Apereo CAS SSO server libraries and Web application.</description>
 
 	<repositories>
     <repository>
@@ -22,17 +22,17 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-core</artifactId>
-        <version>${project.version}</version>
-				<type>test-jar</type>
-				<scope>runtime</scope>
-      </dependency>
-			<dependency>
 				<groupId>org.jasig.cas</groupId>
 				<artifactId>cas-server-webapp</artifactId>
 				<version>${project.version}</version>
 				<type>war</type>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.jasig.cas</groupId>
+				<artifactId>cas-server-webapp-support</artifactId>
+				<version>${project.version}</version>
+				<type>jar</type>
 				<scope>runtime</scope>
 			</dependency>
 			<dependency>
@@ -100,6 +100,10 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.2</version>
+					<configuration>
+	          <source>${project.build.sourceVersion}</source>
+	          <target>${project.build.targetVersion}</target>
+	        </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -112,7 +116,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.18.1</version>
+          <version>${maven-surefire-plugin.version}</version>
           <configuration>
             <skipTests>${skipTests:true}</skipTests>
           </configuration>
@@ -128,11 +132,19 @@
 	</modules>
 
 	<properties>
+		<!-- Dependency Versions -->
 		<spring.version>4.1.6.RELEASE</spring.version>
 		<spring.security.version>4.0.0.RELEASE</spring.security.version>
 		<commons.dbcp2.version>2.1</commons.dbcp2.version>
 		<hibernate.core.version>4.3.8.Final</hibernate.core.version>
     <slf4j.version>1.7.10</slf4j.version>
 		<postgresql.version>9.4-1201-jdbc41</postgresql.version>
+
+		<!-- Plugin Versions -->
+		<maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
+
+		<!-- Project configuration -->
+		<project.build.sourceVersion>1.7</project.build.sourceVersion>
+    <project.build.targetVersion>1.7</project.build.targetVersion>
 	</properties>
 </project>
