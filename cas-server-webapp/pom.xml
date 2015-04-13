@@ -63,34 +63,34 @@
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
       <plugin>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>9.2.10.v20150310</version>
-				<configuration>
+  <groupId>org.eclipse.jetty</groupId>
+  <artifactId>jetty-maven-plugin</artifactId>
+  <version>9.2.10.v20150310</version>
+  <configuration>
           <jettyXml>${project.basedir}/src/test/resources/jetty.xml,${project.basedir}/src/test/resources/jetty-http.xml,${project.basedir}/src/test/resources/jetty-ssl.xml,${project.basedir}/src/test/resources/jetty-https.xml</jettyXml>
-					<contextXml>${project.basedir}/src/test/resources/jetty-context.xml</contextXml>
+  <contextXml>${project.basedir}/src/test/resources/jetty-context.xml</contextXml>
           <scanIntervalSeconds>10</scanIntervalSeconds>
           <webApp>
             <extraClasspath>target/classes;../cas-server-support-jdbc/target</extraClasspath>
-						<contextPath>/cas</contextPath>
+  <contextPath>/cas</contextPath>
             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
-					</webApp>
-					<contextHandlers>
-						<!-- <contextHandler implementation="org.eclipse.jetty.quickstart.QuickStartWebApp">
-							<autoPreconfigure>true</autoPreconfigure>
-							<war>${project.basedir}/../cas-management-webapp/target/cas-management-webapp.war</war>
-							<contextPath>/cas-management</contextPath>
-						</contextHandler> -->
-					</contextHandlers>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.eclipse.jetty</groupId>
-						<artifactId>jetty-quickstart</artifactId>
-						<version>9.2.10.v20150310</version>
-					</dependency>
-				</dependencies>
-			</plugin>
+  </webApp>
+  <contextHandlers>
+  <!-- <contextHandler implementation="org.eclipse.jetty.quickstart.QuickStartWebApp">
+  <autoPreconfigure>true</autoPreconfigure>
+  <war>${project.basedir}/../cas-management-webapp/target/cas-management-webapp.war</war>
+  <contextPath>/cas-management</contextPath>
+  </contextHandler> -->
+  </contextHandlers>
+  </configuration>
+  <dependencies>
+  <dependency>
+  <groupId>org.eclipse.jetty</groupId>
+  <artifactId>jetty-quickstart</artifactId>
+  <version>9.2.10.v20150310</version>
+  </dependency>
+  </dependencies>
+  </plugin>
     </plugins>
   </build>
 </project>
