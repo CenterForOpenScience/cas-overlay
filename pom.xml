@@ -23,6 +23,17 @@
     <dependencies>
       <dependency>
         <groupId>org.jasig.cas</groupId>
+        <artifactId>cas-server-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jasig.cas</groupId>
+        <artifactId>cas-server-support-generic</artifactId>
+        <version>${project.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jasig.cas</groupId>
         <artifactId>cas-server-webapp</artifactId>
         <version>${project.version}</version>
         <type>war</type>
@@ -33,7 +44,7 @@
         <artifactId>cas-server-webapp-support</artifactId>
         <version>${project.version}</version>
         <type>jar</type>
-        <scope>runtime</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.jasig.cas</groupId>
@@ -42,19 +53,19 @@
         <type>jar</type>
         <scope>runtime</scope>
       </dependency>
-      <dependency>
+      <!-- <dependency>
         <groupId>org.jasig.cas</groupId>
         <artifactId>cas-server-support-rest</artifactId>
         <version>${project.version}</version>
         <type>jar</type>
         <scope>runtime</scope>
-      </dependency>
+      </dependency> -->
       <dependency>
         <groupId>org.jasig.cas</groupId>
         <artifactId>cas-management-webapp</artifactId>
         <version>${project.version}</version>
         <type>war</type>
-        <scope>runtime</scope>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.jasig.cas</groupId>
@@ -62,10 +73,156 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>jstl</artifactId>
+        <version>${jstl.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${servlet.api.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- Spring Security Dependencies -->
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>${spring.security.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-web</artifactId>
+        <version>${spring.security.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-config</artifactId>
+        <version>${spring.security.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-crypto</artifactId>
         <version>${spring.security.version}</version>
       </dependency>
+
+      <!-- Spring Managed Dependencies -->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aspects</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context-support</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>${spring.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-instrument</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jms</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-orm</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-oxm</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${spring.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-tx</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-expression</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.webflow</groupId>
+        <artifactId>spring-webflow</artifactId>
+        <version>${spring.webflow.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
@@ -127,18 +284,22 @@
 
   <modules>
     <module>cas-server-webapp</module>
+    <!-- <module>cas-server-webapp-support</module> -->
     <module>cas-server-support-jdbc</module>
-    <module>cas-management-webapp</module>
+    <!-- <module>cas-management-webapp</module> -->
   </modules>
 
   <properties>
     <!-- Dependency Versions -->
+    <spring.webflow.version>2.4.1.RELEASE</spring.webflow.version>
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>
     <commons.dbcp2.version>2.1</commons.dbcp2.version>
     <hibernate.core.version>4.3.8.Final</hibernate.core.version>
     <slf4j.version>1.7.10</slf4j.version>
     <postgresql.version>9.4-1201-jdbc41</postgresql.version>
+    <jstl.version>1.2</jstl.version>
+    <servlet.api.version>3.0.1</servlet.api.version>
 
     <!-- Plugin Versions -->
     <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>

@@ -133,7 +133,7 @@
 
   <!-- login webflow configuration -->
   <bean id="loginFlowHandlerMapping" class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping"
-        p:flowRegistry-ref="loginFlowRegistry" p:order="3">
+        p:flowRegistry-ref="loginFlowRegistry" p:order="2">
     <property name="interceptors">
         <array value-type="org.springframework.web.servlet.HandlerInterceptor">
             <ref bean="localeChangeInterceptor" />
@@ -173,7 +173,7 @@
 
   <!-- logout webflow configuration -->
   <bean id="logoutFlowHandlerMapping" class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping"
-        p:flowRegistry-ref="logoutFlowRegistry" p:order="4">
+        p:flowRegistry-ref="logoutFlowRegistry" p:order="3">
       <property name="interceptors">
           <array value-type="org.springframework.web.servlet.HandlerInterceptor">
               <ref bean="localeChangeInterceptor" />
@@ -261,7 +261,8 @@
         p:argumentExtractors-ref="argumentExtractors"
         p:warnCookieGenerator-ref="warnCookieGenerator"
         p:ticketGrantingTicketCookieGenerator-ref="ticketGrantingTicketCookieGenerator"
-        p:servicesManager-ref="servicesManager"  />
+        p:servicesManager-ref="servicesManager"
+        p:enableFlowOnAbsentServiceRequest="${create.sso.missing.service:true}"  />
 
   <bean id="genericSuccessViewAction" class="org.jasig.cas.web.flow.GenericSuccessViewAction"
         c:centralAuthenticationService-ref="centralAuthenticationService" />
@@ -279,7 +280,7 @@
         c:centralAuthenticationService-ref="centralAuthenticationService"
         c:ticketGrantingTicketCookieGenerator-ref="ticketGrantingTicketCookieGenerator"
         c:servicesManager-ref="servicesManager"
-        p:createSsoSessionCookieOnRenewAuthentications="${create.sso.renewed.authn:true}"  />
+        p:createSsoSessionCookieOnRenewAuthentications="${create.sso.renewed.authn:true}" />
 
   <bean id="gatewayServicesManagementCheck" class="org.jasig.cas.web.flow.GatewayServicesManagementCheck"
     c:servicesManager-ref="servicesManager" />
@@ -302,6 +303,13 @@
         c:cas-ref="centralAuthenticationService"
         c:tgtCookieGenerator-ref="ticketGrantingTicketCookieGenerator"
         c:warnCookieGenerator-ref="warnCookieGenerator"/>
+
+  <bean id="acceptableUsagePolicyFormAction" class="org.jasig.cas.web.flow.AcceptableUsagePolicyFormAction"/>
+
+  <!-- Multi-Factor Authentication -->
+  <bean id="multiFactorAuthenticationFormAction" class="org.jasig.cas.web.flow.MultiFactorAuthenticationFormAction"
+        p:centralAuthenticationService-ref="centralAuthenticationService" />
+        <!-- p:authenticationManager-ref="authenticationManager" /> -->
 
   <!-- OAuth2 -->
   <bean id="oauth20WrapperController" class="org.jasig.cas.support.oauth.web.OAuth20WrapperController"

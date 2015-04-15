@@ -45,42 +45,42 @@
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <!-- Authentication Manager -->
-    <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager">
+    <!-- Authentication -->
+    <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager"
+          p:authenticationPolicy-ref="authenticationPolicy">
         <constructor-arg>
             <map>
-                <!--
-                   | IMPORTANT
-                   | Every handler requires a unique name.
-                   | If more than one instance of the same handler class is configured, you must explicitly
-                   | set its name to something other than its default name (typically the simple class name).
-                   -->
-                <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" />
-                <entry key-ref="primaryAuthenticationHandler" value-ref="primaryPrincipalResolver" />
+                <!-- <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" /> -->
+                <entry key-ref="usernamePasswordAuthenticationHandler" value-ref="primaryPrincipalResolver" />
+                <entry key-ref="otpAuthenticationHandler" value-ref="primaryPrincipalResolver" />
             </map>
         </constructor-arg>
-        <!--
-           | Defines the security policy around authentication. Some alternative policies that ship with CAS:
-           |
-           | * NotPreventedAuthenticationPolicy - all credential must either pass or fail authentication
-           | * AllAuthenticationPolicy - all presented credential must be authenticated successfully
-           | * RequiredHandlerAuthenticationPolicy - specifies a handler that must authenticate its credential to pass
-           -->
-        <property name="authenticationPolicy">
-            <bean class="org.jasig.cas.authentication.AnyAuthenticationPolicy" />
-        </property>
+        <!-- <property name="authenticationMetaDataPopulators">
+            <list>
+                <bean class="org.jasig.cas.authentication.SuccessfulHandlerMetaDataPopulator" />
+            </list>
+        </property> -->
     </bean>
 
+    <bean id="authenticationPolicy" class="org.jasig.cas.authentication.RequiredHandlerAuthenticationPolicy"
+          c:requiredHandlerName="usernamePasswordAuthenticationHandler"
+          p:tryAll="true" />
 
-    <!-- Authentication Handlers -->
-    <bean id="primaryAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.BCryptSearchModeSearchDatabaseAuthenticationHandler"
+    <bean id="usernamePasswordAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.BCryptDatabaseAuthenticationHandler"
           p:dataSource-ref="dataSource"
           p:tableUsers="users"
           p:fieldUser="username"
           p:fieldPassword="password" />
 
+    <bean id="otpAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.TotpDatabaseAuthenticationHandler"
+          p:name="otpAuthenticationHandler" />
+          <!-- p:ticketRegistry="ticketRegistry" /> -->
+          <!-- p:dataSource-ref="dataSource"
+          p:tableUsers="users"
+          p:fieldUser="username" -->
+
     <bean id="primaryPrincipalResolver" class="org.jasig.cas.authentication.principal.PersonDirectoryPrincipalResolver"
-        p:attributeRepository-ref="attributeRepository" />
+          p:attributeRepository-ref="attributeRepository" />
 
     <!-- Required for proxy ticket mechanism. -->
     <bean id="proxyAuthenticationHandler" class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
@@ -98,7 +98,7 @@
         p:resultAttributeMapping-ref="resultAttributeMapping" />
 
     <util:map id="queryAttributeMapping">
-        <entry key="username" value="uid" />
+        <entry key="id" value="uid" />
     </util:map>
 
     <util:map id="resultAttributeMapping">

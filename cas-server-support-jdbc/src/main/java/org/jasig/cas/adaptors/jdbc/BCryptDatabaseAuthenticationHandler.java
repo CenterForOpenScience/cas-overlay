@@ -33,7 +33,7 @@ import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.FailedLoginException;
 import javax.validation.constraints.NotNull;
 
-public class BCryptSearchModeSearchDatabaseAuthenticationHandler extends AbstractJdbcUsernamePasswordAuthenticationHandler
+public class BCryptDatabaseAuthenticationHandler extends AbstractJdbcUsernamePasswordAuthenticationHandler
         implements InitializingBean {
 
     @NotNull
