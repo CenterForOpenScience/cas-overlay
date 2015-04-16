@@ -93,4 +93,9 @@ public class OneTimePasswordCredential extends AbstractCredential {
     public final void setId(final String id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return this.id;
+    }
 }

@@ -46,8 +46,8 @@
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- Authentication -->
-    <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager"
-          p:authenticationPolicy-ref="authenticationPolicy">
+    <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager">
+          <!-- p:authenticationPolicy-ref="authenticationPolicy"> -->
         <constructor-arg>
             <map>
                 <!-- <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" /> -->
@@ -62,9 +62,9 @@
         </property> -->
     </bean>
 
-    <bean id="authenticationPolicy" class="org.jasig.cas.authentication.RequiredHandlerAuthenticationPolicy"
+    <!-- <bean id="authenticationPolicy" class="org.jasig.cas.authentication.RequiredHandlerAuthenticationPolicy"
           c:requiredHandlerName="usernamePasswordAuthenticationHandler"
-          p:tryAll="true" />
+          p:tryAll="false" /> -->
 
     <bean id="usernamePasswordAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.BCryptDatabaseAuthenticationHandler"
           p:dataSource-ref="dataSource"

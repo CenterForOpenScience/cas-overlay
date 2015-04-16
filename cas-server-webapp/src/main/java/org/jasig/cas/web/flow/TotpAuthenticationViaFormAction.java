@@ -1,235 +1,3 @@
-// /*
-//  * Licensed to Apereo under one or more contributor license
-//  * agreements. See the NOTICE file distributed with this work
-//  * for additional information regarding copyright ownership.
-//  * Apereo licenses this file to you under the Apache License,
-//  * Version 2.0 (the "License"); you may not use this file
-//  * except in compliance with the License.  You may obtain a
-//  * copy of the License at the following location:
-//  *
-//  *   http://www.apache.org/licenses/LICENSE-2.0
-//  *
-//  * Unless required by applicable law or agreed to in writing,
-//  * software distributed under the License is distributed on an
-//  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-//  * KIND, either express or implied.  See the License for the
-//  * specific language governing permissions and limitations
-//  * under the License.
-//  */
-//
-// package org.jasig.cas.web.flow;
-// // package io.cos.cas.web.flow;
-//
-// import org.apache.commons.lang3.StringUtils;
-// import org.jasig.cas.CasProtocolConstants;
-// import org.jasig.cas.CentralAuthenticationService;
-// import org.jasig.cas.Message;
-// import org.jasig.cas.authentication.AuthenticationException;
-// import org.jasig.cas.authentication.Credential;
-// import org.jasig.cas.authentication.HandlerResult;
-// import org.jasig.cas.authentication.principal.Service;
-// import org.jasig.cas.ticket.TicketException;
-// import org.jasig.cas.ticket.ServiceTicket;
-// import org.jasig.cas.ticket.TicketCreationException;
-// import org.jasig.cas.ticket.TicketGrantingTicket;
-// import org.jasig.cas.ticket.registry.TicketRegistry;
-// import org.jasig.cas.web.support.WebUtils;
-// import org.slf4j.Logger;
-// import org.slf4j.LoggerFactory;
-// import org.springframework.binding.message.MessageBuilder;
-// import org.springframework.binding.message.MessageContext;
-// import org.springframework.web.util.CookieGenerator;
-// import org.springframework.webflow.core.collection.LocalAttributeMap;
-// import org.springframework.webflow.execution.Event;
-// import org.springframework.webflow.execution.RequestContext;
-//
-//
-// import org.jasig.cas.CentralAuthenticationService;
-// import org.jasig.cas.authentication.Credential;
-// import org.jasig.cas.authentication.UsernamePasswordCredential;
-// import org.jasig.cas.authentication.OneTimePasswordCredential;
-// // import org.jasig.cas.web.flow.AuthenticationViaFormAction;
-// import org.springframework.webflow.core.collection.LocalAttributeMap;
-//
-// import org.slf4j.Logger;
-// import org.slf4j.LoggerFactory;
-//
-// import org.jasig.cas.ticket.TicketGrantingTicket;
-//
-// import org.springframework.binding.message.MessageContext;
-// import org.springframework.webflow.action.EventFactorySupport;
-// import org.springframework.webflow.execution.Event;
-// import org.springframework.webflow.execution.RequestContext;
-// import org.jasig.cas.web.support.WebUtils;
-//
-// import javax.validation.constraints.NotNull;
-//
-// import java.util.Map;
-// import java.util.concurrent.ConcurrentHashMap;
-//
-// /**
-//  * Webflow action to receive and record the AUP response.
-//  * @author Misagh Moayyed
-//  * @since 4.1
-//  */
-// public class MultiFactorAuthenticationFormAction extends AuthenticationViaFormAction {
-//
-//     // /** Event id to signal the policy needs to be accepted. **/
-//     // protected static final String EVENT_ID_MUST_ACCEPT = "mustAccept";
-//
-//     // /** Logger instance. **/
-//     // protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-//
-//     // /** Core we delegate to for handling all ticket related tasks. */
-//     // @NotNull
-//     // private CentralAuthenticationService centralAuthenticationService;
-//
-//     // private final Map<String, Boolean> policyMap = new ConcurrentHashMap<>();
-//     // private UsernamePasswordCredential usernamePasswordCredential;
-//
-//     /** Core we delegate to for handling all ticket related tasks. */
-//     @NotNull
-//     private CentralAuthenticationService centralAuthenticationService;
-//
-//     private Event newEvent(final String id) {
-//         return new Event(this, id);
-//     }
-//
-//     private Event newEvent(final String id, final Exception error) {
-//         return new Event(this, id, new LocalAttributeMap("error", error));
-//     }
-//
-//     public final void setCentralAuthenticationService(final CentralAuthenticationService centralAuthenticationService) {
-//         this.centralAuthenticationService = centralAuthenticationService;
-//     }
-//
-//     public final Event submitUsernamePassword(final RequestContext context, final Credential credential,
-//                               final MessageContext messageContext)  {
-//         // if (!checkLoginTicketIfExists(context)) {
-//         //     return returnInvalidLoginTicketEvent(context, messageContext);
-//         // }
-//         //
-//         // if (isRequestAskingForServiceTicket(context)) {
-//         //     return grantServiceTicket(context, credential);
-//         // }
-//         //
-//         // try {
-//         //     this.tgt = this.centralAuthenticationService.createTicketGrantingTicket(credential);
-//         //
-//         // }
-//         //
-//         // return createTicketGrantingTicket(context, credential, messageContext);
-//
-//         // this.usernamePasswordCredential = (UsernamePasswordCredential)credential;
-//         Event event = super.submit(context, credential, messageContext);
-//         this.logger.warn("blah!!!");
-//         return event;
-//     }
-//
-//     public final Event submitOneTimePassword(final RequestContext context, final Credential credential,
-//         final Credential otpCredential, final MessageContext messageContext)  {
-//         // OneTimePasswordCredential otp = (OneTimePasswordCredential)credential;
-//         this.logger.warn("blah!!!2");
-//
-//         try {
-//             final TicketGrantingTicket tgt = this.centralAuthenticationService.createTicketGrantingTicket(
-//                 credential,
-//                 otpCredential
-//             );
-//             WebUtils.putTicketGrantingTicketInScopes(context, tgt);
-//             putWarnCookieIfRequestParameterPresent(context);
-//             putPublicWorkstationToFlowIfRequestParameterPresent(context);
-//             if (addWarningMessagesToMessageContextIfNeeded(tgt, messageContext)) {
-//                 return this.newEvent(SUCCESS_WITH_WARNINGS);
-//             }
-//             return this.newEvent(SUCCESS);
-//         } catch (final AuthenticationException e) {
-//             return this.newEvent(AUTHENTICATION_FAILURE, e);
-//         } catch (final Exception e) {
-//             return this.newEvent(ERROR, e);
-//         }
-//     }
-//     //
-//     //
-//
-//
-//     private void putWarnCookieIfRequestParameterPresent(final RequestContext context) {
-//         final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
-//
-//         if (StringUtils.isNotBlank(context.getExternalContext().getRequestParameterMap().get("warn"))) {
-//             this.warnCookieGenerator.addCookie(response, "true");
-//         } else {
-//             this.warnCookieGenerator.removeCookie(response);
-//         }
-//     }
-//
-//     private void putPublicWorkstationToFlowIfRequestParameterPresent(final RequestContext context) {
-//         if (StringUtils.isNotBlank(context.getExternalContext()
-//                 .getRequestParameterMap().get(PUBLIC_WORKSTATION_ATTRIBUTE))) {
-//             context.getFlowScope().put(PUBLIC_WORKSTATION_ATTRIBUTE, Boolean.TRUE);
-//         }
-//     }
-//
-//     // /**
-//     //  * Verify whether the policy is accepted.
-//     //  *
-//     //  * @param context the context
-//     //  * @param credential the credential
-//     //  * @param messageContext the message context
-//     //  * @return success if policy is accepted. {@link #EVENT_ID_MUST_ACCEPT} otherwise.
-//     //  */
-// //     public Event verify(final RequestContext context, final Credential credential,
-// //                               final MessageContext messageContext)  {
-// //         final String key = credential.getId();
-// //         if (this.policyMap.containsKey(key)) {
-// //             final Boolean hasAcceptedPolicy = this.policyMap.get(key);
-// //             return hasAcceptedPolicy ? success() : accept();
-// //         }
-// //         return accept();
-// //     }
-// //
-// //     /**
-// //      * Record the fact that the policy is accepted.
-// //      *
-// //      * @param context the context
-// //      * @param credential the credential
-// //      * @param messageContext the message context
-// //      * @return success if policy acceptance is recorded successfully.
-// //      */
-// //     public Event submit(final RequestContext context, final Credential credential,
-// //                               final MessageContext messageContext)  {
-// //
-// //         // this.policyMap.put(credential.getId(), Boolean.TRUE);
-// //         return success();
-// //     }
-// //
-// //     /**
-// //      * Success event.
-// //      *
-// //      * @return the event
-// //      */
-// //     protected final Event success() {
-// //         return new EventFactorySupport().success(this);
-// //     }
-// //
-// //     /**
-// //      * Accept event signaled by id {@link #EVENT_ID_MUST_ACCEPT}.
-// //      *
-// //      * @return the event
-// //      */
-// //     protected final Event accept() {
-// //         return new EventFactorySupport().event(this, EVENT_ID_MUST_ACCEPT);
-// //     }
-// //
-// //     public final void setCentralAuthenticationService(final CentralAuthenticationService centralAuthenticationService) {
-// //         this.centralAuthenticationService = centralAuthenticationService;
-// //     }
-// // }
-// }
-//
-
-
-
 /*
  * Licensed to Apereo under one or more contributor license
  * agreements. See the NOTICE file distributed with this work
@@ -289,7 +57,7 @@ import java.util.Map;
  * @author Scott Battaglia
  * @since 3.0.0.4
  */
-public class MultiFactorAuthenticationFormAction {
+public class TotpAuthenticationViaFormAction {
 
     /** Authentication success result. */
     public static final String SUCCESS = "success";
@@ -336,8 +104,8 @@ public class MultiFactorAuthenticationFormAction {
      * @return the event
      * @since 4.1.0
      */
-    public final Event submit(final RequestContext context, final Credential credential,
-                              final MessageContext messageContext)  {
+    public final Event submit(final RequestContext context, final MessageContext messageContext,
+                              final Credential... credential)  {
         if (!checkLoginTicketIfExists(context)) {
             return returnInvalidLoginTicketEvent(context, messageContext);
         }
@@ -346,18 +114,31 @@ public class MultiFactorAuthenticationFormAction {
             return grantServiceTicket(context, credential);
         }
 
+        if (credential.length == 2) {
+            ((OneTimePasswordCredential)credential[1]).setId(credential[0].getId());
+        }
+
         return createTicketGrantingTicket(context, messageContext, credential);
     }
 
-    public final Event submitOneTimePassword(final RequestContext context, final Credential credential,
-        final Credential otpCredential, final MessageContext messageContext)  {
-        // OneTimePasswordCredential otp = (OneTimePasswordCredential)credential;
-        logger.warn("blah!!!2");
-        if (otpCredential != null) {
-            ((OneTimePasswordCredential)otpCredential).setId(credential.getId());
-        }
-        return createTicketGrantingTicket(context, messageContext, credential, otpCredential);
-    }
+    // public final Event submitOneTimePassword(final RequestContext context, final Credential credential,
+    //     final MessageContext messageContext)  {
+    //     // OneTimePasswordCredential otp = (OneTimePasswordCredential)credential;
+    //     // logger.warn("blah!!!2");
+    //     // if (otpCredential != null) {
+    //     //     ((OneTimePasswordCredential)otpCredential).setId(credential.getId());
+    //     // }
+    //     logger.warn("submitOneTimePassword - credential");
+    //     return createTicketGrantingTicket(context, messageContext, credential);
+    // }
+    //
+    // public final Event submitOneTimePassword(final RequestContext context, final Credential credential,
+    //     final Credential otpCredential, final MessageContext messageContext)  {
+    //     // OneTimePasswordCredential otp = (OneTimePasswordCredential)credential;
+    //     logger.warn("blah!!!2");
+    //     ((OneTimePasswordCredential)otpCredential).setId(credential.getId());
+    //     return createTicketGrantingTicket(context, messageContext, credential, otpCredential);
+    // }
 
 
     /**
@@ -417,7 +198,7 @@ public class MultiFactorAuthenticationFormAction {
      * @return the resulting event. Warning, authentication failure or error.
      * @since 4.1.0
      */
-    protected Event grantServiceTicket(final RequestContext context, final Credential credential) {
+    protected Event grantServiceTicket(final RequestContext context, final Credential... credential) {
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
         try {
             final Service service = WebUtils.getService(context);
@@ -461,13 +242,14 @@ public class MultiFactorAuthenticationFormAction {
             return newEvent(SUCCESS);
         } catch (final AuthenticationException e) {
             if (e.getHandlerSuccesses().size() == 0) {
-              logger.warn("auuuthh!!!1" + e);
+              logger.warn("createTicketGrantingTicket - AUTHENTICATION_FAILURE: " + e);
               return newEvent(AUTHENTICATION_FAILURE, e);
             }
-            logger.warn("auuuthh!!!2" + e);
+            // Generate exception for MFA OTP
+            logger.warn("createTicketGrantingTicket - SUCCESS (1 valid): " + e);
             return newEvent(SUCCESS);
         } catch (final Exception e) {
-            logger.warn("eerrr!!!2");
+            logger.warn("createTicketGrantingTicket - ERROR: " + e);
             return newEvent(ERROR, e);
         }
     }

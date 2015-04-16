@@ -22,8 +22,8 @@
 <div id="login" style="width: 100%;">
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
-        <h2>Multi-Factor Authentication</h2>
-        <div>
+        <h2>Time-based One-time Password Authentication</h2>
+        <%-- <div>
             The purpose of this policy is to establish acceptable and unacceptable use of electronic devices and network resources in conjunction with the established culture of ethical and lawful behavior, openness, trust, and integrity.
 
             <p>
@@ -31,7 +31,7 @@
             </p>
 
             <p>Click '<spring:message code="screen.aup.button.accept" />' to continue. Otherwise, click '<spring:message code="screen.aup.button.cancel" />'.</p>
-        </div>
+        </div> --%>
 
         <section class="row">
             <label for="password"><spring:message code="screen.welcome.label.password" /></label>

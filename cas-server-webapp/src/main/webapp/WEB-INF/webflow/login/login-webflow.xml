@@ -94,28 +94,27 @@
 	</view-state>
 
   <action-state id="realSubmit">
-    <!-- <evaluate expression="authenticationViaFormAction.submit(flowRequestContext, flowScope.credential, messageContext)" /> -->
-    <evaluate expression="multiFactorAuthenticationFormAction.submit(flowRequestContext, flowScope.credential, messageContext)" />
+    <evaluate expression="authenticationViaFormAction.submit(flowRequestContext, flowScope.credential, messageContext)" />
     <transition on="warn" to="warn" />
     <!--
     To enable AUP workflows, replace the 'success' transition with the following:
     <transition on="success" to="acceptableUsagePolicyCheck" />
     -->
     <!-- <transition on="success" to="sendTicketGrantingTicket" /> -->
-    <transition on="success" to="multiFactorAuthenticationCheck" />
+    <transition on="success" to="totpAuthenticationCheck" />
     <transition on="successWithWarnings" to="showMessages" />
     <transition on="authenticationFailure" to="handleAuthenticationFailure" />
     <transition on="error" to="generateLoginTicket" />
   </action-state>
 
-  <!-- Enable Multi-Factor Authentication flow -->
-  <action-state id="multiFactorAuthenticationCheck">
-    <evaluate expression="multiFactorAuthenticationFormAction.submitOneTimePassword(flowRequestContext, flowScope.credential, null, messageContext)" />
+  <!-- Enable Time-based One Time Password Authentication flow -->
+  <action-state id="totpAuthenticationCheck">
+    <evaluate expression="totpAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.credential)" />
     <transition on="success" to="sendTicketGrantingTicket" />
-    <transition to="multiFactorAuthenticationView" />
+    <transition to="totpAuthenticationView" />
   </action-state>
 
-  <view-state id="multiFactorAuthenticationView" view="casMultiFactorAuthenticationView" model="otpCredential">
+  <view-state id="totpAuthenticationView" view="casTotpAuthenticationView" model="otpCredential">
     <binder>
       <binding property="password" required="true" />
     </binder>
@@ -123,13 +122,13 @@
       <set name="viewScope.commandName" value="'otpCredential'" />
     </on-entry>
 		<!-- <transition on="submit" bind="true" validate="true" to="realSubmit" /> -->
-    <transition on="submit" to="mfaAcceptedAction" />
+    <transition on="submit" to="totpSubmitAction" />
     <transition to="generateLoginTicket" />
   </view-state>
 
-  <action-state id="mfaAcceptedAction">
-    <evaluate expression="multiFactorAuthenticationFormAction.submitOneTimePassword(flowRequestContext, flowScope.credential, flowScope.otpCredential, messageContext)" />
-    <transition on="error" to="multiFactorAuthenticationView" />
+  <action-state id="totpSubmitAction">
+    <evaluate expression="totpAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.credential, flowScope.otpCredential)" />
+    <transition on="error" to="totpAuthenticationView" />
     <transition on="success" to="sendTicketGrantingTicket" />
   </action-state>
 
