@@ -46,13 +46,14 @@
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- Authentication -->
-    <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager">
-          <!-- p:authenticationPolicy-ref="authenticationPolicy"> -->
+    <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager"
+          p:authenticationPolicy-ref="authenticationPolicy">
         <constructor-arg>
             <map>
-                <!-- <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" /> -->
-                <entry key-ref="usernamePasswordAuthenticationHandler" value-ref="primaryPrincipalResolver" />
-                <entry key-ref="otpAuthenticationHandler" value-ref="primaryPrincipalResolver" />
+                <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" />
+                <entry key-ref="osfAuthenticationHandler" value-ref="primaryPrincipalResolver" />
+                <!-- <entry key-ref="usernamePasswordAuthenticationHandler" value-ref="primaryPrincipalResolver" /> -->
+                <!-- <entry key-ref="otpAuthenticationHandler" value-ref="primaryPrincipalResolver" /> -->
             </map>
         </constructor-arg>
         <!-- <property name="authenticationMetaDataPopulators">
@@ -62,18 +63,19 @@
         </property> -->
     </bean>
 
-    <!-- <bean id="authenticationPolicy" class="org.jasig.cas.authentication.RequiredHandlerAuthenticationPolicy"
-          c:requiredHandlerName="usernamePasswordAuthenticationHandler"
-          p:tryAll="false" /> -->
+    <bean id="authenticationPolicy" class="org.jasig.cas.authentication.RequiredHandlerAuthenticationPolicy"
+          c:requiredHandlerName="osfAuthenticationHandler"
+          p:tryAll="true" />
 
-    <bean id="usernamePasswordAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.BCryptDatabaseAuthenticationHandler"
+    <bean id="osfAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.OSFDatabaseAuthenticationHandler"
           p:dataSource-ref="dataSource"
           p:tableUsers="users"
           p:fieldUser="username"
-          p:fieldPassword="password" />
+          p:fieldPassword="password"
+          p:fieldTotpSecretKey="totpsecretkey" />
 
-    <bean id="otpAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.TotpDatabaseAuthenticationHandler"
-          p:name="otpAuthenticationHandler" />
+    <!-- <bean id="otpAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.TotpDatabaseAuthenticationHandler"
+          p:name="otpAuthenticationHandler" /> -->
           <!-- p:ticketRegistry="ticketRegistry" /> -->
           <!-- p:dataSource-ref="dataSource"
           p:tableUsers="users"

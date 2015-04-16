@@ -51,7 +51,7 @@
         <artifactId>cas-server-support-jdbc</artifactId>
         <version>${project.version}</version>
         <type>jar</type>
-        <scope>runtime</scope>
+        <scope>compile</scope>
       </dependency>
       <!-- <dependency>
         <groupId>org.jasig.cas</groupId>
