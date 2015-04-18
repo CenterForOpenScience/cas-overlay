@@ -153,11 +153,9 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
         final OpenScienceFrameworkCredential that = (OpenScienceFrameworkCredential) o;
         if (username != null ? !username.equals(that.username) : that.username != null) {
             return false;
-        }
-        if (password != null ? !password.equals(that.password) : that.password != null) {
+        } else if (password != null ? !password.equals(that.password) : that.password != null) {
             return false;
-        }
-        if (oneTimePassword != null ? !oneTimePassword.equals(that.oneTimePassword) : that.oneTimePassword != null) {
+        } else if (oneTimePassword != null ? !oneTimePassword.equals(that.oneTimePassword) : that.oneTimePassword != null) {
             return false;
         }
         return true;

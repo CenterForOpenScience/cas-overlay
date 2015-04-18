@@ -285,7 +285,7 @@
   <modules>
     <module>cas-server-webapp</module>
     <!-- <module>cas-server-webapp-support</module> -->
-    <module>cas-server-support-jdbc</module>
+    <!--<module>cas-server-support-jdbc</module>-->
     <!-- <module>cas-management-webapp</module> -->
   </modules>
 

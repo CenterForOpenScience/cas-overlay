@@ -93,7 +93,8 @@
           <contextXml>${project.basedir}/src/test/resources/jetty-context.xml</contextXml>
           <scanIntervalSeconds>10</scanIntervalSeconds>
           <webApp>
-            <extraClasspath>target/classes;../cas-server-support-jdbc/target</extraClasspath>
+            <!--<extraClasspath>target/classes;../cas-server-support-jdbc/target</extraClasspath>-->
+            <extraClasspath>target/classes</extraClasspath>
             <contextPath>/cas</contextPath>
             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
           </webApp>
