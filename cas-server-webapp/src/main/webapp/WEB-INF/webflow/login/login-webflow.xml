@@ -25,6 +25,7 @@
                           http://www.springframework.org/schema/webflow/spring-webflow.xsd">
 
     <var name="usernamePasswordCredential" class="org.jasig.cas.authentication.UsernamePasswordCredential" />
+    <!-- One Time Password -->
     <var name="oneTimePasswordCredential" class="org.jasig.cas.authentication.OneTimePasswordCredential" />
     <on-start>
         <evaluate expression="initialFlowSetupAction" />
@@ -94,6 +95,7 @@
   </view-state>
 
   <action-state id="realSubmit">
+    <!-- One Time Password -->
     <!--<evaluate expression="authenticationViaFormAction.submit(flowRequestContext, flowScope.usernamePasswordCredential, messageContext)" />-->
     <evaluate expression="osfAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.usernamePasswordCredential, flowScope.oneTimePasswordCredential)" />
     <transition on="warn" to="warn" />
@@ -107,13 +109,7 @@
     <transition on="error" to="generateLoginTicket" />
   </action-state>
 
-  <!-- Enable Time-based One Time Password Authentication flow -->
-  <!-- <action-state id="otpAuthenticationCheck">
-    <evaluate expression="osfAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.usernamePasswordCredential)" />
-    <transition on="success" to="sendTicketGrantingTicket" />
-    <transition to="otpAuthenticationView" />
-  </action-state> -->
-
+  <!-- One Time Password -->
   <view-state id="casOtpLoginView" view="casOtpLoginView" model="oneTimePasswordCredential">
     <binder>
       <binding property="password" required="true" />
@@ -123,14 +119,6 @@
     </on-entry>
     <transition on="submit" bind="true" validate="true" to="realSubmit" />
   </view-state>
-
-  <!--<action-state id="otpSubmitAction">-->
-    <!--<evaluate expression="osfAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.usernamePasswordCredential, flowScope.oneTimePasswordCredential)" />-->
-    <!--<transition on="warn" to="warn" />-->
-    <!--<transition on="success" to="sendTicketGrantingTicket" />-->
-    <!--<transition on="successWithWarnings" to="showMessages" />-->
-    <!--<transition on="error" to="otpAuthenticationView" />-->
-  <!--</action-state>-->
 
   <!-- Enable AUP flow
   <action-state id="acceptableUsagePolicyCheck">
@@ -169,6 +157,7 @@
     <transition on="InvalidLoginTimeException" to="casBadHoursView"/>
     <transition on="FailedLoginException" to="generateLoginTicket"/>
     <transition on="AccountNotFoundException" to="generateLoginTicket"/>
+    <!-- One Time Password -->
     <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
     <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
     <transition on="UNKNOWN" to="generateLoginTicket"/>

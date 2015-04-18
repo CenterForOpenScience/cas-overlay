@@ -53,7 +53,6 @@
                 <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" />
                 <entry key-ref="osfAuthenticationHandler" value-ref="primaryPrincipalResolver" />
                  <!--<entry key-ref="usernamePasswordAuthenticationHandler" value-ref="primaryPrincipalResolver" />-->
-                <!-- <entry key-ref="otpAuthenticationHandler" value-ref="primaryPrincipalResolver" /> -->
             </map>
         </constructor-arg>
         <!-- <property name="authenticationMetaDataPopulators">
@@ -79,13 +78,6 @@
           p:fieldUser="username"
           p:fieldPassword="password"
           p:fieldTotpSecretKey="totpsecretkey" />
-
-    <!-- <bean id="otpAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.TotpDatabaseAuthenticationHandler"
-          p:name="otpAuthenticationHandler" /> -->
-          <!-- p:ticketRegistry="ticketRegistry" /> -->
-          <!-- p:dataSource-ref="dataSource"
-          p:tableUsers="users"
-          p:fieldUser="username" -->
 
     <bean id="primaryPrincipalResolver" class="org.jasig.cas.authentication.principal.PersonDirectoryPrincipalResolver"
           p:attributeRepository-ref="attributeRepository" />
