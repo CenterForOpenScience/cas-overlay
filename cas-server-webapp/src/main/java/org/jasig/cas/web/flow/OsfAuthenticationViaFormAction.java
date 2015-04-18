@@ -26,6 +26,8 @@ import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.authentication.OpenScienceFrameworkCredential;
+import org.jasig.cas.authentication.UsernamePasswordCredential;
 import org.jasig.cas.authentication.OneTimePasswordCredential;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.ServiceTicket;
@@ -44,6 +46,7 @@ import org.springframework.webflow.execution.RequestContext;
 // import org.jasig.cas.authentication.AuthenticationManager;
 
 
+import javax.security.auth.login.CredentialException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 // import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +60,7 @@ import java.util.Map;
  * @author Scott Battaglia
  * @since 3.0.0.4
  */
-public class TotpAuthenticationViaFormAction {
+public class OsfAuthenticationViaFormAction {
 
     /** Authentication success result. */
     public static final String SUCCESS = "success";
@@ -99,13 +102,27 @@ public class TotpAuthenticationViaFormAction {
      * Handle the submission of credentials from the post.
      *
      * @param context the context
-     * @param credential the credential
      * @param messageContext the message context
+     * @param usernamePasswordCredential the credential
      * @return the event
      * @since 4.1.0
      */
     public final Event submit(final RequestContext context, final MessageContext messageContext,
-                              final Credential... credential)  {
+                              final UsernamePasswordCredential usernamePasswordCredential)  {
+        OpenScienceFrameworkCredential credential = new OpenScienceFrameworkCredential(
+            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword());
+        return this.submit(context, messageContext, credential);
+    }
+
+    public final Event submit(final RequestContext context, final MessageContext messageContext,
+                              final UsernamePasswordCredential usernamePasswordCredential, OneTimePasswordCredential oneTimePasswordCredential)  {
+        OpenScienceFrameworkCredential credential = new OpenScienceFrameworkCredential(
+            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword(), oneTimePasswordCredential.getPassword());
+        return this.submit(context, messageContext, credential);
+    }
+
+    public final Event submit(final RequestContext context, final MessageContext messageContext,
+                              final OpenScienceFrameworkCredential credential)  {
         if (!checkLoginTicketIfExists(context)) {
             return returnInvalidLoginTicketEvent(context, messageContext);
         }
@@ -114,32 +131,8 @@ public class TotpAuthenticationViaFormAction {
             return grantServiceTicket(context, credential);
         }
 
-        if (credential.length == 2) {
-            ((OneTimePasswordCredential)credential[1]).setId(credential[0].getId());
-        }
-
         return createTicketGrantingTicket(context, messageContext, credential);
     }
-
-    // public final Event submitOneTimePassword(final RequestContext context, final Credential credential,
-    //     final MessageContext messageContext)  {
-    //     // OneTimePasswordCredential otp = (OneTimePasswordCredential)credential;
-    //     // logger.warn("blah!!!2");
-    //     // if (otpCredential != null) {
-    //     //     ((OneTimePasswordCredential)otpCredential).setId(credential.getId());
-    //     // }
-    //     logger.warn("submitOneTimePassword - credential");
-    //     return createTicketGrantingTicket(context, messageContext, credential);
-    // }
-    //
-    // public final Event submitOneTimePassword(final RequestContext context, final Credential credential,
-    //     final Credential otpCredential, final MessageContext messageContext)  {
-    //     // OneTimePasswordCredential otp = (OneTimePasswordCredential)credential;
-    //     logger.warn("blah!!!2");
-    //     ((OneTimePasswordCredential)otpCredential).setId(credential.getId());
-    //     return createTicketGrantingTicket(context, messageContext, credential, otpCredential);
-    // }
-
 
     /**
      * Tries to to determine if the login ticket in the request flow scope
@@ -220,6 +213,7 @@ public class TotpAuthenticationViaFormAction {
         return newEvent(ERROR);
 
     }
+
     /**
      * Create ticket granting ticket for the given credentials.
      * Adds all warnings into the message context.
@@ -230,7 +224,7 @@ public class TotpAuthenticationViaFormAction {
      * @return the resulting event.
      * @since 4.1.0
      */
-    protected Event createTicketGrantingTicket(final RequestContext context, final MessageContext messageContext, final Credential... credential) {
+    protected Event createTicketGrantingTicket(final RequestContext context, final MessageContext messageContext, final Credential credential) {
         try {
             final TicketGrantingTicket tgt = this.centralAuthenticationService.createTicketGrantingTicket(credential);
             WebUtils.putTicketGrantingTicketInScopes(context, tgt);
@@ -241,15 +235,8 @@ public class TotpAuthenticationViaFormAction {
             }
             return newEvent(SUCCESS);
         } catch (final AuthenticationException e) {
-            if (e.getHandlerSuccesses().size() == 0) {
-              logger.warn("createTicketGrantingTicket - AUTHENTICATION_FAILURE: " + e);
-              return newEvent(AUTHENTICATION_FAILURE, e);
-            }
-            // Generate exception for MFA OTP
-            logger.warn("createTicketGrantingTicket - SUCCESS (1 valid): " + e);
-            return newEvent(SUCCESS);
+            return newEvent(AUTHENTICATION_FAILURE, e);
         } catch (final Exception e) {
-            logger.warn("createTicketGrantingTicket - ERROR: " + e);
             return newEvent(ERROR, e);
         }
     }
@@ -273,6 +260,7 @@ public class TotpAuthenticationViaFormAction {
         return foundAndAddedWarnings;
 
     }
+
     /**
      * Put warn cookie if request parameter present.
      *
@@ -324,10 +312,6 @@ public class TotpAuthenticationViaFormAction {
     public final void setCentralAuthenticationService(final CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
     }
-
-    // public final void setAuthenticationManager(final AuthenticationManager authenticationManager) {
-    //     this.authenticationManager = authenticationManager;
-    // }
 
     public final void setWarnCookieGenerator(final CookieGenerator warnCookieGenerator) {
         this.warnCookieGenerator = warnCookieGenerator;

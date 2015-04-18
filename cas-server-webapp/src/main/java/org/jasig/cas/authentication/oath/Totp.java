@@ -37,6 +37,7 @@ public class Totp {
             Mac hmac;
             hmac = Mac.getInstance(crypto);
             SecretKeySpec macKey = new SecretKeySpec(keyBytes, "RAW");
+//            SecretKeySpec macKey = new SecretKeySpec(keyBytes, crypto);
             hmac.init(macKey);
             return hmac.doFinal(text);
         } catch (GeneralSecurityException gse) {

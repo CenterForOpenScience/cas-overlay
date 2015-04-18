@@ -24,8 +24,8 @@
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
                           http://www.springframework.org/schema/webflow/spring-webflow.xsd">
 
-    <var name="credential" class="org.jasig.cas.authentication.UsernamePasswordCredential" />
-    <var name="otpCredential" class="org.jasig.cas.authentication.OneTimePasswordCredential" />
+    <var name="usernamePasswordCredential" class="org.jasig.cas.authentication.UsernamePasswordCredential" />
+    <var name="oneTimePasswordCredential" class="org.jasig.cas.authentication.OneTimePasswordCredential" />
     <on-start>
         <evaluate expression="initialFlowSetupAction" />
     </on-start>
@@ -79,62 +79,62 @@
 
 	<action-state id="generateLoginTicket">
     <evaluate expression="generateLoginTicketAction.generate(flowRequestContext)" />
-		<transition on="generated" to="viewLoginForm" />
+      <transition on="generated" to="viewLoginForm" />
 	</action-state>
 
-	<view-state id="viewLoginForm" view="casLoginView" model="credential">
+  <view-state id="viewLoginForm" view="casLoginView" model="usernamePasswordCredential">
     <binder>
       <binding property="username" required="true" />
       <binding property="password" required="true"/>
     </binder>
     <on-entry>
-      <set name="viewScope.commandName" value="'credential'" />
+      <set name="viewScope.commandName" value="'usernamePasswordCredential'" />
     </on-entry>
-		<transition on="submit" bind="true" validate="true" to="realSubmit" />
-	</view-state>
+    <transition on="submit" bind="true" validate="true" to="realSubmit" />
+  </view-state>
 
   <action-state id="realSubmit">
-    <evaluate expression="authenticationViaFormAction.submit(flowRequestContext, flowScope.credential, messageContext)" />
+    <!--<evaluate expression="authenticationViaFormAction.submit(flowRequestContext, flowScope.usernamePasswordCredential, messageContext)" />-->
+    <evaluate expression="osfAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.usernamePasswordCredential, flowScope.oneTimePasswordCredential)" />
     <transition on="warn" to="warn" />
     <!--
     To enable AUP workflows, replace the 'success' transition with the following:
     <transition on="success" to="acceptableUsagePolicyCheck" />
     -->
-    <!-- <transition on="success" to="sendTicketGrantingTicket" /> -->
-    <transition on="success" to="totpAuthenticationCheck" />
+    <transition on="success" to="sendTicketGrantingTicket" />
     <transition on="successWithWarnings" to="showMessages" />
     <transition on="authenticationFailure" to="handleAuthenticationFailure" />
     <transition on="error" to="generateLoginTicket" />
   </action-state>
 
   <!-- Enable Time-based One Time Password Authentication flow -->
-  <action-state id="totpAuthenticationCheck">
-    <evaluate expression="totpAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.credential)" />
+  <!-- <action-state id="otpAuthenticationCheck">
+    <evaluate expression="osfAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.usernamePasswordCredential)" />
     <transition on="success" to="sendTicketGrantingTicket" />
-    <transition to="totpAuthenticationView" />
-  </action-state>
+    <transition to="otpAuthenticationView" />
+  </action-state> -->
 
-  <view-state id="totpAuthenticationView" view="casTotpAuthenticationView" model="otpCredential">
+  <view-state id="casOtpLoginView" view="casOtpLoginView" model="oneTimePasswordCredential">
     <binder>
       <binding property="password" required="true" />
     </binder>
     <on-entry>
-      <set name="viewScope.commandName" value="'otpCredential'" />
+      <set name="viewScope.commandName" value="'oneTimePasswordCredential'" />
     </on-entry>
-		<!-- <transition on="submit" bind="true" validate="true" to="realSubmit" /> -->
-    <transition on="submit" to="totpSubmitAction" />
-    <transition to="generateLoginTicket" />
+    <transition on="submit" bind="true" validate="true" to="realSubmit" />
   </view-state>
 
-  <action-state id="totpSubmitAction">
-    <evaluate expression="totpAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.credential, flowScope.otpCredential)" />
-    <transition on="error" to="totpAuthenticationView" />
-    <transition on="success" to="sendTicketGrantingTicket" />
-  </action-state>
+  <!--<action-state id="otpSubmitAction">-->
+    <!--<evaluate expression="osfAuthenticationViaFormAction.submit(flowRequestContext, messageContext, flowScope.usernamePasswordCredential, flowScope.oneTimePasswordCredential)" />-->
+    <!--<transition on="warn" to="warn" />-->
+    <!--<transition on="success" to="sendTicketGrantingTicket" />-->
+    <!--<transition on="successWithWarnings" to="showMessages" />-->
+    <!--<transition on="error" to="otpAuthenticationView" />-->
+  <!--</action-state>-->
 
   <!-- Enable AUP flow
   <action-state id="acceptableUsagePolicyCheck">
-    <evaluate expression="acceptableUsagePolicyFormAction.verify(flowRequestContext, flowScope.credential, messageContext)" />
+    <evaluate expression="acceptableUsagePolicyFormAction.verify(flowRequestContext, flowScope.usernamePasswordCredential, messageContext)" />
     <transition on="success" to="sendTicketGrantingTicket" />
     <transition to="acceptableUsagePolicyView" />
   </action-state>
@@ -145,7 +145,7 @@
   </view-state>
 
   <action-state id="aupAcceptedAction">
-    <evaluate expression="acceptableUsagePolicyFormAction.submit(flowRequestContext, flowScope.credential, messageContext)" />
+    <evaluate expression="acceptableUsagePolicyFormAction.submit(flowRequestContext, flowScope.usernamePasswordCredential, messageContext)" />
     <transition on="error" to="generateLoginTicket" />
     <transition on="success" to="sendTicketGrantingTicket" />
   </action-state>
@@ -169,6 +169,8 @@
     <transition on="InvalidLoginTimeException" to="casBadHoursView"/>
     <transition on="FailedLoginException" to="generateLoginTicket"/>
     <transition on="AccountNotFoundException" to="generateLoginTicket"/>
+    <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
+    <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
     <transition on="UNKNOWN" to="generateLoginTicket"/>
   </action-state>
 

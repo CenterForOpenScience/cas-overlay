@@ -65,5 +65,4 @@ public class TotpUtils {
         long currentTimeSeconds = System.currentTimeMillis() / 1000;
         return currentTimeSeconds / interval;
     }
-
 }

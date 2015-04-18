@@ -86,9 +86,10 @@
     <bean id="dataSource"
           class="org.apache.commons.dbcp2.BasicDataSource"
           p:driverClassName="org.postgresql.Driver"
-          p:url="jdbc:postgresql://${CAS_DB_PORT_5432_TCP_ADDR}:${CAS_DB_PORT_5432_TCP_PORT}/cas?autoReconnect=true"
+          p:url="jdbc:postgresql://127.0.0.1:5432/cas?autoReconnect=true"
           p:password=""
           p:username="postgres" />
+    <!--p:url="jdbc:postgresql://${CAS_DB_PORT_5432_TCP_ADDR}:${CAS_DB_PORT_5432_TCP_PORT}/cas?autoReconnect=true"-->
 
     <bean id="auditTrailManager" class="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" />
 </beans>

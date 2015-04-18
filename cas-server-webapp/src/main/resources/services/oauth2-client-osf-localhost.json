@@ -1,0 +1,10 @@
+{
+  "@class" : "org.jasig.cas.support.oauth.services.OAuthRegisteredService",
+  "id" : 1289001292032354,
+  "name" : "Open Science Framework (Testing)",
+  "description" : "OAuth Client Service URL",
+  "serviceId" : "http://localhost:5000/oauth/callback/googledrive/",
+  "bypassApprovalPrompt" : false,
+  "clientId" : "gJgfkHAtz_FSyUOBgWiki_hyaBsa",
+  "clientSecret" : "esiLUJc2idUh5HaikEK7EAjMDwIa"
+}

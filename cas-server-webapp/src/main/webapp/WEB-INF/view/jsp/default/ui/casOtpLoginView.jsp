@@ -19,10 +19,40 @@
 
 --%>
 <jsp:directive.include file="includes/top.jsp" />
+
+<c:if test="${not pageContext.request.secure}">
+    <div id="msg" class="errors">
+        <h2><spring:message code="screen.nonsecure.title" /></h2>
+        <p><spring:message code="screen.nonsecure.message" /></p>
+    </div>
+</c:if>
+
+<c:if test="${not empty registeredService}">
+    <c:set var="registeredServiceLogo" value="images/webapp.png"/>
+    <c:if test="${not empty registeredService.logo}">
+        <c:set var="registeredServiceLogo" value="${registeredService.logo}"/>
+    </c:if>
+
+    <div id="serviceui" class="serviceinfo">
+        <table>
+            <tr>
+                <td><img src="${registeredServiceLogo}"></td>
+                <td id="servicedesc">
+                    <h1>${fn:escapeXml(registeredService.name)}</h1>
+                    <p>${fn:escapeXml(registeredService.description)}</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <p/>
+</c:if>
+
 <div id="login" style="width: 100%;">
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
-        <h2>Time-based One-time Password Authentication</h2>
+        <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+
+        <h2>One-time Password Authentication</h2>
         <%-- <div>
             The purpose of this policy is to establish acceptable and unacceptable use of electronic devices and network resources in conjunction with the established culture of ethical and lawful behavior, openness, trust, and integrity.
 
@@ -44,6 +74,11 @@
             <spring:message code="screen.welcome.label.password.accesskey" var="passwordAccessKey" />
             <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password"  accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
             <span id="capslock-on" style="display:none;"><p><img src="images/warning.png" valign="top"> <spring:message code="screen.capslock.on" /></p></span>
+        </section>
+
+        <section class="row check">
+            <input id="warn" name="warn" value="true" tabindex="3" accesskey="<spring:message code="screen.welcome.label.warn.accesskey" />" type="checkbox" />
+            <label for="warn"><spring:message code="screen.welcome.label.warn" /></label>
         </section>
 
         <section class="row btn-row">

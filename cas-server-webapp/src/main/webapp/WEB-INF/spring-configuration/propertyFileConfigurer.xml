@@ -34,8 +34,8 @@
 		can be moved between tiers without modification.
 	</description>
 
-    <!-- <util:properties id="casProperties" location="${cas.properties.filepath:/WEB-INF/cas.properties}" /> -->
-    <util:properties id="casProperties" location="file:/etc/cas/cas.properties" />
+    <util:properties id="casProperties" location="${cas.properties.filepath:/WEB-INF/cas.properties}" />
+    <!--<util:properties id="casProperties" location="file:/etc/cas/cas.properties" />-->
 
     <context:property-placeholder properties-ref="casProperties" />
 

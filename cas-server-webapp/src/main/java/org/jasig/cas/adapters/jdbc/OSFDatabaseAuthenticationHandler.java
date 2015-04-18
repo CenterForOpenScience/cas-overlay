@@ -22,12 +22,12 @@ import java.security.GeneralSecurityException;
 
 import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.PreventedException;
+import org.jasig.cas.authentication.OneTimePasswordRequiredException;
+import org.jasig.cas.authentication.OneTimePasswordFailedLoginException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.UsernamePasswordCredential;
-import org.jasig.cas.authentication.OneTimePasswordCredential;
 import org.jasig.cas.authentication.OpenScienceFrameworkCredential;
 import org.jasig.cas.authentication.BasicCredentialMetaData;
-import org.jasig.cas.authentication.principal.SimplePrincipal;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -42,16 +42,17 @@ import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.FailedLoginException;
 import javax.validation.constraints.NotNull;
 
-import java.util.Map;
+import java.text.NumberFormat;
 import java.util.List;
 import org.jasig.cas.Message;
 import org.jasig.cas.authentication.principal.Principal;
 
 import org.jasig.cas.authentication.oath.TotpUtils;
+import java.lang.NumberFormatException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class OSFDatabaseAuthenticationHandler extends AbstractJdbcAuthenticationHandler
+public class OsfDatabaseAuthenticationHandler extends AbstractJdbcAuthenticationHandler
         implements InitializingBean {
 
     @NotNull
@@ -75,7 +76,8 @@ public class OSFDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
     @NotNull
     private String tableUsers;
 
-    private String sql;
+    private String sqlPassword;
+    private String sqlTotp;
 
     /**
      * {@inheritDoc}
@@ -104,9 +106,8 @@ public class OSFDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
         final String encryptedPassword;
         final String totpSecretKey;
         try {
-            final Map<String, String> result = getJdbcTemplate().queryForObject(this.sql, Map.class, username);
-            encryptedPassword = result.get(this.fieldPassword);
-            totpSecretKey = result.get(this.fieldTotpSecretKey);
+            encryptedPassword = getJdbcTemplate().queryForObject(this.sqlPassword, String.class, username);
+            totpSecretKey = getJdbcTemplate().queryForObject(this.sqlTotp, String.class, username);
         } catch (final IncorrectResultSizeDataAccessException e) {
             if (e.getActualSize() == 0) {
                 throw new AccountNotFoundException(username + " not found with SQL query");
@@ -116,39 +117,46 @@ public class OSFDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
         } catch (final DataAccessException e) {
             throw new PreventedException("SQL exception while executing query for " + username, e);
         }
+
         if (!BCrypt.checkpw(plainTextPassword, encryptedPassword)) {
             throw new FailedLoginException(username + " invalid password.");
         }
+
         if (totpSecretKey != null) {
-            Integer totpInterval = 0;
-            Integer totpIntervalWindow = 300;
+            Integer totpInterval = 30;
+            Integer totpIntervalWindow = 1;
+
+            if (oneTimePassword == null) {
+                throw new OneTimePasswordRequiredException("Time-based One Time Password Required");
+            }
 
             try {
                 if (!TotpUtils.checkCode(totpSecretKey, Long.valueOf(oneTimePassword), totpInterval, totpIntervalWindow)) {
-                    throw new FailedLoginException(username + " invalid time-based one time password.");
+                    throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
                 }
+            } catch (NumberFormatException ex) {
+                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
             } catch (NoSuchAlgorithmException ex) {
-                throw new FailedLoginException(username + " invalid time-based one time password.");
-                // logger.error(ex.getMessage());
-                // return false;
+                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
             } catch (InvalidKeyException ex) {
-                throw new FailedLoginException(username + " invalid time-based one time password.");
-                // logger.error(ex.getMessage());
-                // return false;
+                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
+            } catch (Exception ex) {
+                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
             }
         }
 
-        // if (totpSecret != null && Totp.checkpw(oneTimePassword, totpSecretKey, totpInterval, totpInervalWindow)) {
-        //     throw new FailedLoginException(username + " invalid time-based one time password.");
-        // }
         return createHandlerResult(credential, this.principalFactory.createPrincipal(username), null);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.sql = "SELECT " + this.fieldPassword + ", " + this.fieldTotpSecretKey +
+        this.sqlPassword = "SELECT " + this.fieldPassword +
             " FROM " + this.tableUsers +
             " WHERE LOWER(" + this.fieldUser + ") = LOWER(?) AND active = TRUE";
+
+        this.sqlTotp = "SELECT " + this.fieldTotpSecretKey +
+                " FROM " + this.tableUsers +
+                " WHERE LOWER(" + this.fieldUser + ") = LOWER(?) AND active = TRUE";
     }
 
 
@@ -191,7 +199,7 @@ public class OSFDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
     }
 
     /**
-     * @param fieldTotp The fieldTotpSecretKey to set.
+     * @param fieldTotpSecretKey The fieldTotpSecretKey to set.
      */
     public final void setFieldTotpSecretKey(final String fieldTotpSecretKey) {
         this.fieldTotpSecretKey = fieldTotpSecretKey;

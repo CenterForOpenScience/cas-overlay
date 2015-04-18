@@ -46,13 +46,13 @@
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <!-- Authentication -->
-    <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager"
-          p:authenticationPolicy-ref="authenticationPolicy">
+    <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager">
+          <!--p:authenticationPolicy-ref="authenticationPolicy">-->
         <constructor-arg>
             <map>
                 <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" />
                 <entry key-ref="osfAuthenticationHandler" value-ref="primaryPrincipalResolver" />
-                <!-- <entry key-ref="usernamePasswordAuthenticationHandler" value-ref="primaryPrincipalResolver" /> -->
+                 <!--<entry key-ref="usernamePasswordAuthenticationHandler" value-ref="primaryPrincipalResolver" />-->
                 <!-- <entry key-ref="otpAuthenticationHandler" value-ref="primaryPrincipalResolver" /> -->
             </map>
         </constructor-arg>
@@ -63,11 +63,17 @@
         </property> -->
     </bean>
 
-    <bean id="authenticationPolicy" class="org.jasig.cas.authentication.RequiredHandlerAuthenticationPolicy"
-          c:requiredHandlerName="osfAuthenticationHandler"
-          p:tryAll="true" />
+    <!--<bean id="authenticationPolicy" class="org.jasig.cas.authentication.RequiredHandlerAuthenticationPolicy"-->
+          <!--c:requiredHandlerName="osfAuthenticationHandler"-->
+          <!--p:tryAll="true" />-->
 
-    <bean id="osfAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.OSFDatabaseAuthenticationHandler"
+    <!--<bean id="usernamePasswordAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.BCryptDatabaseAuthenticationHandler"-->
+          <!--p:dataSource-ref="dataSource"-->
+          <!--p:tableUsers="users"-->
+          <!--p:fieldUser="username"-->
+          <!--p:fieldPassword="password" />-->
+
+    <bean id="osfAuthenticationHandler" class="org.jasig.cas.adaptors.jdbc.OsfDatabaseAuthenticationHandler"
           p:dataSource-ref="dataSource"
           p:tableUsers="users"
           p:fieldUser="username"
@@ -121,9 +127,10 @@
     <!-- Database -->
     <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
           p:driverClassName="org.postgresql.Driver"
-          p:url="jdbc:postgresql://${CAS_DB_PORT_5432_TCP_ADDR}:${CAS_DB_PORT_5432_TCP_PORT}/cas?target=master"
+          p:url="jdbc:postgresql://127.0.0.1:5432/cas?target=master"
           p:username="postgres"
           p:password="" />
+    <!--p:url="jdbc:postgresql://${CAS_DB_PORT_5432_TCP_ADDR}:${CAS_DB_PORT_5432_TCP_PORT}/cas?target=master"-->
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
 
