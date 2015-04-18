@@ -31,7 +31,6 @@ public class Totp {
      * @param text
      *            : the message or text to be authenticated
      */
-
     private static byte[] hmacSha(String crypto, byte[] keyBytes, byte[] text) {
         try {
             Mac hmac;
@@ -58,9 +57,7 @@ public class Totp {
      *
      * @return digits
      */
-
     public static int generateTotp(byte[] key, long time, int digits, String crypto) {
-
         byte[] msg = ByteBuffer.allocate(8).putLong(time).array();
         byte[] hash = hmacSha(crypto, key, msg);
 
@@ -69,9 +66,6 @@ public class Totp {
 
         int binary = ((hash[offset] & 0x7f) << 24) | ((hash[offset + 1] & 0xff) << 16) | ((hash[offset + 2] & 0xff) << 8) | (hash[offset + 3] & 0xff);
 
-        int otp = binary % DIGITS_POWER[digits];
-
-        return otp;
+        return binary % DIGITS_POWER[digits];
     }
-
 }

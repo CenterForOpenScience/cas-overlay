@@ -35,22 +35,15 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.jasig.cas.authentication.handler.NoOpPrincipalNameTransformer;
 import org.jasig.cas.authentication.handler.PrincipalNameTransformer;
 
-
-// import org.jasig.cas.adaptors.jdbc.AbstractJdbcUsernamePasswordAuthenticationHandler;
-
 import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.FailedLoginException;
 import javax.validation.constraints.NotNull;
 
-import java.text.NumberFormat;
 import java.util.List;
 import org.jasig.cas.Message;
 import org.jasig.cas.authentication.principal.Principal;
 
 import org.jasig.cas.authentication.oath.TotpUtils;
-import java.lang.NumberFormatException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 public class OsfDatabaseAuthenticationHandler extends AbstractJdbcAuthenticationHandler
         implements InitializingBean {
@@ -67,11 +60,11 @@ public class OsfDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
     @NotNull
     private String fieldTotpSecretKey;
 
-    // @NotNull
-    private String fieldTotpInterval;
+    @NotNull
+    private Integer totpInterval = 30;
 
-    // @NotNull
-    private String fieldTotpIntervalWindow;
+    @NotNull
+    private Integer totpIntervalWindow = 1;
 
     @NotNull
     private String tableUsers;
@@ -94,7 +87,6 @@ public class OsfDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
             throw new AccountNotFoundException("Transformed username is null.");
         }
         osfCredential.setUsername(transformedUsername);
-
         return authenticateInternal(osfCredential);
     }
 
@@ -117,34 +109,18 @@ public class OsfDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
         } catch (final DataAccessException e) {
             throw new PreventedException("SQL exception while executing query for " + username, e);
         }
-
         if (!BCrypt.checkpw(plainTextPassword, encryptedPassword)) {
             throw new FailedLoginException(username + " invalid password.");
         }
-
         if (totpSecretKey != null) {
-            Integer totpInterval = 30;
-            Integer totpIntervalWindow = 1;
-
             if (oneTimePassword == null) {
                 throw new OneTimePasswordRequiredException("Time-based One Time Password Required");
             }
 
-            try {
-                if (!TotpUtils.checkCode(totpSecretKey, Long.valueOf(oneTimePassword), totpInterval, totpIntervalWindow)) {
-                    throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
-                }
-            } catch (NumberFormatException ex) {
-                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
-            } catch (NoSuchAlgorithmException ex) {
-                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
-            } catch (InvalidKeyException ex) {
-                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
-            } catch (Exception ex) {
+            if (!TotpUtils.checkCode(totpSecretKey, Long.valueOf(oneTimePassword), this.totpInterval, this.totpIntervalWindow)) {
                 throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
             }
         }
-
         return createHandlerResult(credential, this.principalFactory.createPrincipal(username), null);
     }
 
@@ -155,10 +131,9 @@ public class OsfDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
             " WHERE LOWER(" + this.fieldUser + ") = LOWER(?) AND active = TRUE";
 
         this.sqlTotp = "SELECT " + this.fieldTotpSecretKey +
-                " FROM " + this.tableUsers +
-                " WHERE LOWER(" + this.fieldUser + ") = LOWER(?) AND active = TRUE";
+            " FROM " + this.tableUsers +
+            " WHERE LOWER(" + this.fieldUser + ") = LOWER(?) AND active = TRUE";
     }
-
 
     /**
      * Helper method to construct a handler result
@@ -174,10 +149,6 @@ public class OsfDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
     protected final HandlerResult createHandlerResult(final Credential credential, final Principal principal,
             final List<Message> warnings) {
         return new HandlerResult(this, new BasicCredentialMetaData(credential), principal, warnings);
-    }
-
-    protected final PrincipalNameTransformer getPrincipalNameTransformer() {
-        return this.principalNameTransformer;
     }
 
     public final void setPrincipalNameTransformer(final PrincipalNameTransformer principalNameTransformer) {
@@ -203,6 +174,20 @@ public class OsfDatabaseAuthenticationHandler extends AbstractJdbcAuthentication
      */
     public final void setFieldTotpSecretKey(final String fieldTotpSecretKey) {
         this.fieldTotpSecretKey = fieldTotpSecretKey;
+    }
+
+    /**
+     * @param totpInterval The totpInterval to set.
+     */
+    public final void setTotpInterval(final Integer totpInterval) {
+        this.totpInterval = totpInterval;
+    }
+
+     /**
+     * @param totpIntervalWindow The totpIntervalWindow to set.
+     */
+    public final void setTotpIntervalWindow(final Integer totpIntervalWindow) {
+        this.totpIntervalWindow = totpIntervalWindow;
     }
 
     /**

@@ -43,13 +43,11 @@ import org.springframework.web.util.CookieGenerator;
 import org.springframework.webflow.core.collection.LocalAttributeMap;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-// import org.jasig.cas.authentication.AuthenticationManager;
 
 
-import javax.security.auth.login.CredentialException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-// import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.Map;
 
 /**
@@ -84,19 +82,11 @@ public class OsfAuthenticationViaFormAction {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /** Core we delegate to for handling all ticket related tasks. */
-    // @NotNull
-    // private CentralAuthenticationService centralAuthenticationService;
-    // @Autowired
     @NotNull
     private CentralAuthenticationService centralAuthenticationService;
 
-    // @Autowired
-    // @NotNull
-    // private AuthenticationManager authenticationManager;
-
     @NotNull
     private CookieGenerator warnCookieGenerator;
-
 
     /**
      * Handle the submission of credentials from the post.
@@ -211,7 +201,6 @@ public class OsfAuthenticationViaFormAction {
             return newEvent(ERROR, e);
         }
         return newEvent(ERROR);
-
     }
 
     /**

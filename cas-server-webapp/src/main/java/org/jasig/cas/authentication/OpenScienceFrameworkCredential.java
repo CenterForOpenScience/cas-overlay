@@ -59,12 +59,13 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
     private String oneTimePassword;
 
     /** Default constructor. */
-    public OpenScienceFrameworkCredential() {}
+    public OpenScienceFrameworkCredential() {
+    }
 
     /**
      * Creates a new instance with the given username and password.
      *
-     * @param userName Non-null user name.
+     * @param username Non-null user name.
      * @param password Non-null password.
      */
     public OpenScienceFrameworkCredential(final String username, final String password) {
@@ -74,7 +75,7 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
     /**
      * Creates a new instance with the given username and password.
      *
-     * @param userName Non-null user name.
+     * @param username Non-null user name.
      * @param password Non-null password.
      */
     public OpenScienceFrameworkCredential(final String username, final String password, final String oneTimePassword) {
@@ -91,7 +92,7 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
     }
 
     /**
-     * @param userName The userName to set.
+     * @param username The userName to set.
      */
     public final void setUsername(final String username) {
         this.username = username;
@@ -119,7 +120,7 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
     }
 
     /**
-     * @param password The One Time Password to set.
+     * @param oneTimePassword The One Time Password to set.
      */
     public final void setOneTimePassword(final String oneTimePassword) {
         this.oneTimePassword = oneTimePassword;
@@ -149,21 +150,16 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final OpenScienceFrameworkCredential that = (OpenScienceFrameworkCredential) o;
-
         if (username != null ? !username.equals(that.username) : that.username != null) {
             return false;
         }
-
         if (password != null ? !password.equals(that.password) : that.password != null) {
             return false;
         }
-
         if (oneTimePassword != null ? !oneTimePassword.equals(that.oneTimePassword) : that.oneTimePassword != null) {
             return false;
         }
-
         return true;
     }
 
@@ -172,7 +168,7 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
         return new HashCodeBuilder()
                 .append(username)
                 .append(password)
-                // .append(oneTimePassword)
+                .append(oneTimePassword)
                 .toHashCode();
     }
 
