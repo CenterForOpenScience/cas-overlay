@@ -1,7 +1,0 @@
-{
-  "@class" : "org.jasig.cas.services.RegexRegisteredService",
-  "id" : 23897492873423934,
-  "name" : "Test Auth",
-  "description" : "Test Auth",
-  "serviceId" : "^http://localhost:5000/"
-}
