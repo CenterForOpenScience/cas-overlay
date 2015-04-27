@@ -3,5 +3,5 @@
   "id" : 23897492873423934,
   "name" : "OSF Local Development",
   "description" : "",
-  "serviceId" : "^https?://localhost:5000/.*"
+  "serviceId" : "^https?://localhost:500/d/.*"
 }
