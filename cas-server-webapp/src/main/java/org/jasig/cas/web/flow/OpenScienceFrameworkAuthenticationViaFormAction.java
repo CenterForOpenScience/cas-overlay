@@ -58,7 +58,7 @@ import java.util.Map;
  * @author Scott Battaglia
  * @since 3.0.0.4
  */
-public class OsfAuthenticationViaFormAction {
+public class OpenScienceFrameworkAuthenticationViaFormAction {
 
     /** Authentication success result. */
     public static final String SUCCESS = "success";

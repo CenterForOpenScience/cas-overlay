@@ -39,7 +39,7 @@ import java.util.List;
  * @author Michael Haselton
  * @since 4.0.0
  */
-public class OsfAuthenticationExceptionHandler extends AuthenticationExceptionHandler {
+public class OpenScienceFrameworkAuthenticationExceptionHandler extends AuthenticationExceptionHandler {
 
     /** Default list of errors this class knows how to handle. */
     private static final List<Class<? extends Exception>> DEFAULT_ERROR_LIST =

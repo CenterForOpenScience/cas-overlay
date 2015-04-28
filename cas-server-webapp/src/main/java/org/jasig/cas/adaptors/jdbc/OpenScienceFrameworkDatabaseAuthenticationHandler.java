@@ -45,7 +45,7 @@ import org.jasig.cas.authentication.principal.Principal;
 
 import org.jasig.cas.authentication.oath.TotpUtils;
 
-public class OsfDatabaseAuthenticationHandler extends AbstractJdbcAuthenticationHandler
+public class OpenScienceFrameworkDatabaseAuthenticationHandler extends AbstractJdbcAuthenticationHandler
         implements InitializingBean {
 
     @NotNull
