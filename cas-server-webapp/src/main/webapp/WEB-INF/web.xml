@@ -34,7 +34,8 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>
             /WEB-INF/spring-configuration/*.xml
-            /WEB-INF/deployerConfigContext.xml
+            <!-- Deployer Config Context was split into multiple spring-configuration files to simplify readability -->
+            <!--/WEB-INF/deployerConfigContext.xml-->
             <!-- this enables extensions and addons to contribute to overall CAS' application context
                  by loading spring context files from classpath i.e. found in classpath jars, etc. -->
             classpath*:/META-INF/spring/*.xml

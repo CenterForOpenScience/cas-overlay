@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to Jasig under one or more contributor license
+    agreements. See the NOTICE file distributed with this work
+    for additional information regarding copyright ownership.
+    Jasig licenses this file to you under the Apache License,
+    Version 2.0 (the "License"); you may not use this file
+    except in compliance with the License.  You may obtain a
+    copy of the License at the following location:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager">
+        <constructor-arg>
+            <map>
+                <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" />
+                <entry key-ref="openScienceFrameworkAuthenticationHandler" value-ref="primaryPrincipalResolver" />
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="openScienceFrameworkAuthenticationHandler" class="org.jasig.cas.adaptors.mongodb.OpenScienceFrameworkAuthenticationHandler"
+          p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
+
+    <bean id="primaryPrincipalResolver" class="org.jasig.cas.authentication.principal.PersonDirectoryPrincipalResolver"
+          p:principalAttributeName="username"
+          p:attributeRepository-ref="attributeRepository"
+          p:returnNullIfNoAttributes="true" />
+
+    <!-- Required for proxy ticket mechanism. -->
+    <bean id="proxyAuthenticationHandler" class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
+          p:httpClient-ref="noRedirectHttpClient"
+          p:requireSecure="${proxyAuth.requireSecure:true}" />
+
+    <bean id="proxyPrincipalResolver" class="org.jasig.cas.authentication.principal.BasicPrincipalResolver" />
+
+    <!-- Attribute Repository -->
+    <bean id="attributeRepository" class="org.jasig.services.persondir.support.jdbc.SingleRowJdbcPersonAttributeDao"
+          c:ds-ref="dataSource"
+          c:sql="SELECT * FROM userdata WHERE {0}"
+          p:queryAttributeMapping-ref="queryAttributeMapping"
+          p:resultAttributeMapping-ref="resultAttributeMapping" />
+
+    <util:map id="queryAttributeMapping">
+        <entry key="username" value="uid" />
+    </util:map>
+
+    <util:map id="resultAttributeMapping">
+        <entry key="uid" value="username" />
+        <entry key="first_name" value="first_name" />
+        <entry key="last_name" value="last_name" />
+        <entry key="email" value="email" />
+    </util:map>
+</beans>

@@ -247,6 +247,13 @@
         <version>${postgresql.version}</version>
         <type>jar</type>
       </dependency>
+
+      <!-- MongoDB -->
+      <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-mongodb</artifactId>
+        <version>${spring.data.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -294,6 +301,7 @@
     <spring.webflow.version>2.4.1.RELEASE</spring.webflow.version>
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>
+    <spring.data.version>1.7.0.RELEASE</spring.data.version>
     <commons.dbcp2.version>2.1</commons.dbcp2.version>
     <hibernate.core.version>4.3.8.Final</hibernate.core.version>
     <slf4j.version>1.7.10</slf4j.version>

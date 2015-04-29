@@ -16,9 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.adaptors.jdbc;
+package org.jasig.cas.adaptors.mongodb;
 
 import java.security.GeneralSecurityException;
+
+import org.bson.types.ObjectId;
+import org.apache.commons.codec.binary.Base32;
 
 import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.PreventedException;
@@ -28,53 +31,95 @@ import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.UsernamePasswordCredential;
 import org.jasig.cas.authentication.OpenScienceFrameworkCredential;
 import org.jasig.cas.authentication.BasicCredentialMetaData;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.jasig.cas.authentication.handler.NoOpPrincipalNameTransformer;
 import org.jasig.cas.authentication.handler.PrincipalNameTransformer;
+import org.jasig.cas.authentication.handler.support.AbstractPreAndPostProcessingAuthenticationHandler;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.FailedLoginException;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.DatatypeConverter;
 
 import java.util.List;
 import org.jasig.cas.Message;
 import org.jasig.cas.authentication.principal.Principal;
 
 import org.jasig.cas.authentication.oath.TotpUtils;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
-public class OpenScienceFrameworkDatabaseAuthenticationHandler extends AbstractJdbcAuthenticationHandler
+public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPostProcessingAuthenticationHandler
         implements InitializingBean {
 
     @NotNull
     private PrincipalNameTransformer principalNameTransformer = new NoOpPrincipalNameTransformer();
 
     @NotNull
-    private String fieldUser;
+    private MongoOperations mongoTemplate;
 
-    @NotNull
-    private String fieldPassword;
+    @Document(collection="user")
+    private class User {
+        @Id
+        private String id;
+        private String username;
+        private String password;
 
-    @NotNull
-    private String fieldTotpSecretKey;
+        public String getUsername() {
+            return this.username;
+        }
 
-    @NotNull
-    private Integer totpInterval = 30;
+        public void setUsername(String username) {
+            this.username = username;
+        }
 
-    @NotNull
-    private Integer totpIntervalWindow = 1;
+        public String getPassword() {
+            return this.password;
+        }
 
-    @NotNull
-    private String tableUsers;
+        public void setPassword(String password) {
+            this.password = password;
+        }
 
-    private String sqlPassword;
-    private String sqlTotp;
+        @Override
+        public String toString() {
+            return "User [id=" + this.id + ", username=" + this.username + "]";
+        }
+    }
 
-    /**
-     * {@inheritDoc}
-     **/
+    @Document(collection="twofactorusersettings")
+    private class TimeBasedOneTimePassword {
+        @Id
+        private ObjectId id;
+        @Field("totp_secret")
+        private String totpSecret;
+
+        public String getTotpSecret() {
+            return this.totpSecret;
+        }
+
+        public void setTotpSecret(String totpSecret) {
+            this.totpSecret = totpSecret;
+        }
+
+        public String getTotpSecretBase32() {
+            byte[] bytes = DatatypeConverter.parseHexBinary(this.totpSecret);
+            return new Base32().encodeAsString(bytes);
+        }
+
+        @Override
+        public String toString() {
+            return "TimeBasedOneTimePassword [id=" + this.id + "]";
+        }
+    }
+
     @Override
     protected final HandlerResult doAuthentication(final Credential credential)
             throws GeneralSecurityException, PreventedException {
@@ -95,44 +140,43 @@ public class OpenScienceFrameworkDatabaseAuthenticationHandler extends AbstractJ
         final String username = credential.getUsername();
         final String plainTextPassword = credential.getPassword();
         final String oneTimePassword = credential.getOneTimePassword();
-        final String encryptedPassword;
-        final String totpSecretKey;
-        try {
-            encryptedPassword = getJdbcTemplate().queryForObject(this.sqlPassword, String.class, username);
-            totpSecretKey = getJdbcTemplate().queryForObject(this.sqlTotp, String.class, username);
-        } catch (final IncorrectResultSizeDataAccessException e) {
-            if (e.getActualSize() == 0) {
-                throw new AccountNotFoundException(username + " not found with SQL query");
-            } else {
-                throw new FailedLoginException("Multiple records found for " + username);
-            }
-        } catch (final DataAccessException e) {
-            throw new PreventedException("SQL exception while executing query for " + username, e);
-        }
-        if (!BCrypt.checkpw(plainTextPassword, encryptedPassword)) {
-            throw new FailedLoginException(username + " invalid password.");
-        }
-        if (totpSecretKey != null) {
-            if (oneTimePassword == null) {
-                throw new OneTimePasswordRequiredException("Time-based One Time Password Required");
-            }
 
-            if (!TotpUtils.checkCode(totpSecretKey, Long.valueOf(oneTimePassword), this.totpInterval, this.totpIntervalWindow)) {
-                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password.");
+        User user = this.mongoTemplate.findOne(new Query(Criteria
+            .where("username").is(username)
+            .and("is_registered").is(true)
+            .and("password").ne(null)
+            .and("merged_by").is(null) // is_merged = false
+            .and("date_disabled").is(null) // is_disabled = false
+            .and("date_confirmed").ne(null) // is_confirmed = true
+        ), User.class);
+
+        if (user == null) {
+            throw new AccountNotFoundException(username + " not found with query");
+        }
+        if (!BCrypt.checkpw(plainTextPassword, user.password)) {
+            throw new FailedLoginException(username + " invalid password");
+        }
+
+        TimeBasedOneTimePassword totp = this.mongoTemplate.findOne(new Query(Criteria
+            .where("owner").is(user.id)
+            .and("is_confirmed").is(true)
+            .and("deleted").is(false)
+        ), TimeBasedOneTimePassword.class);
+
+        if (totp != null && totp.totpSecret != null) {
+            if (oneTimePassword == null) {
+                throw new OneTimePasswordRequiredException("Time-based One Time Password required");
+            }
+            if (!TotpUtils.checkCode(totp.getTotpSecretBase32(), Long.valueOf(oneTimePassword), 30, 1)) {
+                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password");
             }
         }
+
         return createHandlerResult(credential, this.principalFactory.createPrincipal(username), null);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.sqlPassword = "SELECT " + this.fieldPassword +
-            " FROM " + this.tableUsers +
-            " WHERE LOWER(" + this.fieldUser + ") = LOWER(?) AND active = TRUE";
-
-        this.sqlTotp = "SELECT " + this.fieldTotpSecretKey +
-            " FROM " + this.tableUsers +
-            " WHERE LOWER(" + this.fieldUser + ") = LOWER(?) AND active = TRUE";
     }
 
     /**
@@ -155,46 +199,8 @@ public class OpenScienceFrameworkDatabaseAuthenticationHandler extends AbstractJ
         this.principalNameTransformer = principalNameTransformer;
     }
 
-    /**
-     * @param fieldPassword The fieldPassword to set.
-     */
-    public final void setFieldPassword(final String fieldPassword) {
-        this.fieldPassword = fieldPassword;
-    }
-
-    /**
-     * @param fieldUser The fieldUser to set.
-     */
-    public final void setFieldUser(final String fieldUser) {
-        this.fieldUser = fieldUser;
-    }
-
-    /**
-     * @param fieldTotpSecretKey The fieldTotpSecretKey to set.
-     */
-    public final void setFieldTotpSecretKey(final String fieldTotpSecretKey) {
-        this.fieldTotpSecretKey = fieldTotpSecretKey;
-    }
-
-    /**
-     * @param totpInterval The totpInterval to set.
-     */
-    public final void setTotpInterval(final Integer totpInterval) {
-        this.totpInterval = totpInterval;
-    }
-
-     /**
-     * @param totpIntervalWindow The totpIntervalWindow to set.
-     */
-    public final void setTotpIntervalWindow(final Integer totpIntervalWindow) {
-        this.totpIntervalWindow = totpIntervalWindow;
-    }
-
-    /**
-     * @param tableUsers The tableUsers to set.
-     */
-    public final void setTableUsers(final String tableUsers) {
-        this.tableUsers = tableUsers;
+    public final void setMongoTemplate(final MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
     }
 
     /**
