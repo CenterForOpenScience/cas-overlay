@@ -311,7 +311,7 @@
   <!-- OSF -->
   <bean id="osfAuthenticationViaFormAction" class="org.jasig.cas.web.flow.OpenScienceFrameworkAuthenticationViaFormAction"
         p:centralAuthenticationService-ref="centralAuthenticationService"
-        p:warnCookieGenerator-ref="warnCookieGenerator"/>
+        p:warnCookieGenerator-ref="warnCookieGenerator" />
 
   <!-- OAuth2 -->
   <bean id="oauth20WrapperController" class="org.jasig.cas.support.oauth.web.OAuth20WrapperController"

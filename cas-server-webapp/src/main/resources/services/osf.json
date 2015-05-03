@@ -1,0 +1,12 @@
+{
+  "@class" : "org.jasig.cas.services.RegexRegisteredService",
+  "id" : 23897492873423934,
+  "name" : "",
+  "description" : "",
+  "serviceId" : "^https?://localhost:500[0-9]/.*",
+  "logo": "",
+  "attributeReleasePolicy" : {
+    "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+    "allowedAttributes" : [ "java.util.ArrayList", [ "username", "givenName", "familyName" ] ]
+  }
+}

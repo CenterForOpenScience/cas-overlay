@@ -18,6 +18,7 @@
  */
 package org.jasig.cas.adaptors.mongodb;
 
+import java.io.Serializable;
 import java.security.GeneralSecurityException;
 
 import org.bson.types.ObjectId;
@@ -48,7 +49,8 @@ import javax.security.auth.login.FailedLoginException;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.DatatypeConverter;
 
-import java.util.List;
+import java.util.*;
+
 import org.jasig.cas.Message;
 import org.jasig.cas.authentication.principal.Principal;
 
@@ -71,6 +73,10 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         private String id;
         private String username;
         private String password;
+        @Field("given_name")
+        private String givenName;
+        @Field("family_name")
+        private String familyName;
 
         public String getUsername() {
             return this.username;
@@ -86,6 +92,22 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public String getGivenName() {
+            return this.givenName;
+        }
+
+        public void setGivenName(String givenName) {
+            this.givenName = givenName;
+        }
+
+        public String getFamilyName() {
+            return this.familyName;
+        }
+
+        public void setFamilyName(String familyName) {
+            this.familyName = familyName;
         }
 
         @Override
@@ -141,7 +163,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String plainTextPassword = credential.getPassword();
         final String oneTimePassword = credential.getOneTimePassword();
 
-        User user = this.mongoTemplate.findOne(new Query(Criteria
+        final User user = this.mongoTemplate.findOne(new Query(Criteria
             .where("username").is(username)
             .and("is_registered").is(true)
             .and("password").ne(null)
@@ -150,6 +172,23 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             .and("date_confirmed").ne(null) // is_confirmed = true
         ), User.class);
 
+        // TODO: Don't filter user out immediately, rather review user state and
+        // respond with a proper exception
+        // OpenScienceFrameworkFailedLoginUnreigsteredException
+        /*
+            if not user.is_registered:
+                raise LoginNotAllowedError('User is not registered.')
+
+            if not user.is_claimed:
+                raise LoginNotAllowedError('User is not claimed.')
+
+            if user.is_merged:
+                raise LoginNotAllowedError('Cannot log in to a merged user.')
+
+            if user.is_disabled:
+                raise LoginDisabledError('User is disabled.')
+         */
+
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");
         }
@@ -157,22 +196,29 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             throw new FailedLoginException(username + " invalid password");
         }
 
-        TimeBasedOneTimePassword totp = this.mongoTemplate.findOne(new Query(Criteria
+        TimeBasedOneTimePassword timeBasedOneTimePassword = this.mongoTemplate.findOne(new Query(Criteria
             .where("owner").is(user.id)
             .and("is_confirmed").is(true)
             .and("deleted").is(false)
         ), TimeBasedOneTimePassword.class);
 
-        if (totp != null && totp.totpSecret != null) {
+        if (timeBasedOneTimePassword != null && timeBasedOneTimePassword.totpSecret != null) {
             if (oneTimePassword == null) {
                 throw new OneTimePasswordRequiredException("Time-based One Time Password required");
             }
-            if (!TotpUtils.checkCode(totp.getTotpSecretBase32(), Long.valueOf(oneTimePassword), 30, 1)) {
+            try {
+                if (!TotpUtils.checkCode(timeBasedOneTimePassword.getTotpSecretBase32(), Long.valueOf(oneTimePassword), 30, 1)) {
+                    throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password");
+                }
+            } catch (Exception ex) {
                 throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password");
             }
         }
 
-        return createHandlerResult(credential, this.principalFactory.createPrincipal(username), null);
+        final Map<String, Object> attributes = new HashMap<>();
+        attributes.put("givenName", user.givenName);
+        attributes.put("familyName", user.familyName);
+        return createHandlerResult(credential, this.principalFactory.createPrincipal(username, attributes), null);
     }
 
     @Override

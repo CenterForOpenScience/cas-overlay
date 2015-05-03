@@ -49,8 +49,7 @@ if (auto != null && auto.equals("true")) {
 } else {
 %>
 <jsp:directive.include file="includes/top.jsp" />
-
-<c:if test="${not pageContext.request.secure}">
+<c:if test="${not pageContext.request.secure && casProperties['tgc.cookie.secure']}">
     <div id="msg" class="errors">
         <h2><spring:message code="screen.nonsecure.title" /></h2>
         <p><spring:message code="screen.nonsecure.message" /></p>
@@ -58,31 +57,35 @@ if (auto != null && auto.equals("true")) {
 </c:if>
 
 <c:if test="${not empty registeredService}">
-    <c:set var="registeredServiceLogo" value="images/webapp.png"/>
+    <%-- <c:set var="registeredServiceLogo" value="images/webapp.png"/> --%>
     <c:if test="${not empty registeredService.logo}">
         <c:set var="registeredServiceLogo" value="${registeredService.logo}"/>
     </c:if>
 
-    <div id="serviceui" class="serviceinfo">
-        <table>
-            <tr>
-                <td><img src="${registeredServiceLogo}"></td>
-                <td id="servicedesc">
-                    <h1>${fn:escapeXml(registeredService.name)}</h1>
-                    <p>${fn:escapeXml(registeredService.description)}</p>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <p/>
+    <c:if test="${not empty registeredService.logo || not empty registeredService.name}">
+        <div id="serviceui" class="serviceinfo">
+            <table>
+                <tr>
+                    <c:if test="${not empty registeredService.logo}">
+                        <td><img src="${registeredServiceLogo}"></td>
+                    </c:if>
+                    <c:if test="${not empty registeredService.name}">
+                        <td id="servicedesc">
+                            <h1>${fn:escapeXml(registeredService.name)}</h1>
+                            <p>${fn:escapeXml(registeredService.description)}</p>
+                        </td>
+                    </c:if>
+                </tr>
+            </table>
+        </div>
+        <p/>
+    </c:if>
 </c:if>
 
 <div class="box" id="login">
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
-        <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false" />
-
-        <h2><spring:message code="screen.welcome.instructions" /></h2>
+        <%-- <h2><spring:message code="screen.welcome.instructions" /></h2> --%>
 
         <section class="row">
             <label for="username"><spring:message code="screen.welcome.label.netid" /></label>
@@ -111,9 +114,16 @@ if (auto != null && auto.equals("true")) {
             <span id="capslock-on" style="display:none;"><p><img src="images/warning.png" valign="top"> <spring:message code="screen.capslock.on" /></p></span>
         </section>
 
-        <section class="row check">
+        <%-- <section class="row check">
             <input id="warn" name="warn" value="true" tabindex="3" accesskey="<spring:message code="screen.welcome.label.warn.accesskey" />" type="checkbox" />
             <label for="warn"><spring:message code="screen.welcome.label.warn" /></label>
+        </section> --%>
+
+        <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+
+        <section class="row">
+            <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')" />
+            <a id="forgot-password" href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
         </section>
 
         <section class="row btn-row">
@@ -122,12 +132,12 @@ if (auto != null && auto.equals("true")) {
             <input type="hidden" name="_eventId" value="submit" />
 
             <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.login" />" tabindex="4" type="submit" />
-            <input class="btn-reset" name="reset" accesskey="c" value="<spring:message code="screen.welcome.button.clear" />" tabindex="5" type="reset" />
+            <%-- <input class="btn-reset" name="reset" accesskey="c" value="<spring:message code="screen.welcome.button.clear" />" tabindex="5" type="reset" /> --%>
         </section>
     </form:form>
 </div>
 
-<div id="sidebar">
+<%-- <div id="sidebar">
     <div class="sidebar-content">
         <p><spring:message code="screen.welcome.security" /></p>
 
@@ -198,7 +208,7 @@ if (auto != null && auto.equals("true")) {
             </c:choose>
         </div>
     </div>
-</div>
+</div> --%>
 
 <jsp:directive.include file="includes/bottom.jsp" />
 <%

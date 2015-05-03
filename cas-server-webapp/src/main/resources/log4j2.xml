@@ -58,6 +58,8 @@
         <Logger name="org.springframework.web" level="warn" />
         <Logger name="org.springframework.security" level="warn" />
 
+        <Logger name="org.hibernate" level="debug" />
+
         <Logger name="perfStatsLogger" level="info" additivity="false">
             <AppenderRef ref="perfFileAppender"/>
         </Logger>
@@ -68,6 +70,7 @@
         <Logger name="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" level="info">
             <AppenderRef ref="file"/>
         </Logger>
+
         <Root level="error">
             <AppenderRef ref="console"/>
         </Root>

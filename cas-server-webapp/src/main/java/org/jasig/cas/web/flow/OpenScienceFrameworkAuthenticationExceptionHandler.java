@@ -56,6 +56,10 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler {
                 Class kind = (Class)i$.next();
                 Iterator i$1 = e.getHandlerErrors().values().iterator();
 
+                if (kind == OneTimePasswordRequiredException.class) {
+                    return OneTimePasswordRequiredException.class.getSimpleName();
+                }
+
                 while(i$1.hasNext()) {
                     Class handlerError = (Class)i$1.next();
                     if(handlerError != null && handlerError.equals(kind)) {

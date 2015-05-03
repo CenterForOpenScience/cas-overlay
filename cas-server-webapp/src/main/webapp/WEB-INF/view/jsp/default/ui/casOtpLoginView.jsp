@@ -20,7 +20,7 @@
 --%>
 <jsp:directive.include file="includes/top.jsp" />
 
-<c:if test="${not pageContext.request.secure}">
+<c:if test="${not pageContext.request.secure && tgc.cookie.secure}">
     <div id="msg" class="errors">
         <h2><spring:message code="screen.nonsecure.title" /></h2>
         <p><spring:message code="screen.nonsecure.message" /></p>
@@ -28,31 +28,35 @@
 </c:if>
 
 <c:if test="${not empty registeredService}">
-    <c:set var="registeredServiceLogo" value="images/webapp.png"/>
+    <%-- <c:set var="registeredServiceLogo" value="images/webapp.png"/> --%>
     <c:if test="${not empty registeredService.logo}">
         <c:set var="registeredServiceLogo" value="${registeredService.logo}"/>
     </c:if>
 
-    <div id="serviceui" class="serviceinfo">
-        <table>
-            <tr>
-                <td><img src="${registeredServiceLogo}"></td>
-                <td id="servicedesc">
-                    <h1>${fn:escapeXml(registeredService.name)}</h1>
-                    <p>${fn:escapeXml(registeredService.description)}</p>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <p/>
+    <c:if test="${not empty registeredService.logo || not empty registeredService.name}">
+        <div id="serviceui" class="serviceinfo">
+            <table>
+                <tr>
+                    <c:if test="${not empty registeredService.logo}">
+                        <td><img src="${registeredServiceLogo}"></td>
+                    </c:if>
+                    <c:if test="${not empty registeredService.name}">
+                        <td id="servicedesc">
+                            <h1>${fn:escapeXml(registeredService.name)}</h1>
+                            <p>${fn:escapeXml(registeredService.description)}</p>
+                        </td>
+                    </c:if>
+                </tr>
+            </table>
+        </div>
+        <p/>
+    </c:if>
 </c:if>
 
 <div id="login" style="width: 100%;">
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
-        <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false" />
-
-        <h2>One-time Password Authentication</h2>
+        <h2>Two Factor Authentication</h2>
         <%-- <div>
             The purpose of this policy is to establish acceptable and unacceptable use of electronic devices and network resources in conjunction with the established culture of ethical and lawful behavior, openness, trust, and integrity.
 
@@ -64,30 +68,25 @@
         </div> --%>
 
         <section class="row">
-            <label for="password"><spring:message code="screen.welcome.label.password" /></label>
-                <%--
-                NOTE: Certain browsers will offer the option of caching passwords for a user.  There is a non-standard attribute,
-                "autocomplete" that when set to "off" will tell certain browsers not to prompt to cache credentials.  For more
-                information, see the following web page:
-                http://www.technofundo.com/tech/web/ie_autocomplete.html
-                --%>
-            <spring:message code="screen.welcome.label.password.accesskey" var="passwordAccessKey" />
-            <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password"  accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
-            <span id="capslock-on" style="display:none;"><p><img src="images/warning.png" valign="top"> <spring:message code="screen.capslock.on" /></p></span>
+            <label for="passcode"><spring:message code="screen.welcome.label.passcode" /></label>
+            <spring:message code="screen.welcome.label.passcode.accesskey" var="passcodeAccessKey" />
+            <form:password cssClass="required" cssErrorClass="error" id="passcode" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="password" autocomplete="off" htmlEscape="true" />
         </section>
 
-        <section class="row check">
+        <%-- <section class="row check">
             <input id="warn" name="warn" value="true" tabindex="3" accesskey="<spring:message code="screen.welcome.label.warn.accesskey" />" type="checkbox" />
             <label for="warn"><spring:message code="screen.welcome.label.warn" /></label>
-        </section>
+        </section> --%>
+
+        <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
         <section class="row btn-row">
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
 
-            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.login" />" tabindex="4" type="submit" />
-            <input class="btn-reset" name="reset" accesskey="c" value="<spring:message code="screen.welcome.button.clear" />" tabindex="5" type="reset" />
+            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.verify" />" tabindex="4" type="submit" />
+            <%-- <input class="btn-reset" name="reset" accesskey="c" value="<spring:message code="screen.welcome.button.clear" />" tabindex="5" type="reset" /> --%>
         </section>
 
         <%-- <section class="row btn-row">

@@ -247,7 +247,6 @@ public class OpenScienceFrameworkAuthenticationViaFormAction {
             }
         }
         return foundAndAddedWarnings;
-
     }
 
     /**
