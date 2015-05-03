@@ -36,7 +36,7 @@ public class OneTimePasswordCredential extends AbstractCredential {
     private static final long serialVersionUID = 1892587671827699709L;
 
     /** One-time password. */
-    private String password;
+    private String passcode;
 
     /** Optional unique identifier. */
     private String id;
@@ -47,38 +47,38 @@ public class OneTimePasswordCredential extends AbstractCredential {
     /**
      * Creates a one-time-password with just a password.
      *
-     * @param password Non-null cleartext one-time password value.
+     * @param passcode Non-null cleartext one-time password value.
      */
-    public OneTimePasswordCredential(final String password) {
-        if (password == null) {
+    public OneTimePasswordCredential(final String passcode) {
+        if (passcode == null) {
             throw new IllegalArgumentException("One-time password cannot be null.");
         }
-        this.password = password;
+        this.passcode = passcode;
     }
 
     /**
-     * Creates a one-time-password with unique ID and password.
+     * Creates a one-time-password with unique ID and passcode.
      *
      * @param id Identifier that is commonly used to look up one-time password in system of record.
-     * @param password Non-null cleartext one-time password value.
+     * @param passcode Non-null cleartext one-time password value.
      */
-    public OneTimePasswordCredential(final String id, final String password) {
-        this(password);
+    public OneTimePasswordCredential(final String id, final String passcode) {
+        this(passcode);
         this.id = id;
     }
 
     /**
-     * @return Returns the password.
+     * @return Returns the passcode.
      */
-    public final String getPassword() {
-        return this.password;
+    public final String getPasscode() {
+        return this.passcode;
     }
 
     /**
-     * @param password The password to set.
+     * @param passcode The passcode to set.
      */
-    public final void setPassword(final String password) {
-        this.password = password;
+    public final void setPasscode(final String passcode) {
+        this.passcode = passcode;
     }
 
     /**

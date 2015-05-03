@@ -107,7 +107,7 @@ public class OpenScienceFrameworkAuthenticationViaFormAction {
     public final Event submit(final RequestContext context, final MessageContext messageContext,
                               final UsernamePasswordCredential usernamePasswordCredential, OneTimePasswordCredential oneTimePasswordCredential)  {
         OpenScienceFrameworkCredential credential = new OpenScienceFrameworkCredential(
-            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword(), oneTimePasswordCredential.getPassword());
+            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword(), oneTimePasswordCredential.getPasscode());
         return this.submit(context, messageContext, credential);
     }
 

@@ -20,7 +20,8 @@
 --%>
 <jsp:directive.include file="includes/top.jsp" />
 
-<c:if test="${not pageContext.request.secure && tgc.cookie.secure}">
+<spring:eval var="tgcCookieSecure" expression="@casProperties.getProperty('tgc.cookie.secure')" />
+<c:if test="${not pageContext.request.secure && tgcCookieSecure}">
     <div id="msg" class="errors">
         <h2><spring:message code="screen.nonsecure.title" /></h2>
         <p><spring:message code="screen.nonsecure.message" /></p>
@@ -70,7 +71,7 @@
         <section class="row">
             <label for="passcode"><spring:message code="screen.welcome.label.passcode" /></label>
             <spring:message code="screen.welcome.label.passcode.accesskey" var="passcodeAccessKey" />
-            <form:password cssClass="required" cssErrorClass="error" id="passcode" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="password" autocomplete="off" htmlEscape="true" />
+            <form:input cssClass="required" cssErrorClass="error" id="passcode" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="passcode" autocomplete="off" htmlEscape="true" />
         </section>
 
         <%-- <section class="row check">

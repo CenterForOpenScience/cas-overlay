@@ -49,7 +49,9 @@ if (auto != null && auto.equals("true")) {
 } else {
 %>
 <jsp:directive.include file="includes/top.jsp" />
-<c:if test="${not pageContext.request.secure && casProperties['tgc.cookie.secure']}">
+
+<spring:eval var="tgcCookieSecure" expression="@casProperties.getProperty('tgc.cookie.secure')" />
+<c:if test="${not pageContext.request.secure && tgcCookieSecure}">
     <div id="msg" class="errors">
         <h2><spring:message code="screen.nonsecure.title" /></h2>
         <p><spring:message code="screen.nonsecure.message" /></p>

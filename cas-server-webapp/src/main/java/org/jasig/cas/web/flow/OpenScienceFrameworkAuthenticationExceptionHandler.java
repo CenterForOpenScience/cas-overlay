@@ -87,6 +87,8 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler {
         DEFAULT_ERROR_LIST.add(InvalidLoginLocationException.class);
         DEFAULT_ERROR_LIST.add(AccountPasswordMustChangeException.class);
         DEFAULT_ERROR_LIST.add(InvalidLoginTimeException.class);
+        // Open Science Framework Exceptions
+        DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
         // One Time Password Exceptions
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);

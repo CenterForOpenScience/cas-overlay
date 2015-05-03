@@ -112,7 +112,7 @@
   <!-- One Time Password -->
   <view-state id="casOtpLoginView" view="casOtpLoginView" model="oneTimePasswordCredential">
     <binder>
-      <binding property="password" required="true" />
+      <binding property="passcode" required="true" />
     </binder>
     <on-entry>
       <set name="viewScope.commandName" value="'oneTimePasswordCredential'" />
@@ -157,6 +157,8 @@
     <transition on="InvalidLoginTimeException" to="casBadHoursView"/>
     <transition on="FailedLoginException" to="generateLoginTicket"/>
     <transition on="AccountNotFoundException" to="generateLoginTicket"/>
+    <!-- Open Science Framework -->
+    <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
     <!-- One Time Password -->
     <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
     <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
@@ -227,6 +229,7 @@
   <end-state id="casAccountLockedView" view="casAccountLockedView" />
   <end-state id="casBadHoursView" view="casBadHoursView" />
   <end-state id="casBadWorkstationView" view="casBadWorkstationView" />
+  <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
 
     <end-state id="postView" view="postResponseView">
         <on-entry>

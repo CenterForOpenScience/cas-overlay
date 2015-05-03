@@ -21,19 +21,19 @@ package org.jasig.cas.authentication;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account which requires a Time-based One Time Password.
+ * Describes an error condition where authentication occurs from an account which is merged.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
-public class OpenScienceFrameworkFailedLoginUnreigsteredException extends AccountException {
+public class LoginNotAllowedException extends AccountException {
 
-    private static final long serialVersionUID = -735616010527704206L;
+    private static final long serialVersionUID = 3376259469680697722L;
 
     /**
      * Instantiates a new invalid login location exception.
      */
-    public OpenScienceFrameworkFailedLoginUnreigsteredException() {
+    public LoginNotAllowedException() {
         super();
     }
 
@@ -42,7 +42,7 @@ public class OpenScienceFrameworkFailedLoginUnreigsteredException extends Accoun
      *
      * @param message the message
      */
-    public OpenScienceFrameworkFailedLoginUnreigsteredException(final String message) {
+    public LoginNotAllowedException(final String message) {
         super(message);
     }
 }

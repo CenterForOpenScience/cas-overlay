@@ -18,20 +18,12 @@
  */
 package org.jasig.cas.adaptors.mongodb;
 
-import java.io.Serializable;
 import java.security.GeneralSecurityException;
 
 import org.bson.types.ObjectId;
 import org.apache.commons.codec.binary.Base32;
 
-import org.jasig.cas.authentication.HandlerResult;
-import org.jasig.cas.authentication.PreventedException;
-import org.jasig.cas.authentication.OneTimePasswordRequiredException;
-import org.jasig.cas.authentication.OneTimePasswordFailedLoginException;
-import org.jasig.cas.authentication.Credential;
-import org.jasig.cas.authentication.UsernamePasswordCredential;
-import org.jasig.cas.authentication.OpenScienceFrameworkCredential;
-import org.jasig.cas.authentication.BasicCredentialMetaData;
+import org.jasig.cas.authentication.*;
 import org.jasig.cas.authentication.handler.NoOpPrincipalNameTransformer;
 import org.jasig.cas.authentication.handler.PrincipalNameTransformer;
 import org.jasig.cas.authentication.handler.support.AbstractPreAndPostProcessingAuthenticationHandler;
@@ -77,6 +69,16 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         private String givenName;
         @Field("family_name")
         private String familyName;
+        @Field("is_registered")
+        private Boolean isRegistered;
+        @Field("merged_by")
+        private Boolean mergedBy;
+        @Field("date_disabled")
+        private Date dateDisabled;
+        @Field("date_confirmed")
+        private Date dateConfirmed;
+        @Field("is_claimed")
+        private Boolean isClaimed;
 
         public String getUsername() {
             return this.username;
@@ -108,6 +110,34 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         public void setFamilyName(String familyName) {
             this.familyName = familyName;
+        }
+
+        public Boolean getIsClaimed() {
+            return this.isClaimed;
+        }
+
+        public void setIsClaimed(Boolean isClaimed) {
+            this.isClaimed = isClaimed;
+        }
+
+        public Boolean isMerged() {
+            return this.mergedBy != null;
+        }
+
+        public Boolean isDisabled() {
+            return this.dateDisabled != null;
+        }
+
+        public Boolean isConfirmed() {
+            return this.dateConfirmed != null;
+        }
+
+        public Boolean isActive() {
+            return this.isRegistered
+                    && this.password != null
+                    && !this.isMerged()
+                    && !this.isDisabled()
+                    && this.isConfirmed();
         }
 
         @Override
@@ -164,30 +194,8 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String oneTimePassword = credential.getOneTimePassword();
 
         final User user = this.mongoTemplate.findOne(new Query(Criteria
-            .where("username").is(username)
-            .and("is_registered").is(true)
-            .and("password").ne(null)
-            .and("merged_by").is(null) // is_merged = false
-            .and("date_disabled").is(null) // is_disabled = false
-            .and("date_confirmed").ne(null) // is_confirmed = true
+                .where("username").is(username)
         ), User.class);
-
-        // TODO: Don't filter user out immediately, rather review user state and
-        // respond with a proper exception
-        // OpenScienceFrameworkFailedLoginUnreigsteredException
-        /*
-            if not user.is_registered:
-                raise LoginNotAllowedError('User is not registered.')
-
-            if not user.is_claimed:
-                raise LoginNotAllowedError('User is not claimed.')
-
-            if user.is_merged:
-                raise LoginNotAllowedError('Cannot log in to a merged user.')
-
-            if user.is_disabled:
-                raise LoginDisabledError('User is disabled.')
-         */
 
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");
@@ -197,9 +205,9 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         TimeBasedOneTimePassword timeBasedOneTimePassword = this.mongoTemplate.findOne(new Query(Criteria
-            .where("owner").is(user.id)
-            .and("is_confirmed").is(true)
-            .and("deleted").is(false)
+                .where("owner").is(user.id)
+                .and("is_confirmed").is(true)
+                .and("deleted").is(false)
         ), TimeBasedOneTimePassword.class);
 
         if (timeBasedOneTimePassword != null && timeBasedOneTimePassword.totpSecret != null) {
@@ -213,6 +221,24 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             } catch (Exception ex) {
                 throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password");
             }
+        }
+
+        // Validate basic information such as username/password and a potential One-Time Password before
+        // providing any indication of account status.
+        if (!user.isRegistered) {
+            throw new LoginNotAllowedException(username + " is not registered");
+        }
+        if (!user.isClaimed) {
+            throw new LoginNotAllowedException(username + " is not claimed");
+        }
+        if (user.isMerged()) {
+            throw new LoginNotAllowedException("Cannot log in to a merged user " + username);
+        }
+        if (user.isDisabled()) {
+            throw new AccountDisabledException(username + " is disabled");
+        }
+        if (!user.isActive()) {
+            throw new LoginNotAllowedException(username + " is not active");
         }
 
         final Map<String, Object> attributes = new HashMap<>();
