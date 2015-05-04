@@ -31,6 +31,12 @@
                 <entry key-ref="openScienceFrameworkAuthenticationHandler" value="#{null}" />
             </map>
         </constructor-arg>
+        <property name="authenticationMetaDataPopulators">
+            <list>
+                <bean class="org.jasig.cas.authentication.SuccessfulHandlerMetaDataPopulator" />
+                <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator" />
+            </list>
+        </property>
     </bean>
 
     <bean id="openScienceFrameworkAuthenticationHandler" class="org.jasig.cas.adaptors.mongodb.OpenScienceFrameworkAuthenticationHandler"

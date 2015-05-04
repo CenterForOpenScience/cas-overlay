@@ -24,7 +24,7 @@
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
                           http://www.springframework.org/schema/webflow/spring-webflow.xsd">
 
-    <var name="usernamePasswordCredential" class="org.jasig.cas.authentication.UsernamePasswordCredential" />
+    <var name="usernamePasswordCredential" class="org.jasig.cas.authentication.RememberMeUsernamePasswordCredential" />
     <!-- One Time Password -->
     <var name="oneTimePasswordCredential" class="org.jasig.cas.authentication.OneTimePasswordCredential" />
     <on-start>
@@ -87,6 +87,7 @@
     <binder>
       <binding property="username" required="true" />
       <binding property="password" required="true"/>
+      <binding property="rememberMe" />
     </binder>
     <on-entry>
       <set name="viewScope.commandName" value="'usernamePasswordCredential'" />
