@@ -37,7 +37,7 @@ if (auto != null && auto.equals("true")) {
             <input type="hidden" name="_eventId" value="submit" />
             <input type="hidden" name="username" value="<%= request.getParameter("username") %>" />
             <input type="hidden" name="password" value="<%= request.getParameter("password") %>" />
-            <% if ("true".equals(request.getParameter("rememberMe"))) {%>
+            <% if (request.getParameter("rememberMe") == null || "true".equals(request.getParameter("rememberMe"))) {%>
                 <input type="hidden" name="rememberMe" value="true" />
             <% } %>
 

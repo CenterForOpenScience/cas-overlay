@@ -22,13 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CasProtocolConstants;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.Message;
-import org.jasig.cas.authentication.AuthenticationException;
-import org.jasig.cas.authentication.Credential;
-import org.jasig.cas.authentication.HandlerResult;
+import org.jasig.cas.authentication.*;
 import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.authentication.OpenScienceFrameworkCredential;
-import org.jasig.cas.authentication.UsernamePasswordCredential;
-import org.jasig.cas.authentication.OneTimePasswordCredential;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketCreationException;
@@ -98,16 +93,16 @@ public class OpenScienceFrameworkAuthenticationViaFormAction {
      * @since 4.1.0
      */
     public final Event submit(final RequestContext context, final MessageContext messageContext,
-                              final UsernamePasswordCredential usernamePasswordCredential)  {
+                              final RememberMeUsernamePasswordCredential usernamePasswordCredential)  {
         OpenScienceFrameworkCredential credential = new OpenScienceFrameworkCredential(
-            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword());
+            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword(), usernamePasswordCredential.isRememberMe());
         return this.submit(context, messageContext, credential);
     }
 
     public final Event submit(final RequestContext context, final MessageContext messageContext,
-                              final UsernamePasswordCredential usernamePasswordCredential, OneTimePasswordCredential oneTimePasswordCredential)  {
+                              final RememberMeUsernamePasswordCredential usernamePasswordCredential, OneTimePasswordCredential oneTimePasswordCredential)  {
         OpenScienceFrameworkCredential credential = new OpenScienceFrameworkCredential(
-            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword(), oneTimePasswordCredential.getPasscode());
+            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword(), usernamePasswordCredential.isRememberMe(), oneTimePasswordCredential.getPasscode());
         return this.submit(context, messageContext, credential);
     }
 

@@ -20,9 +20,6 @@ package org.jasig.cas.authentication;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.io.Serializable;
 
 /**
  * Credential for authenticating with a username and password.
@@ -31,29 +28,13 @@ import java.io.Serializable;
  * @author Marvin S. Addison
  * @since 3.0.0
  */
-public class OpenScienceFrameworkCredential implements Credential, Serializable {
-
-    /** Authentication attribute name for password. **/
-    public static final String AUTHENTICATION_ATTRIBUTE_PASSWORD = "credential";
+public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCredential {
 
     /** Unique ID for serialization. */
     private static final long serialVersionUID = -3006234230814410939L;
 
-    /** Password suffix appended to username in string representation. */
-    private static final String PASSWORD_SUFFIX = "+password";
-
     /** Time-based One Time Password suffix appended to username in string representation. */
     private static final String ONETIMEPASSWORD_SUFFIX = "+otp";
-
-    /** The username. */
-    @NotNull
-    @Size(min=1, message = "required.username")
-    private String username;
-
-    /** The password. */
-    @NotNull
-    @Size(min=1, message = "required.password")
-    private String password;
 
     /** The One Time Password. */
     private String oneTimePassword;
@@ -68,8 +49,8 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
      * @param username Non-null user name.
      * @param password Non-null password.
      */
-    public OpenScienceFrameworkCredential(final String username, final String password) {
-        this(username, password, null);
+    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe) {
+        this(username, password, rememberMe, null);
     }
 
     /**
@@ -78,38 +59,11 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
      * @param username Non-null user name.
      * @param password Non-null password.
      */
-    public OpenScienceFrameworkCredential(final String username, final String password, final String oneTimePassword) {
-        this.username = username;
-        this.password = password;
+    public OpenScienceFrameworkCredential(final String username, final String password, Boolean rememberMe, final String oneTimePassword) {
+        this.setUsername(username);
+        this.setPassword(password);
+        this.setRememberMe(rememberMe);
         this.oneTimePassword = oneTimePassword;
-    }
-
-    /**
-     * @return Returns the username.
-     */
-    public final String getUsername() {
-        return this.username;
-    }
-
-    /**
-     * @param username The userName to set.
-     */
-    public final void setUsername(final String username) {
-        this.username = username;
-    }
-
-    /**
-     * @return Returns the password.
-     */
-    public final String getPassword() {
-        return this.password;
-    }
-
-    /**
-     * @param password The password to set.
-     */
-    public final void setPassword(final String password) {
-        this.password = password;
     }
 
     /**
@@ -131,31 +85,31 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
      */
     @Override
     public String getId() {
-        return this.username;
+        return this.getUsername();
     }
 
     @Override
     public String toString() {
         if (this.oneTimePassword != null) {
-          return this.username + PASSWORD_SUFFIX + ONETIMEPASSWORD_SUFFIX;
+          return super.toString() + ONETIMEPASSWORD_SUFFIX;
         }
-        return this.username + PASSWORD_SUFFIX;
+        return super.toString();
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(obj))
+        {
             return false;
         }
-        final OpenScienceFrameworkCredential that = (OpenScienceFrameworkCredential) o;
-        if (username != null ? !username.equals(that.username) : that.username != null) {
+        if (getClass() != obj.getClass()) {
             return false;
-        } else if (password != null ? !password.equals(that.password) : that.password != null) {
-            return false;
-        } else if (oneTimePassword != null ? !oneTimePassword.equals(that.oneTimePassword) : that.oneTimePassword != null) {
+        }
+        final OpenScienceFrameworkCredential other = (OpenScienceFrameworkCredential) obj;
+        if (this.oneTimePassword != other.oneTimePassword) {
             return false;
         }
         return true;
@@ -164,8 +118,7 @@ public class OpenScienceFrameworkCredential implements Credential, Serializable 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .append(username)
-                .append(password)
+                .appendSuper(super.hashCode())
                 .append(oneTimePassword)
                 .toHashCode();
     }
