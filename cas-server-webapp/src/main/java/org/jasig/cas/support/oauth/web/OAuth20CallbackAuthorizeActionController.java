@@ -60,10 +60,10 @@ public final class OAuth20CallbackAuthorizeActionController extends AbstractCont
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         // get action
-        final String action = request.getParameter(OAuthConstants.APPROVAL_PROMPT_ACTION);
-        LOGGER.debug("{} : {}", OAuthConstants.APPROVAL_PROMPT_ACTION, action);
-        if (!action.equalsIgnoreCase("allow")) {
-            LOGGER.error("{} was not allowed.", OAuthConstants.APPROVAL_PROMPT_ACTION);
+        final String action = request.getParameter(OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION);
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, action);
+        if (!action.equalsIgnoreCase(OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW)) {
+            LOGGER.error("{} was not allowed.", OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION);
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
 

@@ -72,6 +72,9 @@ public final class OAuth20AuthorizeController extends AbstractController {
         final String state = request.getParameter(OAuthConstants.STATE);
         LOGGER.debug("{} : {}", OAuthConstants.STATE, state);
 
+        final String approvalPrompt = request.getParameter(OAuthConstants.APPROVAL_PROMPT);
+        LOGGER.debug("{} : {}", OAuthConstants.APPROVAL_PROMPT, approvalPrompt);
+
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
@@ -99,7 +102,7 @@ public final class OAuth20AuthorizeController extends AbstractController {
         final HttpSession session = request.getSession();
         session.setAttribute(OAuthConstants.OAUTH20_CALLBACKURL, redirectUri);
         session.setAttribute(OAuthConstants.OAUTH20_SERVICE_NAME, service.getName());
-        session.setAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT, service.isBypassApprovalPrompt());
+        session.setAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT, service.isBypassApprovalPrompt() || (approvalPrompt != null && !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)));
         session.setAttribute(OAuthConstants.OAUTH20_STATE, state);
         session.setAttribute(OAuthConstants.OAUTH20_CLIENTID, clientId);
 

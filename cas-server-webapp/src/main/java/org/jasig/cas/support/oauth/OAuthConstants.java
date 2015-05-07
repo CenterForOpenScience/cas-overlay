@@ -36,6 +36,15 @@ public interface OAuthConstants {
     String CLIENT_SECRET = "client_secret";
 
     /** The approval prompt. */
+    String APPROVAL_PROMPT = "approval_prompt";
+
+    /** The approval prompt force. */
+    String APPROVAL_PROMPT_FORCE = "force";
+
+    /** The approval prompt auto. */
+    String APPROVAL_PROMPT_AUTO = "auto";
+
+    /** The bypass approval prompt. */
     String BYPASS_APPROVAL_PROMPT = "bypass_approval_prompt";
 
     /** The code. */
@@ -68,8 +77,11 @@ public interface OAuthConstants {
     /** The bearer token. */
     String BEARER_TOKEN = "bearer";
 
-    /** The action approved. */
-    String APPROVAL_PROMPT_ACTION = "action";
+    /** The OATH h20_ approval prompt action. */
+    String OAUTH20_APPROVAL_PROMPT_ACTION = "action";
+
+    /** The OATH h20_ approval prompt allow action. */
+    String OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW = "allow";
 
     /** The OAUT h20_ callbackurl. */
     String OAUTH20_CALLBACKURL = "oauth20_callback_url";

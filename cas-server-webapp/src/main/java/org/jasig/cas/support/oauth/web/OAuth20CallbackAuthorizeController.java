@@ -83,7 +83,7 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
                 .replace("/" + OAuthConstants.CALLBACK_AUTHORIZE_URL, "/" + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL);
         LOGGER.debug("{} : {}", OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL, callbackUrl);
 
-        callbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.APPROVAL_PROMPT_ACTION, "allow");
+        callbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
 
         final Map<String, Object> model = new HashMap<>();
         model.put("callbackUrl", callbackUrl);
