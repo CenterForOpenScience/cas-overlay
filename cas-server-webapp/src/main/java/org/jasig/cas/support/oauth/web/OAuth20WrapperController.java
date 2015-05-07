@@ -54,7 +54,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
     private AbstractController grantTypeRefreshTokenController;
 
-//    private AbstractController revokeTokenController;
+    private AbstractController revokeTokenController;
 
     private AbstractController profileController;
 
@@ -69,7 +69,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         callbackAuthorizeActionController = new OAuth20CallbackAuthorizeActionController(servicesManager, centralAuthenticationService);
         grantTypeAuthorizationCodeController = new OAuth20GrantTypeAuthorizationCodeController(servicesManager, ticketRegistry, centralAuthenticationService, timeout);
         grantTypeRefreshTokenController = new OAuth20GrantTypeRefreshTokenController(servicesManager, ticketRegistry, centralAuthenticationService, timeout);
-//        revokeTokenController = new OAuth20GrantTypeRefreshTokenController(servicesManager, ticketRegistry, centralAuthenticationService, timeout);
+        revokeTokenController = new OAuth20RevokeController(ticketRegistry);
         profileController = new OAuth20ProfileController(ticketRegistry);
     }
 
@@ -101,10 +101,10 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
             }
         }
 
-//        // revoke token
-//        if (OAuthConstants.REVOKE_TOKEN_URL.equals(method) && request.getMethod().equals("POST")) {
-//            return revokeTokenController.handleRequest(request, response);
-//        }
+        // revoke token
+        if (OAuthConstants.REVOKE_TOKEN_URL.equals(method) && request.getMethod().equals("GET")) {
+            return revokeTokenController.handleRequest(request, response);
+        }
 
         // get profile
         if (OAuthConstants.PROFILE_URL.equals(method) && request.getMethod().equals("GET")) {

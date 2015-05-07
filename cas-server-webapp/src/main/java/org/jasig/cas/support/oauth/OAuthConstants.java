@@ -47,6 +47,9 @@ public interface OAuthConstants {
     /** The ticket. */
     String TICKET = "ticket";
 
+    /** The token. */
+    String TOKEN = "token";
+
     /** The state. */
     String STATE = "state";
 
