@@ -18,6 +18,7 @@
  */
 package org.jasig.cas.support.oauth.web;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
@@ -58,7 +59,7 @@ public final class OAuth20RevokeController extends AbstractController {
         LOGGER.debug("{} : {}", OAuthConstants.TOKEN, token);
 
         // token must be valid
-        if (token == null) {
+        if (StringUtils.isBlank(token)) {
             LOGGER.error("Missing {}", OAuthConstants.TOKEN);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
