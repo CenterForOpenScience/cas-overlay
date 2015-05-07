@@ -38,13 +38,38 @@
     <util:constant id="SECONDS" static-field="java.util.concurrent.TimeUnit.SECONDS"/>
 
     <!-- Expiration policies -->
-    <bean id="serviceTicketExpirationPolicy" class="org.jasig.cas.ticket.support.MultiTimeUseOrTimeoutExpirationPolicy"
+
+    <!-- Service Ticket -->
+    <bean id="serviceTicketExpirationPolicy"
+          class="org.jasig.cas.support.oauth.ticket.support.OAuthDelegatingExpirationPolicy"
+          p:sessionExpirationPolicy-ref="standardSessionSTExpirationPolicy"
+          p:oAuthExpirationPolicy-ref="oAuthSessionSTExpirationPolicy" />
+
+    <!--
+      | The following policy applies to standard CAS SSO sessions.
+      | Default 10s expiration with one time use.
+    -->
+    <bean id="standardSessionSTExpirationPolicy" class="org.jasig.cas.ticket.support.MultiTimeUseOrTimeoutExpirationPolicy"
           c:numberOfUses="1" c:timeToKill="${st.timeToKillInSeconds:10}" c:timeUnit-ref="SECONDS"/>
 
-    <!-- TicketGrantingTicketExpirationPolicy: Default as of 3.5 -->
-    <!-- Provides both idle and hard timeouts, for instance 2 hour sliding window with an 8 hour max lifetime -->
-    <!--<bean id="grantingTicketExpirationPolicy" class="org.jasig.cas.ticket.support.TicketGrantingTicketExpirationPolicy"-->
-          <!--c:maxTimeToLive="${tgt.maxTimeToLiveInSeconds:28800}" c:timeToKill="${tgt.timeToKillInSeconds:7200}" c:timeUnit-ref="SECONDS" />-->
+    <!--
+      | The following policy applies to oauth CAS SSO sessions.
+      | Default 1 hour (3600s) expiration with one time use.
+    -->
+    <bean id="oAuthSessionSTExpirationPolicy" class="org.jasig.cas.ticket.support.TimeoutExpirationPolicy"
+          c:timeToKillInMilliSeconds="#{ ${tgt.oAuthAccessTokenDuration:3600} * 1000L }" />
+
+
+    <!-- Ticket Granting Ticket -->
+    <bean id="grantingTicketExpirationPolicy"
+          class="org.jasig.cas.support.oauth.ticket.support.OAuthDelegatingExpirationPolicy"
+          p:sessionExpirationPolicy-ref="rememberMeDelegatingExpirationPolicy"
+          p:oAuthExpirationPolicy-ref="oAuthSessionTGTExpirationPolicy" />
+
+    <bean id="rememberMeDelegatingExpirationPolicy"
+          class="org.jasig.cas.ticket.support.RememberMeDelegatingExpirationPolicy"
+          p:sessionExpirationPolicy-ref="standardSessionTGTExpirationPolicy"
+          p:rememberMeExpirationPolicy-ref="rememberMeSessionTGTExpirationPolicy" />
 
     <!--
        | The following policy applies to standard CAS SSO sessions.
@@ -56,15 +81,17 @@
           p:timeToKillInSeconds="${tgt.timeToKillInSeconds:7200}"/>
 
     <!--
-       | The following policy applies to long term CAS SSO sessions.
+       | The following policy applies to remember me CAS SSO sessions.
        | Default duration is two weeks (1209600s).
        -->
-    <bean id="longTermSessionTGTExpirationPolicy"
+    <bean id="rememberMeSessionTGTExpirationPolicy"
           class="org.jasig.cas.ticket.support.TimeoutExpirationPolicy"
-          c:timeToKillInMilliSeconds="#{ ${tgt.rememberMeDuration:1209600} * 1000 }" />
+          c:timeToKillInMilliSeconds="#{ ${tgt.rememberMeDuration:1209600} * 1000L }" />
 
-    <bean id="grantingTicketExpirationPolicy"
-          class="org.jasig.cas.ticket.support.RememberMeDelegatingExpirationPolicy"
-          p:sessionExpirationPolicy-ref="standardSessionTGTExpirationPolicy"
-          p:rememberMeExpirationPolicy-ref="longTermSessionTGTExpirationPolicy" />
+    <!--
+       | The following policy applies to oauth CAS SSO sessions.
+       | Default duration is to never expire, the user can de-authorize the ticket from their account.
+       -->
+    <bean id="oAuthSessionTGTExpirationPolicy"
+          class="org.jasig.cas.ticket.support.NeverExpiresExpirationPolicy" />
 </beans>

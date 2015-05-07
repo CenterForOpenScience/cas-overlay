@@ -318,5 +318,6 @@
         p:loginUrl="https://localhost:8443/cas/login"
         p:servicesManager-ref="servicesManager"
         p:ticketRegistry-ref="ticketRegistry"
-        p:timeout="7200" />
+        p:centralAuthenticationService-ref="centralAuthenticationService"
+        p:timeout="${tgt.oAuthAccessTokenDuration:7776000}" />
 </beans>

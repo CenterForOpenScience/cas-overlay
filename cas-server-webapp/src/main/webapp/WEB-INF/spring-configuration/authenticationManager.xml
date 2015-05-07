@@ -28,6 +28,7 @@
         <constructor-arg>
             <map>
                 <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" />
+                <entry key-ref="oAuthAuthenticationHandler" value="#{null}" />
                 <entry key-ref="openScienceFrameworkAuthenticationHandler" value="#{null}" />
             </map>
         </constructor-arg>
@@ -35,12 +36,15 @@
             <list>
                 <bean class="org.jasig.cas.authentication.SuccessfulHandlerMetaDataPopulator" />
                 <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator" />
+                <bean class="org.jasig.cas.support.oauth.authentication.principal.OAuthAuthenticationMetaDataPopulator" />
             </list>
         </property>
     </bean>
 
     <bean id="openScienceFrameworkAuthenticationHandler" class="org.jasig.cas.adaptors.mongodb.OpenScienceFrameworkAuthenticationHandler"
           p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
+
+    <bean id="oAuthAuthenticationHandler" class="org.jasig.cas.support.oauth.authentication.handler.support.OAuthCredentialsAuthenticationHandler" />
 
     <!-- Required for proxy ticket mechanism. -->
     <bean id="proxyAuthenticationHandler" class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
