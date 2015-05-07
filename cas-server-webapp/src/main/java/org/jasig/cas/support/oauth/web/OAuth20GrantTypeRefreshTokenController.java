@@ -100,9 +100,6 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
             LOGGER.error("Refresh Token expired : {}", refreshTokenId);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
-//        final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
-//        // remove service ticket
-//        ticketRegistry.deleteTicket(serviceTicket.getId());
 
         final ServiceTicket accessToken = fetchAccessToken(clientId, refreshToken);
         if (accessToken == null) {
