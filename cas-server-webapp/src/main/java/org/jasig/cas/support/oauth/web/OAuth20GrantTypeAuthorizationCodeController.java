@@ -22,6 +22,7 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.authentication.CredentialMetaData;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
@@ -43,6 +44,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -145,18 +147,19 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
      * @return TicketGrantingTicket, if successful
      */
     private TicketGrantingTicket fetchRefreshToken(final String clientId, final Principal principal) {
-        final String existingPrincipalId = clientId + '+' + principal.getId();
+        final String existingCredentialId = clientId + '+' + principal.getId();
 
         // check if a refresh token (granting ticket) already exists
         final Collection<Ticket> tickets = centralAuthenticationService.getTickets(new Predicate() {
             @Override
-            public boolean evaluate(final Object ticket) {
-                if (ticket instanceof TicketGrantingTicket) {
-                    TicketGrantingTicket currentTicket = (TicketGrantingTicket) ticket;
-                    String currentPrincipalId = currentTicket.getAuthentication().getPrincipal().getId();
+            public boolean evaluate(final Object currentTicket) {
+                if (currentTicket instanceof TicketGrantingTicket) {
+                    TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
 
-                    if (currentPrincipalId != null && currentPrincipalId.equals(existingPrincipalId)) {
-                        return !((TicketGrantingTicket) ticket).isExpired();
+                    for (final CredentialMetaData currentCredential : currentTicketGrantingTicket.getAuthentication().getCredentials()) {
+                        if (currentCredential != null && currentCredential.getId().equals(existingCredentialId)) {
+                            return !currentTicketGrantingTicket.isExpired();
+                        }
                     }
                 }
                 return false;

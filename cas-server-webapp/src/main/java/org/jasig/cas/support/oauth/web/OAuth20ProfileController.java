@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.support.oauth.OAuthConstants;
+import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.slf4j.Logger;
@@ -84,9 +85,9 @@ public final class OAuth20ProfileController extends AbstractController {
                 jsonGenerator.writeEndObject();
                 return null;
             }
-            // get ticket granting ticket
-            final TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) this.ticketRegistry.getTicket(accessToken);
-            if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
+            // get service ticket
+            final ServiceTicket serviceTicket = (ServiceTicket) this.ticketRegistry.getTicket(accessToken);
+            if (serviceTicket == null || serviceTicket.isExpired()) {
                 LOGGER.error("expired accessToken : {}", accessToken);
                 jsonGenerator.writeStartObject();
                 jsonGenerator.writeStringField("error", OAuthConstants.EXPIRED_ACCESS_TOKEN);
@@ -94,7 +95,7 @@ public final class OAuth20ProfileController extends AbstractController {
                 return null;
             }
             // generate profile : identifier + attributes
-            final Principal principal = ticketGrantingTicket.getAuthentication().getPrincipal();
+            final Principal principal = serviceTicket.getGrantingTicket().getAuthentication().getPrincipal();
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(ID, principal.getId());
             jsonGenerator.writeArrayFieldStart(ATTRIBUTES);
