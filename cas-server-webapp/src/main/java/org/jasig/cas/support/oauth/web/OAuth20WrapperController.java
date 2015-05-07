@@ -70,7 +70,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         grantTypeAuthorizationCodeController = new OAuth20GrantTypeAuthorizationCodeController(servicesManager, ticketRegistry, centralAuthenticationService, timeout);
         grantTypeRefreshTokenController = new OAuth20GrantTypeRefreshTokenController(servicesManager, ticketRegistry, centralAuthenticationService, timeout);
         revokeTokenController = new OAuth20RevokeController(ticketRegistry);
-        profileController = new OAuth20ProfileController(ticketRegistry);
+        profileController = new OAuth20ProfileController(ticketRegistry, centralAuthenticationService);
     }
 
     @Override

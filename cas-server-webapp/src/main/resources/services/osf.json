@@ -3,7 +3,7 @@
   "id" : 23897492873423934,
   "name" : "",
   "description" : "",
-  "serviceId" : "^https?://localhost:500[0-9]/.*",
+  "serviceId" : "^https?://localhost:500[0-9]/(?!oauth/callback).*",
   "logo": "",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",

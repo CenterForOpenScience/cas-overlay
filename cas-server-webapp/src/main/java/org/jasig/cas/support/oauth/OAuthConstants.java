@@ -72,7 +72,7 @@ public interface OAuthConstants {
     String APPROVAL_PROMPT_ACTION = "action";
 
     /** The OAUT h20_ callbackurl. */
-    String OAUTH20_CALLBACKURL = "oauth20_callbackUrl";
+    String OAUTH20_CALLBACKURL = "oauth20_callback_url";
 
     /** The OAUT h20_ login ticket id. */
     String OAUTH20_LOGIN_TICKET_ID = "oauth20_login_ticket_id";
@@ -84,13 +84,13 @@ public interface OAuthConstants {
     String OAUTH20_STATE = "oauth20_state";
 
     /** The OAUT h20_ client id. */
-    String OAUTH20_CLIENTID = "oauth20_clientid";
+    String OAUTH20_CLIENTID = "oauth20_client_id";
 
     /** The missing access token. */
-    String MISSING_ACCESS_TOKEN = "missing_accessToken";
+    String MISSING_ACCESS_TOKEN = "missing_access_token";
 
     /** The expired access token. */
-    String EXPIRED_ACCESS_TOKEN = "expired_accessToken";
+    String EXPIRED_ACCESS_TOKEN = "expired_access_token";
 
     /** The confirm view. */
     String CONFIRM_VIEW = "oauthConfirmView";
