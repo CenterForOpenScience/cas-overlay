@@ -4,9 +4,9 @@
 
 Official Docs can be found [here](https://jasig.github.io/cas/)
 
-CAS 4.1 [Roadmap](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap)
+[CAS 4.1 Roadmap](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap)
 
-Docker [Server](https://github.com/CenterForOpenScience/docker-library/tree/master/cas)
+[Docker Server](https://github.com/CenterForOpenScience/docker-library/tree/master/cas)
 
 ## Configuration
 
@@ -30,7 +30,8 @@ Docker [Server](https://github.com/CenterForOpenScience/docker-library/tree/mast
 * [MongoDB authentication backend](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/java/org/jasig/cas/adaptors/mongodb/OpenScienceFrameworkAuthenticationHandler.java)
 * [Customized login web flow prompts](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/webflow/login/login-webflow.xml)
 
-### OAuth2 Provider (Server) - [Roadmap 4.1 Oauth server support](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap#CAS4.1Roadmap-Oauthserversupport)
+### OAuth2 Provider (Server)
+[Roadmap 4.1 Oauth server support](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap#CAS4.1Roadmap-Oauthserversupport)
 
 * [Service specific Attribute Release](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/java/org/jasig/cas/support/oauth/web/OAuth20ProfileController.java)
 * Access Tokens and Refresh Tokens
