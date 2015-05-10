@@ -31,7 +31,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 * [Customized login web flow prompts](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/webflow/login/login-webflow.xml)
 
 ### OAuth2 Provider (Server)
-[Roadmap 4.1 Oauth server support](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap#CAS4.1Roadmap-Oauthserversupport)
+*[Roadmap 4.1 Oauth server support](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap#CAS4.1Roadmap-Oauthserversupport)*
 
 * [Service specific Attribute Release](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/java/org/jasig/cas/support/oauth/web/OAuth20ProfileController.java)
 * Access Tokens and Refresh Tokens
