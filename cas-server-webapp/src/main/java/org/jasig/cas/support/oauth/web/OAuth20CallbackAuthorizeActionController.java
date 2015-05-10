@@ -27,6 +27,7 @@ import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.ticket.ServiceTicket;
+import org.jasig.cas.util.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -51,28 +52,38 @@ public final class OAuth20CallbackAuthorizeActionController extends AbstractCont
 
     private final CentralAuthenticationService centralAuthenticationService;
 
-    public OAuth20CallbackAuthorizeActionController(ServicesManager servicesManager, CentralAuthenticationService centralAuthenticationService) {
+    private final CipherExecutor cipherExecutor;
+
+    public OAuth20CallbackAuthorizeActionController(final ServicesManager servicesManager,
+                                                    final CentralAuthenticationService centralAuthenticationService,
+                                                    final CipherExecutor cipherExecutor) {
         this.servicesManager = servicesManager;
         this.centralAuthenticationService = centralAuthenticationService;
+        this.cipherExecutor = cipherExecutor;
     }
 
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
+        final HttpSession session = request.getSession();
+
         // get action
         final String action = request.getParameter(OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION);
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, action);
+
         if (!action.equalsIgnoreCase(OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW)) {
             LOGGER.error("{} was not allowed.", OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION);
-            return new ModelAndView(OAuthConstants.ERROR_VIEW);
+            // callback url with error
+            String callbackUrl = (String) session.getAttribute(OAuthConstants.OAUTH20_CALLBACKURL);
+            callbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.ERROR, OAuthConstants.ACCESS_DENIED);
+            LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_CALLBACKURL, callbackUrl);
+            return OAuthUtils.redirectTo(callbackUrl);
         }
 
         // retrieve client id from session
-        final HttpSession session = request.getSession();
         String clientId = (String) session.getAttribute(OAuthConstants.OAUTH20_CLIENTID);
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_CLIENTID, clientId);
         session.removeAttribute(OAuthConstants.OAUTH20_CLIENTID);
-
         if (clientId == null) {
             LOGGER.error("{} is missing from the session and can not be retrieved.", OAuthConstants.OAUTH20_CLIENTID);
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
@@ -82,7 +93,6 @@ public final class OAuth20CallbackAuthorizeActionController extends AbstractCont
         String callbackUrl = (String) session.getAttribute(OAuthConstants.OAUTH20_CALLBACKURL);
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_CALLBACKURL, callbackUrl);
         session.removeAttribute(OAuthConstants.OAUTH20_CALLBACKURL);
-
         if (StringUtils.isBlank(callbackUrl)) {
             LOGGER.error("{} is missing from the session and can not be retrieved.", OAuthConstants.OAUTH20_CALLBACKURL);
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
@@ -92,26 +102,24 @@ public final class OAuth20CallbackAuthorizeActionController extends AbstractCont
         final String state = (String) session.getAttribute(OAuthConstants.OAUTH20_STATE);
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_STATE, state);
         session.removeAttribute(OAuthConstants.OAUTH20_STATE);
-
         if (state != null) {
             callbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.STATE, state);
         }
-        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_CALLBACKURL, callbackUrl);
 
         String loginTicketId = (String) session.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID);
-
         final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(this.servicesManager, clientId);
+        session.removeAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID);
         if (registeredService == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
 
         Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
-        final ServiceTicket serviceTicket = centralAuthenticationService.grantServiceTicket(
-                loginTicketId, service);
+        final ServiceTicket serviceTicket = centralAuthenticationService.grantServiceTicket(loginTicketId, service);
 
-        // callback url with code (service ticket)
-        callbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.CODE, serviceTicket.getId());
+        // callback url with code (encrypted service ticket)
+        callbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.CODE, cipherExecutor.encode(serviceTicket.getId()));
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_CALLBACKURL, callbackUrl);
 
         return OAuthUtils.redirectTo(callbackUrl);
     }

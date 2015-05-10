@@ -31,6 +31,7 @@ import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
+import org.jasig.cas.util.CipherExecutor;
 import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,8 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
 
     private final CentralAuthenticationService centralAuthenticationService;
 
+    private final CipherExecutor cipherExecutor;
+
     private final long timeout;
 
     /**
@@ -70,10 +73,12 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
      * @param timeout the timeout
      */
     public OAuth20GrantTypeRefreshTokenController(final ServicesManager servicesManager, final TicketRegistry ticketRegistry,
-                                                       CentralAuthenticationService centralAuthenticationService, final long timeout) {
+                                                  final CentralAuthenticationService centralAuthenticationService,
+                                                  final CipherExecutor cipherExecutor, final long timeout) {
         this.servicesManager = servicesManager;
         this.ticketRegistry = ticketRegistry;
         this.centralAuthenticationService = centralAuthenticationService;
+        this.cipherExecutor = cipherExecutor;
         this.timeout = timeout;
     }
 
@@ -89,19 +94,28 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
         final String refreshTokenId = request.getParameter(OAuthConstants.REFRESH_TOKEN);
         LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId);
 
-        final boolean isVerified = verifyRequest(clientId, clientSecret, refreshTokenId);
+        final String ticketGrantingTicketId = cipherExecutor.decode(refreshTokenId);
+        LOGGER.debug("Ticket Granting Ticket : {}", ticketGrantingTicketId);
+
+        final boolean isVerified = verifyRequest(clientId, clientSecret, refreshTokenId, ticketGrantingTicketId);
         if (!isVerified) {
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final TicketGrantingTicket refreshToken = (TicketGrantingTicket) ticketRegistry.getTicket(refreshTokenId);
-        // refresh token should be valid
+        final TicketGrantingTicket refreshToken = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
         if (refreshToken == null || refreshToken.isExpired()) {
-            LOGGER.error("Refresh Token expired : {}", refreshTokenId);
+            LOGGER.error("Refresh Token (Ticket Granting Ticket) expired : {}", refreshTokenId);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final ServiceTicket accessToken = fetchAccessToken(clientId, refreshToken);
+        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
+        if (registeredService == null) {
+            LOGGER.error("Could not find registered service for client id : {}", clientId);
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+        }
+
+        final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
+        final ServiceTicket accessToken = fetchAccessToken(refreshToken, service);
         if (accessToken == null) {
             LOGGER.error("Could not fetch access token for : {}", refreshToken);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
@@ -109,7 +123,7 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
 
         final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getCreationTime()));
         final JSONObject result = new JSONObject();
-        result.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
+        result.put(OAuthConstants.ACCESS_TOKEN, cipherExecutor.encode(accessToken.getId()));
         result.put(OAuthConstants.EXPIRES_IN, expires);
         result.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
         LOGGER.debug("result : {}", result);
@@ -121,13 +135,11 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
     /**
      * Fetch a new access token.
      *
-     * @param clientId the client id
      * @param refreshToken the refresh token
+     * @param service the oauth service
      * @return ServiceTicket, if successful
      */
-    private ServiceTicket fetchAccessToken(final String clientId, final TicketGrantingTicket refreshToken) {
-        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
+    private ServiceTicket fetchAccessToken(final TicketGrantingTicket refreshToken, Service service) {
         try {
             return centralAuthenticationService.grantServiceTicket(refreshToken.getId(), service);
         } catch (Exception e) {
@@ -140,10 +152,11 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
      *
      * @param clientId the client id
      * @param clientSecret the client secret
-     * @param refreshTokenId the refresh token id
+     * @param refreshTokenId the refresh token id (encrypted tgt)
+     * @param ticketGrantingTicketId the ticket granting ticket id
      * @return true, if successful
      */
-    private boolean verifyRequest(final String clientId, final String clientSecret, final String refreshTokenId) {
+    private boolean verifyRequest(final String clientId, final String clientSecret, final String refreshTokenId, final String ticketGrantingTicketId) {
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
@@ -169,9 +182,9 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
             LOGGER.error("Wrong client secret for service {}", service);
             return false;
         }
-        final Ticket refreshToken = ticketRegistry.getTicket(refreshTokenId);
+        final Ticket refreshToken = ticketRegistry.getTicket(ticketGrantingTicketId);
         if (!(refreshToken instanceof TicketGrantingTicket)) {
-            LOGGER.error("Invalid {} : {} for serviceId : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId, service.getServiceId());
+            LOGGER.error("Invalid Ticket Granting Ticket : {} for serviceId : {}", ticketGrantingTicketId, service.getServiceId());
             return false;
         }
 

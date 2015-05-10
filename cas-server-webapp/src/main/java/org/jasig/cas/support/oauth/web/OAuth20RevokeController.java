@@ -23,6 +23,7 @@ import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.ticket.registry.TicketRegistry;
+import org.jasig.cas.util.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -43,13 +44,16 @@ public final class OAuth20RevokeController extends AbstractController {
 
     private final TicketRegistry ticketRegistry;
 
+    private final CipherExecutor cipherExecutor;
+
     /**
      * Instantiates a new o auth20 revoke token controller.
      *
      * @param ticketRegistry the ticket registry
      */
-    public OAuth20RevokeController(final TicketRegistry ticketRegistry) {
+    public OAuth20RevokeController(final TicketRegistry ticketRegistry, final CipherExecutor cipherExecutor) {
         this.ticketRegistry = ticketRegistry;
+        this.cipherExecutor = cipherExecutor;
     }
 
     @Override
@@ -58,13 +62,16 @@ public final class OAuth20RevokeController extends AbstractController {
         final String token = request.getParameter(OAuthConstants.TOKEN);
         LOGGER.debug("{} : {}", OAuthConstants.TOKEN, token);
 
+        final String ticketId = cipherExecutor.decode(token);
+        LOGGER.debug("Ticket Id : {}", ticketId);
+
         // token must be valid
         if (StringUtils.isBlank(token)) {
             LOGGER.error("Missing {}", OAuthConstants.TOKEN);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
-        if (!ticketRegistry.deleteTicket(token)) {
+        if (!ticketRegistry.deleteTicket(ticketId)) {
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_NOT_FOUND);
         }
         return OAuthUtils.writeText(response, null, HttpStatus.SC_OK);

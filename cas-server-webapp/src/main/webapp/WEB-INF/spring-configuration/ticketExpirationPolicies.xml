@@ -57,7 +57,7 @@
       | Default 1 hour (3600s) expiration with one time use.
     -->
     <bean id="oAuthSessionSTExpirationPolicy" class="org.jasig.cas.ticket.support.TimeoutExpirationPolicy"
-          c:timeToKillInMilliSeconds="#{ ${tgt.oAuthAccessTokenDuration:3600} * 1000L }" />
+          c:timeToKillInMilliSeconds="#{ ${oauth.accessTokenDuration:3600} * 1000L }" />
 
 
     <!-- Ticket Granting Ticket -->

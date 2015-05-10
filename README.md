@@ -40,7 +40,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
     * [Authorization Code](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/java/org/jasig/cas/support/oauth/web/OAuth20GrantTypeAuthorizationCodeController.java)
     * [Refresh Token](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/java/org/jasig/cas/support/oauth/web/OAuth20GrantTypeRefreshTokenController.java)
   * [Revoke Access Tokens & Refresh Tokens](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/java/org/jasig/cas/support/oauth/web/OAuth20RevokeController.java)
-* OAuth Specific Tokens (WIP)
+  * [Encrypted JSON Web Tokens (JWT)](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/cas-servlet.xml#L317)
 
 ### JSON Service Registry
 

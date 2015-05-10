@@ -83,6 +83,9 @@ public interface OAuthConstants {
     /** The OATH h20_ approval prompt allow action. */
     String OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW = "allow";
 
+    /** The OATH h20_ approval prompt deny action. */
+    String OAUTH20_APPROVAL_PROMPT_ACTION_DENY = "deny";
+
     /** The OAUT h20_ callbackurl. */
     String OAUTH20_CALLBACKURL = "oauth20_callback_url";
 
@@ -139,4 +142,10 @@ public interface OAuthConstants {
 
     /** The token type. */
     String TOKEN_TYPE = "token_type";
+
+    /** The error. */
+    String ERROR = "error";
+
+    /** The access denied. */
+    String ACCESS_DENIED = "access_denied";
 }

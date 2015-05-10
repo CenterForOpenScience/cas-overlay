@@ -62,7 +62,6 @@ public final class OAuth20AuthorizeController extends AbstractController {
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-
         final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
 

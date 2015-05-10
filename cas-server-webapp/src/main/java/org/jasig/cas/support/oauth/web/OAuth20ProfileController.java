@@ -27,6 +27,7 @@ import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
+import org.jasig.cas.util.CipherExecutor;
 import org.jasig.cas.validation.Assertion;
 import org.jose4j.json.internal.json_simple.JSONArray;
 import org.jose4j.json.internal.json_simple.JSONObject;
@@ -34,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
+
+import javax.crypto.Cipher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
@@ -58,14 +61,19 @@ public final class OAuth20ProfileController extends AbstractController {
 
     private final CentralAuthenticationService centralAuthenticationService;
 
+    private final CipherExecutor cipherExecutor;
+
     /**
      * Instantiates a new o auth20 profile controller.
      *
      * @param ticketRegistry the ticket registry
      */
-    public OAuth20ProfileController(final TicketRegistry ticketRegistry, final CentralAuthenticationService centralAuthenticationService) {
+    public OAuth20ProfileController(final TicketRegistry ticketRegistry,
+                                    final CentralAuthenticationService centralAuthenticationService,
+                                    final CipherExecutor cipherExecutor) {
         this.ticketRegistry = ticketRegistry;
         this.centralAuthenticationService = centralAuthenticationService;
+        this.cipherExecutor = cipherExecutor;
     }
 
     @Override
@@ -85,19 +93,22 @@ public final class OAuth20ProfileController extends AbstractController {
             return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_BAD_REQUEST);
         }
 
+        String serviceTicketId = cipherExecutor.decode(accessTokenId);
+        LOGGER.debug("Service Ticket Id : {}", serviceTicketId);
+
         // get service ticket, needed to lookup service for validation
-        final ServiceTicket serviceTicket = (ServiceTicket) this.ticketRegistry.getTicket(accessTokenId);
+        final ServiceTicket serviceTicket = (ServiceTicket) this.ticketRegistry.getTicket(serviceTicketId);
         if (serviceTicket == null) {
-            LOGGER.error("Unknown Service Ticket : {}", accessTokenId);
+            LOGGER.error("Unknown Service Ticket : {}", serviceTicketId);
             return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_NOT_FOUND);
         }
 
         // validate the service ticket, also applies attribute release policy
         final Assertion assertion;
         try {
-            assertion = this.centralAuthenticationService.validateServiceTicket(accessTokenId, serviceTicket.getService());
+            assertion = this.centralAuthenticationService.validateServiceTicket(serviceTicketId, serviceTicket.getService());
         } catch (InvalidTicketException e) {
-            LOGGER.error("Expired {} : {}", OAuthConstants.ACCESS_TOKEN, accessTokenId);
+            LOGGER.error("Expired {} (Service Ticket) : {}", OAuthConstants.ACCESS_TOKEN, serviceTicketId);
             return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_BAD_REQUEST);
         }
 

@@ -35,6 +35,7 @@ import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
+import org.jasig.cas.util.CipherExecutor;
 import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,8 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
 
     private final CentralAuthenticationService centralAuthenticationService;
 
+    private final CipherExecutor cipherExecutor;
+
     private final long timeout;
 
     /**
@@ -75,10 +78,12 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
      * @param timeout the timeout
      */
     public OAuth20GrantTypeAuthorizationCodeController(final ServicesManager servicesManager, final TicketRegistry ticketRegistry,
-                                                       CentralAuthenticationService centralAuthenticationService, final long timeout) {
+                                                       final CentralAuthenticationService centralAuthenticationService,
+                                                       final CipherExecutor cipherExecutor, final long timeout) {
         this.servicesManager = servicesManager;
         this.ticketRegistry = ticketRegistry;
         this.centralAuthenticationService = centralAuthenticationService;
+        this.cipherExecutor = cipherExecutor;
         this.timeout = timeout;
     }
 
@@ -97,17 +102,21 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
         final String code = request.getParameter(OAuthConstants.CODE);
         LOGGER.debug("{} : {}", OAuthConstants.CODE, code);
 
+        final String serviceTicketId = cipherExecutor.decode(code);
+        LOGGER.debug("Service Ticket : {}", serviceTicketId);
+
         final boolean isVerified = verifyRequest(redirectUri, clientId, clientSecret, code);
         if (!isVerified) {
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(code);
+        final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(serviceTicketId);
         // service ticket should be valid
         if (serviceTicket == null || serviceTicket.isExpired()) {
-            LOGGER.error("Code expired : {}", code);
+            LOGGER.error("{} (Service Ticket) expired : {}", OAuthConstants.CODE, serviceTicketId);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
+
         final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
         // remove service ticket
         ticketRegistry.deleteTicket(serviceTicket.getId());
@@ -120,7 +129,14 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final ServiceTicket accessToken = fetchAccessToken(clientId, refreshToken);
+        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
+        if (registeredService == null) {
+            LOGGER.error("Could not find registered service for client id : {}", clientId);
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+        }
+
+        final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
+        final ServiceTicket accessToken = fetchAccessToken(refreshToken, service);
         if (accessToken == null) {
             LOGGER.error("Could not fetch access token for : {}", refreshToken);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
@@ -128,8 +144,8 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
 
         final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getCreationTime()));
         final JSONObject result = new JSONObject();
-        result.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
-        result.put(OAuthConstants.REFRESH_TOKEN, refreshToken.getId());
+        result.put(OAuthConstants.ACCESS_TOKEN, cipherExecutor.encode(accessToken.getId()));
+        result.put(OAuthConstants.REFRESH_TOKEN, cipherExecutor.encode(refreshToken.getId()));
         result.put(OAuthConstants.EXPIRES_IN, expires);
         result.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
         LOGGER.debug("result : {}", result);
@@ -154,7 +170,6 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
             public boolean evaluate(final Object currentTicket) {
                 if (currentTicket instanceof TicketGrantingTicket) {
                     TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
-
                     for (final CredentialMetaData currentCredential : currentTicketGrantingTicket.getAuthentication().getCredentials()) {
                         if (currentCredential != null && currentCredential.getId().equals(existingCredentialId)) {
                             return !currentTicketGrantingTicket.isExpired();
@@ -180,13 +195,11 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
     /**
      * Fetch a new access token.
      *
-     * @param clientId the client id
      * @param refreshToken the refresh token
+     * @param service the oauth service
      * @return ServiceTicket, if successful
      */
-    private ServiceTicket fetchAccessToken(final String clientId, final TicketGrantingTicket refreshToken) {
-        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
+    private ServiceTicket fetchAccessToken(final TicketGrantingTicket refreshToken, Service service) {
         try {
             return centralAuthenticationService.grantServiceTicket(refreshToken.getId(), service);
         } catch (Exception e) {

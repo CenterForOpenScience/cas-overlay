@@ -59,34 +59,60 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        // get CAS ticket
-        final String ticket = request.getParameter(OAuthConstants.TICKET);
-        LOGGER.debug("{} : {}", OAuthConstants.TICKET, ticket);
-
-        // get the login ticket generating ticket
-        final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(ticket);
-        // login service ticket should be valid
-        if (serviceTicket == null || serviceTicket.isExpired()) {
-            LOGGER.error("Service Ticket expired : {}", ticket);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-        }
-        final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
-        // remove login service ticket
-        ticketRegistry.deleteTicket(serviceTicket.getId());
-
-        // store the login ticket id in the user's session, used to create service tickets for validation and
-        // oauth credentials later in the flow.
         final HttpSession session = request.getSession();
-        session.setAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, ticketGrantingTicket.getId());
+
+        // get cas login service ticket
+        final String serviceTicketId = request.getParameter(OAuthConstants.TICKET);
+        LOGGER.debug("{} : {}", OAuthConstants.TICKET, serviceTicketId);
+
+        // first time this url is requested the login ticket will be a query parameter
+        if (serviceTicketId == null) {
+            // get cas login service ticket from the session
+            String ticketGrantingTicketId = (String) session.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID);
+            LOGGER.debug("{} : {}", OAuthConstants.TICKET, ticketGrantingTicketId);
+            if (ticketGrantingTicketId == null) {
+                LOGGER.error("Missing Ticket Granting Ticket");
+                return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+            }
+
+            // verify the login ticket granting ticket is still valid
+            TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
+            if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
+                LOGGER.error("Ticket Granting Ticket expired : {}", ticketGrantingTicketId);
+                return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+            }
+        } else {
+            // create the login ticket granting ticket
+            final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(serviceTicketId);
+            // login service ticket should be valid
+            if (serviceTicket == null || serviceTicket.isExpired()) {
+                LOGGER.error("Service Ticket expired : {}", serviceTicketId);
+                return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+            }
+            final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
+            // remove login service ticket
+            ticketRegistry.deleteTicket(serviceTicket.getId());
+
+            // store the login tgt id in the user's session, used to create service tickets for validation and
+            // oauth credentials later in the flow.
+            session.setAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, ticketGrantingTicket.getId());
+
+            // redirect back to self, clears the service ticket from the url, allows the url to be requested multiple
+            // times w/o error
+            return OAuthUtils.redirectTo(request.getRequestURL().toString());
+        }
 
         String callbackUrl = request.getRequestURL().toString()
                 .replace("/" + OAuthConstants.CALLBACK_AUTHORIZE_URL, "/" + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL);
         LOGGER.debug("{} : {}", OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL, callbackUrl);
 
-        callbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
+        String allowCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
+        String denyCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_DENY);
 
         final Map<String, Object> model = new HashMap<>();
         model.put("callbackUrl", callbackUrl);
+        model.put("allowCallbackUrl", allowCallbackUrl);
+        model.put("denyCallbackUrl", denyCallbackUrl);
 
         final Boolean bypassApprovalPrompt = (Boolean) session.getAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT);
         LOGGER.debug("bypassApprovalPrompt : {}", bypassApprovalPrompt);
@@ -94,7 +120,7 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
 
         // Clients that auto-approve do not need an authorization prompt.
         if (bypassApprovalPrompt != null && bypassApprovalPrompt) {
-            return OAuthUtils.redirectTo(callbackUrl);
+            return OAuthUtils.redirectTo(allowCallbackUrl);
         }
 
         // retrieve service name from session

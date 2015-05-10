@@ -319,5 +319,12 @@
         p:servicesManager-ref="servicesManager"
         p:ticketRegistry-ref="ticketRegistry"
         p:centralAuthenticationService-ref="centralAuthenticationService"
-        p:timeout="${tgt.oAuthAccessTokenDuration:7776000}" />
+        p:timeout="${oauth.accessTokenDuration:3600}"
+        p:cipherExecutor-ref="oauth20CipherExecutor" />
+
+  <bean id="oauth20CipherExecutor" class="org.jasig.cas.util.DefaultCipherExecutor"
+        c:secretKeyEncryption="${oauth.encryption.key}"
+        c:secretKeySigning="${oauth.signing.key}"
+        c:contentEncryptionAlgorithmIdentifier="A128CBC-HS256"
+        c:signingAlgorithm="HS512" />
 </beans>
