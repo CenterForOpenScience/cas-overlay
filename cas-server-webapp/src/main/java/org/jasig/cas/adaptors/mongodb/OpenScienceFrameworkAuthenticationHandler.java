@@ -242,9 +242,10 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         final Map<String, Object> attributes = new HashMap<>();
+        attributes.put("username", user.username);
         attributes.put("givenName", user.givenName);
         attributes.put("familyName", user.familyName);
-        return createHandlerResult(credential, this.principalFactory.createPrincipal(username, attributes), null);
+        return createHandlerResult(credential, this.principalFactory.createPrincipal(user.id, attributes), null);
     }
 
     @Override

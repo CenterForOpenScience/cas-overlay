@@ -48,6 +48,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      *
      * @param username Non-null user name.
      * @param password Non-null password.
+     * @param rememberMe Non-null remember me.
      */
     public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe) {
         this(username, password, rememberMe, null);
@@ -58,6 +59,8 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      *
      * @param username Non-null user name.
      * @param password Non-null password.
+     * @param rememberMe Non-null remember me.
+     * @param oneTimePassword Non-null one time password.
      */
     public OpenScienceFrameworkCredential(final String username, final String password, Boolean rememberMe, final String oneTimePassword) {
         this.setUsername(username);
