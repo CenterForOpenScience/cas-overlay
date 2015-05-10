@@ -6,6 +6,8 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 
 CAS 4.1 [Roadmap](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap)
 
+Docker [Server](https://github.com/CenterForOpenScience/docker-library/tree/master/cas)
+
 ## Configuration
 
 ### JPA Ticket Registry
@@ -16,7 +18,7 @@ CAS 4.1 [Roadmap](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap)
 ### Jetty 9.x Web Server
 
 * Startup Server Command
-  * `-pl cas-server-webapp/ jetty:run`
+  * `mvn -pl cas-server-webapp/ jetty:run`
 * Optimized for fast builds
   * [pom.xml](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/pom.xml#L96)
   * [HTTPS & Build Optimizations](https://github.com/CenterForOpenScience/cas-overlay/tree/master/cas-server-webapp/test/resources)
