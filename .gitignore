@@ -3,6 +3,8 @@
 .env
 .idea
 .settings
+.idea
+.ipynb_checkpoints
 **/target
 **/*.log
 **/*.log.*
