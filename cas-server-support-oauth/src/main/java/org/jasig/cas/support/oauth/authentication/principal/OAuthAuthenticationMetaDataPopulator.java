@@ -37,8 +37,9 @@ public final class OAuthAuthenticationMetaDataPopulator implements
     @Override
     public void populateAttributes(final AuthenticationBuilder builder, final Credential credential) {
         OAuthCredential c = (OAuthCredential) credential;
-        builder.addAttribute(OAuthConstants.CLIENT_ID, c.getClientId());
         builder.addAttribute(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH, Boolean.TRUE);
+        builder.addAttribute(OAuthConstants.CLIENT_ID, c.getClientId());
+        builder.addAttribute(OAuthConstants.GRANT_TYPE, c.getGrantType());
     }
 
     @Override

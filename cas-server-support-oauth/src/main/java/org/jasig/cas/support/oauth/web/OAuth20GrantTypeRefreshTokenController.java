@@ -178,6 +178,10 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
             return false;
         }
+        if (!service.getGrantTypes().contains(OAuthConstants.REFRESH_TOKEN)) {
+            LOGGER.error("Unauthorized Grant Type {} : {}", OAuthConstants.GRANT_TYPE, OAuthConstants.REFRESH_TOKEN);
+            return false;
+        }
         if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {
             LOGGER.error("Wrong client secret for service {}", service);
             return false;

@@ -19,7 +19,7 @@
 package org.jasig.cas.support.oauth.ticket.support;
 
 import org.jasig.cas.authentication.Authentication;
-import org.jasig.cas.authentication.RememberMeCredential;
+import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
 import org.jasig.cas.ticket.AbstractTicket;
 import org.jasig.cas.ticket.ExpirationPolicy;
@@ -27,7 +27,6 @@ import org.jasig.cas.ticket.TicketState;
 import org.jasig.cas.ticket.support.AbstractCasExpirationPolicy;
 
 import javax.validation.constraints.NotNull;
-import java.net.Authenticator;
 
 /**
  * Delegates to different expiration policies depending on whether oauth
@@ -43,7 +42,10 @@ public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpiration
     private static final long serialVersionUID = 4461752518354198401L;
 
     @NotNull
-    private ExpirationPolicy oAuthExpirationPolicy;
+    private ExpirationPolicy oAuthGrantTypeAuthorizationCodeExpirationPolicy;
+
+    @NotNull
+    private ExpirationPolicy oAuthGrantTypePasswordExpirationPolicy;
 
     @NotNull
     private ExpirationPolicy sessionExpirationPolicy;
@@ -55,19 +57,31 @@ public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpiration
         if (authentication == null) {
             authentication = ticket.getGrantingTicket().getAuthentication();
         }
+
         final Boolean b = (Boolean) authentication.getAttributes().
             get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH);
-
         if (b == null || b.equals(Boolean.FALSE)) {
             return this.sessionExpirationPolicy.isExpired(ticketState);
         }
 
-        return this.oAuthExpirationPolicy.isExpired(ticketState);
+        final String grantType = (String) authentication.getAttributes().get(OAuthConstants.GRANT_TYPE);
+        if (grantType.equalsIgnoreCase(OAuthConstants.AUTHORIZATION_CODE)) {
+            return this.oAuthGrantTypeAuthorizationCodeExpirationPolicy.isExpired(ticketState);
+        } else if (grantType.equalsIgnoreCase(OAuthConstants.PASSWORD)) {
+            return this.oAuthGrantTypePasswordExpirationPolicy.isExpired(ticketState);
+        }
+
+        return this.sessionExpirationPolicy.isExpired(ticketState);
     }
 
-    public void setOAuthExpirationPolicy(
-            final ExpirationPolicy oAuthExpirationPolicy) {
-        this.oAuthExpirationPolicy = oAuthExpirationPolicy;
+    public void setOAuthGrantTypeAuthorizationCodeExpirationPolicy(
+            final ExpirationPolicy oAuthGrantTypeAuthorizationCodeExpirationPolicy) {
+        this.oAuthGrantTypeAuthorizationCodeExpirationPolicy = oAuthGrantTypeAuthorizationCodeExpirationPolicy;
+    }
+
+    public void setOAuthGrantTypePasswordExpirationPolicy(
+            final ExpirationPolicy oAuthGrantTypePasswordExpirationPolicy) {
+        this.oAuthGrantTypePasswordExpirationPolicy = oAuthGrantTypePasswordExpirationPolicy;
     }
 
     public void setSessionExpirationPolicy(final ExpirationPolicy sessionExpirationPolicy) {

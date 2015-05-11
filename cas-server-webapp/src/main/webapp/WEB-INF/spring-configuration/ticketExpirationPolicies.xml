@@ -43,7 +43,8 @@
     <bean id="serviceTicketExpirationPolicy"
           class="org.jasig.cas.support.oauth.ticket.support.OAuthDelegatingExpirationPolicy"
           p:sessionExpirationPolicy-ref="standardSessionSTExpirationPolicy"
-          p:oAuthExpirationPolicy-ref="oAuthSessionSTExpirationPolicy" />
+          p:oAuthGrantTypeAuthorizationCodeExpirationPolicy-ref="oAuthSessionSTExpirationPolicy"
+          p:oAuthGrantTypePasswordExpirationPolicy-ref="oAuthSessionSTExpirationPolicy" />
 
     <!--
       | The following policy applies to standard CAS SSO sessions.
@@ -64,7 +65,8 @@
     <bean id="grantingTicketExpirationPolicy"
           class="org.jasig.cas.support.oauth.ticket.support.OAuthDelegatingExpirationPolicy"
           p:sessionExpirationPolicy-ref="rememberMeDelegatingExpirationPolicy"
-          p:oAuthExpirationPolicy-ref="oAuthSessionTGTExpirationPolicy" />
+          p:oAuthGrantTypeAuthorizationCodeExpirationPolicy-ref="oAuthSessionTGTExpirationPolicy"
+          p:oAuthGrantTypePasswordExpirationPolicy-ref="oAuthSessionTGTExpirationPolicy" />
 
     <bean id="rememberMeDelegatingExpirationPolicy"
           class="org.jasig.cas.ticket.support.RememberMeDelegatingExpirationPolicy"

@@ -74,6 +74,9 @@ public interface OAuthConstants {
     /** The authorization code. */
     String AUTHORIZATION_CODE = "authorization_code";
 
+    /** The password. */
+    String PASSWORD = "password";
+
     /** The bearer token. */
     String BEARER_TOKEN = "bearer";
 

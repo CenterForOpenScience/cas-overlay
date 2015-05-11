@@ -171,7 +171,7 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
      * @return TicketGrantingTicket, if successful
      */
     private TicketGrantingTicket fetchRefreshToken(final String clientId, final Principal loginPrincipal) {
-        final OAuthCredential credential = new OAuthCredential(clientId, loginPrincipal.getId(), loginPrincipal.getAttributes());
+        final OAuthCredential credential = new OAuthCredential(clientId, OAuthConstants.AUTHORIZATION_CODE, loginPrincipal.getId(), loginPrincipal.getAttributes());
         try {
             return centralAuthenticationService.createTicketGrantingTicket(credential);
         } catch (final Exception e) {
@@ -229,6 +229,10 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
         final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
         if (service == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
+            return false;
+        }
+        if (!service.getGrantTypes().contains(OAuthConstants.AUTHORIZATION_CODE)) {
+            LOGGER.error("Unauthorized Grant Type {} : {}", OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
             return false;
         }
         if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {

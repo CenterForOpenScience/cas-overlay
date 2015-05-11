@@ -1,12 +1,13 @@
 {
   "@class" : "org.jasig.cas.support.oauth.services.OAuthRegisteredService",
-  "id" : 1289001292032354,
+  "id" : 29872387398229,
   "name" : "Open Science Framework (Testing)",
   "description" : "OAuth Client Service URL",
-  "serviceId" : "http://localhost:5000/oauth/callback/googledrive.*",
-  "bypassApprovalPrompt" : false,
-  "clientId" : "gJgfkHAtz_FSyUOBgWiki_hyaBsa",
-  "clientSecret" : "esiLUJc2idUh5HaikEK7EAjMDwIa",
+  "serviceId" : "http://localhost:5000/(?!oauth/callback)",
+  "bypassApprovalPrompt" : true,
+  "clientId" : "OIo3iusdlkjssvfhwoi3923ow",
+  "clientSecret" : "KLxclkjhvdoweo7862e8o2hkjdsdh",
+  "grantTypes" : [ "java.util.ArrayList", [ "authorization_code", "refresh_token", "password" ] ],
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
     "allowedAttributes" : [ "java.util.ArrayList", [ "username", "givenName", "familyName" ] ]

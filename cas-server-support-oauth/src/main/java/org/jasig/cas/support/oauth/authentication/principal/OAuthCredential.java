@@ -35,6 +35,8 @@ public final class OAuthCredential implements Credential {
 
     private final String clientId;
 
+    private final String grantType;
+
     private final String id;
 
     private final Map<String, Object> attributes;
@@ -46,10 +48,12 @@ public final class OAuthCredential implements Credential {
      *
      * @param clientId the client id
      * @param id the user id
+     * @param grantType the grant type
      * @param attributes the attributes
      */
-    public OAuthCredential(final String clientId, final String id, final Map<String, Object> attributes) {
+    public OAuthCredential(final String clientId, final String grantType, final String id, final Map<String, Object> attributes) {
         this.clientId = clientId;
+        this.grantType = grantType;
         this.id = id;
         this.attributes = attributes;
     }
@@ -60,6 +64,10 @@ public final class OAuthCredential implements Credential {
 
     public String getClientId() {
         return this.clientId;
+    }
+
+    public String getGrantType() {
+        return this.grantType;
     }
 
     @Override

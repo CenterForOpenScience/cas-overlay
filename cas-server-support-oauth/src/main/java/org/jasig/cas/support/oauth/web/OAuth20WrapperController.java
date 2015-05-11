@@ -96,7 +96,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
         // access token
         if (OAuthConstants.ACCESS_TOKEN_URL.equals(method) && request.getMethod().equals("POST")) {
-            final String             grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
+            final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
             LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
             if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
