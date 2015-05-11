@@ -13,7 +13,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 ### JPA Ticket Registry
 
 * [Postgres](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/spring-configuration/dataSource.xml)
-* [Apache Common2 Database Connection Pooling](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/spring-configuration/dataSource.xml)
+* [Apache DBCP2 (Database Connection Pooling v2)](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/spring-configuration/dataSource.xml)
 
 ### Custom Application Authentication
 
