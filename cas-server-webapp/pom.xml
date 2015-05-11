@@ -15,14 +15,14 @@
       <artifactId>cas-server-support-jdbc</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- <dependency>
-      <groupId>io.cos.cas</groupId>
-      <artifactId>cas-server-webapp-support</artifactId>
-      <version>${project.version}</version>
-    </dependency> -->
     <dependency>
       <groupId>io.cos.cas</groupId>
       <artifactId>cas-server-support-oauth</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.cos.cas</groupId>
+      <artifactId>cas-server-support-osf</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -35,18 +35,10 @@
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-server-webapp-support</artifactId>
     </dependency>
-    <!-- <dependency>
-      <groupId>org.jasig.cas</groupId>
-      <artifactId>cas-server-support-jdbc</artifactId>
-    </dependency> -->
     <dependency>
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-server-support-oauth</artifactId>
     </dependency>
-    <!-- <dependency>
-      <groupId>org.jasig.cas</groupId>
-      <artifactId>cas-server-support-rest</artifactId>
-    </dependency> -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
@@ -71,10 +63,6 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-mongodb</artifactId>
     </dependency>
   </dependencies>
 
