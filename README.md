@@ -21,6 +21,8 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
   * Time-based One Time Passwords (TOTP), e.g. Google Authenticator
 * [MongoDB authentication backend](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/java/org/jasig/cas/adaptors/mongodb/OpenScienceFrameworkAuthenticationHandler.java)
 * [Customized login web flow prompts](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/webflow/login/login-webflow.xml)
+  * [Login, Logout, One Time Password](https://github.com/CenterForOpenScience/cas-overlay/tree/master/cas-server-webapp/src/main/webapp/WEB-INF/view/jsp/default/ui)
+  * [OAuth Application Approval](https://github.com/CenterForOpenScience/cas-overlay/tree/master/cas-server-webapp/src/main/webapp/WEB-INF/view/jsp/protocol/oauth)
 
 ### OAuth2 Provider (Server)
 *[Roadmap 4.1 OAuth Server Support](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap#CAS4.1Roadmap-Oauthserversupport)*
