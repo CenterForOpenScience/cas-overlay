@@ -45,6 +45,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -158,22 +159,25 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
      * Fetch an existing refresh token or generate a new one.
      *
      * @param clientId the client id
-     * @param principal the login principal
+     * @param loginPrincipal the login principal
      * @return TicketGrantingTicket, if successful
      */
-    private TicketGrantingTicket fetchRefreshToken(final String clientId, final Principal principal) {
-        final String existingCredentialId = clientId + '+' + principal.getId();
+    private TicketGrantingTicket fetchRefreshToken(final String clientId, final Principal loginPrincipal) {
+        final String loginPrincipalId = loginPrincipal.getId();
 
         // check if a refresh token (granting ticket) already exists
         final Collection<Ticket> tickets = centralAuthenticationService.getTickets(new Predicate() {
             @Override
             public boolean evaluate(final Object currentTicket) {
                 if (currentTicket instanceof TicketGrantingTicket) {
-                    TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
-                    for (final CredentialMetaData currentCredential : currentTicketGrantingTicket.getAuthentication().getCredentials()) {
-                        if (currentCredential != null && currentCredential.getId().equals(existingCredentialId)) {
-                            return !currentTicketGrantingTicket.isExpired();
-                        }
+                    final TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
+                    final Principal currentPrincipal = currentTicketGrantingTicket.getAuthentication().getPrincipal();
+                    final Map<String, Object> currentAttributes = currentTicketGrantingTicket.getAuthentication().getAttributes();
+
+                    if ((currentAttributes.containsKey(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH) && (Boolean) currentAttributes.get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH))
+                            && (currentAttributes.containsKey(OAuthConstants.CLIENT_ID) && currentAttributes.get(OAuthConstants.CLIENT_ID).equals(clientId))
+                            && currentPrincipal.getId().equals(loginPrincipalId)) {
+                        return !currentTicketGrantingTicket.isExpired();
                     }
                 }
                 return false;
@@ -181,7 +185,7 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
         });
 
         if (tickets.size() == 0) {
-            final OAuthCredential credential = new OAuthCredential(clientId, principal.getId(), principal.getAttributes());
+            final OAuthCredential credential = new OAuthCredential(clientId, loginPrincipal.getId(), loginPrincipal.getAttributes());
             try {
                 return centralAuthenticationService.createTicketGrantingTicket(credential);
             } catch (final Exception e) {

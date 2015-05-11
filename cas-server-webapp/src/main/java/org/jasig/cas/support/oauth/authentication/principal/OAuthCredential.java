@@ -35,7 +35,7 @@ public final class OAuthCredential implements Credential {
 
     private final String clientId;
 
-    private final String username;
+    private final String id;
 
     private final Map<String, Object> attributes;
 
@@ -44,12 +44,13 @@ public final class OAuthCredential implements Credential {
      * Since oauth credentials rely on the primary authentication we wrapping the
      * existing authorization so we can apply specific expiration policies
      *
-     * @param username the username
+     * @param clientId the client id
+     * @param id the user id
      * @param attributes the attributes
      */
-    public OAuthCredential(final String clientId, final String username, final Map<String, Object> attributes) {
+    public OAuthCredential(final String clientId, final String id, final Map<String, Object> attributes) {
         this.clientId = clientId;
-        this.username = username;
+        this.id = id;
         this.attributes = attributes;
     }
 
@@ -61,13 +62,9 @@ public final class OAuthCredential implements Credential {
         return this.clientId;
     }
 
-    public String getUsername() {
-        return this.username;
-    }
-
     @Override
     public String getId() {
-        return this.clientId + '+' + this.username;
+        return this.id;
     }
 
     @Override

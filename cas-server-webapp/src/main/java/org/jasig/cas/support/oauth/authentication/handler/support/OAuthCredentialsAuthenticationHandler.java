@@ -38,7 +38,7 @@ public final class OAuthCredentialsAuthenticationHandler extends AbstractAuthent
     public HandlerResult authenticate(final Credential credential) throws GeneralSecurityException {
         final OAuthCredential c = (OAuthCredential) credential;
 
-        return new HandlerResult(this, new BasicCredentialMetaData(credential), this.principalFactory.createPrincipal(c.getUsername(), c.getAttributes()));
+        return new HandlerResult(this, new BasicCredentialMetaData(credential), this.principalFactory.createPrincipal(c.getId(), c.getAttributes()));
     }
 
     @Override

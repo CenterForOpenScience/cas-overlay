@@ -99,11 +99,12 @@ public final class OAuth20AuthorizeController extends AbstractController {
 
         // keep info in session
         final HttpSession session = request.getSession();
+        session.setAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT, service.isBypassApprovalPrompt());
+        session.setAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT, approvalPrompt);
+        session.setAttribute(OAuthConstants.OAUTH20_CLIENT_ID, clientId);
         session.setAttribute(OAuthConstants.OAUTH20_CALLBACKURL, redirectUri);
         session.setAttribute(OAuthConstants.OAUTH20_SERVICE_NAME, service.getName());
-        session.setAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT, service.isBypassApprovalPrompt() || (approvalPrompt != null && !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)));
         session.setAttribute(OAuthConstants.OAUTH20_STATE, state);
-        session.setAttribute(OAuthConstants.OAUTH20_CLIENTID, clientId);
 
         final String callbackAuthorizeUrl = request.getRequestURL().toString()
                 .replace("/" + OAuthConstants.AUTHORIZE_URL, "/" + OAuthConstants.CALLBACK_AUTHORIZE_URL);

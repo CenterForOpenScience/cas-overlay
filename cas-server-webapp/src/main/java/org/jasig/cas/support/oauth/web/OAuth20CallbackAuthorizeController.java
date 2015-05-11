@@ -18,10 +18,15 @@
  */
 package org.jasig.cas.support.oauth.web;
 
+import org.apache.commons.collections.Predicate;
 import org.apache.http.HttpStatus;
+import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
+import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
 import org.jasig.cas.ticket.ServiceTicket;
+import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.slf4j.Logger;
@@ -33,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,8 +58,12 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
     @NotNull
     private final TicketRegistry ticketRegistry;
 
-    public OAuth20CallbackAuthorizeController(TicketRegistry ticketRegistry) {
+    private final CentralAuthenticationService centralAuthenticationService;
+
+    public OAuth20CallbackAuthorizeController(final TicketRegistry ticketRegistry,
+                                              final CentralAuthenticationService centralAuthenticationService) {
         this.ticketRegistry = ticketRegistry;
+        this.centralAuthenticationService = centralAuthenticationService;
     }
 
     @Override
@@ -66,22 +76,7 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
         LOGGER.debug("{} : {}", OAuthConstants.TICKET, serviceTicketId);
 
         // first time this url is requested the login ticket will be a query parameter
-        if (serviceTicketId == null) {
-            // get cas login service ticket from the session
-            String ticketGrantingTicketId = (String) session.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID);
-            LOGGER.debug("{} : {}", OAuthConstants.TICKET, ticketGrantingTicketId);
-            if (ticketGrantingTicketId == null) {
-                LOGGER.error("Missing Ticket Granting Ticket");
-                return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-            }
-
-            // verify the login ticket granting ticket is still valid
-            TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
-            if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
-                LOGGER.error("Ticket Granting Ticket expired : {}", ticketGrantingTicketId);
-                return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-            }
-        } else {
+        if (serviceTicketId != null) {
             // create the login ticket granting ticket
             final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(serviceTicketId);
             // login service ticket should be valid
@@ -102,25 +97,47 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
             return OAuthUtils.redirectTo(request.getRequestURL().toString());
         }
 
+        // get cas login service ticket from the session
+        String ticketGrantingTicketId = (String) session.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID);
+        LOGGER.debug("{} : {}", OAuthConstants.TICKET, ticketGrantingTicketId);
+        if (ticketGrantingTicketId == null) {
+            LOGGER.error("Missing Ticket Granting Ticket");
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+        }
+
+        // verify the login ticket granting ticket is still valid
+        TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
+        if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
+            LOGGER.error("Ticket Granting Ticket expired : {}", ticketGrantingTicketId);
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+        }
+
         String callbackUrl = request.getRequestURL().toString()
                 .replace("/" + OAuthConstants.CALLBACK_AUTHORIZE_URL, "/" + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL);
         LOGGER.debug("{} : {}", OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL, callbackUrl);
 
         String allowCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
-        String denyCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_DENY);
 
         final Map<String, Object> model = new HashMap<>();
         model.put("callbackUrl", callbackUrl);
-        model.put("allowCallbackUrl", allowCallbackUrl);
-        model.put("denyCallbackUrl", denyCallbackUrl);
 
         final Boolean bypassApprovalPrompt = (Boolean) session.getAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT);
         LOGGER.debug("bypassApprovalPrompt : {}", bypassApprovalPrompt);
-        session.removeAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT);
-
-        // Clients that auto-approve do not need an authorization prompt.
         if (bypassApprovalPrompt != null && bypassApprovalPrompt) {
             return OAuthUtils.redirectTo(allowCallbackUrl);
+        }
+
+        final String clientId = (String) session.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID);
+        LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
+
+        final Principal loginPrincipal = ticketGrantingTicket.getAuthentication().getPrincipal();
+
+        final String approvalPrompt = (String) session.getAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT);
+        LOGGER.debug("approvalPrompt : {}", approvalPrompt);
+        if (approvalPrompt == null || !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)) {
+            if (existingRefreshToken(clientId, loginPrincipal)) {
+                return OAuthUtils.redirectTo(allowCallbackUrl);
+            }
         }
 
         // retrieve service name from session
@@ -129,5 +146,37 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
         model.put("serviceName", serviceName);
 
         return new ModelAndView(OAuthConstants.CONFIRM_VIEW, model);
+    }
+
+    /**
+     * Check if a refresh token exists.
+     *
+     * @param clientId the client id
+     * @param loginPrincipal the login principal
+     * @return Boolean true if found
+     */
+    private Boolean existingRefreshToken(final String clientId, final Principal loginPrincipal) {
+        final String loginPrincipalId = loginPrincipal.getId();
+
+        // check if a refresh token (granting ticket) already exists
+        final Collection<Ticket> tickets = centralAuthenticationService.getTickets(new Predicate() {
+            @Override
+            public boolean evaluate(final Object currentTicket) {
+                if (currentTicket instanceof TicketGrantingTicket) {
+                    final TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
+                    final Principal currentPrincipal = currentTicketGrantingTicket.getAuthentication().getPrincipal();
+                    final Map<String, Object> currentAttributes = currentTicketGrantingTicket.getAuthentication().getAttributes();
+
+                    if ((currentAttributes.containsKey(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH) && (Boolean) currentAttributes.get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH))
+                            && (currentAttributes.containsKey(OAuthConstants.CLIENT_ID) && currentAttributes.get(OAuthConstants.CLIENT_ID).equals(clientId))
+                            && currentPrincipal.getId().equals(loginPrincipalId)) {
+                        return !currentTicketGrantingTicket.isExpired();
+                    }
+                }
+                return false;
+            }
+        });
+
+        return tickets.size() > 0;
     }
 }

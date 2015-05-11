@@ -99,7 +99,10 @@ public interface OAuthConstants {
     String OAUTH20_STATE = "oauth20_state";
 
     /** The OAUT h20_ client id. */
-    String OAUTH20_CLIENTID = "oauth20_client_id";
+    String OAUTH20_CLIENT_ID = "oauth20_client_id";
+
+    /** The OAUT h20_ approval prompt. */
+    String OAUTH20_APPROVAL_PROMPT = "oauth20_approval_prompt";
 
     /** The missing access token. */
     String MISSING_ACCESS_TOKEN = "missing_access_token";
