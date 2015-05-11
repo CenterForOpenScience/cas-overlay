@@ -19,6 +19,12 @@
 
 --%>
 <jsp:directive.include file="../../default/ui/includes/top.jsp" />
+<style>
+    #login .btn-reset {
+        background: #ddd;
+        font-weight: bold;
+    }
+</style>
 <div class="question" id="login">
     <form id="fm1" method="GET" action="${callbackUrl}">
         <h2><spring:message code="screen.oauth.confirm.header" /></h2>
