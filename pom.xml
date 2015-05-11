@@ -293,6 +293,7 @@
     <module>cas-server-webapp</module>
     <!-- <module>cas-server-webapp-support</module> -->
     <!--<module>cas-server-support-jdbc</module>-->
+    <module>cas-server-support-oauth</module>
     <!-- <module>cas-management-webapp</module> -->
   </modules>
 
@@ -313,6 +314,7 @@
     <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
 
     <!-- Project configuration -->
+    <cs.dir>${project.basedir}</cs.dir>
     <project.build.sourceVersion>1.7</project.build.sourceVersion>
     <project.build.targetVersion>1.7</project.build.targetVersion>
   </properties>

@@ -24,50 +24,30 @@
     <version>4.1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>cas-management-webapp</artifactId>
-  <packaging>war</packaging>
-  <name>Apereo CAS Management Web Application</name>
+  <artifactId>cas-server-support-oauth</artifactId>
+  <packaging>jar</packaging>
+  <name>Apereo CAS OAuth Server Support</name>
 
   <dependencies>
     <dependency>
       <groupId>org.jasig.cas</groupId>
-      <artifactId>cas-management-webapp</artifactId>
-      <type>war</type>
-      <scope>runtime</scope>
+      <artifactId>cas-server-core</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
+      <groupId>org.jasig.cas</groupId>
+      <artifactId>cas-server-support-oauth</artifactId>
+      <type>jar</type>
+      <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-dbcp2</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
-  <build>
-    <finalName>${project.artifactId}</finalName>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
+  <properties>
+    <cs.dir>${project.parent.basedir}</cs.dir>
+  </properties>
 </project>
