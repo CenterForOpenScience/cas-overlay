@@ -15,14 +15,6 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 * [Postgres](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/spring-configuration/dataSource.xml)
 * [Apache Common2 Database Connection Pooling](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/spring-configuration/dataSource.xml)
 
-### Jetty 9.x Web Server
-
-* Startup Server Command
-  * `mvn -pl cas-server-webapp/ jetty:run`
-* Optimized for fast builds
-  * [pom.xml](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/pom.xml#L96)
-  * [HTTPS & Build Optimizations](https://github.com/CenterForOpenScience/cas-overlay/tree/master/cas-server-webapp/test/resources)
-
 ### Custom Application Authentication
 
 * [Multi-Factor Authentication](https://github.com/CenterForOpenScience/cas-overlay/tree/master/cas-server-webapp/src/main/java/org/jasig/cas/authentication)
@@ -44,6 +36,14 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
   * [Encrypted JSON Web Tokens (JWT)](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/src/main/webapp/WEB-INF/cas-servlet.xml#L317)
 
 ### JSON Service Registry
+
+### Jetty 9.x Web Server
+
+* Startup Server Command
+  * `mvn -pl cas-server-webapp/ jetty:run`
+* Optimized for fast builds
+  * [pom.xml](https://github.com/CenterForOpenScience/cas-overlay/blob/master/cas-server-webapp/pom.xml#L96)
+  * [HTTPS & Build Optimizations](https://github.com/CenterForOpenScience/cas-overlay/tree/master/cas-server-webapp/test/resources)
 
 ### TODO
 
