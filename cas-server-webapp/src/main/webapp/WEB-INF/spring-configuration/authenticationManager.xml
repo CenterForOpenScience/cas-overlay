@@ -41,7 +41,7 @@
         </property>
     </bean>
 
-    <bean id="openScienceFrameworkAuthenticationHandler" class="org.jasig.cas.adaptors.mongodb.OpenScienceFrameworkAuthenticationHandler"
+    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.mongodb.OpenScienceFrameworkAuthenticationHandler"
           p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
 
     <bean id="oAuthAuthenticationHandler" class="org.jasig.cas.support.oauth.authentication.handler.support.OAuthCredentialsAuthenticationHandler" />

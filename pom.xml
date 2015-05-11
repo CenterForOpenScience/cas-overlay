@@ -64,6 +64,8 @@
         <groupId>org.jasig.cas</groupId>
         <artifactId>cas-server-support-oauth</artifactId>
         <version>${project.version}</version>
+        <type>jar</type>
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -229,6 +231,12 @@
         <type>jar</type>
       </dependency>
       <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons.codec.version}</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-dbcp2</artifactId>
         <version>${commons.dbcp2.version}</version>
@@ -283,9 +291,10 @@
   </build>
 
   <modules>
-    <module>cas-server-webapp</module>
+    <module>cas-server-support-jdbc</module>
     <module>cas-server-support-oauth</module>
     <module>cas-server-support-osf</module>
+    <module>cas-server-webapp</module>
     <!-- <module>cas-management-webapp</module> -->
   </modules>
 
@@ -295,6 +304,7 @@
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>
     <spring.data.version>1.7.0.RELEASE</spring.data.version>
+    <commons.codec.version>1.10</commons.codec.version>
     <commons.dbcp2.version>2.1</commons.dbcp2.version>
     <hibernate.core.version>4.3.8.Final</hibernate.core.version>
     <slf4j.version>1.7.10</slf4j.version>

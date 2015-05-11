@@ -16,24 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.authentication;
+package io.cos.cas.authentication;
 
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account which requires a Time-based One Time Password.
+ * Describes an error condition where authentication occurs from an account which is merged.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
-public class OneTimePasswordRequiredException extends AccountException {
+public class LoginNotAllowedException extends AccountException {
 
-    private static final long serialVersionUID = -735616010527704206L;
+    private static final long serialVersionUID = 3376259469680697722L;
 
     /**
      * Instantiates a new invalid login location exception.
      */
-    public OneTimePasswordRequiredException() {
+    public LoginNotAllowedException() {
         super();
     }
 
@@ -42,7 +42,7 @@ public class OneTimePasswordRequiredException extends AccountException {
      *
      * @param message the message
      */
-    public OneTimePasswordRequiredException(final String message) {
+    public LoginNotAllowedException(final String message) {
         super(message);
     }
 }

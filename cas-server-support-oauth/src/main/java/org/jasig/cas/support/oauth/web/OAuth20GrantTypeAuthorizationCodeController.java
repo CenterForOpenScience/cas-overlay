@@ -18,11 +18,9 @@
  */
 package org.jasig.cas.support.oauth.web;
 
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.CredentialMetaData;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
@@ -32,7 +30,6 @@ import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.ticket.ServiceTicket;
-import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.CipherExecutor;
@@ -44,8 +41,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collection;
-import java.util.Map;
+import javax.servlet.http.HttpSession;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -92,6 +88,8 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
     @SuppressWarnings("unchecked")
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
+        final HttpSession session = request.getSession();
+
         final String redirectUri = request.getParameter(OAuthConstants.REDIRECT_URI);
         LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
 
@@ -124,7 +122,17 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
 
         final Principal loginPrincipal = ticketGrantingTicket.getAuthentication().getPrincipal();
 
-        final TicketGrantingTicket refreshToken = fetchRefreshToken(clientId, loginPrincipal);
+        // do we have an existing refresh token? (determined in the authorization callback controller)
+        final String refreshTokenId = (String) session.getAttribute(OAuthConstants.OAUTH20_REFRESH_TOKEN_ID);
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_REFRESH_TOKEN_ID, refreshTokenId);
+        session.removeAttribute(OAuthConstants.OAUTH20_REFRESH_TOKEN_ID);
+
+        final TicketGrantingTicket refreshToken;
+        if (refreshTokenId != null) {
+            refreshToken = (TicketGrantingTicket) ticketRegistry.getTicket(refreshTokenId);
+        } else {
+            refreshToken = fetchRefreshToken(clientId, loginPrincipal);
+        }
         if (refreshToken == null) {
             LOGGER.error("Could not fetch refresh token for : {}", loginPrincipal);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
@@ -156,43 +164,18 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
     }
 
     /**
-     * Fetch an existing refresh token or generate a new one.
+     * Fetch a new refresh token.
      *
      * @param clientId the client id
      * @param loginPrincipal the login principal
      * @return TicketGrantingTicket, if successful
      */
     private TicketGrantingTicket fetchRefreshToken(final String clientId, final Principal loginPrincipal) {
-        final String loginPrincipalId = loginPrincipal.getId();
-
-        // check if a refresh token (granting ticket) already exists
-        final Collection<Ticket> tickets = centralAuthenticationService.getTickets(new Predicate() {
-            @Override
-            public boolean evaluate(final Object currentTicket) {
-                if (currentTicket instanceof TicketGrantingTicket) {
-                    final TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
-                    final Principal currentPrincipal = currentTicketGrantingTicket.getAuthentication().getPrincipal();
-                    final Map<String, Object> currentAttributes = currentTicketGrantingTicket.getAuthentication().getAttributes();
-
-                    if ((currentAttributes.containsKey(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH) && (Boolean) currentAttributes.get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH))
-                            && (currentAttributes.containsKey(OAuthConstants.CLIENT_ID) && currentAttributes.get(OAuthConstants.CLIENT_ID).equals(clientId))
-                            && currentPrincipal.getId().equals(loginPrincipalId)) {
-                        return !currentTicketGrantingTicket.isExpired();
-                    }
-                }
-                return false;
-            }
-        });
-
-        if (tickets.size() == 0) {
-            final OAuthCredential credential = new OAuthCredential(clientId, loginPrincipal.getId(), loginPrincipal.getAttributes());
-            try {
-                return centralAuthenticationService.createTicketGrantingTicket(credential);
-            } catch (final Exception e) {
-                return null;
-            }
-        } else {
-            return (TicketGrantingTicket) tickets.iterator().next();
+        final OAuthCredential credential = new OAuthCredential(clientId, loginPrincipal.getId(), loginPrincipal.getAttributes());
+        try {
+            return centralAuthenticationService.createTicketGrantingTicket(credential);
+        } catch (final Exception e) {
+            return null;
         }
     }
 

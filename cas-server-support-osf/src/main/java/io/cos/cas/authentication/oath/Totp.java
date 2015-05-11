@@ -1,4 +1,4 @@
-package org.jasig.cas.authentication.oath;
+package io.cos.cas.authentication.oath;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

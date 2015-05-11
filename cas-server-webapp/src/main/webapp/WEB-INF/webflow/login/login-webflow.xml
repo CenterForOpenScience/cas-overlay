@@ -26,7 +26,7 @@
 
     <var name="usernamePasswordCredential" class="org.jasig.cas.authentication.RememberMeUsernamePasswordCredential" />
     <!-- One Time Password -->
-    <var name="oneTimePasswordCredential" class="org.jasig.cas.authentication.OneTimePasswordCredential" />
+    <var name="oneTimePasswordCredential" class="io.cos.cas.authentication.OneTimePasswordCredential" />
     <on-start>
         <evaluate expression="initialFlowSetupAction" />
     </on-start>

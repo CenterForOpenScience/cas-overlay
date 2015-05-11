@@ -1,4 +1,4 @@
-package org.jasig.cas.authentication.oath;
+package io.cos.cas.authentication.oath;
 
 import org.apache.commons.codec.binary.Base32;
 

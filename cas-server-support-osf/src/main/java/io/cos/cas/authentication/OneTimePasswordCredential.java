@@ -16,7 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.authentication;
+package io.cos.cas.authentication;
+
+import org.jasig.cas.authentication.AbstractCredential;
+import org.jasig.cas.authentication.CredentialMetaData;
+import org.jasig.cas.authentication.UsernamePasswordCredential;
 
 /**
  * Describes a one-time-password credential that contains an optional unique identifier and required password.

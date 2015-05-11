@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package org.jasig.cas.web.flow;
+package io.cos.cas.web.flow;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +15,9 @@ import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.FailedLoginException;
 import javax.validation.constraints.NotNull;
 
+import io.cos.cas.authentication.LoginNotAllowedException;
+import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
+import io.cos.cas.authentication.OneTimePasswordRequiredException;
 import org.jasig.cas.authentication.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

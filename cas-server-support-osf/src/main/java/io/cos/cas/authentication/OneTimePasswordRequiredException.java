@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.authentication;
+package io.cos.cas.authentication;
 
 import javax.security.auth.login.AccountException;
 
@@ -26,14 +26,14 @@ import javax.security.auth.login.AccountException;
  * @author Michael Haselton
  * @since 4.1.0
  */
-public class OneTimePasswordFailedLoginException extends AccountException {
+public class OneTimePasswordRequiredException extends AccountException {
 
-    private static final long serialVersionUID = 1973864633797308866L;
+    private static final long serialVersionUID = -735616010527704206L;
 
     /**
      * Instantiates a new invalid login location exception.
      */
-    public OneTimePasswordFailedLoginException() {
+    public OneTimePasswordRequiredException() {
         super();
     }
 
@@ -42,7 +42,7 @@ public class OneTimePasswordFailedLoginException extends AccountException {
      *
      * @param message the message
      */
-    public OneTimePasswordFailedLoginException(final String message) {
+    public OneTimePasswordRequiredException(final String message) {
         super(message);
     }
 }

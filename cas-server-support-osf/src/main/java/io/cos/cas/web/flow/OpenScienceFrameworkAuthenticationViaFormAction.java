@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.web.flow;
+package io.cos.cas.web.flow;
 
+import io.cos.cas.authentication.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CasProtocolConstants;
 import org.jasig.cas.CentralAuthenticationService;
@@ -50,8 +51,8 @@ import java.util.Map;
  * those credential. If there is a request for renew, then it also generates
  * the Service Ticket required.
  *
- * @author Scott Battaglia
- * @since 3.0.0.4
+ * @author Michael Haselton
+ * @since 4.1.0
  */
 public class OpenScienceFrameworkAuthenticationViaFormAction {
 
@@ -100,7 +101,7 @@ public class OpenScienceFrameworkAuthenticationViaFormAction {
     }
 
     public final Event submit(final RequestContext context, final MessageContext messageContext,
-                              final RememberMeUsernamePasswordCredential usernamePasswordCredential, OneTimePasswordCredential oneTimePasswordCredential)  {
+                              final RememberMeUsernamePasswordCredential usernamePasswordCredential, io.cos.cas.authentication.OneTimePasswordCredential oneTimePasswordCredential)  {
         OpenScienceFrameworkCredential credential = new OpenScienceFrameworkCredential(
             usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword(), usernamePasswordCredential.isRememberMe(), oneTimePasswordCredential.getPasscode());
         return this.submit(context, messageContext, credential);

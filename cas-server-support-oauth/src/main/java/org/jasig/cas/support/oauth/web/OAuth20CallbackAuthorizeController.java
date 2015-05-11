@@ -132,10 +132,16 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
 
         final Principal loginPrincipal = ticketGrantingTicket.getAuthentication().getPrincipal();
 
+        TicketGrantingTicket refreshToken = getRefreshToken(clientId, loginPrincipal.getId());
+        session.removeAttribute(OAuthConstants.OAUTH20_REFRESH_TOKEN_ID);
+        if (refreshToken != null) {
+            session.setAttribute(OAuthConstants.OAUTH20_REFRESH_TOKEN_ID, refreshToken.getId());
+        }
+
         final String approvalPrompt = (String) session.getAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT);
         LOGGER.debug("approvalPrompt : {}", approvalPrompt);
         if (approvalPrompt == null || !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)) {
-            if (existingRefreshToken(clientId, loginPrincipal)) {
+            if (refreshToken != null) {
                 return OAuthUtils.redirectTo(allowCallbackUrl);
             }
         }
@@ -149,16 +155,13 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
     }
 
     /**
-     * Check if a refresh token exists.
+     * Attempt to locate and return an existing refresh token.
      *
      * @param clientId the client id
-     * @param loginPrincipal the login principal
-     * @return Boolean true if found
+     * @param principalId the principal id
+     * @return TicketGrantingTicket refresh token or null
      */
-    private Boolean existingRefreshToken(final String clientId, final Principal loginPrincipal) {
-        final String loginPrincipalId = loginPrincipal.getId();
-
-        // check if a refresh token (granting ticket) already exists
+    public TicketGrantingTicket getRefreshToken(final String clientId, final String principalId) {
         final Collection<Ticket> tickets = centralAuthenticationService.getTickets(new Predicate() {
             @Override
             public boolean evaluate(final Object currentTicket) {
@@ -169,7 +172,7 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
 
                     if ((currentAttributes.containsKey(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH) && (Boolean) currentAttributes.get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH))
                             && (currentAttributes.containsKey(OAuthConstants.CLIENT_ID) && currentAttributes.get(OAuthConstants.CLIENT_ID).equals(clientId))
-                            && currentPrincipal.getId().equals(loginPrincipalId)) {
+                            && currentPrincipal.getId().equals(principalId)) {
                         return !currentTicketGrantingTicket.isExpired();
                     }
                 }
@@ -177,6 +180,9 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
             }
         });
 
-        return tickets.size() > 0;
+        if (tickets.size() == 1) {
+            return (TicketGrantingTicket) tickets.iterator().next();
+        }
+        return null;
     }
 }

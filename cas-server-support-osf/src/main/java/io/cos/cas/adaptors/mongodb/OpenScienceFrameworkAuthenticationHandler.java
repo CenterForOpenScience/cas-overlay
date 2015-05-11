@@ -16,10 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.adaptors.mongodb;
+package io.cos.cas.adaptors.mongodb;
 
 import java.security.GeneralSecurityException;
 
+import io.cos.cas.authentication.LoginNotAllowedException;
+import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
+import io.cos.cas.authentication.OneTimePasswordRequiredException;
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import org.bson.types.ObjectId;
 import org.apache.commons.codec.binary.Base32;
 
@@ -46,7 +50,7 @@ import java.util.*;
 import org.jasig.cas.Message;
 import org.jasig.cas.authentication.principal.Principal;
 
-import org.jasig.cas.authentication.oath.TotpUtils;
+import io.cos.cas.authentication.oath.TotpUtils;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 

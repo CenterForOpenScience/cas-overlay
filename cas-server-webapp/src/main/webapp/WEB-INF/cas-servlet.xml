@@ -273,7 +273,7 @@
 
   <!-- OSF -->
   <!--<bean id="authenticationExceptionHandler" class="org.jasig.cas.web.flow.AuthenticationExceptionHandler" />-->
-  <bean id="authenticationExceptionHandler" class="org.jasig.cas.web.flow.OpenScienceFrameworkAuthenticationExceptionHandler" />
+  <bean id="authenticationExceptionHandler" class="io.cos.cas.web.flow.OpenScienceFrameworkAuthenticationExceptionHandler" />
 
   <bean id="generateServiceTicketAction" class="org.jasig.cas.web.flow.GenerateServiceTicketAction"
         p:centralAuthenticationService-ref="centralAuthenticationService"/>
@@ -309,7 +309,7 @@
   <bean id="acceptableUsagePolicyFormAction" class="org.jasig.cas.web.flow.AcceptableUsagePolicyFormAction"/>
 
   <!-- OSF -->
-  <bean id="osfAuthenticationViaFormAction" class="org.jasig.cas.web.flow.OpenScienceFrameworkAuthenticationViaFormAction"
+  <bean id="osfAuthenticationViaFormAction" class="io.cos.cas.web.flow.OpenScienceFrameworkAuthenticationViaFormAction"
         p:centralAuthenticationService-ref="centralAuthenticationService"
         p:warnCookieGenerator-ref="warnCookieGenerator" />
 

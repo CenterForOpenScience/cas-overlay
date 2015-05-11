@@ -104,6 +104,9 @@ public interface OAuthConstants {
     /** The OAUT h20_ approval prompt. */
     String OAUTH20_APPROVAL_PROMPT = "oauth20_approval_prompt";
 
+    /** The OAUT h20_ refresh token id. */
+    String OAUTH20_REFRESH_TOKEN_ID = "oauth20_refresh_token_id";
+
     /** The missing access token. */
     String MISSING_ACCESS_TOKEN = "missing_access_token";
 
