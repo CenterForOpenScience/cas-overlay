@@ -27,7 +27,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 ### OAuth2 Provider (Server)
 *[Roadmap 4.1 OAuth Server Support](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap#CAS4.1Roadmap-Oauthserversupport)*
 
-* Service specific Attribute Release
+* Profile Service specific Attribute Release
 * Access Tokens and Refresh Tokens
   * Delegated Ticket Expiration (60 minutes for Access Token, never-expire Refresh Token)
   * Grant Types
@@ -36,8 +36,13 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
   * Approval Prompt (Auto or Force)
   * Revoke Access Tokens & Refresh Tokens
   * Encrypted JSON Web Tokens (JWT)
+* Login Session Access Token via augmented CAS 3 Protocol (Optional)
 
-### JSON Service Registry
+### Service Registries
+
+* Multiple Service Registries Loader
+* JSON Service Registry
+* Open Science Framework Service Registry (MongoDB & OAuth)
 
 ### Jetty 9.x Web Server
 
@@ -48,4 +53,4 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 ### TODO
 
 * Request Throttling
-* JPA Service Registry w/ OAuth support
+* Jetty JPA Shared Sessions
