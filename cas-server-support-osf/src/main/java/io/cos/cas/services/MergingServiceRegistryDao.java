@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of <code>ServiceRegistryDao</code> that reads multiple service registries
- * and combines them at the Spring Application Context initialization time.
+ * and merges them at the Spring Application Context initialization time.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -51,7 +51,7 @@ public class MergingServiceRegistryDao implements ServiceRegistryDao {
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
     /**
-     * Instantiates a new Multiple Service Registry dao.
+     * Instantiates a new Merging Service Registry dao.
      */
     public MergingServiceRegistryDao() {
     }
