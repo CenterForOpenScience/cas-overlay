@@ -263,6 +263,22 @@
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.6</version>
+          <configuration>
+            <overlays>
+              <overlay>
+                <groupId>org.jasig.cas</groupId>
+                <artifactId>cas-server-webapp</artifactId>
+                <excludes>
+                  <exclude>WEB-INF/cas.properties</exclude>
+                </excludes>
+              </overlay>
+            </overlays>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.2</version>
           <configuration>
@@ -317,6 +333,7 @@
 
     <!-- Project configuration -->
     <cs.dir>${project.basedir}</cs.dir>
+    <cas.properties.filepath>/WEB-INF/cas.properties</cas.properties.filepath>
     <project.build.sourceVersion>1.7</project.build.sourceVersion>
     <project.build.targetVersion>1.7</project.build.targetVersion>
   </properties>

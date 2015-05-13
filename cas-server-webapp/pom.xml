@@ -90,13 +90,19 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>9.2.10.v20150310</version>
         <configuration>
+          <systemProperties>
+            <systemProperty>
+              <name>cas.properties.filepath</name>
+              <value>file:${project.parent.basedir}/etc/cas.properties</value>
+            </systemProperty>
+          </systemProperties>
           <jettyXml>${project.basedir}/src/test/resources/jetty.xml,${project.basedir}/src/test/resources/jetty-http.xml,${project.basedir}/src/test/resources/jetty-ssl.xml,${project.basedir}/src/test/resources/jetty-https.xml</jettyXml>
           <contextXml>${project.basedir}/src/test/resources/jetty-context.xml</contextXml>
           <scanIntervalSeconds>10</scanIntervalSeconds>
           <webApp>
             <!--<extraClasspath>target/classes;../cas-server-support-jdbc/target</extraClasspath>-->
             <extraClasspath>target/classes</extraClasspath>
-            <contextPath>/cas</contextPath>
+            <contextPath>/</contextPath>
             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
           </webApp>
           <contextHandlers>
