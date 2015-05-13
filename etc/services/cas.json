@@ -3,7 +3,7 @@
   "id" : 983219871349823,
   "name" : "",
   "description" : "",
-  "serviceId" : "^https?://localhost:(8080|8443)/cas/.*",
+  "serviceId" : "^https?://localhost:(8080|8443)/.*",
   "logo": "",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",

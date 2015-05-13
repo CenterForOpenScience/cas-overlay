@@ -50,7 +50,7 @@
       | Default 10s expiration with one time use.
     -->
     <bean id="standardSessionSTExpirationPolicy" class="org.jasig.cas.ticket.support.MultiTimeUseOrTimeoutExpirationPolicy"
-          c:numberOfUses="1" c:timeToKill="${st.timeToKillInSeconds:60}" c:timeUnit-ref="SECONDS"/>
+          c:numberOfUses="1" c:timeToKill="${st.timeToKillInSeconds:10}" c:timeUnit-ref="SECONDS"/>
 
     <!--
       | The following policy applies to oauth CAS SSO sessions.

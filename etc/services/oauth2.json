@@ -3,5 +3,5 @@
   "id" : 983450982340993434,
   "name" : "Open Science Framework",
   "description" : "The Open Science Framework (OSF) supports the entire research lifecycle: planning, execution, reporting, archiving, and discovery.",
-  "serviceId" : "^https?://localhost:8443/cas/oauth2/callbackAuthorize"
+  "serviceId" : "^https?://localhost:8443/oauth2/callbackAuthorize"
 }

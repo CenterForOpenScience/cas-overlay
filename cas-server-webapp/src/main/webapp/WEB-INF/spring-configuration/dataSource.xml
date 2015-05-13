@@ -30,10 +30,9 @@
 
     <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
           p:driverClassName="org.postgresql.Driver"
-          p:url="jdbc:postgresql://127.0.0.1:5432/cas?target=master"
+          p:url="${database.url}"
           p:username="postgres"
           p:password="" />
-    <!--p:url="jdbc:postgresql://${CAS_DB_PORT_5432_TCP_ADDR}:${CAS_DB_PORT_5432_TCP_PORT}/cas?target=master"-->
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
 

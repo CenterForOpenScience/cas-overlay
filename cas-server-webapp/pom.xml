@@ -90,11 +90,12 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>9.2.10.v20150310</version>
         <configuration>
+          <systemPropertiesFile>${project.parent.basedir}/etc/system.properties</systemPropertiesFile>
           <systemProperties>
-            <systemProperty>
-              <name>cas.properties.filepath</name>
-              <value>file:${project.parent.basedir}/etc/cas.properties</value>
-            </systemProperty>
+            <!--<systemProperty>-->
+              <!--<name>cas.properties.filepath</name>-->
+              <!--<value>file:${project.parent.basedir}/etc/cas.properties</value>-->
+            <!--</systemProperty>-->
             <systemProperty>
               <name>service.registry.config.location</name>
               <value>file:${project.parent.basedir}/etc/services</value>
@@ -106,6 +107,10 @@
             <systemProperty>
               <name>log4j.config.location</name>
               <value>file:${project.parent.basedir}/etc/log4j2.xml</value>
+            </systemProperty>
+            <systemProperty>
+              <name>database.url</name>
+              <value>jdbc:postgresql://${CAS_DB_PORT_5432_TCP_ADDR:127.0.0.1}:${CAS_DB_PORT_5432_TCP_PORT:5432}/cas?target=master</value>
             </systemProperty>
           </systemProperties>
           <jettyXml>${project.parent.basedir}/etc/jetty/jetty.xml,${project.parent.basedir}/etc/jetty/jetty-http.xml,${project.parent.basedir}/etc/jetty/jetty-ssl.xml,${project.parent.basedir}/etc/jetty/jetty-https.xml</jettyXml>
