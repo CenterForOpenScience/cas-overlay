@@ -96,17 +96,17 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
         final String jwtRefreshToken = request.getParameter(OAuthConstants.REFRESH_TOKEN);
         LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, jwtRefreshToken);
 
-        final String ticketGrantingTicketId = OAuthToken.read(cipherExecutor.decode(jwtRefreshToken)).ticketGrantingTicketId;
-        LOGGER.debug("Ticket Granting Ticket : {}", ticketGrantingTicketId);
+        final OAuthToken refreshToken = OAuthToken.read(cipherExecutor.decode(jwtRefreshToken));
+        LOGGER.debug("Refresh Token : {}", refreshToken);
 
-        final boolean isVerified = verifyRequest(clientId, clientSecret, ticketGrantingTicketId);
+        final boolean isVerified = verifyRequest(clientId, clientSecret, refreshToken.ticketGrantingTicketId);
         if (!isVerified) {
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final TicketGrantingTicket refreshToken = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
-        if (refreshToken == null || refreshToken.isExpired()) {
-            LOGGER.error("Refresh Token (Ticket Granting Ticket) expired : {}", ticketGrantingTicketId);
+        final TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) ticketRegistry.getTicket(refreshToken.ticketGrantingTicketId);
+        if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
+            LOGGER.error("Refresh Token (Ticket Granting Ticket) expired : {}", refreshToken.ticketGrantingTicketId);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
@@ -117,9 +117,9 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
         }
 
         final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
-        final ServiceTicket accessToken = fetchAccessToken(refreshToken, service);
+        final ServiceTicket accessToken = fetchAccessToken(ticketGrantingTicket, service);
         if (accessToken == null) {
-            LOGGER.error("Could not fetch access token for : {}", refreshToken);
+            LOGGER.error("Could not fetch access token for : {}", refreshToken.ticketGrantingTicketId);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
@@ -141,13 +141,13 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
     /**
      * Fetch a new access token.
      *
-     * @param refreshToken the refresh token
+     * @param ticketGrantingTicket the ticket granting ticket
      * @param service the oauth service
      * @return ServiceTicket, if successful
      */
-    private ServiceTicket fetchAccessToken(final TicketGrantingTicket refreshToken, Service service) {
+    private ServiceTicket fetchAccessToken(final TicketGrantingTicket ticketGrantingTicket, Service service) {
         try {
-            return centralAuthenticationService.grantServiceTicket(refreshToken.getId(), service);
+            return centralAuthenticationService.grantServiceTicket(ticketGrantingTicket.getId(), service);
         } catch (Exception e) {
             return null;
         }

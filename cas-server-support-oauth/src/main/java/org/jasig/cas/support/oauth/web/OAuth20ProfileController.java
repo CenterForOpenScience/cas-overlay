@@ -41,9 +41,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -83,40 +81,41 @@ public final class OAuth20ProfileController extends AbstractController {
 
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        String accessTokenId = request.getParameter(OAuthConstants.ACCESS_TOKEN);
-        if (StringUtils.isBlank(accessTokenId)) {
+        String jwtAccessToken = request.getParameter(OAuthConstants.ACCESS_TOKEN);
+        if (StringUtils.isBlank(jwtAccessToken)) {
             final String authHeader = request.getHeader("Authorization");
             if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith(OAuthConstants.BEARER_TOKEN + " ")) {
-                accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
+                jwtAccessToken = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
             }
         }
-        // accessToken is required
-        if (StringUtils.isBlank(accessTokenId)) {
+        LOGGER.debug("{} : {}", OAuthConstants.ACCESS_TOKEN, jwtAccessToken);
+
+        // jwtAccessToken is required
+        if (StringUtils.isBlank(jwtAccessToken)) {
             LOGGER.error("Missing {}", OAuthConstants.ACCESS_TOKEN);
             return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_BAD_REQUEST);
         }
 
-        OAuthToken token = OAuthToken.read(cipherExecutor.decode(accessTokenId));
-        LOGGER.debug("Token : {}", token);
+        OAuthToken accessToken = OAuthToken.read(cipherExecutor.decode(jwtAccessToken));
+        LOGGER.debug("Token : {}", accessToken);
 
         final ServiceTicket serviceTicket;
-
-        if (token.serviceTicketId == null) {
-            TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) this.ticketRegistry.getTicket(token.ticketGrantingTicketId);
+        if (accessToken.serviceTicketId == null) {
+            TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) this.ticketRegistry.getTicket(accessToken.ticketGrantingTicketId);
             if (ticketGrantingTicket == null) {
-                LOGGER.error("Unknown Ticket Granting Ticket : {}", token.ticketGrantingTicketId);
+                LOGGER.error("Unknown Ticket Granting Ticket : {}", accessToken.ticketGrantingTicketId);
                 return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_NOT_FOUND);
             }
 
-            final Service service = new SimpleWebApplicationServiceImpl(token.serviceId);
+            final Service service = new SimpleWebApplicationServiceImpl(accessToken.serviceId);
             serviceTicket = centralAuthenticationService.grantServiceTicket(ticketGrantingTicket.getId(), service);
         } else {
             // get service ticket, needed to lookup service for validation
-            serviceTicket = (ServiceTicket) this.ticketRegistry.getTicket(token.serviceTicketId);
+            serviceTicket = (ServiceTicket) this.ticketRegistry.getTicket(accessToken.serviceTicketId);
         }
 
         if (serviceTicket == null) {
-            LOGGER.error("Unknown Service Ticket : {}", token.serviceTicketId);
+            LOGGER.error("Unknown Service Ticket : {}", accessToken.serviceTicketId);
             return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_NOT_FOUND);
         }
 

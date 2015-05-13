@@ -21,6 +21,7 @@ package org.jasig.cas.support.oauth.web;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.OAuthConstants;
+import org.jasig.cas.support.oauth.OAuthToken;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.CipherExecutor;
@@ -59,18 +60,19 @@ public final class OAuth20RevokeController extends AbstractController {
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String token = request.getParameter(OAuthConstants.TOKEN);
-        LOGGER.debug("{} : {}", OAuthConstants.TOKEN, token);
+        final String jwtToken = request.getParameter(OAuthConstants.TOKEN);
+        LOGGER.debug("{} : {}", OAuthConstants.TOKEN, jwtToken);
 
-        final String ticketId = cipherExecutor.decode(token);
-        LOGGER.debug("Ticket Id : {}", ticketId);
-
-        // token must be valid
-        if (StringUtils.isBlank(token)) {
-            LOGGER.error("Missing {}", OAuthConstants.TOKEN);
+        // jwtToken must be valid
+        if (StringUtils.isBlank(jwtToken)) {
+            LOGGER.debug("Missing {}", OAuthConstants.TOKEN);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
+        OAuthToken token = OAuthToken.read(cipherExecutor.decode(jwtToken));
+        LOGGER.debug("Token : {}", token);
+
+        final String ticketId = token.serviceTicketId != null ? token.serviceTicketId : token.ticketGrantingTicketId;
         if (!ticketRegistry.deleteTicket(ticketId)) {
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_NOT_FOUND);
         }
