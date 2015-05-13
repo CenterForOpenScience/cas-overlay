@@ -54,3 +54,11 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 
 * Request Throttling
 * Jetty JPA Shared Sessions
+* Open Science Framework
+  * OAuth Endpoints
+    * Revoke All User Tokens
+    * Application User Counts
+  * User
+    * Active Login Sessions
+    * Approved OAuth Applications
+    * Revoke OAuth Application
