@@ -22,8 +22,6 @@ import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
-import org.jasig.cas.util.JsonSerializer;
-import org.jasig.cas.util.services.RegisteredServiceJsonSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
@@ -55,11 +53,6 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
      * Map of service ID to registered service.
      */
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
-
-    /**
-     * The Registered service json serializer.
-     */
-    private final JsonSerializer<RegisteredService> registeredServiceJsonSerializer;
 
     @Document(collection="oauth")
     private class OAuth {
@@ -131,25 +124,12 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
     }
 
     /**
-     * Instantiates a new Json service registry dao.
-     *
-     * @param mongoTemplate the mongo template
-     * @param registeredServiceJsonSerializer the registered service json serializer
-     */
-    public OpenScienceFrameworkServiceRegistryDao(final MongoOperations mongoTemplate, final JsonSerializer<RegisteredService> registeredServiceJsonSerializer) {
-        this.mongoTemplate = mongoTemplate;
-        this.registeredServiceJsonSerializer = registeredServiceJsonSerializer;
-    }
-
-    /**
-     * Instantiates a new Json service registry dao.
-     * Sets the path to the directory where JSON service registry entries are
-     * stored. Uses the {@link RegisteredServiceJsonSerializer} by default.
+     * Instantiates a new Open Science Framework service registry dao.
      *
      * @param mongoTemplate the mongo template
      */
     public OpenScienceFrameworkServiceRegistryDao(final MongoOperations mongoTemplate) {
-        this(mongoTemplate, new RegisteredServiceJsonSerializer());
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
