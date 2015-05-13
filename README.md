@@ -38,9 +38,9 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
   * Encrypted JSON Web Tokens (JWT)
 * Login Session Access Token via augmented CAS 3 Protocol (Optional)
 
-### Service Registries
+### Service Registry
 
-* Multiple Service Registries Loader
+* Multiple Service Registry Loader
 * JSON Service Registry
 * Open Science Framework Service Registry (MongoDB & OAuth)
 
