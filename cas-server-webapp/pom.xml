@@ -95,9 +95,21 @@
               <name>cas.properties.filepath</name>
               <value>file:${project.parent.basedir}/etc/cas.properties</value>
             </systemProperty>
+            <systemProperty>
+              <name>service.registry.config.location</name>
+              <value>file:${project.parent.basedir}/etc/services</value>
+            </systemProperty>
+            <systemProperty>
+              <name>http.client.truststore.file</name>
+              <value>file:${project.parent.basedir}/etc/jetty/truststore.jks</value>
+            </systemProperty>
+            <systemProperty>
+              <name>log4j.config.location</name>
+              <value>file:${project.parent.basedir}/etc/log4j2.xml</value>
+            </systemProperty>
           </systemProperties>
-          <jettyXml>${project.basedir}/src/test/resources/jetty.xml,${project.basedir}/src/test/resources/jetty-http.xml,${project.basedir}/src/test/resources/jetty-ssl.xml,${project.basedir}/src/test/resources/jetty-https.xml</jettyXml>
-          <contextXml>${project.basedir}/src/test/resources/jetty-context.xml</contextXml>
+          <jettyXml>${project.parent.basedir}/etc/jetty/jetty.xml,${project.parent.basedir}/etc/jetty/jetty-http.xml,${project.parent.basedir}/etc/jetty/jetty-ssl.xml,${project.parent.basedir}/etc/jetty/jetty-https.xml</jettyXml>
+          <contextXml>${project.parent.basedir}/etc/jetty/jetty-context.xml</contextXml>
           <scanIntervalSeconds>10</scanIntervalSeconds>
           <webApp>
             <!--<extraClasspath>target/classes;../cas-server-support-jdbc/target</extraClasspath>-->
