@@ -18,6 +18,7 @@
  */
 package org.jasig.cas.support.oauth.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
@@ -25,6 +26,7 @@ import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.services.ServicesManager;
+import org.jasig.cas.support.oauth.OAuthToken;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
@@ -33,7 +35,6 @@ import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.CipherExecutor;
-import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -42,6 +43,8 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -85,7 +88,6 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final HttpSession session = request.getSession();
@@ -152,15 +154,19 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
         }
 
         final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getCreationTime()));
-        final JSONObject result = new JSONObject();
-        result.put(OAuthConstants.ACCESS_TOKEN, cipherExecutor.encode(accessToken.getId()));
-        result.put(OAuthConstants.REFRESH_TOKEN, cipherExecutor.encode(refreshToken.getId()));
-        result.put(OAuthConstants.EXPIRES_IN, expires);
-        result.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final Map<String, Object> map = new HashMap<>();
+        map.put(OAuthConstants.ACCESS_TOKEN, cipherExecutor.encode(new OAuthToken(accessToken.getId()).toString()));
+        map.put(OAuthConstants.REFRESH_TOKEN, cipherExecutor.encode(new OAuthToken(refreshToken.getId(), service.getId()).toString()));
+        map.put(OAuthConstants.EXPIRES_IN, expires);
+        map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
+
+        final String result = mapper.writeValueAsString(map);
         LOGGER.debug("result : {}", result);
 
         response.setContentType("application/json; charset=UTF-8");
-        return OAuthUtils.writeText(response, result.toString(), HttpStatus.SC_OK);
+        return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
     }
 
     /**
@@ -171,7 +177,7 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
      * @return TicketGrantingTicket, if successful
      */
     private TicketGrantingTicket fetchRefreshToken(final String clientId, final Principal loginPrincipal) {
-        final OAuthCredential credential = new OAuthCredential(clientId, OAuthConstants.AUTHORIZATION_CODE, loginPrincipal.getId(), loginPrincipal.getAttributes());
+        final OAuthCredential credential = new OAuthCredential(clientId, loginPrincipal.getId(), loginPrincipal.getAttributes());
         try {
             return centralAuthenticationService.createTicketGrantingTicket(credential);
         } catch (final Exception e) {
@@ -229,10 +235,6 @@ public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractC
         final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
         if (service == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return false;
-        }
-        if (!service.getGrantTypes().contains(OAuthConstants.AUTHORIZATION_CODE)) {
-            LOGGER.error("Unauthorized Grant Type {} : {}", OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
             return false;
         }
         if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {

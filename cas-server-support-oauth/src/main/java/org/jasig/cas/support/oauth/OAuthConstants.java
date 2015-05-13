@@ -157,4 +157,7 @@ public interface OAuthConstants {
 
     /** The access denied. */
     String ACCESS_DENIED = "access_denied";
+
+    /** The CAS protocol access token. */
+    String CAS_PROTOCOL_ACCESS_TOKEN = "accessToken";
 }

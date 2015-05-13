@@ -39,7 +39,6 @@ public final class OAuthAuthenticationMetaDataPopulator implements
         OAuthCredential c = (OAuthCredential) credential;
         builder.addAttribute(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH, Boolean.TRUE);
         builder.addAttribute(OAuthConstants.CLIENT_ID, c.getClientId());
-        builder.addAttribute(OAuthConstants.GRANT_TYPE, c.getGrantType());
     }
 
     @Override

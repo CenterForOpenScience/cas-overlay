@@ -18,27 +18,32 @@
  */
 package org.jasig.cas.support.oauth.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.principal.Principal;
+import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
+import org.jasig.cas.support.oauth.OAuthToken;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.CipherExecutor;
 import org.jasig.cas.validation.Assertion;
-import org.jose4j.json.internal.json_simple.JSONArray;
-import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
-import javax.crypto.Cipher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,7 +82,6 @@ public final class OAuth20ProfileController extends AbstractController {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         String accessTokenId = request.getParameter(OAuthConstants.ACCESS_TOKEN);
         if (StringUtils.isBlank(accessTokenId)) {
@@ -86,48 +90,61 @@ public final class OAuth20ProfileController extends AbstractController {
                 accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
             }
         }
-        LOGGER.debug("{} : {}", OAuthConstants.ACCESS_TOKEN, accessTokenId);
         // accessToken is required
         if (StringUtils.isBlank(accessTokenId)) {
             LOGGER.error("Missing {}", OAuthConstants.ACCESS_TOKEN);
             return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_BAD_REQUEST);
         }
 
-        String serviceTicketId = cipherExecutor.decode(accessTokenId);
-        LOGGER.debug("Service Ticket Id : {}", serviceTicketId);
+        OAuthToken token = OAuthToken.read(cipherExecutor.decode(accessTokenId));
+        LOGGER.debug("Token : {}", token);
 
-        // get service ticket, needed to lookup service for validation
-        final ServiceTicket serviceTicket = (ServiceTicket) this.ticketRegistry.getTicket(serviceTicketId);
+        final ServiceTicket serviceTicket;
+
+        if (token.serviceTicketId == null) {
+            TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) this.ticketRegistry.getTicket(token.ticketGrantingTicketId);
+            if (ticketGrantingTicket == null) {
+                LOGGER.error("Unknown Ticket Granting Ticket : {}", token.ticketGrantingTicketId);
+                return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_NOT_FOUND);
+            }
+
+            final Service service = new SimpleWebApplicationServiceImpl(token.serviceId);
+            serviceTicket = centralAuthenticationService.grantServiceTicket(ticketGrantingTicket.getId(), service);
+        } else {
+            // get service ticket, needed to lookup service for validation
+            serviceTicket = (ServiceTicket) this.ticketRegistry.getTicket(token.serviceTicketId);
+        }
+
         if (serviceTicket == null) {
-            LOGGER.error("Unknown Service Ticket : {}", serviceTicketId);
+            LOGGER.error("Unknown Service Ticket : {}", token.serviceTicketId);
             return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_NOT_FOUND);
         }
 
         // validate the service ticket, also applies attribute release policy
         final Assertion assertion;
         try {
-            assertion = this.centralAuthenticationService.validateServiceTicket(serviceTicketId, serviceTicket.getService());
+            assertion = this.centralAuthenticationService.validateServiceTicket(serviceTicket.getId(), serviceTicket.getService());
         } catch (InvalidTicketException e) {
-            LOGGER.error("Expired {} (Service Ticket) : {}", OAuthConstants.ACCESS_TOKEN, serviceTicketId);
+            LOGGER.error("Expired {} (Service Ticket) : {}", OAuthConstants.ACCESS_TOKEN, serviceTicket.getId());
             return OAuthUtils.writeTextError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_BAD_REQUEST);
         }
 
         // generate profile : identifier + attributes
         final Principal principal = assertion.getPrimaryAuthentication().getPrincipal();
 
-        final JSONObject result = new JSONObject();
-        result.put(ID, principal.getId());
-
-        final JSONArray resultAttributes = new JSONArray();
-        result.put(ATTRIBUTES, resultAttributes);
+        final ObjectMapper mapper = new ObjectMapper();
+        final Map<String, Object> map = new HashMap<>();
+        final Map<String, Object> attributeMap = new HashMap<>();
+        map.put(ID, principal.getId());
         for (final Map.Entry<String, Object> attribute : principal.getAttributes().entrySet()) {
-            JSONObject jsonAttribute = new JSONObject();
-            jsonAttribute.put(attribute.getKey(), attribute.getValue());
-            resultAttributes.add(jsonAttribute);
+            attributeMap.put(attribute.getKey(), attribute.getValue());
         }
+        map.put(ATTRIBUTES, attributeMap);
+
+        final String result = mapper.writeValueAsString(map);
         LOGGER.debug("result : {}", result);
 
         response.setContentType("application/json");
-        return OAuthUtils.writeText(response, result.toString(), HttpStatus.SC_OK);
+        return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
     }
 }

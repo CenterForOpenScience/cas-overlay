@@ -219,11 +219,13 @@
   </bean>
 
   <!--  CAS 2 Protocol service/proxy validation -->
-  <bean id="abstractValidateController" class="org.jasig.cas.web.ServiceValidateController" abstract="true"
+  <!--<bean id="abstractValidateController" class="org.jasig.cas.web.ServiceValidateController" abstract="true"-->
+  <bean id="abstractValidateController" class="org.jasig.cas.support.oauth.web.OAuth20ServiceValidateController" abstract="true"
         p:centralAuthenticationService-ref="centralAuthenticationService"
         p:proxyHandler-ref="proxy20Handler"
         p:argumentExtractor-ref="casArgumentExtractor"
-        p:servicesManager-ref="servicesManager" />
+        p:servicesManager-ref="servicesManager"
+        p:cipherExecutor-ref="oauth20CipherExecutor" />
 
   <bean id="proxyValidateController" parent="abstractValidateController"/>
 

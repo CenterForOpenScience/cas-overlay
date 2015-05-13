@@ -179,7 +179,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     @Override
     protected final HandlerResult doAuthentication(final Credential credential)
             throws GeneralSecurityException, PreventedException {
-        final OpenScienceFrameworkCredential osfCredential = (OpenScienceFrameworkCredential)credential;
+        final OpenScienceFrameworkCredential osfCredential = (OpenScienceFrameworkCredential) credential;
         if (osfCredential.getUsername() == null) {
             throw new AccountNotFoundException("Username is null.");
         }

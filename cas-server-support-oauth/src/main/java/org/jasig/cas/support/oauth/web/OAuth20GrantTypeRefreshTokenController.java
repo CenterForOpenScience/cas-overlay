@@ -18,12 +18,14 @@
  */
 package org.jasig.cas.support.oauth.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.services.ServicesManager;
+import org.jasig.cas.support.oauth.OAuthToken;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
@@ -32,7 +34,6 @@ import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.CipherExecutor;
-import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -40,6 +41,8 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -83,7 +86,6 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
@@ -91,20 +93,20 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
 
         final String clientSecret = request.getParameter(OAuthConstants.CLIENT_SECRET);
 
-        final String refreshTokenId = request.getParameter(OAuthConstants.REFRESH_TOKEN);
-        LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId);
+        final String jwtRefreshToken = request.getParameter(OAuthConstants.REFRESH_TOKEN);
+        LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, jwtRefreshToken);
 
-        final String ticketGrantingTicketId = cipherExecutor.decode(refreshTokenId);
+        final String ticketGrantingTicketId = OAuthToken.read(cipherExecutor.decode(jwtRefreshToken)).ticketGrantingTicketId;
         LOGGER.debug("Ticket Granting Ticket : {}", ticketGrantingTicketId);
 
-        final boolean isVerified = verifyRequest(clientId, clientSecret, refreshTokenId, ticketGrantingTicketId);
+        final boolean isVerified = verifyRequest(clientId, clientSecret, ticketGrantingTicketId);
         if (!isVerified) {
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
         final TicketGrantingTicket refreshToken = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
         if (refreshToken == null || refreshToken.isExpired()) {
-            LOGGER.error("Refresh Token (Ticket Granting Ticket) expired : {}", refreshTokenId);
+            LOGGER.error("Refresh Token (Ticket Granting Ticket) expired : {}", ticketGrantingTicketId);
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
@@ -122,14 +124,18 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
         }
 
         final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getCreationTime()));
-        final JSONObject result = new JSONObject();
-        result.put(OAuthConstants.ACCESS_TOKEN, cipherExecutor.encode(accessToken.getId()));
-        result.put(OAuthConstants.EXPIRES_IN, expires);
-        result.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final Map<String, Object> map = new HashMap<>();
+        map.put(OAuthConstants.ACCESS_TOKEN, cipherExecutor.encode(new OAuthToken(accessToken.getId()).toString()));
+        map.put(OAuthConstants.EXPIRES_IN, expires);
+        map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
+
+        final String result = mapper.writeValueAsString(map);
         LOGGER.debug("result : {}", result);
 
         response.setContentType("application/json; charset=UTF-8");
-        return OAuthUtils.writeText(response, result.toString(), HttpStatus.SC_OK);
+        return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
     }
 
     /**
@@ -152,11 +158,10 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
      *
      * @param clientId the client id
      * @param clientSecret the client secret
-     * @param refreshTokenId the refresh token id (encrypted tgt)
      * @param ticketGrantingTicketId the ticket granting ticket id
      * @return true, if successful
      */
-    private boolean verifyRequest(final String clientId, final String clientSecret, final String refreshTokenId, final String ticketGrantingTicketId) {
+    private boolean verifyRequest(final String clientId, final String clientSecret, final String ticketGrantingTicketId) {
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
@@ -167,8 +172,8 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_SECRET);
             return false;
         }
-        // refreshToken is required
-        if (StringUtils.isBlank(refreshTokenId)) {
+        // ticketGrantingTicketId is required
+        if (StringUtils.isBlank(ticketGrantingTicketId)) {
             LOGGER.error("Missing {}", OAuthConstants.REFRESH_TOKEN);
             return false;
         }
@@ -176,10 +181,6 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
         final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
         if (service == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return false;
-        }
-        if (!service.getGrantTypes().contains(OAuthConstants.REFRESH_TOKEN)) {
-            LOGGER.error("Unauthorized Grant Type {} : {}", OAuthConstants.GRANT_TYPE, OAuthConstants.REFRESH_TOKEN);
             return false;
         }
         if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {

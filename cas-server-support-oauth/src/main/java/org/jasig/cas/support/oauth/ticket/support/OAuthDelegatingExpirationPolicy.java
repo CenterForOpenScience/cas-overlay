@@ -42,10 +42,7 @@ public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpiration
     private static final long serialVersionUID = 4461752518354198401L;
 
     @NotNull
-    private ExpirationPolicy oAuthGrantTypeAuthorizationCodeExpirationPolicy;
-
-    @NotNull
-    private ExpirationPolicy oAuthGrantTypePasswordExpirationPolicy;
+    private ExpirationPolicy oAuthExpirationPolicy;
 
     @NotNull
     private ExpirationPolicy sessionExpirationPolicy;
@@ -64,24 +61,11 @@ public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpiration
             return this.sessionExpirationPolicy.isExpired(ticketState);
         }
 
-        final String grantType = (String) authentication.getAttributes().get(OAuthConstants.GRANT_TYPE);
-        if (grantType.equalsIgnoreCase(OAuthConstants.AUTHORIZATION_CODE)) {
-            return this.oAuthGrantTypeAuthorizationCodeExpirationPolicy.isExpired(ticketState);
-        } else if (grantType.equalsIgnoreCase(OAuthConstants.PASSWORD)) {
-            return this.oAuthGrantTypePasswordExpirationPolicy.isExpired(ticketState);
-        }
-
-        return this.sessionExpirationPolicy.isExpired(ticketState);
+        return this.oAuthExpirationPolicy.isExpired(ticketState);
     }
 
-    public void setOAuthGrantTypeAuthorizationCodeExpirationPolicy(
-            final ExpirationPolicy oAuthGrantTypeAuthorizationCodeExpirationPolicy) {
-        this.oAuthGrantTypeAuthorizationCodeExpirationPolicy = oAuthGrantTypeAuthorizationCodeExpirationPolicy;
-    }
-
-    public void setOAuthGrantTypePasswordExpirationPolicy(
-            final ExpirationPolicy oAuthGrantTypePasswordExpirationPolicy) {
-        this.oAuthGrantTypePasswordExpirationPolicy = oAuthGrantTypePasswordExpirationPolicy;
+    public void setOAuthExpirationPolicy(final ExpirationPolicy oAuthExpirationPolicy) {
+        this.oAuthExpirationPolicy = oAuthExpirationPolicy;
     }
 
     public void setSessionExpirationPolicy(final ExpirationPolicy sessionExpirationPolicy) {
