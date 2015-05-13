@@ -36,9 +36,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Michael Haselton
  * @since 4.1.0
  */
-public class MultipleServiceRegistryDao implements ServiceRegistryDao {
+public class MergingServiceRegistryDao implements ServiceRegistryDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MultipleServiceRegistryDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MergingServiceRegistryDao.class);
 
     /** An array of ServiceRegistryDao. */
     @NotNull
@@ -53,7 +53,7 @@ public class MultipleServiceRegistryDao implements ServiceRegistryDao {
     /**
      * Instantiates a new Multiple Service Registry dao.
      */
-    public MultipleServiceRegistryDao() {
+    public MergingServiceRegistryDao() {
     }
 
     @Override
@@ -75,7 +75,7 @@ public class MultipleServiceRegistryDao implements ServiceRegistryDao {
                 if (!temp.containsKey(registeredService.getId())) {
                     temp.put(registeredService.getId(), registeredService);
                 } else {
-                    LOGGER.warn("Duplicate registered service id [{}] while loading [{}]", registeredService.getId(), serviceRegistry);
+                    LOGGER.warn("Registered service [{}] already exists while loading [{}]", registeredService.getId(), serviceRegistry.getClass().getSimpleName());
                 }
             }
         }
