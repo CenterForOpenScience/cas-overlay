@@ -30,6 +30,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>io.cos.cas</groupId>
+      <artifactId>cas-server-support-oauth</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-server-core</artifactId>
     </dependency>

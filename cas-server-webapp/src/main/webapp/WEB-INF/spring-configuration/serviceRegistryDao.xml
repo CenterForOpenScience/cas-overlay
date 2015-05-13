@@ -24,6 +24,13 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
-    <bean id="serviceRegistryDao" class="org.jasig.cas.services.JsonServiceRegistryDao"
-          c:configDirectory="${service.registry.config.location:classpath:services}" />
+    <!--<bean id="serviceRegistryDao" class="io.cos.cas.services.DelegateServiceRegistryDao"-->
+          <!--c:configDirectory="${service.registry.config.location:classpath:services}"-->
+            <!--/>-->
+
+    <bean id="serviceRegistryDao" class="io.cos.cas.services.OpenScienceFrameworkServiceRegistryDao"
+          c:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
+
+    <!--<bean id="serviceRegistryDao" class="org.jasig.cas.services.JsonServiceRegistryDao"-->
+          <!--c:configDirectory="${service.registry.config.location:classpath:services}" />-->
 </beans>
