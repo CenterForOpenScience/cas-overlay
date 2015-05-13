@@ -18,21 +18,12 @@
  */
 package io.cos.cas.services;
 
-import org.jasig.cas.authentication.AuthenticationMetaDataPopulator;
 import org.jasig.cas.services.RegisteredService;
-import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.jasig.cas.services.ServiceRegistryDao;
-import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
-import org.jasig.cas.util.JsonSerializer;
-import org.jasig.cas.util.services.RegisteredServiceJsonSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 
 import javax.validation.constraints.NotNull;
-import javax.xml.ws.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +75,7 @@ public class MultipleServiceRegistryDao implements ServiceRegistryDao {
                 if (!temp.containsKey(registeredService.getId())) {
                     temp.put(registeredService.getId(), registeredService);
                 } else {
-                    LOGGER.info("Duplicate registered service id [{}] while loading [{}]", registeredService.getId(), serviceRegistry);
+                    LOGGER.warn("Duplicate registered service id [{}] while loading [{}]", registeredService.getId(), serviceRegistry);
                 }
             }
         }

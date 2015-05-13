@@ -27,10 +27,10 @@
     <bean id="serviceRegistryDao" class="io.cos.cas.services.MultipleServiceRegistryDao">
         <property name="serviceRegistries">
             <list>
-                <bean id="serviceRegistryDao" class="io.cos.cas.services.OpenScienceFrameworkServiceRegistryDao"
-                      c:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
-                <bean id="serviceRegistryDao" class="org.jasig.cas.services.JsonServiceRegistryDao"
+                <bean id="jsonServiceRegistryDao" class="org.jasig.cas.services.JsonServiceRegistryDao"
                       c:configDirectory="${service.registry.config.location:classpath:services}" />
+                <bean id="openScienceFrameworkServiceRegistryDao" class="io.cos.cas.services.OpenScienceFrameworkServiceRegistryDao"
+                      c:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
             </list>
         </property>
     </bean>
