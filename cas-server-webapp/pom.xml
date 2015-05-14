@@ -85,53 +85,15 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
-      <!--<plugin>-->
-        <!--<groupId>org.codehaus.mojo</groupId>-->
-        <!--<artifactId>properties-maven-plugin</artifactId>-->
-        <!--<version>1.0-alpha-2</version>-->
-        <!--<executions>-->
-          <!--<execution>-->
-            <!--<id>read-project-properties</id>-->
-            <!--<phase>initialize</phase>-->
-            <!--<goals>-->
-              <!--<goal>read-project-properties</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-              <!--<files>-->
-                <!--<file>${project.parent.basedir}/etc/system.properties</file>-->
-              <!--</files>-->
-            <!--</configuration>-->
-          <!--</execution>-->
-          <!--<execution>-->
-            <!--<id>set-system-properties</id>-->
-            <!--<goals>-->
-              <!--<goal>set-system-properties</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-              <!--<properties>-->
-                <!--<property>-->
-                  <!--<name>cas.properties.filepath</name>-->
-                  <!--<value>file:${project.parent.basedir}/etc/cas.properties</value>-->
-                <!--</property>-->
-              <!--</properties>-->
-            <!--</configuration>-->
-          <!--</execution>-->
-        <!--</executions>-->
-      <!--</plugin>-->
       <plugin>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
         <version>9.2.10.v20150310</version>
         <configuration>
-          <!--<systemPropertiesFile>${project.parent.basedir}/etc/system.properties</systemPropertiesFile>-->
           <systemProperties>
             <systemProperty>
               <name>cas.properties.filepath</name>
               <value>file:${project.parent.basedir}/etc/cas.properties</value>
-            </systemProperty>
-            <systemProperty>
-              <name>osf.url</name>
-              <value>http://localhost:5000/</value>
             </systemProperty>
             <systemProperty>
               <name>service.registry.config.location</name>
@@ -144,10 +106,6 @@
             <systemProperty>
               <name>log4j.config.location</name>
               <value>file:${project.parent.basedir}/etc/log4j2.xml</value>
-            </systemProperty>
-            <systemProperty>
-              <name>database.url</name>
-              <value>jdbc:postgresql://${CAS_DB_PORT_5432_TCP_ADDR:127.0.0.1}:${CAS_DB_PORT_5432_TCP_PORT:5432}/cas?target=master</value>
             </systemProperty>
           </systemProperties>
           <jettyXml>${project.parent.basedir}/etc/jetty/jetty.xml,${project.parent.basedir}/etc/jetty/jetty-http.xml,${project.parent.basedir}/etc/jetty/jetty-ssl.xml,${project.parent.basedir}/etc/jetty/jetty-https.xml</jettyXml>
