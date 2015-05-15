@@ -40,7 +40,6 @@ if (auto != null && auto.equals("true")) {
             <% if (request.getParameter("rememberMe") == null || "true".equals(request.getParameter("rememberMe"))) {%>
                 <input type="hidden" name="rememberMe" value="true" />
             <% } %>
-
             <input type="submit" value="Submit" style="visibility: hidden;" />
         </form>
     </body>

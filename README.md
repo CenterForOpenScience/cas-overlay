@@ -23,6 +23,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 * Customized login web flow prompts
   * Login, Logout, One Time Password
   * OAuth Application Approval
+* [Login from external form](https://wiki.jasig.org/display/CAS/Using+CAS+from+external+link+or+custom+external+form)
 
 ### OAuth2 Provider (Server)
 *[Roadmap 4.1 OAuth Server Support](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap#CAS4.1Roadmap-Oauthserversupport)*
