@@ -300,7 +300,8 @@
   <bean id="credentialsValidator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"
         p:messageInterpolator-ref="messageInterpolator"/>
 
-  <bean id="ticketGrantingTicketCheckAction" class="org.jasig.cas.web.flow.TicketGrantingTicketCheckAction"
+  <!--<bean id="ticketGrantingTicketCheckAction" class="org.jasig.cas.web.flow.TicketGrantingTicketCheckAction"-->
+  <bean id="ticketGrantingTicketCheckAction" class="io.cos.cas.web.flow.OpenScienceFrameworkTicketGrantingTicketCheckAction"
         c:centralAuthenticationService-ref="centralAuthenticationService" />
 
   <bean id="terminateSessionAction" class="org.jasig.cas.web.flow.TerminateSessionAction"
