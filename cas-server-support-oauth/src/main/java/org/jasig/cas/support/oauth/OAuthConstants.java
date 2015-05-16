@@ -139,10 +139,10 @@ public interface OAuthConstants {
     String CALLBACK_AUTHORIZE_ACTION_URL = "callbackAuthorizeAction";
 
     /** The access token url. */
-    String ACCESS_TOKEN_URL = "token";
+    String TOKEN_URL = "token";
 
     /** The revoke token url. */
-    String REVOKE_TOKEN_URL = "revoke";
+    String REVOKE_URL = "revoke";
 
     /** The profile url. */
     String PROFILE_URL = "profile";

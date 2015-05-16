@@ -25,6 +25,7 @@ import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
+import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.Ticket;
@@ -108,16 +109,67 @@ public class OAuthTokenUtils {
         }
     }
 
+    public static String getJsonWebToken(final CipherExecutor cipherExecutor, final Ticket ticket) {
+        return getJsonWebToken(cipherExecutor, ticket, null);
+    }
+
+    public static String getJsonWebToken(final CipherExecutor cipherExecutor, final Ticket ticket, final Service service) {
+        if (ticket instanceof TicketGrantingTicket) {
+            return cipherExecutor.encode(new OAuthToken(ticket.getId(), service == null ? null : service.getId()).toString());
+        }
+        return cipherExecutor.encode(new OAuthToken(ticket.getId()).toString());
+    }
+
     public static Boolean hasPermission(final Ticket accessTicket, final Ticket ticket) {
-        final Authentication accessAuthentication = accessTicket instanceof TicketGrantingTicket ?
-                ((TicketGrantingTicket) accessTicket).getAuthentication() : accessTicket.getGrantingTicket().getAuthentication();
+        final Authentication accessAuthentication = getAuthentication(accessTicket);
         final Principal accessPrincipal = accessAuthentication.getPrincipal();
 
-        final Authentication ticketAuthentication = ticket instanceof TicketGrantingTicket ?
-                ((TicketGrantingTicket) ticket).getAuthentication() : ticket.getGrantingTicket().getAuthentication();
+        final Authentication ticketAuthentication = getAuthentication(ticket);
         final Principal ticketPrincipal = ticketAuthentication.getPrincipal();
 
         return accessPrincipal.getId().equals(ticketPrincipal.getId());
+    }
+
+    public static Authentication getAuthentication(final Ticket ticket) {
+        return ticket instanceof TicketGrantingTicket ?
+                ((TicketGrantingTicket) ticket).getAuthentication() : ticket.getGrantingTicket().getAuthentication();
+    }
+
+    /**
+     * Fetch a new access ticket.
+     *
+     * @param centralAuthenticationService the central authentication service
+     * @param refreshTicket the refresh ticket
+     * @param service the service
+     * @return ServiceTicket, if successful
+     */
+    public static ServiceTicket fetchAccessTicket(final CentralAuthenticationService centralAuthenticationService,
+                                                  final TicketGrantingTicket refreshTicket, final Service service)
+            throws TokenInvalidException {
+        try {
+            return centralAuthenticationService.grantServiceTicket(refreshTicket.getId(), service);
+        } catch (Exception e) {
+            throw new TokenInvalidException();
+        }
+    }
+
+    /**
+     * Fetch a new refresh ticket.
+     *
+     * @param centralAuthenticationService the central authentication service
+     * @param clientId the client id
+     * @param principal the principal
+     * @return TicketGrantingTicket, if successful
+     */
+    public static TicketGrantingTicket fetchRefreshTicket(final CentralAuthenticationService centralAuthenticationService,
+                                                          final String clientId, final Principal principal)
+            throws TokenInvalidException {
+        final OAuthCredential credential = new OAuthCredential(clientId, principal.getId(), principal.getAttributes());
+        try {
+            return centralAuthenticationService.createTicketGrantingTicket(credential);
+        } catch (final Exception e) {
+            throw new TokenInvalidException();
+        }
     }
 
     private static OAuthToken readToken(final CipherExecutor cipherExecutor, final String jwtToken) {

@@ -24,7 +24,7 @@ import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.principal.WebApplicationService;
 import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.OAuthConstants;
-import org.jasig.cas.support.oauth.OAuthToken;
+import org.jasig.cas.support.oauth.OAuthTokenUtils;
 import org.jasig.cas.ticket.*;
 import org.jasig.cas.ticket.proxy.ProxyHandler;
 import org.jasig.cas.util.CipherExecutor;
@@ -72,10 +72,8 @@ public class OAuth20ServiceValidateController extends DelegateController {
         ModelAndView modelAndView = wrapped.handleRequest(request, response);
 
         if (service != null && modelAndView.getViewName().equals(this.successView)) {
-            TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
-            OAuthToken accessToken = new OAuthToken(ticketGrantingTicket.getId(), service.getId());
-            logger.debug("Access Token [{}]", accessToken);
-            modelAndView.addObject(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN, cipherExecutor.encode(accessToken.toString()));
+            TicketGrantingTicket accessTicket = serviceTicket.getGrantingTicket();
+            modelAndView.addObject(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, accessTicket, service));
         }
 
         return modelAndView;

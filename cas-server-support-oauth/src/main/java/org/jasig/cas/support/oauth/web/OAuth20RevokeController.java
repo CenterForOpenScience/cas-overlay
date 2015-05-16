@@ -66,11 +66,11 @@ public final class OAuth20RevokeController extends AbstractController {
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        OAuthToken accessToken = OAuthTokenUtils.getAccessToken(request, cipherExecutor);
-        Ticket accessTicket = OAuthTokenUtils.getTicket(centralAuthenticationService, accessToken);
+        final OAuthToken accessToken = OAuthTokenUtils.getAccessToken(request, cipherExecutor);
+        final Ticket accessTicket = OAuthTokenUtils.getTicket(centralAuthenticationService, accessToken);
 
-        OAuthToken token = OAuthTokenUtils.getToken(request, cipherExecutor, OAuthConstants.TOKEN);
-        Ticket ticket = OAuthTokenUtils.getTicket(centralAuthenticationService, token);
+        final OAuthToken token = OAuthTokenUtils.getToken(request, cipherExecutor, OAuthConstants.TOKEN);
+        final Ticket ticket = OAuthTokenUtils.getTicket(centralAuthenticationService, token);
 
         if (!OAuthTokenUtils.hasPermission(accessTicket, ticket)) {
             LOGGER.debug("Permission denied to access ticket [{}] for ticket [{}]", accessTicket.getId(), ticket.getId());
@@ -81,6 +81,6 @@ public final class OAuth20RevokeController extends AbstractController {
             LOGGER.debug("Delete ticket failed [{}]", ticket.getId());
             throw new TokenInvalidException();
         }
-        return OAuthUtils.writeText(response, null, HttpStatus.SC_OK);
+        return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);
     }
 }

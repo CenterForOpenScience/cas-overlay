@@ -52,15 +52,15 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
     private AbstractController callbackAuthorizeActionController;
 
-    private AbstractController grantTypeAuthorizationCodeController;
+    private AbstractController authorizedTokenController;
 
-    private AbstractController grantTypeRefreshTokenController;
+    private AbstractController authorizationCodeController;
 
-    private AbstractController revokeTokenController;
+    private AbstractController refreshTokenController;
+
+    private AbstractController revokeController;
 
     private AbstractController profileController;
-
-    private AbstractController applicationController;
 
     /** Instance of CentralAuthenticationService. */
     @NotNull
@@ -75,9 +75,10 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         authorizeController = new OAuth20AuthorizeController(servicesManager, loginUrl);
         callbackAuthorizeController = new OAuth20CallbackAuthorizeController(ticketRegistry, centralAuthenticationService);
         callbackAuthorizeActionController = new OAuth20CallbackAuthorizeActionController(servicesManager, centralAuthenticationService, cipherExecutor);
-        grantTypeAuthorizationCodeController = new OAuth20GrantTypeAuthorizationCodeController(servicesManager, ticketRegistry, centralAuthenticationService, cipherExecutor, timeout);
-        grantTypeRefreshTokenController = new OAuth20GrantTypeRefreshTokenController(servicesManager, ticketRegistry, centralAuthenticationService, cipherExecutor, timeout);
-        revokeTokenController = new OAuth20RevokeController(ticketRegistry, centralAuthenticationService, cipherExecutor);
+        authorizedTokenController = new OAuth20AuthorizedTokenController(servicesManager, centralAuthenticationService, cipherExecutor);
+        authorizationCodeController = new OAuth20AuthorizationCodeController(servicesManager, ticketRegistry, centralAuthenticationService, cipherExecutor, timeout);
+        refreshTokenController = new OAuth20RefreshTokenController(servicesManager, centralAuthenticationService, cipherExecutor, timeout);
+        revokeController = new OAuth20RevokeController(ticketRegistry, centralAuthenticationService, cipherExecutor);
         profileController = new OAuth20ProfileController(centralAuthenticationService, cipherExecutor);
 //        applicationController = new OAuth20ApplicationController(servicesManager, loginUrl);
     }
@@ -98,21 +99,25 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
             return callbackAuthorizeActionController.handleRequest(request, response);
         }
 
-        // access token
-        if (OAuthConstants.ACCESS_TOKEN_URL.equals(method) && request.getMethod().equals("POST")) {
-            final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
-            LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
+        // token
+        if (OAuthConstants.TOKEN_URL.equals(method)) {
+            if (request.getMethod().equals("GET")) {
+                return authorizedTokenController.handleRequest(request, response);
+            } else if (request.getMethod().equals("POST")) {
+                final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
+                LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
-            if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
-                return grantTypeAuthorizationCodeController.handleRequest(request, response);
-            } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
-                return grantTypeRefreshTokenController.handleRequest(request, response);
+                if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
+                    return authorizationCodeController.handleRequest(request, response);
+                } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
+                    return refreshTokenController.handleRequest(request, response);
+                }
             }
         }
 
-        // revoke token
-        if (OAuthConstants.REVOKE_TOKEN_URL.equals(method) && request.getMethod().equals("POST")) {
-            return revokeTokenController.handleRequest(request, response);
+        // revoke
+        if (OAuthConstants.REVOKE_URL.equals(method) && request.getMethod().equals("POST")) {
+            return revokeController.handleRequest(request, response);
         }
 
         // profile
@@ -120,10 +125,10 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
             return profileController.handleRequest(request, response);
         }
 
-        // application
-        if (OAuthConstants.APPLICATION_URL.equals(method) && request.getMethod().equals("GET")) {
-            return applicationController.handleRequest(request, response);
-        }
+//        // application
+//        if (OAuthConstants.APPLICATION_URL.equals(method) && request.getMethod().equals("GET")) {
+//            return applicationController.handleRequest(request, response);
+//        }
 
         // else error
         logger.error("Unknown method : {}", method);
