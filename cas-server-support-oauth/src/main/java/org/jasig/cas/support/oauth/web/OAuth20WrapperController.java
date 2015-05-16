@@ -38,7 +38,8 @@ import javax.validation.constraints.NotNull;
  * wrapping in CAS, should be mapped to something like /oauth2.0/*. Dispatch
  * request to specific controllers : authorize, accessToken...
  *
- * @author Jerome Leleu, Michael Haselton
+ * @author Jerome Leleu
+ * @author Michael Haselton
  * @since 3.5.0
  */
 public final class OAuth20WrapperController extends BaseOAuthWrapperController implements InitializingBean {
@@ -59,6 +60,8 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
     private AbstractController profileController;
 
+    private AbstractController applicationController;
+
     /** Instance of CentralAuthenticationService. */
     @NotNull
     private CentralAuthenticationService centralAuthenticationService;
@@ -74,8 +77,9 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         callbackAuthorizeActionController = new OAuth20CallbackAuthorizeActionController(servicesManager, centralAuthenticationService, cipherExecutor);
         grantTypeAuthorizationCodeController = new OAuth20GrantTypeAuthorizationCodeController(servicesManager, ticketRegistry, centralAuthenticationService, cipherExecutor, timeout);
         grantTypeRefreshTokenController = new OAuth20GrantTypeRefreshTokenController(servicesManager, ticketRegistry, centralAuthenticationService, cipherExecutor, timeout);
-        revokeTokenController = new OAuth20RevokeController(ticketRegistry, cipherExecutor);
-        profileController = new OAuth20ProfileController(ticketRegistry, centralAuthenticationService, cipherExecutor);
+        revokeTokenController = new OAuth20RevokeController(ticketRegistry, centralAuthenticationService, cipherExecutor);
+        profileController = new OAuth20ProfileController(centralAuthenticationService, cipherExecutor);
+//        applicationController = new OAuth20ApplicationController(servicesManager, loginUrl);
     }
 
     @Override
@@ -107,13 +111,18 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         }
 
         // revoke token
-        if (OAuthConstants.REVOKE_TOKEN_URL.equals(method) && request.getMethod().equals("GET")) {
+        if (OAuthConstants.REVOKE_TOKEN_URL.equals(method) && request.getMethod().equals("POST")) {
             return revokeTokenController.handleRequest(request, response);
         }
 
-        // get profile
+        // profile
         if (OAuthConstants.PROFILE_URL.equals(method) && request.getMethod().equals("GET")) {
             return profileController.handleRequest(request, response);
+        }
+
+        // application
+        if (OAuthConstants.APPLICATION_URL.equals(method) && request.getMethod().equals("GET")) {
+            return applicationController.handleRequest(request, response);
         }
 
         // else error

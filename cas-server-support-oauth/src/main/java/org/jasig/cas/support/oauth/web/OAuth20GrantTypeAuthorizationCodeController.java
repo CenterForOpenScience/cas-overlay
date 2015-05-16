@@ -52,7 +52,8 @@ import java.util.concurrent.TimeUnit;
  * returning an access token which is the CAS service ticket and a refresh token
  * which is the CAS granting ticket according to the service and code (service ticket) given.
  *
- * @author Jerome Leleu, Michael Haselton
+ * @author Jerome Leleu
+ * @author Michael Haselton
  * @since 4.1.0
  */
 public final class OAuth20GrantTypeAuthorizationCodeController extends AbstractController {

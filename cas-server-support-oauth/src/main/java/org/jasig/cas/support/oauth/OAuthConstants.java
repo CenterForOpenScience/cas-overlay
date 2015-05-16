@@ -21,7 +21,8 @@ package org.jasig.cas.support.oauth;
 /**
  * This class has the main constants for the OAuth implementation.
  *
- * @author Jerome Leleu, Michael Haselton
+ * @author Jerome Leleu
+ * @author Michael Haselton
  * @since 3.5.0
  */
 public interface OAuthConstants {
@@ -145,6 +146,9 @@ public interface OAuthConstants {
 
     /** The profile url. */
     String PROFILE_URL = "profile";
+
+    /** The application url. */
+    String APPLICATION_URL = "application";
 
     /** The remaining time in seconds before expiration with syntax : expires_in: 3600... */
     String EXPIRES_IN = "expires_in";

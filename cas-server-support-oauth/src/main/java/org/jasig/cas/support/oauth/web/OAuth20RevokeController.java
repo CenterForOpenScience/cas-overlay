@@ -18,11 +18,10 @@
  */
 package org.jasig.cas.support.oauth.web;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.support.oauth.OAuthConstants;
-import org.jasig.cas.support.oauth.OAuthToken;
-import org.jasig.cas.support.oauth.OAuthUtils;
+import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.support.oauth.*;
+import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.CipherExecutor;
 import org.slf4j.Logger;
@@ -45,36 +44,42 @@ public final class OAuth20RevokeController extends AbstractController {
 
     private final TicketRegistry ticketRegistry;
 
+    private final CentralAuthenticationService centralAuthenticationService;
+
     private final CipherExecutor cipherExecutor;
 
     /**
      * Instantiates a new o auth20 revoke token controller.
      *
      * @param ticketRegistry the ticket registry
+     * @param centralAuthenticationService the central authentication service
+     * @param cipherExecutor the cipher executor
      */
-    public OAuth20RevokeController(final TicketRegistry ticketRegistry, final CipherExecutor cipherExecutor) {
+    public OAuth20RevokeController(final TicketRegistry ticketRegistry,
+                                   final CentralAuthenticationService centralAuthenticationService,
+                                   final CipherExecutor cipherExecutor) {
         this.ticketRegistry = ticketRegistry;
+        this.centralAuthenticationService = centralAuthenticationService;
         this.cipherExecutor = cipherExecutor;
     }
 
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String jwtToken = request.getParameter(OAuthConstants.TOKEN);
-        LOGGER.debug("{} : {}", OAuthConstants.TOKEN, jwtToken);
+        OAuthToken accessToken = OAuthTokenUtils.getAccessToken(request, cipherExecutor);
+        Ticket accessTicket = OAuthTokenUtils.getTicket(centralAuthenticationService, accessToken);
 
-        // jwtToken must be valid
-        if (StringUtils.isBlank(jwtToken)) {
-            LOGGER.debug("Missing {}", OAuthConstants.TOKEN);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        OAuthToken token = OAuthTokenUtils.getToken(request, cipherExecutor, OAuthConstants.TOKEN);
+        Ticket ticket = OAuthTokenUtils.getTicket(centralAuthenticationService, token);
+
+        if (!OAuthTokenUtils.hasPermission(accessTicket, ticket)) {
+            LOGGER.debug("Permission denied to access ticket [{}] for ticket [{}]", accessTicket.getId(), ticket.getId());
+            throw new TokenInvalidException();
         }
 
-        OAuthToken token = OAuthToken.read(cipherExecutor.decode(jwtToken));
-        LOGGER.debug("Token : {}", token);
-
-        final String ticketId = token.serviceTicketId != null ? token.serviceTicketId : token.ticketGrantingTicketId;
-        if (!ticketRegistry.deleteTicket(ticketId)) {
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_NOT_FOUND);
+        if (!ticketRegistry.deleteTicket(ticket.getId())) {
+            LOGGER.debug("Delete ticket failed [{}]", ticket.getId());
+            throw new TokenInvalidException();
         }
         return OAuthUtils.writeText(response, null, HttpStatus.SC_OK);
     }

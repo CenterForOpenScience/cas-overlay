@@ -27,6 +27,7 @@ import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.OAuthToken;
 import org.jasig.cas.support.oauth.OAuthConstants;
+import org.jasig.cas.support.oauth.OAuthTokenUtils;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.ticket.ServiceTicket;
@@ -93,10 +94,7 @@ public final class OAuth20GrantTypeRefreshTokenController extends AbstractContro
 
         final String clientSecret = request.getParameter(OAuthConstants.CLIENT_SECRET);
 
-        final String jwtRefreshToken = request.getParameter(OAuthConstants.REFRESH_TOKEN);
-        LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, jwtRefreshToken);
-
-        final OAuthToken refreshToken = OAuthToken.read(cipherExecutor.decode(jwtRefreshToken));
+        final OAuthToken refreshToken = OAuthTokenUtils.getToken(request, cipherExecutor, OAuthConstants.REFRESH_TOKEN);
         LOGGER.debug("Refresh Token : {}", refreshToken);
 
         final boolean isVerified = verifyRequest(clientId, clientSecret, refreshToken.ticketGrantingTicketId);

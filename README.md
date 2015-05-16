@@ -41,7 +41,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 
 ### Service Registry
 
-* Multiple Service Registry Loader
+* Merging Service Registry Loader
 * JSON Service Registry
 * Open Science Framework Service Registry (MongoDB & OAuth)
 
