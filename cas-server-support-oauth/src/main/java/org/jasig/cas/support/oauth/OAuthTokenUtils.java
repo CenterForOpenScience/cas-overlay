@@ -57,14 +57,14 @@ public class OAuthTokenUtils {
         final String authorization = request.getHeader("Authorization");
         if (StringUtils.isBlank(authorization) || !authorization.toLowerCase().startsWith(OAuthConstants.BEARER_TOKEN + " ")) {
             LOGGER.debug("Missing bearer access token");
-            throw new AccessTokenMissingException();
+            throw new TokenInvalidException();
         }
 
         final String jwtToken = authorization.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
         final OAuthToken token = readToken(cipherExecutor, jwtToken);
         if (token == null) {
             LOGGER.debug("Could not read bearer access token");
-            throw new AccessTokenInvalidException();
+            throw new TokenInvalidException();
         }
         return token;
     }
