@@ -30,13 +30,19 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 
 * Profile Service specific Attribute Release
 * Access Tokens and Refresh Tokens
+  * Encrypted JSON Web Tokens (JWT)
   * Delegated Ticket Expiration (60 minutes for Access Token, never-expire Refresh Token)
   * Grant Types
     * Authorization Code
     * Refresh Token
-  * Approval Prompt (Auto or Force)
-  * Revoke Access Tokens & Refresh Tokens
-  * Encrypted JSON Web Tokens (JWT)
+    * Approval Prompt (Auto or Force)
+  * Revoke Tokens
+    * User Tokens
+    * User Application Token
+    * Application Tokens
+  * List User Authorized Applications
+* Metadata
+  * Application Service Information (user counts)
 * Login Session Access Token via augmented CAS 3 Protocol (Optional)
 
 ### Service Registry
