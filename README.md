@@ -21,7 +21,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
   * Time-based One Time Passwords (TOTP), e.g. Google Authenticator
 * MongoDB authentication backend
 * Customized login web flow prompts
-  * Login, Logout, One Time Password
+  * Login, Logout, One Time Password, Verification Key
   * OAuth Application Approval
 * [Login from external form](https://wiki.jasig.org/display/CAS/Using+CAS+from+external+link+or+custom+external+form)
 
