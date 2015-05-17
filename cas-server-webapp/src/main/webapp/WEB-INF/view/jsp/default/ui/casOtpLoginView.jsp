@@ -69,9 +69,9 @@
         </div> --%>
 
         <section class="row">
-            <label for="passcode"><spring:message code="screen.welcome.label.passcode" /></label>
+            <label for="oneTimePassword"><spring:message code="screen.welcome.label.passcode" /></label>
             <spring:message code="screen.welcome.label.passcode.accesskey" var="passcodeAccessKey" />
-            <form:input cssClass="required" cssErrorClass="error" id="passcode" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="passcode" autocomplete="off" htmlEscape="true" />
+            <form:input cssClass="required" cssErrorClass="error" id="oneTimePassword" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="oneTimePassword" autocomplete="off" htmlEscape="true" />
         </section>
 
         <%-- <section class="row check">

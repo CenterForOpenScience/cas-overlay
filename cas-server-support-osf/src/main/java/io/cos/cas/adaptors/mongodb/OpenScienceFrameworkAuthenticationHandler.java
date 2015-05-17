@@ -69,6 +69,8 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         private String id;
         private String username;
         private String password;
+        @Field("verification_key")
+        private String verificationKey;
         @Field("given_name")
         private String givenName;
         @Field("family_name")
@@ -98,6 +100,14 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public String getVerificationKey() {
+            return this.verificationKey;
+        }
+
+        public void setVerificationKey(String verificationKey) {
+            this.verificationKey = verificationKey;
         }
 
         public String getGivenName() {
@@ -195,6 +205,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             throws GeneralSecurityException, PreventedException {
         final String username = credential.getUsername();
         final String plainTextPassword = credential.getPassword();
+        final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
         final User user = this.mongoTemplate.findOne(new Query(Criteria
@@ -204,7 +215,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");
         }
-        if (!BCrypt.checkpw(plainTextPassword, user.password)) {
+
+        // verification key can substitute as a temporary password.
+        if (verificationKey != null && !verificationKey.equals(user.verificationKey)) {
+            throw new FailedLoginException(username + " invalid verification key");
+        } else if (verificationKey == null && !BCrypt.checkpw(plainTextPassword, user.password)) {
             throw new FailedLoginException(username + " invalid password");
         }
 

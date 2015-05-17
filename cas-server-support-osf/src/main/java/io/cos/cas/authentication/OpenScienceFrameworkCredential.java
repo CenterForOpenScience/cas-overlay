@@ -21,21 +21,25 @@ package io.cos.cas.authentication;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jasig.cas.authentication.RememberMeUsernamePasswordCredential;
 
-
 /**
  * Credential for authenticating with a username and password.
  *
- * @author Scott Battaglia
- * @author Marvin S. Addison
- * @since 3.0.0
+ * @author Michael Haselton
+ * @since 4.1.0
  */
 public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCredential {
 
     /** Unique ID for serialization. */
     private static final long serialVersionUID = -3006234230814410939L;
 
+    /** Verification Key appended to username in string representation. */
+    private static final String VERIFICATION_KEY_SUFFIX = "+vk";
+
     /** Time-based One Time Password suffix appended to username in string representation. */
     private static final String ONETIMEPASSWORD_SUFFIX = "+otp";
+
+    /** The Verification Key. */
+    private String verificationKey;
 
     /** The One Time Password. */
     private String oneTimePassword;
@@ -49,10 +53,11 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      *
      * @param username Non-null user name.
      * @param password Non-null password.
-     * @param rememberMe Non-null remember me.
+     * @param rememberMe remember me.
+     * @param verificationKey verification key.
      */
-    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe) {
-        this(username, password, rememberMe, null);
+    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe, final String verificationKey) {
+        this(username, password, rememberMe, verificationKey, null);
     }
 
     /**
@@ -60,14 +65,30 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      *
      * @param username Non-null user name.
      * @param password Non-null password.
-     * @param rememberMe Non-null remember me.
-     * @param oneTimePassword Non-null one time password.
+     * @param rememberMe remember me.
+     * @param verificationKey verification key.
+     * @param oneTimePassword one time password.
      */
-    public OpenScienceFrameworkCredential(final String username, final String password, Boolean rememberMe, final String oneTimePassword) {
+    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe, final String verificationKey, final String oneTimePassword) {
         this.setUsername(username);
         this.setPassword(password);
         this.setRememberMe(rememberMe);
-        this.oneTimePassword = oneTimePassword;
+        this.setVerificationKey(verificationKey);
+        this.setOneTimePassword(oneTimePassword);
+    }
+
+    /**
+     * @return Returns the Verification Key.
+     */
+    public final String getVerificationKey() {
+        return this.verificationKey;
+    }
+
+    /**
+     * @param verificationKey The Verification Key to set.
+     */
+    public final void setVerificationKey(final String verificationKey) {
+        this.verificationKey = verificationKey;
     }
 
     /**
@@ -94,10 +115,15 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
 
     @Override
     public String toString() {
-        if (this.oneTimePassword != null) {
-          return super.toString() + ONETIMEPASSWORD_SUFFIX;
+        String representation = super.toString();
+
+        if (this.verificationKey != null) {
+            representation += VERIFICATION_KEY_SUFFIX;
         }
-        return super.toString();
+        if (this.oneTimePassword != null) {
+            representation += ONETIMEPASSWORD_SUFFIX;
+        }
+        return representation;
     }
 
     @Override
@@ -113,7 +139,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
             return false;
         }
         final OpenScienceFrameworkCredential other = (OpenScienceFrameworkCredential) obj;
-        if (this.oneTimePassword != other.oneTimePassword) {
+        if (!this.verificationKey.equals(other.verificationKey)) {
+            return false;
+        } else if (!this.oneTimePassword.equals(other.oneTimePassword)) {
             return false;
         }
         return true;
@@ -123,6 +151,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     public int hashCode() {
         return new HashCodeBuilder()
                 .appendSuper(super.hashCode())
+                .append(verificationKey)
                 .append(oneTimePassword)
                 .toHashCode();
     }

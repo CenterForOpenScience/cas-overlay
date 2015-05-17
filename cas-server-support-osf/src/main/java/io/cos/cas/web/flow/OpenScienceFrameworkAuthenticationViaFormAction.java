@@ -89,24 +89,10 @@ public class OpenScienceFrameworkAuthenticationViaFormAction {
      *
      * @param context the context
      * @param messageContext the message context
-     * @param usernamePasswordCredential the credential
+     * @param credential the credential
      * @return the event
      * @since 4.1.0
      */
-    public final Event submit(final RequestContext context, final MessageContext messageContext,
-                              final RememberMeUsernamePasswordCredential usernamePasswordCredential)  {
-        OpenScienceFrameworkCredential credential = new OpenScienceFrameworkCredential(
-            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword(), usernamePasswordCredential.isRememberMe());
-        return this.submit(context, messageContext, credential);
-    }
-
-    public final Event submit(final RequestContext context, final MessageContext messageContext,
-                              final RememberMeUsernamePasswordCredential usernamePasswordCredential, io.cos.cas.authentication.OneTimePasswordCredential oneTimePasswordCredential)  {
-        OpenScienceFrameworkCredential credential = new OpenScienceFrameworkCredential(
-            usernamePasswordCredential.getUsername(), usernamePasswordCredential.getPassword(), usernamePasswordCredential.isRememberMe(), oneTimePasswordCredential.getPasscode());
-        return this.submit(context, messageContext, credential);
-    }
-
     public final Event submit(final RequestContext context, final MessageContext messageContext,
                               final OpenScienceFrameworkCredential credential)  {
         if (!checkLoginTicketIfExists(context)) {

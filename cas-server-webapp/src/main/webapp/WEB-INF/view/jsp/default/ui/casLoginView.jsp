@@ -35,8 +35,13 @@ if (auto != null && auto.equals("true")) {
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
-            <input type="hidden" name="username" value="<%= request.getParameter("username") %>" />
-            <input type="hidden" name="password" value="<%= request.getParameter("password") %>" />
+            <input type="hidden" name="username" value="<%= request.getParameter("username") != null ? request.getParameter("username") : "" %>" />
+            <% if (request.getParameter("verificationKey") == null) {%>
+                <input type="hidden" name="password" value="<%= request.getParameter("password") != null ? request.getParameter("password") : "" %>" />
+            <% } else { %>
+                <input type="hidden" name="password" value="blank" />
+                <input type="hidden" name="verificationKey" value="<%= request.getParameter("verificationKey") %>" />
+            <% } %>
             <% if (request.getParameter("rememberMe") == null || "true".equals(request.getParameter("rememberMe"))) {%>
                 <input type="hidden" name="rememberMe" value="true" />
             <% } %>
