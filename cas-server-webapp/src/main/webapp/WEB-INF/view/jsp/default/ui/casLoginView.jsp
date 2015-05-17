@@ -40,9 +40,9 @@ if (auto != null && auto.equals("true")) {
                 <input type="hidden" name="password" value="<%= request.getParameter("password") != null ? request.getParameter("password") : "" %>" />
             <% } else { %>
                 <input type="hidden" name="password" value="blank" />
-                <input type="hidden" name="verificationKey" value="<%= request.getParameter("verificationKey") %>" />
+                <input type="hidden" name="verificationKey" value="<%= request.getParameter("verification_key") %>" />
             <% } %>
-            <% if (request.getParameter("rememberMe") == null || "true".equals(request.getParameter("rememberMe"))) {%>
+            <% if (request.getParameter("remember") == null || "true".equals(request.getParameter("remember"))) {%>
                 <input type="hidden" name="rememberMe" value="true" />
             <% } %>
             <input type="submit" value="Submit" style="visibility: hidden;" />
