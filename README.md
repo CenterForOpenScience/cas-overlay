@@ -42,7 +42,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
     * Application Tokens
   * List User Authorized Applications
 * Metadata
-  * Application Service Information (user counts)
+  * Application Service Information (including number of users)
 * Login Session Access Token via augmented CAS 3 Protocol (Optional)
 
 ### Service Registry
