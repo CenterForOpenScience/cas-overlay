@@ -88,6 +88,7 @@
             <binding property="password" required="true" />
             <binding property="rememberMe" />
             <binding property="verificationKey" />
+            <binding property="oneTimePassword" />
         </binder>
         <on-entry>
             <set name="viewScope.commandName" value="'usernamePasswordCredential'" />

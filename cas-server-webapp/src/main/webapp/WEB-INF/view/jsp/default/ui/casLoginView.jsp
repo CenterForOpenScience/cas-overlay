@@ -36,7 +36,7 @@ if (auto != null && auto.equals("true")) {
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
             <input type="hidden" name="username" value="<%= request.getParameter("username") != null ? request.getParameter("username") : "" %>" />
-            <% if (request.getParameter("verificationKey") == null) {%>
+            <% if (request.getParameter("verification_key") == null) {%>
                 <input type="hidden" name="password" value="<%= request.getParameter("password") != null ? request.getParameter("password") : "" %>" />
             <% } else { %>
                 <input type="hidden" name="password" value="_try_verification_key_" />
@@ -44,6 +44,9 @@ if (auto != null && auto.equals("true")) {
             <% } %>
             <% if (request.getParameter("remember") == null || "true".equals(request.getParameter("remember"))) {%>
                 <input type="hidden" name="rememberMe" value="true" />
+            <% } %>
+            <% if (request.getParameter("otp") != null) {%>
+                <input type="hidden" name="oneTimePassword" value="<%= request.getParameter("otp") %>" />
             <% } %>
             <input type="submit" value="Submit" style="visibility: hidden;" />
         </form>
