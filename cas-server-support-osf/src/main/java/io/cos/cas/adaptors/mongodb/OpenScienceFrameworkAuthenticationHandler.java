@@ -216,11 +216,15 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             throw new AccountNotFoundException(username + " not found with query");
         }
 
+        Boolean validPassphrase = Boolean.FALSE;
         // verification key can substitute as a temporary password.
-        if (verificationKey != null && !verificationKey.equals(user.verificationKey)) {
-            throw new FailedLoginException(username + " invalid verification key");
-        } else if (verificationKey == null && !BCrypt.checkpw(plainTextPassword, user.password)) {
-            throw new FailedLoginException(username + " invalid password");
+        if (verificationKey != null && verificationKey.equals(user.verificationKey)) {
+            validPassphrase = Boolean.TRUE;
+        } else if (BCrypt.checkpw(plainTextPassword, user.password)) {
+            validPassphrase = Boolean.TRUE;
+        }
+        if (!validPassphrase) {
+            throw new FailedLoginException(username + " invalid verification key or password");
         }
 
         TimeBasedOneTimePassword timeBasedOneTimePassword = this.mongoTemplate.findOne(new Query(Criteria
