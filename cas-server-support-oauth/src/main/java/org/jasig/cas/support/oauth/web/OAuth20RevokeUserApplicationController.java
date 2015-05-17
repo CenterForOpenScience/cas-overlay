@@ -20,8 +20,10 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.support.oauth.*;
 import org.jasig.cas.ticket.Ticket;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.CipherExecutor;
 import org.slf4j.Logger;
@@ -38,9 +40,9 @@ import javax.servlet.http.HttpServletResponse;
  * @author Michael Haselton
  * @since 4.1.0
  */
-public final class OAuth20RevokeController extends AbstractController {
+public final class OAuth20RevokeUserApplicationController extends AbstractController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20RevokeController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20RevokeUserApplicationController.class);
 
     private final TicketRegistry ticketRegistry;
 
@@ -49,15 +51,15 @@ public final class OAuth20RevokeController extends AbstractController {
     private final CipherExecutor cipherExecutor;
 
     /**
-     * Instantiates a new o auth20 revoke token controller.
+     * Instantiates a new o auth20 revoke user application controller.
      *
      * @param ticketRegistry the ticket registry
      * @param centralAuthenticationService the central authentication service
      * @param cipherExecutor the cipher executor
      */
-    public OAuth20RevokeController(final TicketRegistry ticketRegistry,
-                                   final CentralAuthenticationService centralAuthenticationService,
-                                   final CipherExecutor cipherExecutor) {
+    public OAuth20RevokeUserApplicationController(final TicketRegistry ticketRegistry,
+                                                  final CentralAuthenticationService centralAuthenticationService,
+                                                  final CipherExecutor cipherExecutor) {
         this.ticketRegistry = ticketRegistry;
         this.centralAuthenticationService = centralAuthenticationService;
         this.cipherExecutor = cipherExecutor;
@@ -68,17 +70,17 @@ public final class OAuth20RevokeController extends AbstractController {
             throws Exception {
         final OAuthToken accessToken = OAuthTokenUtils.getAccessToken(request, cipherExecutor);
         final Ticket accessTicket = OAuthTokenUtils.getTicket(centralAuthenticationService, accessToken);
+        final Principal accessPrincipal = OAuthTokenUtils.getAuthentication(accessTicket).getPrincipal();
 
-        final OAuthToken token = OAuthTokenUtils.getToken(request, cipherExecutor, OAuthConstants.TOKEN);
-        final Ticket ticket = OAuthTokenUtils.getTicket(centralAuthenticationService, token);
-
-        if (!OAuthTokenUtils.hasPermission(accessTicket, ticket)) {
-            LOGGER.debug("Permission denied to access ticket [{}] for ticket [{}]", accessTicket.getId(), ticket.getId());
+        final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
+        TicketGrantingTicket refreshTicket = OAuthTokenUtils.getRefreshToken(centralAuthenticationService, clientId, accessPrincipal);
+        if (refreshTicket == null) {
+            LOGGER.debug("Could not find a Refresh Token for the Client ID [{}]", clientId);
             throw new TokenInvalidException();
         }
 
-        if (!ticketRegistry.deleteTicket(ticket.getId())) {
-            LOGGER.debug("Delete ticket failed [{}]", ticket.getId());
+        if (!ticketRegistry.deleteTicket(refreshTicket.getId())) {
+            LOGGER.debug("Delete ticket failed [{}]", refreshTicket.getId());
             throw new TokenInvalidException();
         }
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);

@@ -89,7 +89,6 @@ public final class OAuth20ProfileController extends AbstractController {
 
         final ObjectMapper mapper = new ObjectMapper();
         final Map<String, Object> map = new HashMap<>();
-
         map.put(ID, principal.getId());
 
         final Map<String, Object> attributeMap = new HashMap<>();

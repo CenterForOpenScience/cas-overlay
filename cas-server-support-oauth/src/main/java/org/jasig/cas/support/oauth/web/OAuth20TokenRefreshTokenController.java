@@ -49,9 +49,9 @@ import java.util.concurrent.TimeUnit;
  * @author Michael Haselton
  * @since 4.1.0
  */
-public final class OAuth20RefreshTokenController extends AbstractController {
+public final class OAuth20TokenRefreshTokenController extends AbstractController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20RefreshTokenController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20TokenRefreshTokenController.class);
 
     private final ServicesManager servicesManager;
 
@@ -69,9 +69,9 @@ public final class OAuth20RefreshTokenController extends AbstractController {
      * @param cipherExecutor the cipher executor
      * @param timeout the timeout
      */
-    public OAuth20RefreshTokenController(final ServicesManager servicesManager,
-                                         final CentralAuthenticationService centralAuthenticationService,
-                                         final CipherExecutor cipherExecutor, final long timeout) {
+    public OAuth20TokenRefreshTokenController(final ServicesManager servicesManager,
+                                              final CentralAuthenticationService centralAuthenticationService,
+                                              final CipherExecutor cipherExecutor, final long timeout) {
         this.servicesManager = servicesManager;
         this.centralAuthenticationService = centralAuthenticationService;
         this.cipherExecutor = cipherExecutor;

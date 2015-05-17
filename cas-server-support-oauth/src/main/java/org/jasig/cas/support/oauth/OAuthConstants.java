@@ -147,8 +147,8 @@ public interface OAuthConstants {
     /** The profile url. */
     String PROFILE_URL = "profile";
 
-    /** The application url. */
-    String APPLICATION_URL = "application";
+    /** The metadata url. */
+    String METADATA_URL = "metadata";
 
     /** The remaining time in seconds before expiration with syntax : expires_in: 3600... */
     String EXPIRES_IN = "expires_in";

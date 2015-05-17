@@ -84,7 +84,7 @@ public final class OAuth20CallbackAuthorizeActionController extends AbstractCont
         String clientId = (String) session.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID);
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_CLIENT_ID, clientId);
         session.removeAttribute(OAuthConstants.OAUTH20_CLIENT_ID);
-        if (clientId == null) {
+        if (StringUtils.isBlank(clientId)) {
             LOGGER.error("{} is missing from the session and can not be retrieved.", OAuthConstants.OAUTH20_CLIENT_ID);
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }

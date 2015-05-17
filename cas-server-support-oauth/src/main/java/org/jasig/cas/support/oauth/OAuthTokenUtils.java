@@ -19,6 +19,7 @@
 
 package org.jasig.cas.support.oauth;
 
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
@@ -37,6 +38,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 
 
 /**
@@ -91,7 +94,7 @@ public class OAuthTokenUtils {
     public static ServiceTicket getServiceTicket(final CentralAuthenticationService centralAuthenticationService,
                                                  final OAuthToken token)
             throws RuntimeException {
-        if (token.serviceTicketId == null) {
+        if (StringUtils.isBlank(token.serviceTicketId)) {
             final Service service = new SimpleWebApplicationServiceImpl(token.serviceId);
             try {
                 return centralAuthenticationService.grantServiceTicket(token.ticketGrantingTicketId, service);
@@ -170,6 +173,90 @@ public class OAuthTokenUtils {
         } catch (final Exception e) {
             throw new TokenInvalidException();
         }
+    }
+
+    /**
+     * Attempt to locate and return an existing refresh token.
+     *
+     * @param centralAuthenticationService the central authentication service
+     * @param clientId the client id
+     * @param principal the principal
+     * @return TicketGrantingTicket refresh token or null
+     */
+    public static TicketGrantingTicket getRefreshToken(final CentralAuthenticationService centralAuthenticationService, final String clientId, final Principal principal) {
+        final Collection<Ticket> tickets = centralAuthenticationService.getTickets(new Predicate() {
+            @Override
+            public boolean evaluate(final Object currentTicket) {
+                if (currentTicket instanceof TicketGrantingTicket) {
+                    final TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
+                    final Principal currentPrincipal = currentTicketGrantingTicket.getAuthentication().getPrincipal();
+                    final Map<String, Object> currentAttributes = currentTicketGrantingTicket.getAuthentication().getAttributes();
+
+                    if ((currentAttributes.containsKey(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH) && (Boolean) currentAttributes.get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH))
+                            && (currentAttributes.containsKey(OAuthConstants.CLIENT_ID) && currentAttributes.get(OAuthConstants.CLIENT_ID).equals(clientId))
+                            && currentPrincipal.getId().equals(principal.getId())) {
+                        return !currentTicketGrantingTicket.isExpired();
+                    }
+                }
+                return false;
+            }
+        });
+
+        if (tickets.size() == 1) {
+            return (TicketGrantingTicket) tickets.iterator().next();
+        }
+        return null;
+    }
+
+    /**
+     * Return a list of refresh tokens associated with a specific client application.
+     *
+     * @param centralAuthenticationService the central authentication service
+     * @param clientId the client id
+     * @return Collection of refresh tokens for the application specified
+     */
+    public static Collection<Ticket> getRefreshTokens(final CentralAuthenticationService centralAuthenticationService, final String clientId) {
+        return centralAuthenticationService.getTickets(new Predicate() {
+            @Override
+            public boolean evaluate(final Object currentTicket) {
+                if (currentTicket instanceof TicketGrantingTicket) {
+                    final TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
+                    final Map<String, Object> currentAttributes = currentTicketGrantingTicket.getAuthentication().getAttributes();
+
+                    if ((currentAttributes.containsKey(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH) && (Boolean) currentAttributes.get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH))
+                            && (currentAttributes.containsKey(OAuthConstants.CLIENT_ID) && currentAttributes.get(OAuthConstants.CLIENT_ID).equals(clientId))) {
+                        return !currentTicketGrantingTicket.isExpired();
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Return a list of refresh tokens associated with the a principal.
+     *
+     * @param centralAuthenticationService the central authentication service
+     * @param principal the principal
+     * @return Collection of refresh tokens associated with the principal specified
+     */
+    public static Collection<Ticket> getRefreshTokens(final CentralAuthenticationService centralAuthenticationService, final Principal principal) {
+        return centralAuthenticationService.getTickets(new Predicate() {
+            @Override
+            public boolean evaluate(final Object currentTicket) {
+                if (currentTicket instanceof TicketGrantingTicket) {
+                    final TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
+                    final Principal currentPrincipal = currentTicketGrantingTicket.getAuthentication().getPrincipal();
+                    final Map<String, Object> currentAttributes = currentTicketGrantingTicket.getAuthentication().getAttributes();
+
+                    if ((currentAttributes.containsKey(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH) && (Boolean) currentAttributes.get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH))
+                            && currentPrincipal.getId().equals(principal.getId())) {
+                        return !currentTicketGrantingTicket.isExpired();
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     private static OAuthToken readToken(final CipherExecutor cipherExecutor, final String jwtToken) {

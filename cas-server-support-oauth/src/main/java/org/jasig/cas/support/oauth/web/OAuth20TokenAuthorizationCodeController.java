@@ -27,10 +27,8 @@ import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.OAuthConstants;
-import org.jasig.cas.support.oauth.OAuthToken;
 import org.jasig.cas.support.oauth.OAuthTokenUtils;
 import org.jasig.cas.support.oauth.OAuthUtils;
-import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
@@ -57,9 +55,9 @@ import java.util.concurrent.TimeUnit;
  * @author Michael Haselton
  * @since 4.1.0
  */
-public final class OAuth20AuthorizationCodeController extends AbstractController {
+public final class OAuth20TokenAuthorizationCodeController extends AbstractController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizationCodeController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20TokenAuthorizationCodeController.class);
 
     private final ServicesManager servicesManager;
 
@@ -79,9 +77,9 @@ public final class OAuth20AuthorizationCodeController extends AbstractController
      * @param centralAuthenticationService the central authentication service
      * @param timeout the timeout
      */
-    public OAuth20AuthorizationCodeController(final ServicesManager servicesManager, final TicketRegistry ticketRegistry,
-                                              final CentralAuthenticationService centralAuthenticationService,
-                                              final CipherExecutor cipherExecutor, final long timeout) {
+    public OAuth20TokenAuthorizationCodeController(final ServicesManager servicesManager, final TicketRegistry ticketRegistry,
+                                                   final CentralAuthenticationService centralAuthenticationService,
+                                                   final CipherExecutor cipherExecutor, final long timeout) {
         this.servicesManager = servicesManager;
         this.ticketRegistry = ticketRegistry;
         this.centralAuthenticationService = centralAuthenticationService;
@@ -132,7 +130,7 @@ public final class OAuth20AuthorizationCodeController extends AbstractController
         session.removeAttribute(OAuthConstants.OAUTH20_REFRESH_TOKEN_ID);
 
         final TicketGrantingTicket refreshTicket;
-        if (refreshTokenId != null) {
+        if (!StringUtils.isBlank(refreshTokenId)) {
             refreshTicket = (TicketGrantingTicket) ticketRegistry.getTicket(refreshTokenId);
         } else {
             refreshTicket = OAuthTokenUtils.fetchRefreshTicket(centralAuthenticationService, clientId, loginPrincipal);

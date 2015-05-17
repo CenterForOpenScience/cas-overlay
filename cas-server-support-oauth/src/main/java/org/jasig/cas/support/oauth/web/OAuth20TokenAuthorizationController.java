@@ -19,18 +19,13 @@
 package org.jasig.cas.support.oauth.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections.Predicate;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.*;
-import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.ticket.Ticket;
-import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.util.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +42,9 @@ import java.util.*;
  * @author Michael Haselton
  * @since 4.1.0
  */
-public final class OAuth20AuthorizedTokenController extends AbstractController {
+public final class OAuth20TokenAuthorizationController extends AbstractController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizedTokenController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20TokenAuthorizationController.class);
 
     private static final String NAME = "name";
 
@@ -67,9 +62,9 @@ public final class OAuth20AuthorizedTokenController extends AbstractController {
      * @param centralAuthenticationService the central authentication service
      * @param cipherExecutor the cipher executor
      */
-    public OAuth20AuthorizedTokenController(final ServicesManager serviceManager,
-                                            final CentralAuthenticationService centralAuthenticationService,
-                                            final CipherExecutor cipherExecutor) {
+    public OAuth20TokenAuthorizationController(final ServicesManager serviceManager,
+                                               final CentralAuthenticationService centralAuthenticationService,
+                                               final CipherExecutor cipherExecutor) {
         this.serviceManager = serviceManager;
         this.centralAuthenticationService = centralAuthenticationService;
         this.cipherExecutor = cipherExecutor;
@@ -80,24 +75,9 @@ public final class OAuth20AuthorizedTokenController extends AbstractController {
             throws Exception {
         final OAuthToken accessToken = OAuthTokenUtils.getAccessToken(request, cipherExecutor);
         final Ticket accessTicket = OAuthTokenUtils.getTicket(centralAuthenticationService, accessToken);
-        final String accessPrincipalId = OAuthTokenUtils.getAuthentication(accessTicket).getPrincipal().getId();
+        final Principal accessPrincipal = OAuthTokenUtils.getAuthentication(accessTicket).getPrincipal();
 
-        final Collection<Ticket> tickets = centralAuthenticationService.getTickets(new Predicate() {
-            @Override
-            public boolean evaluate(final Object currentTicket) {
-                if (currentTicket instanceof TicketGrantingTicket) {
-                    final TicketGrantingTicket currentTicketGrantingTicket = (TicketGrantingTicket) currentTicket;
-                    final Principal currentPrincipal = currentTicketGrantingTicket.getAuthentication().getPrincipal();
-                    final Map<String, Object> currentAttributes = currentTicketGrantingTicket.getAuthentication().getAttributes();
-
-                    if ((currentAttributes.containsKey(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH) && (Boolean) currentAttributes.get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH))
-                            && currentPrincipal.getId().equals(accessPrincipalId)) {
-                        return !currentTicketGrantingTicket.isExpired();
-                    }
-                }
-                return false;
-            }
-        });
+        final Collection<Ticket> tickets = OAuthTokenUtils.getRefreshTokens(centralAuthenticationService, accessPrincipal);
 
         final ObjectMapper mapper = new ObjectMapper();
         final Map<String, Object> map = new HashMap<>();
@@ -107,7 +87,7 @@ public final class OAuth20AuthorizedTokenController extends AbstractController {
             OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(serviceManager, clientId);
 
             final Map<String, Object> ticketMap = new HashMap<>();
-            ticketMap.put(OAuthConstants.REFRESH_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, ticket));
+            ticketMap.put(OAuthConstants.CLIENT_ID, registeredService.getClientId());
             ticketMap.put(NAME, registeredService.getName());
             ticketMap.put(DESCRIPTION, registeredService.getDescription());
             ticketList.add(ticketMap);
