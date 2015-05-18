@@ -38,8 +38,10 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.FailedLoginException;
 import javax.validation.constraints.NotNull;
@@ -208,8 +210,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
-        final User user = this.mongoTemplate.findOne(new Query(Criteria
-                .where("username").is(username)
+        final User user = this.mongoTemplate.findOne(new Query(
+                new Criteria().orOperator(
+                        Criteria.where("emails").is(username),
+                        Criteria.where("username").is(username)
+                )
         ), User.class);
 
         if (user == null) {
