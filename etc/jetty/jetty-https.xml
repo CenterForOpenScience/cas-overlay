@@ -7,7 +7,18 @@
 <!-- and jetty-ssl.xml.                                            -->
 <!-- ============================================================= -->
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
-
+  <!-- =========================================================== -->
+  <!-- Configure the Server Thread Pool.                           -->
+  <!--                                                             -->
+  <!-- Consult the javadoc of o.e.j.util.thread.QueuedThreadPool   -->
+  <!-- for all configuration that may be set here.                 -->
+  <!-- =========================================================== -->
+  <Get name="ThreadPool">
+    <Set name="minThreads" type="int">10</Set>
+    <Set name="maxThreads" type="int">200</Set>
+    <Set name="idleTimeout" type="int">60000</Set>
+    <Set name="detailedDump">false</Set>
+  </Get>
   <!-- =========================================================== -->
   <!-- Add a HTTPS Connector.                                      -->
   <!-- Configure an o.e.j.server.ServerConnector with connection   -->
