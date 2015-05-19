@@ -31,8 +31,8 @@
     <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
           p:driverClassName="org.postgresql.Driver"
           p:url="${database.url}"
-          p:username="postgres"
-          p:password="" />
+          p:username="${database.username}"
+          p:password="${database.password}" />
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
 
