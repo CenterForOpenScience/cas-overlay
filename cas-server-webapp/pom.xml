@@ -68,6 +68,10 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>
+    <dependency>
+      <groupId>net.kencochrane.raven</groupId>
+      <artifactId>raven-log4j2</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

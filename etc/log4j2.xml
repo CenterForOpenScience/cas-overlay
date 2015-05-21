@@ -25,54 +25,50 @@
 <Configuration monitorInterval="60">
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
+            <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n" />
         </Console>
-        <RollingFile name="file" fileName="cas.log" append="true"
-                     filePattern="cas-%d{yyyy-MM-dd-HH}-%i.log">
-            <PatternLayout pattern="%d %p [%c] - %m%n"/>
+        <RollingFile name="file" fileName="cas.log" append="true" filePattern="cas-%d{yyyy-MM-dd-HH}-%i.log">
+            <PatternLayout pattern="%d %p [%c] - %m%n" />
             <Policies>
                 <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <SizeBasedTriggeringPolicy size="10 MB" />
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
-        <RollingFile name="perfFileAppender" fileName="perfStats.log" append="true"
-                     filePattern="perfStats-%d{yyyy-MM-dd-HH}-%i.log">
-            <PatternLayout pattern="%m%n"/>
+        <RollingFile name="perfFileAppender" fileName="perfStats.log" append="true" filePattern="perfStats-%d{yyyy-MM-dd-HH}-%i.log">
+            <PatternLayout pattern="%m%n" />
             <Policies>
                 <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <SizeBasedTriggeringPolicy size="10 MB" />
                 <TimeBasedTriggeringPolicy />
             </Policies>
         </RollingFile>
+        <!--<Raven name="sentry">-->
+            <!--<dsn>https://1234:5678@sentry.com/xyz123</dsn>-->
+        <!--</Raven>-->
     </Appenders>
     <Loggers>
-        <!-- TODO: Set logging back to info -->
-        <!-- <Logger name="org.jasig" level="info" additivity="false"> -->
         <Logger name="org.jasig" level="debug" additivity="false">
-            <AppenderRef ref="console"/>
-            <AppenderRef ref="file"/>
+            <AppenderRef ref="console" />
+            <!--<AppenderRef ref="file" />-->
         </Logger>
         <Logger name="org.springframework" level="warn" />
         <Logger name="org.springframework.webflow" level="warn" />
         <Logger name="org.springframework.web" level="warn" />
         <Logger name="org.springframework.security" level="warn" />
-
         <Logger name="org.hibernate" level="debug" />
-
         <Logger name="perfStatsLogger" level="info" additivity="false">
-            <AppenderRef ref="perfFileAppender"/>
+            <!--<AppenderRef ref="perfFileAppender" />-->
         </Logger>
-
         <Logger name="org.jasig.cas.web.flow" level="info" additivity="true">
-            <AppenderRef ref="file"/>
+            <!--<AppenderRef ref="file" />-->
         </Logger>
         <Logger name="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" level="info">
-            <AppenderRef ref="file"/>
+            <!--<AppenderRef ref="file" />-->
         </Logger>
-
         <Root level="error">
-            <AppenderRef ref="console"/>
+            <AppenderRef ref="console" />
+            <!--<AppenderRef ref="sentry" />-->
         </Root>
     </Loggers>
 </Configuration>

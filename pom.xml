@@ -255,6 +255,13 @@
         <artifactId>spring-data-mongodb</artifactId>
         <version>${spring.data.version}</version>
       </dependency>
+
+      <!-- Sentry -->
+      <dependency>
+        <groupId>net.kencochrane.raven</groupId>
+        <artifactId>raven-log4j2</artifactId>
+        <version>${raven.log4j2.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -327,6 +334,7 @@
     <postgresql.version>9.4-1201-jdbc41</postgresql.version>
     <jstl.version>1.2</jstl.version>
     <servlet.api.version>3.0.1</servlet.api.version>
+    <raven.log4j2.version>5.0.2</raven.log4j2.version>
 
     <!-- Plugin Versions -->
     <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
