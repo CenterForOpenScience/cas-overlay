@@ -90,8 +90,6 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final HttpSession session = request.getSession();
-
         final String redirectUri = request.getParameter(OAuthConstants.REDIRECT_URI);
         LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
 
@@ -124,14 +122,13 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
 
         final Principal loginPrincipal = ticketGrantingTicket.getAuthentication().getPrincipal();
 
-        // do we have an existing refresh token? (determined in the authorization callback controller)
-        final String refreshTokenId = (String) session.getAttribute(OAuthConstants.OAUTH20_REFRESH_TOKEN_ID);
-        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_REFRESH_TOKEN_ID, refreshTokenId);
-        session.removeAttribute(OAuthConstants.OAUTH20_REFRESH_TOKEN_ID);
+        // do we have an existing refresh token?
+        final TicketGrantingTicket refreshToken = OAuthTokenUtils.getRefreshToken(centralAuthenticationService, clientId, loginPrincipal);
+        LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, refreshToken);
 
         final TicketGrantingTicket refreshTicket;
-        if (!StringUtils.isBlank(refreshTokenId)) {
-            refreshTicket = (TicketGrantingTicket) ticketRegistry.getTicket(refreshTokenId);
+        if (refreshToken != null) {
+            refreshTicket = (TicketGrantingTicket) ticketRegistry.getTicket(refreshToken.getId());
         } else {
             refreshTicket = OAuthTokenUtils.fetchRefreshTicket(centralAuthenticationService, clientId, loginPrincipal);
         }

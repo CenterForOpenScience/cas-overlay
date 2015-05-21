@@ -127,15 +127,10 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
 
         final Principal loginPrincipal = ticketGrantingTicket.getAuthentication().getPrincipal();
 
-        TicketGrantingTicket refreshToken = OAuthTokenUtils.getRefreshToken(centralAuthenticationService, clientId, loginPrincipal);
-        session.removeAttribute(OAuthConstants.OAUTH20_REFRESH_TOKEN_ID);
-        if (refreshToken != null) {
-            session.setAttribute(OAuthConstants.OAUTH20_REFRESH_TOKEN_ID, refreshToken.getId());
-        }
-
         final String approvalPrompt = (String) session.getAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT);
         LOGGER.debug("approvalPrompt : {}", approvalPrompt);
         if (StringUtils.isBlank(approvalPrompt) || !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)) {
+            final TicketGrantingTicket refreshToken = OAuthTokenUtils.getRefreshToken(centralAuthenticationService, clientId, loginPrincipal);
             if (refreshToken != null) {
                 return OAuthUtils.redirectTo(allowCallbackUrl);
             }
