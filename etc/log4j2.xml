@@ -27,22 +27,12 @@
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n" />
         </Console>
-        <RollingFile name="file" fileName="cas.log" append="true" filePattern="cas-%d{yyyy-MM-dd-HH}-%i.log">
+        <File name="file" fileName="cas.log" append="false">
             <PatternLayout pattern="%d %p [%c] - %m%n" />
-            <Policies>
-                <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB" />
-                <TimeBasedTriggeringPolicy />
-            </Policies>
-        </RollingFile>
-        <RollingFile name="perfFileAppender" fileName="perfStats.log" append="true" filePattern="perfStats-%d{yyyy-MM-dd-HH}-%i.log">
+        </File>
+        <File name="perfFileAppender" fileName="perfStats.log" append="false">
             <PatternLayout pattern="%m%n" />
-            <Policies>
-                <OnStartupTriggeringPolicy />
-                <SizeBasedTriggeringPolicy size="10 MB" />
-                <TimeBasedTriggeringPolicy />
-            </Policies>
-        </RollingFile>
+        </File>
         <!--<Raven name="sentry">-->
             <!--<dsn>https://1234:5678@sentry.com/xyz123</dsn>-->
         <!--</Raven>-->
@@ -58,7 +48,7 @@
         <Logger name="org.springframework.security" level="warn" />
         <Logger name="org.hibernate" level="debug" />
         <Logger name="perfStatsLogger" level="info" additivity="false">
-            <!--<AppenderRef ref="perfFileAppender" />-->
+            <AppenderRef ref="perfFileAppender" />
         </Logger>
         <Logger name="org.jasig.cas.web.flow" level="info" additivity="true">
             <!--<AppenderRef ref="file" />-->
