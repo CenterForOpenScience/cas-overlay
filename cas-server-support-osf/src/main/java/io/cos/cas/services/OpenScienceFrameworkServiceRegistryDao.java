@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
@@ -54,14 +55,17 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
      */
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
-    @Document(collection="oauth")
+    @Document(collection="apioauth2application")
     private class OAuth {
         @Id
         private BigInteger id;
         private String name;
         private String description;
+        @Field("callback_url")
         private String callbackUrl;
+        @Field("client_id")
         private String clientId;
+        @Field("client_secret")
         private String clientSecret;
         private Boolean active;
 
