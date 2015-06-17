@@ -55,7 +55,7 @@ public class OAuthTokenUtils {
     public static OAuthToken getAccessToken(final HttpServletRequest request, final CipherExecutor cipherExecutor)
             throws RuntimeException {
         final String authorization = request.getHeader("Authorization");
-        if (StringUtils.isBlank(authorization) || !authorization.toLowerCase().startsWith(OAuthConstants.BEARER_TOKEN + " ")) {
+        if (StringUtils.isBlank(authorization) || !authorization.startsWith(OAuthConstants.BEARER_TOKEN + " ")) {
             LOGGER.debug("Missing bearer access token");
             throw new TokenInvalidException();
         }
