@@ -162,7 +162,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
         final Map<Long, RegisteredService> temp = new ConcurrentHashMap<>();
         for (final OAuth oAuthService : oAuthServices) {
             OAuthRegisteredService service = new OAuthRegisteredService();
-            service.setId(new BigInteger(oAuthService.getId()).longValue());
+            service.setId(new BigInteger(oAuthService.getId(), 16).longValue());
             service.setName(oAuthService.getName());
             service.setDescription(oAuthService.getDescription());
             service.setServiceId(oAuthService.getCallbackUrl());
