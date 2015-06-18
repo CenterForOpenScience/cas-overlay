@@ -58,7 +58,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
     @Document(collection="apioauth2application")
     private class OAuth {
         @Id
-        private BigInteger id;
+        private String id;
         private String name;
         private String description;
         @Field("callback_url")
@@ -69,7 +69,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
         private String clientSecret;
         private Boolean active;
 
-        public BigInteger getId() {
+        public String getId() {
             return this.id;
         }
 
@@ -162,7 +162,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
         final Map<Long, RegisteredService> temp = new ConcurrentHashMap<>();
         for (final OAuth oAuthService : oAuthServices) {
             OAuthRegisteredService service = new OAuthRegisteredService();
-            service.setId(oAuthService.getId().longValue());
+            service.setId(new BigInteger(oAuthService.getId()).longValue());
             service.setName(oAuthService.getName());
             service.setDescription(oAuthService.getDescription());
             service.setServiceId(oAuthService.getCallbackUrl());
