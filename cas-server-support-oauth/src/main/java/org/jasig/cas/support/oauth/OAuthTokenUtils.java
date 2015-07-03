@@ -54,16 +54,21 @@ public class OAuthTokenUtils {
 
     public static OAuthToken getAccessToken(final HttpServletRequest request, final CipherExecutor cipherExecutor)
             throws RuntimeException {
-        final String authorization = request.getHeader("Authorization");
-        if (StringUtils.isBlank(authorization) || !authorization.startsWith(OAuthConstants.BEARER_TOKEN + " ")) {
-            LOGGER.debug("Missing bearer access token");
-            throw new TokenInvalidException();
+        String accessToken = request.getParameter(OAuthConstants.ACCESS_TOKEN);
+        if (StringUtils.isBlank(accessToken)) {
+            final String authHeader = request.getHeader("Authorization");
+            if (StringUtils.isNotBlank(authHeader)
+                    && authHeader.toLowerCase().startsWith(OAuthConstants.BEARER_TOKEN.toLowerCase() + " ")) {
+                accessToken = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
+            } else {
+                LOGGER.debug("Missing access token");
+                throw new TokenInvalidException();
+            }
         }
 
-        final String jwtToken = authorization.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
-        final OAuthToken token = readToken(cipherExecutor, jwtToken);
+        final OAuthToken token = readToken(cipherExecutor, accessToken);
         if (token == null) {
-            LOGGER.debug("Could not read bearer access token");
+            LOGGER.debug("Could not read access token");
             throw new TokenInvalidException();
         }
         return token;
