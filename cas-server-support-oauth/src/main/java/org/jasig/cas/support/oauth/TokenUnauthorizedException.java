@@ -23,12 +23,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * The exception to throw when no token is found though expected to continue.
+ * The exception to throw when a token is provided however it is found to be unauthorized.
  *
  * @author Michael Haselton
 
  * @since 4.1.0
  */
-@ResponseStatus(value=HttpStatus.BAD_REQUEST)
-public class TokenMissingException extends RuntimeException {
+@ResponseStatus(value=HttpStatus.UNAUTHORIZED, reason="unauthorized")
+public class TokenUnauthorizedException extends RuntimeException {
 }

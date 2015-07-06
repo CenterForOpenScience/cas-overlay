@@ -105,14 +105,14 @@ public class OAuthTokenUtils {
                 return centralAuthenticationService.grantServiceTicket(token.ticketGrantingTicketId, service);
             } catch (TicketException e) {
                 LOGGER.debug("Invalid or expired ticket granting ticket [{}] for service [{}]", token.ticketGrantingTicketId, service);
-                throw new TokenInvalidException();
+                throw new TokenUnauthorizedException();
             }
         } else {
             try {
                 return centralAuthenticationService.getTicket(token.serviceTicketId, Ticket.class);
             } catch (InvalidTicketException e) {
                 LOGGER.debug("Invalid or expired service ticket [{}]", token.serviceTicketId);
-                throw new TokenInvalidException();
+                throw new TokenUnauthorizedException();
             }
         }
     }
@@ -153,11 +153,11 @@ public class OAuthTokenUtils {
      */
     public static ServiceTicket fetchAccessTicket(final CentralAuthenticationService centralAuthenticationService,
                                                   final TicketGrantingTicket refreshTicket, final Service service)
-            throws TokenInvalidException {
+            throws TokenUnauthorizedException {
         try {
             return centralAuthenticationService.grantServiceTicket(refreshTicket.getId(), service);
         } catch (Exception e) {
-            throw new TokenInvalidException();
+            throw new TokenUnauthorizedException();
         }
     }
 
@@ -171,12 +171,12 @@ public class OAuthTokenUtils {
      */
     public static TicketGrantingTicket fetchRefreshTicket(final CentralAuthenticationService centralAuthenticationService,
                                                           final String clientId, final Principal principal)
-            throws TokenInvalidException {
+            throws TokenUnauthorizedException {
         final OAuthCredential credential = new OAuthCredential(clientId, principal.getId(), principal.getAttributes());
         try {
             return centralAuthenticationService.createTicketGrantingTicket(credential);
         } catch (final Exception e) {
-            throw new TokenInvalidException();
+            throw new TokenUnauthorizedException();
         }
     }
 
