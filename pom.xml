@@ -262,6 +262,13 @@
         <artifactId>raven-log4j2</artifactId>
         <version>${raven.log4j2.version}</version>
       </dependency>
+
+      <!-- CORS Filter -->
+      <dependency>
+        <groupId>com.thetransactioncompany</groupId>
+        <artifactId>cors-filter</artifactId>
+        <version>${cors.filter.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -335,6 +342,7 @@
     <jstl.version>1.2</jstl.version>
     <servlet.api.version>3.0.1</servlet.api.version>
     <raven.log4j2.version>5.0.2</raven.log4j2.version>
+    <cors.filter.version>2.4</cors.filter.version>
 
     <!-- Plugin Versions -->
     <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>

@@ -72,6 +72,10 @@
       <groupId>net.kencochrane.raven</groupId>
       <artifactId>raven-log4j2</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.thetransactioncompany</groupId>
+      <artifactId>cors-filter</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
