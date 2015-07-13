@@ -9,13 +9,21 @@
   <description>Apereo CAS SSO server libraries and Web application.</description>
 
   <repositories>
+    <!--<repository>-->
+      <!--<id>sonatype-releases</id>-->
+      <!--<url>http://oss.sonatype.org/content/repositories/releases/</url>-->
+    <!--</repository>-->
+    <!--<repository>-->
+      <!--<id>sonatype-snapshots</id>-->
+      <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+    <!--</repository>-->
     <repository>
-      <id>sonatype-releases</id>
-      <url>http://oss.sonatype.org/content/repositories/releases/</url>
-    </repository>
-    <repository>
-      <id>sonatype-snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <id>pinned-cas-maven-repo</id>
+      <url>https://raw.githubusercontent.com/icereval/cas-maven/master/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
     </repository>
   </repositories>
 
