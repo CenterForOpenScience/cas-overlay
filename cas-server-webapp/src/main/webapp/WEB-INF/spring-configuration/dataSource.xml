@@ -56,7 +56,7 @@
     <bean id="jpaVendorAdapter"
           class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
           p:generateDdl="true"
-          p:showSql="true" />
+          p:showSql="${database.hibernate.showSql:true}" />
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
           p:entityManagerFactory-ref="entityManagerFactory" />
