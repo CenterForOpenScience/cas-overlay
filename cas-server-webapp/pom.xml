@@ -70,7 +70,7 @@
     </dependency>
     <dependency>
       <groupId>net.kencochrane.raven</groupId>
-      <artifactId>raven-log4j</artifactId>
+      <artifactId>raven-log4j2</artifactId>
     </dependency>
     <dependency>
       <groupId>com.thetransactioncompany</groupId>
