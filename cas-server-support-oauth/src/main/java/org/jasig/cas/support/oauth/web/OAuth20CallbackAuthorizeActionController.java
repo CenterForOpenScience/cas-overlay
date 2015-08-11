@@ -114,7 +114,7 @@ public final class OAuth20CallbackAuthorizeActionController extends AbstractCont
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
 
-        Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
+        Service service = new SimpleWebApplicationServiceImpl(callbackUrl);
         final ServiceTicket serviceTicket = centralAuthenticationService.grantServiceTicket(loginTicketId, service);
 
         // callback url with code (encrypted service ticket)

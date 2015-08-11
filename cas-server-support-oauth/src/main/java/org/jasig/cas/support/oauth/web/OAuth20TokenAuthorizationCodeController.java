@@ -143,7 +143,7 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
+        final Service service = new SimpleWebApplicationServiceImpl(redirectUri);
         final ServiceTicket accessTicket = OAuthTokenUtils.fetchAccessTicket(centralAuthenticationService, refreshTicket, service);
 
         final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessTicket.getCreationTime()));
