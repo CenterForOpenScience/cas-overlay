@@ -53,28 +53,19 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20TokenRefreshTokenController.class);
 
-    private final ServicesManager servicesManager;
-
-    private final CentralAuthenticationService centralAuthenticationService;
-
-    private final CipherExecutor cipherExecutor;
+    private final CentralOAuthService centralOAuthService;
 
     private final long timeout;
 
     /**
      * Instantiates a new o auth20 grant type refresh token controller.
      *
-     * @param servicesManager the services manager
-     * @param centralAuthenticationService the central authentication service
-     * @param cipherExecutor the cipher executor
+     * @param centralOAuthService the central oauth service
      * @param timeout the timeout
      */
-    public OAuth20TokenRefreshTokenController(final ServicesManager servicesManager,
-                                              final CentralAuthenticationService centralAuthenticationService,
-                                              final CipherExecutor cipherExecutor, final long timeout) {
-        this.servicesManager = servicesManager;
-        this.centralAuthenticationService = centralAuthenticationService;
-        this.cipherExecutor = cipherExecutor;
+    public OAuth20TokenRefreshTokenController(final CentralOAuthService centralOAuthService,
+                                              final long timeout) {
+        this.centralOAuthService = centralOAuthService;
         this.timeout = timeout;
     }
 
@@ -91,31 +82,33 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final OAuthToken refreshToken = OAuthTokenUtils.getToken(request, cipherExecutor, OAuthConstants.REFRESH_TOKEN);
-        final TicketGrantingTicket refreshTicket = (TicketGrantingTicket) OAuthTokenUtils.getTicket(centralAuthenticationService, refreshToken);
+//        final OAuthToken refreshToken = OAuthTokenUtils.getToken(request, cipherExecutor, OAuthConstants.REFRESH_TOKEN);
+//        final TicketGrantingTicket refreshTicket = (TicketGrantingTicket) OAuthTokenUtils.getTicket(centralAuthenticationService, refreshToken);
+//
+//        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
+//        if (registeredService == null) {
+//            LOGGER.error("Could not find registered service for client id : {}", clientId);
+//            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+//        }
+//
+//        final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
+//        final ServiceTicket accessTicket = OAuthTokenUtils.fetchAccessTicket(centralAuthenticationService, refreshTicket, service);
+//
+//        final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessTicket.getCreationTime()));
+//
+//        final ObjectMapper mapper = new ObjectMapper();
+//        final Map<String, Object> map = new HashMap<>();
+//        map.put(OAuthConstants.ACCESS_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, accessTicket));
+//        map.put(OAuthConstants.EXPIRES_IN, expires);
+//        map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
 
-        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        if (registeredService == null) {
-            LOGGER.error("Could not find registered service for client id : {}", clientId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-        }
+//        final String result = mapper.writeValueAsString(map);
+//        LOGGER.debug("result : {}", result);
 
-        final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
-        final ServiceTicket accessTicket = OAuthTokenUtils.fetchAccessTicket(centralAuthenticationService, refreshTicket, service);
+//        response.setContentType("application/json; charset=UTF-8");
+//        return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
 
-        final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessTicket.getCreationTime()));
-
-        final ObjectMapper mapper = new ObjectMapper();
-        final Map<String, Object> map = new HashMap<>();
-        map.put(OAuthConstants.ACCESS_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, accessTicket));
-        map.put(OAuthConstants.EXPIRES_IN, expires);
-        map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
-
-        final String result = mapper.writeValueAsString(map);
-        LOGGER.debug("result : {}", result);
-
-        response.setContentType("application/json; charset=UTF-8");
-        return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
+        return OAuthUtils.writeText(response, "hi", HttpStatus.SC_OK);
     }
 
     /**
@@ -137,15 +130,15 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
             return false;
         }
 
-        final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        if (service == null) {
-            LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return false;
-        }
-        if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {
-            LOGGER.error("Wrong client secret for service {}", service);
-            return false;
-        }
+//        final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
+//        if (service == null) {
+//            LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
+//            return false;
+//        }
+//        if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {
+//            LOGGER.error("Wrong client secret for service {}", service);
+//            return false;
+//        }
 
         return true;
     }

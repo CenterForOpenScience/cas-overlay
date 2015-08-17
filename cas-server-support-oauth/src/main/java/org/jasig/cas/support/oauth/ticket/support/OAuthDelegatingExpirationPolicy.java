@@ -18,12 +18,9 @@
  */
 package org.jasig.cas.support.oauth.ticket.support;
 
-import org.jasig.cas.authentication.Authentication;
-import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
-import org.jasig.cas.ticket.AbstractTicket;
-import org.jasig.cas.ticket.ExpirationPolicy;
-import org.jasig.cas.ticket.TicketState;
+import org.jasig.cas.support.oauth.authentication.principal.OAuthService;
+import org.jasig.cas.ticket.*;
 import org.jasig.cas.ticket.support.AbstractCasExpirationPolicy;
 
 import javax.validation.constraints.NotNull;
@@ -49,19 +46,21 @@ public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpiration
 
     @Override
     public boolean isExpired(final TicketState ticketState) {
-        AbstractTicket ticket = (AbstractTicket) ticketState;
-        Authentication authentication = ticket.getAuthentication();
-        if (authentication == null) {
-            authentication = ticket.getGrantingTicket().getAuthentication();
+        final AbstractTicket ticket = (AbstractTicket) ticketState;
+        final ServiceTicket serviceTicket = ticket instanceof ServiceTicket ? (ServiceTicket) ticket : null;
+        final TicketGrantingTicket ticketGrantingTicket = ticket.getGrantingTicket() != null ? ticket.getGrantingTicket() : (TicketGrantingTicket) ticket;
+
+        final Boolean isAuthenticationOAuth = (Boolean) ticketGrantingTicket.getAuthentication().getAttributes()
+                .get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH);
+        if (isAuthenticationOAuth != null && isAuthenticationOAuth) {
+            return this.oAuthExpirationPolicy.isExpired(ticketState);
         }
 
-        final Boolean b = (Boolean) authentication.getAttributes().
-            get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH);
-        if (b == null || b.equals(Boolean.FALSE)) {
-            return this.sessionExpirationPolicy.isExpired(ticketState);
+        if (serviceTicket != null && serviceTicket.getService() instanceof OAuthService) {
+            return ticketGrantingTicket.isExpired();
         }
 
-        return this.oAuthExpirationPolicy.isExpired(ticketState);
+        return this.sessionExpirationPolicy.isExpired(ticketState);
     }
 
     public void setOAuthExpirationPolicy(final ExpirationPolicy oAuthExpirationPolicy) {

@@ -172,7 +172,7 @@ public class OAuthTokenUtils {
     public static TicketGrantingTicket fetchRefreshTicket(final CentralAuthenticationService centralAuthenticationService,
                                                           final String clientId, final Principal principal)
             throws TokenUnauthorizedException {
-        final OAuthCredential credential = new OAuthCredential(clientId, principal.getId(), principal.getAttributes());
+        final OAuthCredential credential = new OAuthCredential(principal.getId(), principal.getAttributes());
         try {
             return centralAuthenticationService.createTicketGrantingTicket(credential);
         } catch (final Exception e) {

@@ -31,6 +31,15 @@
         <p>
            <spring:message code="screen.oauth.confirm.message" arguments="${serviceName}" />
         </p>
+        <p>
+            <ul style="padding-left: 15px;">
+                <c:forEach items="${scopeMap}" var="scope">
+                    <li class="scope scope-${scope.key}">
+                        <h3>${scope.value.description}</h3>
+                    </li>
+                </c:forEach>
+            </ul>
+        </p>
         <section class="row btn-row">
             <input class="btn-submit" style="width: inherit;" name="action" accesskey="a" value="<spring:message code="screen.oauth.confirm.allow" />" type="submit" />
             <input class="btn-reset" style="display: inline-block;" name="action" accesskey="d" value="<spring:message code="screen.oauth.confirm.deny" />" type="submit" />

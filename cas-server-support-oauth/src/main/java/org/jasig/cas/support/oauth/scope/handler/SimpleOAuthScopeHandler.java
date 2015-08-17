@@ -16,31 +16,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.support.oauth.authentication.principal;
+package org.jasig.cas.support.oauth.scope.handler;
 
-import org.jasig.cas.authentication.AuthenticationBuilder;
-import org.jasig.cas.authentication.AuthenticationMetaDataPopulator;
-import org.jasig.cas.authentication.Credential;
+import org.jasig.cas.support.oauth.scope.OAuthScope;
+import org.jasig.cas.support.oauth.scope.handler.support.AbstractOAuthScopeHandler;
+
+import java.util.List;
 
 /**
- * Determines if the credential provided are for OAuth Services and then sets the appropriate
- * Authentication attribute if remember me services have been requested.
+ * Simple OAuth Scope Handler
  *
  * @author Michael Haselton
  * @since 4.1.0
- *
  */
-public final class OAuthAuthenticationMetaDataPopulator implements
-        AuthenticationMetaDataPopulator {
+public class SimpleOAuthScopeHandler extends AbstractOAuthScopeHandler {
 
-    @Override
-    public void populateAttributes(final AuthenticationBuilder builder, final Credential credential) {
-        OAuthCredential c = (OAuthCredential) credential;
-        builder.addAttribute(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH, Boolean.TRUE);
+    private List<OAuthScope> scopes;
+
+    public SimpleOAuthScopeHandler(List<OAuthScope> scopes) {
+        this.scopes = scopes;
     }
 
     @Override
-    public boolean supports(final Credential credential) {
-        return credential instanceof OAuthCredential;
+    public OAuthScope getScope(String name) {
+        for (OAuthScope scope : this.scopes) {
+            if (scope.getName().equalsIgnoreCase(name)) {
+                return scope;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public OAuthScope getDefault() {
+        for (OAuthScope scope : this.scopes) {
+            if (scope.getIsDefault()) {
+                return scope;
+            }
+        }
+        return null;
     }
 }

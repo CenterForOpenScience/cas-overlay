@@ -29,8 +29,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 *[Roadmap 4.1 OAuth Server Support](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap#CAS4.1Roadmap-Oauthserversupport)*
 
 * Profile Service specific Attribute Release
-* Access Tokens and Refresh Tokens
-  * Encrypted JSON Web Tokens (JWT)
+* Tokens (Access and Refresh Tokens)
   * Delegated Ticket Expiration (60 minutes for Access Token, never-expire Refresh Token)
   * Grant Types
     * Authorization Code
@@ -55,17 +54,9 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 
 * Startup Server Command
   * `mvn -pl cas-server-webapp/ jetty:run`
-* Optimized for fast builds
+* Optimized for faster builds
 
 ### TODO
 
 * Request Throttling
 * Jetty JPA Shared Sessions
-* Open Science Framework
-  * OAuth Endpoints
-    * Revoke All User Tokens
-    * Application User Counts
-  * User
-    * Active Login Sessions
-    * Approved OAuth Applications
-    * Revoke OAuth Application

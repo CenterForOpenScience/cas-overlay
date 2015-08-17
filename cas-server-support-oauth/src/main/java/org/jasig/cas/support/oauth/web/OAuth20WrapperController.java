@@ -20,9 +20,10 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
-import org.jasig.cas.util.CipherExecutor;
+import org.jasig.cas.support.oauth.token.registry.TokenRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -64,25 +65,30 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
     /** Instance of CentralAuthenticationService. */
     @NotNull
+    private TokenRegistry tokenRegistry;
+
+    /** Instance of CentralAuthenticationService. */
+    @NotNull
     private CentralAuthenticationService centralAuthenticationService;
 
-    /** Instance of CipherExecutor. */
+    /** Instance of CentralOAuthService. */
     @NotNull
-    private CipherExecutor cipherExecutor;
+    private CentralOAuthService centralOAuthService;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        authorizeController = new OAuth20AuthorizeController(servicesManager, loginUrl);
-        callbackAuthorizeController = new OAuth20CallbackAuthorizeController(ticketRegistry, centralAuthenticationService);
-        callbackAuthorizeActionController = new OAuth20CallbackAuthorizeActionController(servicesManager, centralAuthenticationService, cipherExecutor);
-        authorizationsController = new OAuth20TokenAuthorizationController(servicesManager, centralAuthenticationService, cipherExecutor);
-        authorizationCodeController = new OAuth20TokenAuthorizationCodeController(servicesManager, ticketRegistry, centralAuthenticationService, cipherExecutor, timeout);
-        refreshTokenController = new OAuth20TokenRefreshTokenController(servicesManager, centralAuthenticationService, cipherExecutor, timeout);
-        revokeUserTokenController = new OAuth20RevokeUserTokenController(ticketRegistry, centralAuthenticationService, cipherExecutor);
-        revokeUserApplicationController = new OAuth20RevokeUserApplicationController(ticketRegistry, centralAuthenticationService, cipherExecutor);
-        revokeApplicationTokenController = new OAuth20RevokeApplicationTokenController(servicesManager, ticketRegistry, centralAuthenticationService);
-        profileController = new OAuth20ProfileController(centralAuthenticationService, cipherExecutor);
-        metadataApplicationController = new OAuth20MetadataApplicationController(servicesManager, centralAuthenticationService);
+        authorizeController = new OAuth20AuthorizeController(centralOAuthService, servicesManager, loginUrl);
+        callbackAuthorizeController = new OAuth20CallbackAuthorizeController(ticketRegistry, centralOAuthService);
+        callbackAuthorizeActionController = new OAuth20CallbackAuthorizeActionController(centralOAuthService);
+//        authorizationsController = new OAuth20TokenAuthorizationController(servicesManager, centralAuthenticationService, cipherExecutor);
+        authorizationCodeController = new OAuth20TokenAuthorizationCodeController(centralOAuthService, timeout);
+        refreshTokenController = new OAuth20TokenRefreshTokenController(centralOAuthService, timeout);
+//        revokeUserTokenController = new OAuth20RevokeUserTokenController(ticketRegistry, centralAuthenticationService, cipherExecutor);
+//        revokeUserApplicationController = new OAuth20RevokeUserApplicationController(ticketRegistry, centralAuthenticationService, cipherExecutor);
+//        revokeApplicationTokenController = new OAuth20RevokeApplicationTokenController(servicesManager, ticketRegistry, centralAuthenticationService);
+        profileController = new OAuth20ProfileController(centralAuthenticationService, centralOAuthService);
+//        metadataApplicationController = new OAuth20MetadataApplicationController(servicesManager, centralAuthenticationService);
     }
 
     @Override
@@ -148,11 +154,15 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         return null;
     }
 
+    public void setTokenRegistry(final TokenRegistry tokenRegistry) {
+        this.tokenRegistry = tokenRegistry;
+    }
+
     public void setCentralAuthenticationService(final CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
     }
 
-    public void setCipherExecutor(final CipherExecutor cipherExecutor) {
-        this.cipherExecutor = cipherExecutor;
+    public void setCentralOAuthService(final CentralOAuthService centralOAuthService) {
+        this.centralOAuthService = centralOAuthService;
     }
 }

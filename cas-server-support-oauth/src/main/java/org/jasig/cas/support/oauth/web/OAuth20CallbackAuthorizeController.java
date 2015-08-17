@@ -20,11 +20,11 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.principal.Principal;
+import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
-import org.jasig.cas.support.oauth.OAuthTokenUtils;
 import org.jasig.cas.support.oauth.OAuthUtils;
+import org.jasig.cas.support.oauth.scope.OAuthScope;
+import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
@@ -53,12 +53,12 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
 
     private final TicketRegistry ticketRegistry;
 
-    private final CentralAuthenticationService centralAuthenticationService;
+    private final CentralOAuthService centralOAuthService;
 
     public OAuth20CallbackAuthorizeController(final TicketRegistry ticketRegistry,
-                                              final CentralAuthenticationService centralAuthenticationService) {
+                                              final CentralOAuthService centralOAuthService) {
         this.ticketRegistry = ticketRegistry;
-        this.centralAuthenticationService = centralAuthenticationService;
+        this.centralOAuthService = centralOAuthService;
     }
 
     @Override
@@ -79,6 +79,7 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
                 LOGGER.error("Service Ticket expired : {}", serviceTicketId);
                 return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
             }
+
             final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
             // remove login service ticket
             ticketRegistry.deleteTicket(serviceTicket.getId());
@@ -93,25 +94,27 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
         }
 
         // get cas login service ticket from the session
-        String ticketGrantingTicketId = (String) session.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID);
+        final String ticketGrantingTicketId = (String) session.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID);
         LOGGER.debug("{} : {}", OAuthConstants.TICKET, ticketGrantingTicketId);
         if (StringUtils.isBlank(ticketGrantingTicketId)) {
             LOGGER.error("Missing Ticket Granting Ticket");
+            // TODO: display error view since we are still interacting w/ the user.
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
         // verify the login ticket granting ticket is still valid
-        TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
+        final TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
         if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
             LOGGER.error("Ticket Granting Ticket expired : {}", ticketGrantingTicketId);
+            // TODO: display error view since we are still interacting w/ the user.
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
-        String callbackUrl = request.getRequestURL().toString()
+        final String callbackUrl = request.getRequestURL().toString()
                 .replace("/" + OAuthConstants.CALLBACK_AUTHORIZE_URL, "/" + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL);
         LOGGER.debug("{} : {}", OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL, callbackUrl);
 
-        String allowCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
+        final String allowCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
 
         final Map<String, Object> model = new HashMap<>();
         model.put("callbackUrl", callbackUrl);
@@ -123,16 +126,23 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
         }
 
         final String clientId = (String) session.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID);
-        LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_CLIENT_ID, clientId);
 
-        final Principal loginPrincipal = ticketGrantingTicket.getAuthentication().getPrincipal();
+        @SuppressWarnings("unchecked")
+        final Map<String, OAuthScope> scopeMap = (Map<String, OAuthScope>) session.getAttribute(OAuthConstants.OAUTH20_SCOPE_MAP);
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_SCOPE_MAP, scopeMap);
+        model.put("scopeMap", scopeMap);
+
+        final RefreshToken refreshToken = centralOAuthService.getRefreshToken(clientId, ticketGrantingTicket.getAuthentication().getPrincipal().getId());
 
         final String approvalPrompt = (String) session.getAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT);
         LOGGER.debug("approvalPrompt : {}", approvalPrompt);
+        // if not forced approval prompt, no scope changes and existing refresh token, do not ask the user for approval.
         if (StringUtils.isBlank(approvalPrompt) || !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)) {
-            final TicketGrantingTicket refreshToken = OAuthTokenUtils.getRefreshToken(centralAuthenticationService, clientId, loginPrincipal);
             if (refreshToken != null) {
-                return OAuthUtils.redirectTo(allowCallbackUrl);
+                if (refreshToken.getScope().containsAll(scopeMap.keySet())) {
+                    return OAuthUtils.redirectTo(allowCallbackUrl);
+                }
             }
         }
 

@@ -23,8 +23,10 @@ import org.jasig.cas.authentication.Credential;
 import java.util.Map;
 
 /**
- * @author Scott Battaglia
- * @since 3.1
+ *
+ * @author Michael Haselton
+ * @since 4.1.0
+ *
  */
 public final class OAuthCredential implements Credential {
 
@@ -32,8 +34,6 @@ public final class OAuthCredential implements Credential {
     public static String AUTHENTICATION_ATTRIBUTE_OAUTH = "org.jasig.cas.support.oauth.authentication.principal.OAUTH";
 
     private static final long serialVersionUID = -98723987239832729L;
-
-    private final String clientId;
 
     private final String id;
 
@@ -44,22 +44,16 @@ public final class OAuthCredential implements Credential {
      * Since oauth credentials rely on the primary authentication we wrapping the
      * existing authorization so we can apply specific expiration policies
      *
-     * @param clientId the client id
      * @param id the user id
      * @param attributes the attributes
      */
-    public OAuthCredential(final String clientId, final String id, final Map<String, Object> attributes) {
-        this.clientId = clientId;
+    public OAuthCredential(final String id, final Map<String, Object> attributes) {
         this.id = id;
         this.attributes = attributes;
     }
 
     public Map<String, Object> getAttributes() {
         return this.attributes;
-    }
-
-    public String getClientId() {
-        return this.clientId;
     }
 
     @Override

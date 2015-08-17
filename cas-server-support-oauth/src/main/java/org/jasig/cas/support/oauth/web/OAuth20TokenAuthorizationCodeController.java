@@ -21,19 +21,11 @@ package org.jasig.cas.support.oauth.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
-import org.jasig.cas.services.ServicesManager;
+import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
-import org.jasig.cas.support.oauth.OAuthTokenUtils;
 import org.jasig.cas.support.oauth.OAuthUtils;
-import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
-import org.jasig.cas.ticket.ServiceTicket;
-import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.registry.TicketRegistry;
-import org.jasig.cas.util.CipherExecutor;
+import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -41,7 +33,6 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -59,99 +50,50 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20TokenAuthorizationCodeController.class);
 
-    private final ServicesManager servicesManager;
-
-    private final TicketRegistry ticketRegistry;
-
-    private final CentralAuthenticationService centralAuthenticationService;
-
-    private final CipherExecutor cipherExecutor;
+    private final CentralOAuthService centralOAuthService;
 
     private final long timeout;
 
     /**
      * Instantiates a new o auth20 grant type authorization code controller.
      *
-     * @param servicesManager the services manager
-     * @param ticketRegistry the ticket registry
-     * @param centralAuthenticationService the central authentication service
+     * @param centralOAuthService the central oauth service
      * @param timeout the timeout
      */
-    public OAuth20TokenAuthorizationCodeController(final ServicesManager servicesManager, final TicketRegistry ticketRegistry,
-                                                   final CentralAuthenticationService centralAuthenticationService,
-                                                   final CipherExecutor cipherExecutor, final long timeout) {
-        this.servicesManager = servicesManager;
-        this.ticketRegistry = ticketRegistry;
-        this.centralAuthenticationService = centralAuthenticationService;
-        this.cipherExecutor = cipherExecutor;
+    public OAuth20TokenAuthorizationCodeController(final CentralOAuthService centralOAuthService,
+                                                   final long timeout) {
+        this.centralOAuthService = centralOAuthService;
         this.timeout = timeout;
     }
 
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String redirectUri = request.getParameter(OAuthConstants.REDIRECT_URI);
-        LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
+        final String code = request.getParameter(OAuthConstants.CODE);
+        LOGGER.debug("{} : {}", OAuthConstants.CODE, code);
 
         final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
 
         final String clientSecret = request.getParameter(OAuthConstants.CLIENT_SECRET);
+        LOGGER.debug("{} : {}", OAuthConstants.CLIENT_SECRET, "*********");
 
-        final String code = request.getParameter(OAuthConstants.CODE);
-        LOGGER.debug("{} : {}", OAuthConstants.CODE, code);
+        final String redirectUri = request.getParameter(OAuthConstants.REDIRECT_URI);
+        LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
 
-        final String serviceTicketId = cipherExecutor.decode(code);
-        LOGGER.debug("Service Ticket : {}", serviceTicketId);
-
-        final boolean isVerified = verifyRequest(redirectUri, clientId, clientSecret, code);
-        if (!isVerified) {
+        if (!verifyRequest(redirectUri, clientId, clientSecret, code)) {
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(serviceTicketId);
-        // service ticket should be valid
-        if (serviceTicket == null || serviceTicket.isExpired()) {
-            LOGGER.error("{} (Service Ticket) expired : {}", OAuthConstants.CODE, serviceTicketId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-        }
+        final RefreshToken refreshToken = centralOAuthService.grantRefreshToken(code, clientId, clientSecret, redirectUri);
+        final AccessToken accessToken = centralOAuthService.grantAccessToken(refreshToken);
 
-        final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
-        // remove service ticket
-        ticketRegistry.deleteTicket(serviceTicket.getId());
-
-        final Principal loginPrincipal = ticketGrantingTicket.getAuthentication().getPrincipal();
-
-        // do we have an existing refresh token?
-        final TicketGrantingTicket refreshToken = OAuthTokenUtils.getRefreshToken(centralAuthenticationService, clientId, loginPrincipal);
-        LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, refreshToken);
-
-        final TicketGrantingTicket refreshTicket;
-        if (refreshToken != null) {
-            refreshTicket = (TicketGrantingTicket) ticketRegistry.getTicket(refreshToken.getId());
-        } else {
-            refreshTicket = OAuthTokenUtils.fetchRefreshTicket(centralAuthenticationService, clientId, loginPrincipal);
-        }
-        if (refreshTicket == null) {
-            LOGGER.error("Could not fetch refresh ticket [{}]", loginPrincipal);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-        }
-
-        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        if (registeredService == null) {
-            LOGGER.error("Could not find registered service for client id [{}]", clientId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-        }
-
-        final Service service = new SimpleWebApplicationServiceImpl(redirectUri);
-        final ServiceTicket accessTicket = OAuthTokenUtils.fetchAccessTicket(centralAuthenticationService, refreshTicket, service);
-
-        final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessTicket.getCreationTime()));
+        final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getServiceTicket().getCreationTime()));
 
         final ObjectMapper mapper = new ObjectMapper();
         final Map<String, Object> map = new HashMap<>();
-        map.put(OAuthConstants.ACCESS_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, accessTicket));
-        map.put(OAuthConstants.REFRESH_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, refreshTicket, service));
+        map.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
+        map.put(OAuthConstants.REFRESH_TOKEN, refreshToken.getId());
         map.put(OAuthConstants.EXPIRES_IN, expires);
         map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
 
@@ -191,21 +133,6 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
         // redirectUri is required
         if (StringUtils.isBlank(redirectUri)) {
             LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
-            return false;
-        }
-
-        final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        if (service == null) {
-            LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return false;
-        }
-        if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {
-            LOGGER.error("Wrong client secret for service {}", service);
-            return false;
-        }
-        final String serviceId = service.getServiceId();
-        if (!redirectUri.matches(serviceId)) {
-            LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, serviceId);
             return false;
         }
 

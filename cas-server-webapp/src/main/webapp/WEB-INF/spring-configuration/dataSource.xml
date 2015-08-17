@@ -38,6 +38,7 @@
 
     <util:list id="packagesToScan">
         <value>org.jasig.cas.ticket</value>
+        <value>org.jasig.cas.support.oauth.token</value>
     </util:list>
 
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"

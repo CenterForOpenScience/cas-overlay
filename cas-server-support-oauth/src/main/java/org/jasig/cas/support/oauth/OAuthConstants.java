@@ -36,6 +36,9 @@ public interface OAuthConstants {
     /** The client secret. */
     String CLIENT_SECRET = "client_secret";
 
+    /** The scope. */
+    String SCOPE = "scope";
+
     /** The approval prompt. */
     String APPROVAL_PROMPT = "approval_prompt";
 
@@ -102,6 +105,9 @@ public interface OAuthConstants {
     /** The OAUT h20_ state. */
     String OAUTH20_STATE = "oauth20_state";
 
+    /** The OAUT h20_ scope. */
+    String OAUTH20_SCOPE_MAP = "oauth20_scope";
+
     /** The OAUT h20_ client id. */
     String OAUTH20_CLIENT_ID = "oauth20_client_id";
 
@@ -122,6 +128,9 @@ public interface OAuthConstants {
 
     /** The invalid request. */
     String INVALID_REQUEST = "invalid_request";
+
+    /** The unauthorized request. */
+    String UNAUTHORIZED_REQUEST = "unauthorized";
 
     /** The invalid grant. */
     String INVALID_GRANT = "invalid_grant";

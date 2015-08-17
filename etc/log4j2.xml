@@ -35,28 +35,28 @@
         <!--</Raven>-->
     </Appenders>
     <Loggers>
-        <Logger name="org.jasig" level="debug" additivity="false">
+        <Logger name="org.jasig" level="info" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
-        <Logger name="org.springframework" level="debug" additivity="false">
+        <Logger name="org.springframework" level="info" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
-        <Logger name="org.springframework.webflow" level="debug" additivity="false">
+        <Logger name="org.springframework.webflow" level="info" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
-        <Logger name="org.springframework.web" level="debug" additivity="false">
+        <Logger name="org.springframework.web" level="info" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
-        <Logger name="org.springframework.security" level="debug" additivity="false">
+        <Logger name="org.springframework.security" level="info" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
-        <Logger name="org.hibernate" level="debug" additivity="false">
+        <Logger name="org.hibernate" level="info" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
-        <Logger name="org.jasig.cas.web.flow" level="debug" additivity="false">
+        <Logger name="org.jasig.cas.web.flow" level="info" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
-        <Logger name="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" level="debug" additivity="false">
+        <Logger name="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" level="info" additivity="false">
             <AppenderRef ref="console" />
         </Logger>
         <!--<Logger name="perfStatsLogger" level="info" additivity="false">-->

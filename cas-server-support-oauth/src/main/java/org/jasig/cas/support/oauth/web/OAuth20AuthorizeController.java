@@ -20,8 +20,10 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.services.ServicesManager;
+import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
+import org.jasig.cas.support.oauth.scope.OAuthScope;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.*;
 
 /**
  * This controller is in charge of responding to the authorize
@@ -44,9 +47,11 @@ public final class OAuth20AuthorizeController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizeController.class);
 
-    private final String loginUrl;
+    private final CentralOAuthService centralOAuthService;
 
     private final ServicesManager servicesManager;
+
+    private final String loginUrl;
 
     /**
      * Instantiates a new o auth20 authorize controller.
@@ -54,7 +59,8 @@ public final class OAuth20AuthorizeController extends AbstractController {
      * @param servicesManager the services manager
      * @param loginUrl the login url
      */
-    public OAuth20AuthorizeController(final ServicesManager servicesManager, final String loginUrl) {
+    public OAuth20AuthorizeController(final CentralOAuthService centralOAuthService, final ServicesManager servicesManager, final String loginUrl) {
+        this.centralOAuthService = centralOAuthService;
         this.servicesManager = servicesManager;
         this.loginUrl = loginUrl;
     }
@@ -68,20 +74,18 @@ public final class OAuth20AuthorizeController extends AbstractController {
         final String redirectUri = request.getParameter(OAuthConstants.REDIRECT_URI);
         LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
 
+        final String scope = request.getParameter(OAuthConstants.SCOPE);
+        LOGGER.debug("{} : {}", OAuthConstants.SCOPE, scope);
+
         final String state = request.getParameter(OAuthConstants.STATE);
         LOGGER.debug("{} : {}", OAuthConstants.STATE, state);
 
         final String approvalPrompt = request.getParameter(OAuthConstants.APPROVAL_PROMPT);
         LOGGER.debug("{} : {}", OAuthConstants.APPROVAL_PROMPT, approvalPrompt);
 
-        // clientId is required
-        if (StringUtils.isBlank(clientId)) {
-            LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
-            return new ModelAndView(OAuthConstants.ERROR_VIEW);
-        }
-        // redirectUri is required
-        if (StringUtils.isBlank(redirectUri)) {
-            LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
+        final Map<String, OAuthScope> scopeMap = centralOAuthService.getScopeMap(scope);
+
+        if (!verifyRequest(clientId, redirectUri, scopeMap)) {
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
 
@@ -104,6 +108,7 @@ public final class OAuth20AuthorizeController extends AbstractController {
         session.setAttribute(OAuthConstants.OAUTH20_CLIENT_ID, clientId);
         session.setAttribute(OAuthConstants.OAUTH20_CALLBACKURL, redirectUri);
         session.setAttribute(OAuthConstants.OAUTH20_SERVICE_NAME, service.getName());
+        session.setAttribute(OAuthConstants.OAUTH20_SCOPE_MAP, scopeMap);
         session.setAttribute(OAuthConstants.OAUTH20_STATE, state);
 
         final String callbackAuthorizeUrl = request.getRequestURL().toString()
@@ -114,5 +119,33 @@ public final class OAuth20AuthorizeController extends AbstractController {
                 callbackAuthorizeUrl);
         LOGGER.debug("loginUrlWithService : {}", loginUrlWithService);
         return OAuthUtils.redirectTo(loginUrlWithService);
+    }
+
+    /**
+     * Verify the request by reviewing the values of client id, redirect uri, etc...
+     *
+     * @param clientId the client id
+     * @param redirectUri the redirect uri
+     * @param scopeMap the map of requested scopes
+     * @return true, if successful
+     */
+    private boolean verifyRequest(final String clientId, final String redirectUri, final Map<String, OAuthScope> scopeMap) {
+        // redirectUri is required
+        if (StringUtils.isBlank(redirectUri)) {
+            LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
+            return false;
+        }
+        // clientId is required
+        if (StringUtils.isBlank(clientId)) {
+            LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
+            return false;
+        }
+        // scope is required
+        if (scopeMap.size() == 0) {
+            LOGGER.error("Missing {}", OAuthConstants.SCOPE);
+            return false;
+        }
+
+        return true;
     }
 }
