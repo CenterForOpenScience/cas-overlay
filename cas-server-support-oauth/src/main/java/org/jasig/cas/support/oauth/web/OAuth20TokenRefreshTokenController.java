@@ -21,15 +21,10 @@ package org.jasig.cas.support.oauth.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
-import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.*;
-import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
-import org.jasig.cas.ticket.ServiceTicket;
-import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.util.CipherExecutor;
+import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.RefreshToken;
+import org.jasig.cas.ticket.InvalidTicketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -72,53 +67,61 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
+        final String refreshTokenId = request.getParameter(OAuthConstants.REFRESH_TOKEN);
+        LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId);
+
         final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
 
         final String clientSecret = request.getParameter(OAuthConstants.CLIENT_SECRET);
+        LOGGER.debug("{} : {}", OAuthConstants.CLIENT_SECRET, "*********");
 
-        final boolean isVerified = verifyRequest(clientId, clientSecret);
+        final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
+        LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
+
+        final boolean isVerified = verifyRequest(refreshTokenId, clientId, clientSecret, grantType);
         if (!isVerified) {
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
-//        final OAuthToken refreshToken = OAuthTokenUtils.getToken(request, cipherExecutor, OAuthConstants.REFRESH_TOKEN);
-//        final TicketGrantingTicket refreshTicket = (TicketGrantingTicket) OAuthTokenUtils.getTicket(centralAuthenticationService, refreshToken);
-//
-//        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-//        if (registeredService == null) {
-//            LOGGER.error("Could not find registered service for client id : {}", clientId);
-//            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-//        }
-//
-//        final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
-//        final ServiceTicket accessTicket = OAuthTokenUtils.fetchAccessTicket(centralAuthenticationService, refreshTicket, service);
-//
-//        final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessTicket.getCreationTime()));
-//
-//        final ObjectMapper mapper = new ObjectMapper();
-//        final Map<String, Object> map = new HashMap<>();
-//        map.put(OAuthConstants.ACCESS_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, accessTicket));
-//        map.put(OAuthConstants.EXPIRES_IN, expires);
-//        map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
+        final RefreshToken refreshToken;
+        try {
+            refreshToken = centralOAuthService.getToken(refreshTokenId, RefreshToken.class);
+        } catch (InvalidTicketException e) {
+            LOGGER.error("Invalid {} : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId);
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        }
 
-//        final String result = mapper.writeValueAsString(map);
-//        LOGGER.debug("result : {}", result);
+        final AccessToken accessToken = centralOAuthService.grantOfflineAccessToken(refreshToken);
 
-//        response.setContentType("application/json; charset=UTF-8");
-//        return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
+        final Map<String, Object> map = new HashMap<>();
+        map.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
+        map.put(OAuthConstants.EXPIRES_IN, (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getTicket().getCreationTime())));
+        map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
 
-        return OAuthUtils.writeText(response, "hi", HttpStatus.SC_OK);
+        final ObjectMapper mapper = new ObjectMapper();
+        final String result = mapper.writeValueAsString(map);
+        LOGGER.debug("result : {}", result);
+
+        response.setContentType("application/json; charset=UTF-8");
+        return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
     }
 
     /**
      * Verify the request by reviewing the values of client id, client secret, refresh token, etc.
      *
+     * @param refreshTokenId the refresh token id
      * @param clientId the client id
      * @param clientSecret the client secret
+     * @param grantType the grant type
      * @return true, if successful
      */
-    private boolean verifyRequest(final String clientId, final String clientSecret) {
+    private boolean verifyRequest(final String refreshTokenId, final String clientId, final String clientSecret, final String grantType) {
+        // refreshToken is required
+        if (StringUtils.isBlank(refreshTokenId)) {
+            LOGGER.error("Missing {}", OAuthConstants.REFRESH_TOKEN);
+            return false;
+        }
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
@@ -129,16 +132,15 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_SECRET);
             return false;
         }
-
-//        final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-//        if (service == null) {
-//            LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-//            return false;
-//        }
-//        if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {
-//            LOGGER.error("Wrong client secret for service {}", service);
-//            return false;
-//        }
+        // grantType is required
+        if (StringUtils.isBlank(grantType)) {
+            LOGGER.error("Missing {}", OAuthConstants.GRANT_TYPE);
+            return false;
+        }
+        if (!grantType.equalsIgnoreCase(OAuthConstants.REFRESH_TOKEN)) {
+            LOGGER.error("Invalid {} : {}", OAuthConstants.GRANT_TYPE, grantType);
+            return false;
+        }
 
         return true;
     }

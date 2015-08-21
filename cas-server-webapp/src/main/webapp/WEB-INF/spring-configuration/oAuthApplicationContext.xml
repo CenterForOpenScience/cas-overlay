@@ -38,8 +38,9 @@
           c:servicesManager-ref="servicesManager"
           c:ticketRegistry-ref="ticketRegistry"
           c:tokenRegistry-ref="tokenRegistry"
-          c:codeTokenUniqueIdGenerator-ref="codeTokenUniqueIdGenerator"
+          c:authorizationCodeUniqueIdGenerator-ref="authorizationCodeUniqueIdGenerator"
           c:refreshTokenUniqueIdGenerator-ref="refreshTokenUniqueIdGenerator"
           c:accessTokenUniqueIdGenerator-ref="accessTokenUniqueIdGenerator"
-          c:scopeManager-ref="oAuthScopeManager" />
+          c:scopeManager-ref="scopeManager"
+          c:personalAccessTokenManager-ref="personalAccessTokenManager" />
 </beans>

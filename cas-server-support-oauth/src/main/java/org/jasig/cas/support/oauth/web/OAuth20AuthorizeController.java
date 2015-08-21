@@ -23,7 +23,7 @@ import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
-import org.jasig.cas.support.oauth.scope.OAuthScope;
+import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,6 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.*;
 
 /**
  * This controller is in charge of responding to the authorize
@@ -41,6 +40,7 @@ import java.util.*;
  * login page with the callback service.
  *
  * @author Jerome Leleu
+ * @author Michael Haselton
  * @since 3.5.0
  */
 public final class OAuth20AuthorizeController extends AbstractController {
@@ -49,25 +49,25 @@ public final class OAuth20AuthorizeController extends AbstractController {
 
     private final CentralOAuthService centralOAuthService;
 
-    private final ServicesManager servicesManager;
-
     private final String loginUrl;
 
     /**
      * Instantiates a new o auth20 authorize controller.
      *
-     * @param servicesManager the services manager
+     * @param centralOAuthService the central oauth service
      * @param loginUrl the login url
      */
-    public OAuth20AuthorizeController(final CentralOAuthService centralOAuthService, final ServicesManager servicesManager, final String loginUrl) {
+    public OAuth20AuthorizeController(final CentralOAuthService centralOAuthService, final String loginUrl) {
         this.centralOAuthService = centralOAuthService;
-        this.servicesManager = servicesManager;
         this.loginUrl = loginUrl;
     }
 
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
+        final String responseType = request.getParameter(OAuthConstants.RESPONSE_TYPE);
+        LOGGER.debug("{} : {}", OAuthConstants.RESPONSE_TYPE, responseType);
+
         final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
 
@@ -80,70 +80,87 @@ public final class OAuth20AuthorizeController extends AbstractController {
         final String state = request.getParameter(OAuthConstants.STATE);
         LOGGER.debug("{} : {}", OAuthConstants.STATE, state);
 
+        final String accessType = request.getParameter(OAuthConstants.ACCESS_TYPE);
+        LOGGER.debug("{} : {}", OAuthConstants.ACCESS_TYPE, accessType);
+
         final String approvalPrompt = request.getParameter(OAuthConstants.APPROVAL_PROMPT);
         LOGGER.debug("{} : {}", OAuthConstants.APPROVAL_PROMPT, approvalPrompt);
 
-        final Map<String, OAuthScope> scopeMap = centralOAuthService.getScopeMap(scope);
-
-        if (!verifyRequest(clientId, redirectUri, scopeMap)) {
+        if (!verifyRequest(responseType, clientId, redirectUri, accessType)) {
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
 
-        final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(this.servicesManager, clientId);
+        final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
         if (service == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
-
-        final String serviceId = service.getServiceId();
-        if (!redirectUri.matches(serviceId)) {
-            LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, serviceId);
+        if (!redirectUri.matches(service.getServiceId())) {
+            LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
 
         // keep info in session
         final HttpSession session = request.getSession();
         session.setAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT, service.isBypassApprovalPrompt());
-        session.setAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT, approvalPrompt);
+        session.setAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT, StringUtils.isBlank(approvalPrompt) ? OAuthConstants.APPROVAL_PROMPT_AUTO : approvalPrompt);
+        session.setAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE, TokenType.valueOf(StringUtils.isBlank(accessType) ? "ONLINE" : accessType.toUpperCase()));
+        session.setAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE, StringUtils.isBlank(responseType) ? "code" : responseType.toLowerCase());
         session.setAttribute(OAuthConstants.OAUTH20_CLIENT_ID, clientId);
-        session.setAttribute(OAuthConstants.OAUTH20_CALLBACKURL, redirectUri);
+        session.setAttribute(OAuthConstants.OAUTH20_REDIRECT_URI, redirectUri);
         session.setAttribute(OAuthConstants.OAUTH20_SERVICE_NAME, service.getName());
-        session.setAttribute(OAuthConstants.OAUTH20_SCOPE_MAP, scopeMap);
+        session.setAttribute(OAuthConstants.OAUTH20_SCOPE, StringUtils.isBlank(scope) ? "" : scope);
         session.setAttribute(OAuthConstants.OAUTH20_STATE, state);
 
         final String callbackAuthorizeUrl = request.getRequestURL().toString()
                 .replace("/" + OAuthConstants.AUTHORIZE_URL, "/" + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         LOGGER.debug("{} : {}", OAuthConstants.CALLBACK_AUTHORIZE_URL, callbackAuthorizeUrl);
 
-        final String loginUrlWithService = OAuthUtils.addParameter(loginUrl, OAuthConstants.SERVICE,
-                callbackAuthorizeUrl);
+        final String loginUrlWithService = OAuthUtils.addParameter(loginUrl, OAuthConstants.SERVICE, callbackAuthorizeUrl);
         LOGGER.debug("loginUrlWithService : {}", loginUrlWithService);
+
         return OAuthUtils.redirectTo(loginUrlWithService);
     }
 
     /**
      * Verify the request by reviewing the values of client id, redirect uri, etc...
      *
+     * @param responseType the response type
      * @param clientId the client id
      * @param redirectUri the redirect uri
-     * @param scopeMap the map of requested scopes
+     * @param accessType the access type
      * @return true, if successful
      */
-    private boolean verifyRequest(final String clientId, final String redirectUri, final Map<String, OAuthScope> scopeMap) {
-        // redirectUri is required
-        if (StringUtils.isBlank(redirectUri)) {
-            LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
-            return false;
+    private boolean verifyRequest(final String responseType, final String clientId, final String redirectUri, final String accessType) {
+        // responseType must be valid
+        if (!StringUtils.isBlank(responseType)) {
+            if (!responseType.equalsIgnoreCase("code") && !responseType.equalsIgnoreCase("token")) {
+                LOGGER.error("Invalid {} specified", OAuthConstants.RESPONSE_TYPE);
+                return false;
+            }
         }
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
             return false;
         }
-        // scope is required
-        if (scopeMap.size() == 0) {
-            LOGGER.error("Missing {}", OAuthConstants.SCOPE);
+        // redirectUri is required
+        if (StringUtils.isBlank(redirectUri)) {
+            LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
             return false;
+        }
+        // accessType must be valid, default is ONLINE
+        if (!StringUtils.isBlank(accessType)) {
+            try {
+                TokenType tokenType = TokenType.valueOf(accessType.toUpperCase());
+                if (tokenType != TokenType.OFFLINE && tokenType != TokenType.ONLINE) {
+                    LOGGER.error("Invalid {} specified", OAuthConstants.ACCESS_TYPE);
+                    return false;
+                }
+            } catch (IllegalArgumentException e) {
+                LOGGER.error("Could not map enumeration for {}", OAuthConstants.ACCESS_TYPE);
+                return false;
+            }
         }
 
         return true;

@@ -18,13 +18,15 @@
  */
 package org.jasig.cas.support.oauth.token;
 
+import org.jasig.cas.ticket.Ticket;
+
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Interface for the generic concept of a token.
  *
  * @author Michael Haselton
-
  * @since 4.1.0
  */
 public interface Token extends Serializable {
@@ -35,4 +37,16 @@ public interface Token extends Serializable {
      * @return the id
      */
     String getId();
+
+    String getClientId();
+
+    String getPrincipalId();
+
+    Ticket getTicket();
+
+    TokenType getType();
+
+    Set<String> getScopes();
+
+    Integer getScopesHash();
 }

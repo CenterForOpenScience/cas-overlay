@@ -64,7 +64,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     private MongoOperations mongoTemplate;
 
     @Document(collection="user")
-    private class User {
+    private class OpenScienceFrameworkUser {
         @Id
         private String id;
         private String username;
@@ -156,7 +156,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         @Override
         public String toString() {
-            return "User [id=" + this.id + ", username=" + this.username + "]";
+            return "OpenScienceFrameworkUser [id=" + this.id + ", username=" + this.username + "]";
         }
     }
 
@@ -208,12 +208,12 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
-        final User user = this.mongoTemplate.findOne(new Query(
+        final OpenScienceFrameworkUser user = this.mongoTemplate.findOne(new Query(
                 new Criteria().orOperator(
                         Criteria.where("emails").is(username),
                         Criteria.where("username").is(username)
                 )
-        ), User.class);
+        ), OpenScienceFrameworkUser.class);
 
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");
@@ -294,11 +294,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         return new HandlerResult(this, new BasicCredentialMetaData(credential), principal, warnings);
     }
 
-    public final void setPrincipalNameTransformer(final PrincipalNameTransformer principalNameTransformer) {
+    public void setPrincipalNameTransformer(final PrincipalNameTransformer principalNameTransformer) {
         this.principalNameTransformer = principalNameTransformer;
     }
 
-    public final void setMongoTemplate(final MongoTemplate mongoTemplate) {
+    public void setMongoTemplate(final MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

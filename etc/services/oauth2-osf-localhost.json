@@ -9,6 +9,6 @@
   "clientSecret" : "esiLUJc2idUh5HaikEK7EAjMDwIa",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-    "allowedAttributes" : [ "java.util.ArrayList", [ "givenName", "familyName" ] ]
+    "allowedAttributes" : [ "java.util.ArrayList", [] ]
   }
 }

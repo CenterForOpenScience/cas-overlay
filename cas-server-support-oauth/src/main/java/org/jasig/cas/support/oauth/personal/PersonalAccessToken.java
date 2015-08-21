@@ -16,44 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.support.oauth.scope.handler;
+package org.jasig.cas.support.oauth.personal;
 
-import org.jasig.cas.support.oauth.scope.OAuthScope;
-import org.jasig.cas.support.oauth.scope.handler.support.AbstractOAuthScopeHandler;
-
-import java.util.List;
+import java.util.Set;
 
 /**
- * Simple OAuth Scope Handler
+ * OAuth Scope
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
-public class SimpleOAuthScopeHandler extends AbstractOAuthScopeHandler {
+public final class PersonalAccessToken {
+    private final String id;
+    private final String principalId;
+    private final Set<String> scopes;
 
-    private List<OAuthScope> scopes;
-
-    public SimpleOAuthScopeHandler(List<OAuthScope> scopes) {
+    public PersonalAccessToken(final String id, final String principalId, final Set<String> scopes) {
+        this.id = id;
+        this.principalId = principalId;
         this.scopes = scopes;
     }
 
-    @Override
-    public OAuthScope getScope(String name) {
-        for (OAuthScope scope : this.scopes) {
-            if (scope.getName().equalsIgnoreCase(name)) {
-                return scope;
-            }
-        }
-        return null;
+    public String getId() {
+        return this.id;
     }
 
-    @Override
-    public OAuthScope getDefault() {
-        for (OAuthScope scope : this.scopes) {
-            if (scope.getIsDefault()) {
-                return scope;
-            }
-        }
-        return null;
+    public String getPrincipalId() {
+        return this.principalId;
+    }
+
+    public Set<String> getScopes() {
+        return this.scopes;
     }
 }

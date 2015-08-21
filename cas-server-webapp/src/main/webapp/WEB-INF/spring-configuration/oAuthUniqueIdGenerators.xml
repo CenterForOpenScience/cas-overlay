@@ -37,7 +37,7 @@
     -->
 
     <!-- ID Generators -->
-    <bean id="codeTokenUniqueIdGenerator" class="org.jasig.cas.util.DefaultUniqueTicketIdGenerator"
+    <bean id="authorizationCodeUniqueIdGenerator" class="org.jasig.cas.util.DefaultUniqueTicketIdGenerator"
           c:maxLength="50" />
 
     <bean id="refreshTokenUniqueIdGenerator" class="org.jasig.cas.util.DefaultUniqueTicketIdGenerator"

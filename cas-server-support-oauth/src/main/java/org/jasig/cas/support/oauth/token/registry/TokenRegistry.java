@@ -19,15 +19,15 @@
 package org.jasig.cas.support.oauth.token.registry;
 
 import java.util.Collection;
+import java.util.Set;
 
-import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.Token;
+import org.jasig.cas.support.oauth.token.TokenType;
 
 /**
- * todo...
+ * Token Registry interface.
  *
  * @author Michael Haselton
-
  * @since 4.1.0
  */
 public interface TokenRegistry {
@@ -50,10 +50,19 @@ public interface TokenRegistry {
      * @param <T> the generic token type to return that extends {@link Token}
      * @return the requested token.
      */
-    <T extends Token> T getToken(String tokenId, Class<? extends Token> clazz) throws ClassCastException;
+    <T extends Token> T getToken(String tokenId, Class<T> clazz) throws ClassCastException;
 
-    RefreshToken getRefreshToken(String clientId, String principalId);
+    <T extends Token> Collection<T> getTokens(String clientId, Class<T> clazz) throws ClassCastException;
 
+    <T extends Token> Collection<T> getTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException;
+
+    <T extends Token> Boolean isToken(String clientId, String principalId, Set<String> scopes, Class<T> clazz);
+
+    <T extends Token> Boolean isToken(TokenType type, String clientId, String principalId, Set<String> scopes, Class<T> clazz);
+
+//    Boolean isRefreshToken(String clientId, String principalId, Set<String> scopes);
+
+//    Boolean isAccessToken(TokenType type, String clientId, String principalId, Set<String> scopes);
 
 //    /**
 //     * Retrieve a ticket from the registry.

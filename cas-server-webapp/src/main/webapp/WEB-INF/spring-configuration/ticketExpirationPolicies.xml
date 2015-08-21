@@ -40,10 +40,10 @@
     <!-- Expiration policies -->
 
     <!-- Service Ticket -->
-    <bean id="serviceTicketExpirationPolicy"
-          class="org.jasig.cas.support.oauth.ticket.support.OAuthDelegatingExpirationPolicy"
-          p:sessionExpirationPolicy-ref="standardSessionSTExpirationPolicy"
-          p:oAuthExpirationPolicy-ref="oAuthSessionSTExpirationPolicy" />
+    <bean id="serviceTicketExpirationPolicy" class="org.jasig.cas.support.oauth.ticket.support.OAuthDelegatingExpirationPolicy"
+          p:oAuthRefreshTokenExpirationPolicy-ref="oAuthRefreshTokenExpirationPolicy"
+          p:oAuthAccessTokenExpirationPolicy-ref="oAuthAccessTokenExpirationPolicy"
+          p:sessionExpirationPolicy-ref="standardSessionSTExpirationPolicy" />
 
     <!--
       | The following policy applies to standard CAS SSO sessions.
@@ -56,27 +56,25 @@
       | The following policy applies to oauth CAS SSO sessions.
       | Default 1 hour (3600s) expiration with one time use.
     -->
-    <bean id="oAuthSessionSTExpirationPolicy" class="org.jasig.cas.ticket.support.TimeoutExpirationPolicy"
+    <bean id="oAuthAccessTokenExpirationPolicy" class="org.jasig.cas.ticket.support.TimeoutExpirationPolicy"
           c:timeToKillInMilliSeconds="#{ ${oauth.accessTokenDuration:3600} * 1000L }" />
 
 
     <!-- Ticket Granting Ticket -->
-    <bean id="grantingTicketExpirationPolicy"
-          class="org.jasig.cas.support.oauth.ticket.support.OAuthDelegatingExpirationPolicy"
-          p:sessionExpirationPolicy-ref="rememberMeDelegatingExpirationPolicy"
-          p:oAuthExpirationPolicy-ref="oAuthSessionTGTExpirationPolicy" />
+    <bean id="grantingTicketExpirationPolicy" class="org.jasig.cas.support.oauth.ticket.support.OAuthDelegatingExpirationPolicy"
+          p:oAuthRefreshTokenExpirationPolicy-ref="oAuthRefreshTokenExpirationPolicy"
+          p:oAuthAccessTokenExpirationPolicy-ref="oAuthAccessTokenExpirationPolicy"
+          p:sessionExpirationPolicy-ref="rememberMeDelegatingExpirationPolicy" />
 
-    <bean id="rememberMeDelegatingExpirationPolicy"
-          class="org.jasig.cas.ticket.support.RememberMeDelegatingExpirationPolicy"
-          p:sessionExpirationPolicy-ref="standardSessionTGTExpirationPolicy"
-          p:rememberMeExpirationPolicy-ref="rememberMeSessionTGTExpirationPolicy" />
+    <bean id="rememberMeDelegatingExpirationPolicy" class="org.jasig.cas.ticket.support.RememberMeDelegatingExpirationPolicy"
+          p:rememberMeExpirationPolicy-ref="rememberMeSessionTGTExpirationPolicy"
+          p:sessionExpirationPolicy-ref="standardSessionTGTExpirationPolicy" />
 
     <!--
        | The following policy applies to standard CAS SSO sessions.
        | Default 2h (7200s) sliding expiration with default 8h (28800s) maximum lifetime.
        -->
-    <bean id="standardSessionTGTExpirationPolicy"
-          class="org.jasig.cas.ticket.support.TicketGrantingTicketExpirationPolicy"
+    <bean id="standardSessionTGTExpirationPolicy" class="org.jasig.cas.ticket.support.TicketGrantingTicketExpirationPolicy"
           p:maxTimeToLiveInSeconds="${tgt.maxTimeToLiveInSeconds:28800}"
           p:timeToKillInSeconds="${tgt.timeToKillInSeconds:7200}"/>
 
@@ -84,14 +82,12 @@
        | The following policy applies to remember me CAS SSO sessions.
        | Default duration is two weeks (1209600s).
        -->
-    <bean id="rememberMeSessionTGTExpirationPolicy"
-          class="org.jasig.cas.ticket.support.TimeoutExpirationPolicy"
+    <bean id="rememberMeSessionTGTExpirationPolicy" class="org.jasig.cas.ticket.support.TimeoutExpirationPolicy"
           c:timeToKillInMilliSeconds="#{ ${tgt.rememberMeDuration:1209600} * 1000L }" />
 
     <!--
        | The following policy applies to oauth CAS SSO sessions.
        | Default duration is to never expire, the user can de-authorize the ticket from their account.
        -->
-    <bean id="oAuthSessionTGTExpirationPolicy"
-          class="org.jasig.cas.ticket.support.NeverExpiresExpirationPolicy" />
+    <bean id="oAuthRefreshTokenExpirationPolicy" class="org.jasig.cas.ticket.support.NeverExpiresExpirationPolicy" />
 </beans>

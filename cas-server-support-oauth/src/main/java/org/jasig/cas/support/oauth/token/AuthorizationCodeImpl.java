@@ -22,58 +22,35 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.ServiceTicketImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jasig.cas.ticket.Ticket;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Todo...
+ * Authorization Code token implementation.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 @Entity
-@Table(name="CODETOKEN")
-public final class CodeTokenImpl implements CodeToken {
+@Table(name="AUTHORIZATIONCODE")
+public final class AuthorizationCodeImpl extends AbstractToken implements AuthorizationCode {
 
     /** Unique Id for serialization. */
     private static final long serialVersionUID = -7608149809180111599L;
-
-    /** Logger instance. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(CodeTokenImpl.class);
-
-    /** The unique identifier for this ticket. */
-    @Id
-    @Column(name="ID", nullable=false)
-    private String id;
 
     /** The ServiceTicket this is associated with. */
     @OneToOne(targetEntity=ServiceTicketImpl.class)
     @OnDelete(action=OnDeleteAction.CASCADE)
     private ServiceTicket serviceTicket;
 
-    /** The client id associated with the token. */
-    @Column(name="CLIENT_ID", nullable=false)
-    private String clientId;
-
-    /** The callback url. */
-    @Column(name="CALLBACK_URL", nullable=false)
-    private String callbackUrl;
-
-    @Lob
-    @Column(name="SCOPE", nullable=false, length = 1000000)
-    private ArrayList<String> scope;
-
     /**
      * Instantiates a new oauth refresh token impl.
      */
-    public CodeTokenImpl() {
+    public AuthorizationCodeImpl() {
         // nothing to do
     }
 
@@ -83,37 +60,21 @@ public final class CodeTokenImpl implements CodeToken {
      *
      * @param id the id of the Ticket
      * @param serviceTicket the service ticket
-     * @param scope the scope
+     * @param scopes the scopes
      */
-    public CodeTokenImpl(final String id,
-                         final ServiceTicket serviceTicket,
-                         final String clientId,
-                         final String callbackUrl,
-                         final Set<String> scope) {
-        this.id = id;
+    public AuthorizationCodeImpl(final String id, final TokenType type, final String clientId, final String principalId,
+                                 final ServiceTicket serviceTicket, final Set<String> scopes) {
+        super(id, clientId, principalId, type, scopes);
         this.serviceTicket = serviceTicket;
-        this.clientId = clientId;
-        this.callbackUrl = callbackUrl;
-        this.scope = new ArrayList<>(scope);
     }
 
-    public final String getId() {
-        return this.id;
-    }
-
-    public final ServiceTicket getServiceTicket() {
+    @Override
+    public Ticket getTicket() {
         return this.serviceTicket;
     }
 
-    public final String getClientId() {
-        return this.clientId;
-    }
-
-    public final String getCallbackUrl() {
-        return this.callbackUrl;
-    }
-
-    public final Set<String> getScope() {
-        return new HashSet<>(this.scope);
+    @Override
+    public final ServiceTicket getServiceTicket() {
+        return this.serviceTicket;
     }
 }

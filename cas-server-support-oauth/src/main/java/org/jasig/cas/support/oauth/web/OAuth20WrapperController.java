@@ -48,16 +48,16 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20WrapperController.class);
 
     private AbstractController authorizeController;
-    private AbstractController callbackAuthorizeController;
-    private AbstractController callbackAuthorizeActionController;
+    private AbstractController authorizeCallbackController;
+    private AbstractController authorizeCallbackActionController;
 
-    private AbstractController authorizationsController;
-    private AbstractController authorizationCodeController;
-    private AbstractController refreshTokenController;
+    private AbstractController tokenAuthorizationController;
+    private AbstractController tokenAuthorizationCodeController;
+    private AbstractController tokenRefreshTokenController;
 
-    private AbstractController revokeUserTokenController;
-    private AbstractController revokeUserApplicationController;
-    private AbstractController revokeApplicationTokenController;
+    private AbstractController revokeTokenController;
+    private AbstractController revokeClientPrincipalTokensController;
+    private AbstractController revokeClientTokensController;
 
     private AbstractController profileController;
 
@@ -75,19 +75,23 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
     @NotNull
     private CentralOAuthService centralOAuthService;
 
-
     @Override
     public void afterPropertiesSet() throws Exception {
-        authorizeController = new OAuth20AuthorizeController(centralOAuthService, servicesManager, loginUrl);
-        callbackAuthorizeController = new OAuth20CallbackAuthorizeController(ticketRegistry, centralOAuthService);
-        callbackAuthorizeActionController = new OAuth20CallbackAuthorizeActionController(centralOAuthService);
-//        authorizationsController = new OAuth20TokenAuthorizationController(servicesManager, centralAuthenticationService, cipherExecutor);
-        authorizationCodeController = new OAuth20TokenAuthorizationCodeController(centralOAuthService, timeout);
-        refreshTokenController = new OAuth20TokenRefreshTokenController(centralOAuthService, timeout);
-//        revokeUserTokenController = new OAuth20RevokeUserTokenController(ticketRegistry, centralAuthenticationService, cipherExecutor);
-//        revokeUserApplicationController = new OAuth20RevokeUserApplicationController(ticketRegistry, centralAuthenticationService, cipherExecutor);
-//        revokeApplicationTokenController = new OAuth20RevokeApplicationTokenController(servicesManager, ticketRegistry, centralAuthenticationService);
-        profileController = new OAuth20ProfileController(centralAuthenticationService, centralOAuthService);
+        // TODO: move timeout to central oauth service
+
+        authorizeController = new OAuth20AuthorizeController(centralOAuthService, loginUrl);
+        authorizeCallbackController = new OAuth20AuthorizeCallbackController(centralOAuthService, ticketRegistry);
+        authorizeCallbackActionController = new OAuth20AuthorizeCallbackActionController(centralOAuthService, timeout);
+
+//        tokenAuthorizationController = new OAuth20TokenAuthorizationController(servicesManager, centralAuthenticationService);
+        tokenAuthorizationCodeController = new OAuth20TokenAuthorizationCodeController(centralOAuthService, timeout);
+        tokenRefreshTokenController = new OAuth20TokenRefreshTokenController(centralOAuthService, timeout);
+
+        revokeTokenController = new OAuth20RevokeTokenController(centralOAuthService);
+        revokeClientTokensController = new OAuth20RevokeClientTokensController(centralOAuthService);
+        revokeClientPrincipalTokensController = new OAuth20RevokeClientPrincipalTokensController(centralOAuthService);
+
+        profileController = new OAuth20ProfileController(centralOAuthService, centralAuthenticationService);
 //        metadataApplicationController = new OAuth20MetadataApplicationController(servicesManager, centralAuthenticationService);
     }
 
@@ -98,27 +102,27 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         if (OAuthConstants.AUTHORIZE_URL.equals(method) && request.getMethod().equals("GET")) {
             return authorizeController.handleRequest(request, response);
         }
-        // callback on authorize
+        // callback authorize
         if (OAuthConstants.CALLBACK_AUTHORIZE_URL.equals(method) && request.getMethod().equals("GET")) {
-            return callbackAuthorizeController.handleRequest(request, response);
+            return authorizeCallbackController.handleRequest(request, response);
         }
         // callback on authorize action
         if (OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL.equals(method) && request.getMethod().equals("GET")) {
-            return callbackAuthorizeActionController.handleRequest(request, response);
+            return authorizeCallbackActionController.handleRequest(request, response);
         }
 
         // token
         if (OAuthConstants.TOKEN_URL.equals(method)) {
             if (request.getMethod().equals("GET")) {
-                return authorizationsController.handleRequest(request, response);
+                return tokenAuthorizationController.handleRequest(request, response);
             } else if (request.getMethod().equals("POST")) {
                 final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
                 LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
                 if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
-                    return authorizationCodeController.handleRequest(request, response);
+                    return tokenAuthorizationCodeController.handleRequest(request, response);
                 } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
-                    return refreshTokenController.handleRequest(request, response);
+                    return tokenRefreshTokenController.handleRequest(request, response);
                 }
             }
         }
@@ -127,11 +131,11 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         if (OAuthConstants.REVOKE_URL.equals(method) && request.getMethod().equals("POST")) {
             if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_ID)) {
                 if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_SECRET)) {
-                    return revokeApplicationTokenController.handleRequest(request, response);
+                    return revokeClientTokensController.handleRequest(request, response);
                 }
-                return revokeUserApplicationController.handleRequest(request, response);
+                return revokeClientPrincipalTokensController.handleRequest(request, response);
             } else {
-                return revokeUserTokenController.handleRequest(request, response);
+                return revokeTokenController.handleRequest(request, response);
             }
         }
 

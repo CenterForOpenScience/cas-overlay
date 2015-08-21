@@ -18,7 +18,9 @@
  */
 package org.jasig.cas.support.oauth.token;
 
+import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.ticket.ServiceTicket;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 
 /**
  * Access Token
@@ -33,7 +35,9 @@ public interface AccessToken extends Token {
      **/
     String PREFIX = "AT";
 
-    ServiceTicket getServiceTicket();
+    TicketGrantingTicket getTicketGrantingTicket();
 
-    RefreshToken getRefreshToken();
+    Service getService();
+
+    ServiceTicket getServiceTicket();
 }

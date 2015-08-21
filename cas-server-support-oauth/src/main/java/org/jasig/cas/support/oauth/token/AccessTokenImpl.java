@@ -20,37 +20,34 @@ package org.jasig.cas.support.oauth.token;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.jasig.cas.ticket.ServiceTicket;
-import org.jasig.cas.ticket.ServiceTicketImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.ticket.*;
 
 import javax.persistence.*;
+import java.util.Set;
 
 /**
- * Todo...
+ * Access Token Implementation class
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 @Entity
 @Table(name="ACCESSTOKEN")
-public final class AccessTokenImpl implements AccessToken {
+public final class AccessTokenImpl extends AbstractToken implements AccessToken {
 
     /** Unique Id for serialization. */
     private static final long serialVersionUID = -2608145809180961597L;
 
-    /** Logger instance. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenImpl.class);
+    /** The TicketGrantingTicket this is associated with. */
+    @OneToOne(targetEntity=TicketGrantingTicketImpl.class)
+    @OnDelete(action=OnDeleteAction.CASCADE)
+    private TicketGrantingTicket ticketGrantingTicket;
 
-    /** The unique identifier for this ticket. */
-    @Id
-    @Column(name="ID", nullable=false)
-    private String id;
-
-    /** The RefreshToken this is associated with. */
-    @OneToOne(targetEntity=RefreshTokenImpl.class)
-    private RefreshToken refreshToken;
+    /** The service associated with the tgt. */
+    @Lob
+    @Column(name="SERVICE")
+    private Service service;
 
     /** The ServiceTicket this is associated with. */
     @OneToOne(targetEntity=ServiceTicketImpl.class)
@@ -58,7 +55,7 @@ public final class AccessTokenImpl implements AccessToken {
     private ServiceTicket serviceTicket;
 
     /**
-     * Instantiates a new oauth refresh token impl.
+     * Instantiates a new access token impl.
      */
     public AccessTokenImpl() {
         // nothing to do
@@ -68,37 +65,51 @@ public final class AccessTokenImpl implements AccessToken {
      * Constructs a new AccessToken.
      *
      * @param id the id of the Ticket
+     * @param type the token type
+     * @param clientId the client id
+     * @param principalId the principal id
+     * @param ticketGrantingTicket the ticket granting ticket
+     * @param service the service
      * @param serviceTicket the service ticket
+     * @param scopes the granted scopes
      */
-    public AccessTokenImpl(final String id,
-                           final ServiceTicket serviceTicket) {
-        this(id, null, serviceTicket);
-    }
+    public AccessTokenImpl(final String id, final TokenType type, final String clientId, final String principalId,
+                           final TicketGrantingTicket ticketGrantingTicket, final Service service,
+                           final ServiceTicket serviceTicket, final Set<String> scopes) {
+        super(id, clientId, principalId, type, scopes);
 
-    /**
-     * Constructs a new AccessToken.
-     *
-     * @param id the id of the Ticket
-     * @param refreshToken the refresh token
-     * @param serviceTicket the service ticket
-     */
-    public AccessTokenImpl(final String id,
-                           final RefreshToken refreshToken,
-                           final ServiceTicket serviceTicket) {
-        this.id = id;
-        this.refreshToken = refreshToken;
+        this.ticketGrantingTicket = ticketGrantingTicket;
+        this.service = service;
         this.serviceTicket = serviceTicket;
     }
 
-    public final String getId() {
-        return this.id;
+    @Override
+    @Transient
+    public Ticket getTicket() {
+        if (getType() == TokenType.OFFLINE) {
+            return this.serviceTicket;
+        }
+
+        return this.ticketGrantingTicket;
     }
 
-    public final ServiceTicket getServiceTicket() {
+    @Override
+    public final TicketGrantingTicket getTicketGrantingTicket()
+    {
+        if (getType() == TokenType.OFFLINE) {
+            return this.serviceTicket.getGrantingTicket();
+        }
+
+        return this.ticketGrantingTicket;
+    }
+
+    @Override
+    public Service getService() {
+        return this.service;
+    }
+
+    @Override
+    public ServiceTicket getServiceTicket() {
         return this.serviceTicket;
-    }
-
-    public final RefreshToken getRefreshToken() {
-        return this.refreshToken;
     }
 }

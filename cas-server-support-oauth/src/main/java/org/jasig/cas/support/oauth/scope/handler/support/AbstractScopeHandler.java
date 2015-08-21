@@ -16,25 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.support.oauth.token;
+package org.jasig.cas.support.oauth.scope.handler.support;
 
-import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.jasig.cas.support.oauth.scope.Scope;
+
+import java.util.Set;
 
 /**
- * A Refresh Token
+ * Base class for OAuth Scope Handlers
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
-public interface RefreshToken extends Token {
+public abstract class AbstractScopeHandler implements ScopeHandler {
 
-    /** Prefix generally applied to unique ids generated
-     * by {@link org.jasig.cas.util.UniqueTicketIdGenerator}.
-     **/
-    String PREFIX = "RT";
-
-    TicketGrantingTicket getTicketGrantingTicket();
-
-    Service getService();
+    @Override
+    public Set<Scope> getDefaults() {
+        return null;
+    }
 }

@@ -27,28 +27,24 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <bean id="scopeManager" class="org.jasig.cas.support.oauth.scope.ScopeManager"
-          c:scopeHandler-ref="simpleScopeHandler"
-          c:casScopeHandler-ref="casScopeHandler" />
+    <bean id="personalAccessTokenManager" class="org.jasig.cas.support.oauth.personal.PersonalAccessTokenManager"
+          c:personalAccessTokenHandler-ref="simplePersonalTokenHandler" />
 
-    <!--<bean id="openScienceFrameworkScopeHandler" class="io.cos.cas.adaptors.mongodb.OpenScienceFrameworkScopeHandler"-->
-          <!--p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />-->
+    <!--<bean id="openScienceFrameworkPersonalTokenHandler" class="org.jasig.cas.support.oauth.token.registry.OpenScienceFrameworkPersonalAccessTokenHandler" />-->
 
-    <bean id="simpleScopeHandler" class="org.jasig.cas.support.oauth.scope.handler.SimpleScopeHandler">
+    <bean id="simplePersonalTokenHandler" class="org.jasig.cas.support.oauth.personal.handler.SimplePersonalAccessTokenHandler">
         <constructor-arg>
             <util:set>
-                <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="user" c:description="View and manage your user account" />
-                <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="user.profile" c:description="View your basic profile info" c:isDefault="true" />
-                <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="nodes.create" c:description="Create new nodes" />
+                <bean class="org.jasig.cas.support.oauth.personal.PersonalAccessToken"
+                      c:id="desired-access-token-id"
+                      c:principalId="unique-user-identifier"
+                      c:scopes-ref="simplePersonalTokenScopes" />
             </util:set>
         </constructor-arg>
     </bean>
 
-    <bean id="casScopeHandler" class="org.jasig.cas.support.oauth.scope.handler.SimpleScopeHandler">
-        <constructor-arg>
-            <util:set>
-                <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="everything_under_the_sun" c:description="Special scope that only the target application understands" c:isDefault="true" />
-            </util:set>
-        </constructor-arg>
-    </bean>
+    <util:set id="simplePersonalTokenScopes">
+        <value>user.profile</value>
+        <value>user.email</value>
+    </util:set>
 </beans>

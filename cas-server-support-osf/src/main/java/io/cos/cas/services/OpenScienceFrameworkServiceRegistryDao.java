@@ -154,9 +154,9 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
 
         ReturnAllowedAttributeReleasePolicy attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
         ArrayList<String> allowedAttributes = new ArrayList<>();
-        allowedAttributes.add("username");
-        allowedAttributes.add("givenName");
-        allowedAttributes.add("familyName");
+//        allowedAttributes.add("username");
+//        allowedAttributes.add("givenName");
+//        allowedAttributes.add("familyName");
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
 
         final Map<Long, RegisteredService> temp = new ConcurrentHashMap<>();

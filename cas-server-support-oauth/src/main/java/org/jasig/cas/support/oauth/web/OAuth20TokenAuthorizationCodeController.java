@@ -21,11 +21,16 @@ package org.jasig.cas.support.oauth.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
+import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
+import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.AuthorizationCode;
 import org.jasig.cas.support.oauth.token.RefreshToken;
+import org.jasig.cas.ticket.InvalidTicketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -52,7 +57,7 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
 
     private final CentralOAuthService centralOAuthService;
 
-    private final long timeout;
+    private final Long timeout;
 
     /**
      * Instantiates a new o auth20 grant type authorization code controller.
@@ -60,8 +65,7 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
      * @param centralOAuthService the central oauth service
      * @param timeout the timeout
      */
-    public OAuth20TokenAuthorizationCodeController(final CentralOAuthService centralOAuthService,
-                                                   final long timeout) {
+    public OAuth20TokenAuthorizationCodeController(final CentralOAuthService centralOAuthService, final Long timeout) {
         this.centralOAuthService = centralOAuthService;
         this.timeout = timeout;
     }
@@ -85,18 +89,47 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final RefreshToken refreshToken = centralOAuthService.grantRefreshToken(code, clientId, clientSecret, redirectUri);
-        final AccessToken accessToken = centralOAuthService.grantAccessToken(refreshToken);
+        final AuthorizationCode authorizationCode;
+        try {
+            authorizationCode = centralOAuthService.getToken(code, AuthorizationCode.class);
+        } catch (InvalidTicketException e) {
+            LOGGER.error("Unknown {} : {}", OAuthConstants.AUTHORIZATION_CODE, code);
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        }
 
-        final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getServiceTicket().getCreationTime()));
+        final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
+        if (service == null) {
+            LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        }
+        if (!service.getClientSecret().equals(clientSecret)) {
+            LOGGER.error("Mismatched Client Secret parameters");
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        }
+        if (!redirectUri.matches(service.getServiceId())) {
+            LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        }
 
-        final ObjectMapper mapper = new ObjectMapper();
         final Map<String, Object> map = new HashMap<>();
+
+        final AccessToken accessToken;
+        if (authorizationCode.getType() == TokenType.OFFLINE) {
+            final RefreshToken refreshToken = centralOAuthService.grantOfflineRefreshToken(authorizationCode, redirectUri);
+            map.put(OAuthConstants.REFRESH_TOKEN, refreshToken.getId());
+
+            accessToken = centralOAuthService.grantOfflineAccessToken(refreshToken);
+        } else if (authorizationCode.getType() == TokenType.ONLINE) {
+            accessToken = centralOAuthService.grantOnlineAccessToken(authorizationCode);
+        } else {
+            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        }
+
         map.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
-        map.put(OAuthConstants.REFRESH_TOKEN, refreshToken.getId());
-        map.put(OAuthConstants.EXPIRES_IN, expires);
+        map.put(OAuthConstants.EXPIRES_IN, (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getTicket().getCreationTime())));
         map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
 
+        final ObjectMapper mapper = new ObjectMapper();
         final String result = mapper.writeValueAsString(map);
         LOGGER.debug("result : {}", result);
 

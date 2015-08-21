@@ -23,8 +23,8 @@ import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
-import org.jasig.cas.support.oauth.scope.OAuthScope;
-import org.jasig.cas.support.oauth.token.RefreshToken;
+import org.jasig.cas.support.oauth.scope.Scope;
+import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
@@ -36,8 +36,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This controller is called after successful authentication and
@@ -47,18 +46,17 @@ import java.util.Map;
  * @author Jerome Leleu
  * @since 3.5.0
  */
-public final class OAuth20CallbackAuthorizeController extends AbstractController {
+public final class OAuth20AuthorizeCallbackController extends AbstractController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(OAuth20CallbackAuthorizeController.class);
-
-    private final TicketRegistry ticketRegistry;
+    private final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizeCallbackController.class);
 
     private final CentralOAuthService centralOAuthService;
 
-    public OAuth20CallbackAuthorizeController(final TicketRegistry ticketRegistry,
-                                              final CentralOAuthService centralOAuthService) {
-        this.ticketRegistry = ticketRegistry;
+    private final TicketRegistry ticketRegistry;
+
+    public OAuth20AuthorizeCallbackController(final CentralOAuthService centralOAuthService, final TicketRegistry ticketRegistry) {
         this.centralOAuthService = centralOAuthService;
+        this.ticketRegistry = ticketRegistry;
     }
 
     @Override
@@ -74,39 +72,33 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
         if (serviceTicketId != null) {
             // create the login ticket granting ticket
             final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(serviceTicketId);
-            // login service ticket should be valid
             if (serviceTicket == null || serviceTicket.isExpired()) {
                 LOGGER.error("Service Ticket expired : {}", serviceTicketId);
                 return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
             }
 
             final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
+
             // remove login service ticket
             ticketRegistry.deleteTicket(serviceTicket.getId());
 
             // store the login tgt id in the user's session, used to create service tickets for validation and
-            // oauth credentials later in the flow.
+            // oauth credentials later in the flow
             session.setAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, ticketGrantingTicket.getId());
 
-            // redirect back to self, clears the service ticket from the url, allows the url to be requested multiple
-            // times w/o error
+            // redirect back to self, clears the service ticket from the url, allows the page to be refreshed w/o error
             return OAuthUtils.redirectTo(request.getRequestURL().toString());
         }
 
         // get cas login service ticket from the session
         final String ticketGrantingTicketId = (String) session.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID);
         LOGGER.debug("{} : {}", OAuthConstants.TICKET, ticketGrantingTicketId);
-        if (StringUtils.isBlank(ticketGrantingTicketId)) {
-            LOGGER.error("Missing Ticket Granting Ticket");
-            // TODO: display error view since we are still interacting w/ the user.
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-        }
 
         // verify the login ticket granting ticket is still valid
         final TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
         if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
             LOGGER.error("Ticket Granting Ticket expired : {}", ticketGrantingTicketId);
-            // TODO: display error view since we are still interacting w/ the user.
+            // TODO: display error view as we are still interacting w/ the user.
             return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
@@ -114,43 +106,53 @@ public final class OAuth20CallbackAuthorizeController extends AbstractController
                 .replace("/" + OAuthConstants.CALLBACK_AUTHORIZE_URL, "/" + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL);
         LOGGER.debug("{} : {}", OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL, callbackUrl);
 
-        final String allowCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
-
-        final Map<String, Object> model = new HashMap<>();
-        model.put("callbackUrl", callbackUrl);
-
-        final Boolean bypassApprovalPrompt = (Boolean) session.getAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT);
-        LOGGER.debug("bypassApprovalPrompt : {}", bypassApprovalPrompt);
-        if (bypassApprovalPrompt != null && bypassApprovalPrompt) {
-            return OAuthUtils.redirectTo(allowCallbackUrl);
-        }
-
         final String clientId = (String) session.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID);
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_CLIENT_ID, clientId);
 
-        @SuppressWarnings("unchecked")
-        final Map<String, OAuthScope> scopeMap = (Map<String, OAuthScope>) session.getAttribute(OAuthConstants.OAUTH20_SCOPE_MAP);
-        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_SCOPE_MAP, scopeMap);
-        model.put("scopeMap", scopeMap);
+        final String scope = (String) session.getAttribute(OAuthConstants.OAUTH20_SCOPE);
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_SCOPE, scope);
 
-        final RefreshToken refreshToken = centralOAuthService.getRefreshToken(clientId, ticketGrantingTicket.getAuthentication().getPrincipal().getId());
+        final String serviceName = (String) session.getAttribute(OAuthConstants.OAUTH20_SERVICE_NAME);
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_SERVICE_NAME, serviceName);
+
+        final TokenType tokenType = (TokenType) session.getAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE);
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_TOKEN_TYPE, tokenType);
 
         final String approvalPrompt = (String) session.getAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT);
-        LOGGER.debug("approvalPrompt : {}", approvalPrompt);
-        // if not forced approval prompt, no scope changes and existing refresh token, do not ask the user for approval.
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_APPROVAL_PROMPT);
+
+        final Boolean bypassApprovalPrompt = (Boolean) session.getAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT);
+        LOGGER.debug("{} : {}", OAuthConstants.BYPASS_APPROVAL_PROMPT, bypassApprovalPrompt);
+
+        final Set<String> requestedScopeSet = new HashSet<>(Arrays.asList(scope.split(" ")));
+
+        // we use the scope map rather than scope set as the oauth service has the potential to add default scopes(s)
+        // and/or filtered out invalid scopes.
+        final Map<String, Scope> scopeMap = centralOAuthService.getScopes(requestedScopeSet);
+        session.setAttribute(OAuthConstants.OAUTH20_SCOPE_SET, scopeMap.keySet());
+
+        final String allowCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION,
+                OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
+        // this override can only be set on the service itself
+        if (bypassApprovalPrompt != null && bypassApprovalPrompt) {
+            return OAuthUtils.redirectTo(allowCallbackUrl);
+        }
+        // if approval prompt is not forced, check if we have already approved the requested scopes, if so do not ask the user again for authorization.
         if (StringUtils.isBlank(approvalPrompt) || !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)) {
-            if (refreshToken != null) {
-                if (refreshToken.getScope().containsAll(scopeMap.keySet())) {
-                    return OAuthUtils.redirectTo(allowCallbackUrl);
-                }
+            final String principalId = ticketGrantingTicket.getAuthentication().getPrincipal().getId();
+            final Boolean existingToken = (tokenType == TokenType.ONLINE) ?
+                    centralOAuthService.isAccessToken(tokenType, clientId, principalId, scopeMap.keySet())
+                    : centralOAuthService.isRefreshToken(clientId, principalId, scopeMap.keySet());
+
+            if (existingToken) {
+                return OAuthUtils.redirectTo(allowCallbackUrl);
             }
         }
 
-        // retrieve service name from session
-        final String serviceName = (String) session.getAttribute(OAuthConstants.OAUTH20_SERVICE_NAME);
-        LOGGER.debug("serviceName : {}", serviceName);
+        final Map<String, Object> model = new HashMap<>();
+        model.put("callbackUrl", callbackUrl);
+        model.put("scopeMap", scopeMap);
         model.put("serviceName", serviceName);
-
         return new ModelAndView(OAuthConstants.CONFIRM_VIEW, model);
     }
 }

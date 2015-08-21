@@ -16,29 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.support.oauth.scope;
+package org.jasig.cas.support.oauth.scope.handler.support;
 
-import org.jasig.cas.support.oauth.scope.handler.support.OAuthScopeHandler;
+import org.jasig.cas.support.oauth.scope.Scope;
+
+import java.util.Set;
 
 /**
- * Simple OAuth Scope Manager
+ * Interface for OAuth Scope Handlers
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
-public class OAuthScopeManager {
+public interface ScopeHandler {
+    Scope getScope(String name);
 
-    private final OAuthScopeHandler scopeHandler;
-
-    public OAuthScopeManager(OAuthScopeHandler scopeHandler) {
-        this.scopeHandler = scopeHandler;
-    }
-
-    public OAuthScope getScope(String name) {
-        return scopeHandler.getScope(name);
-    }
-
-    public OAuthScope getDefault() {
-        return scopeHandler.getDefault();
-    }
+    Set<Scope> getDefaults();
 }

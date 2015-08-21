@@ -16,18 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.support.oauth.scope.handler.support;
-
-import org.jasig.cas.support.oauth.scope.OAuthScope;
+package org.jasig.cas.support.oauth.token;
 
 /**
- * Interface for OAuth Scope Handlers
+ * Access Token Type
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
-public interface OAuthScopeHandler {
-    OAuthScope getScope(String name);
+public enum TokenType {
+    OFFLINE(0),
+    ONLINE(1),
+    PERSONAL(2),
+    CAS(3);
 
-    OAuthScope getDefault();
+    private final int value;
+
+    TokenType(final int newValue) {
+        value = newValue;
+    }
+
+    public int getValue() {
+        return value;
+    }
 }

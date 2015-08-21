@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.jasig.cas.support.oauth;
 
 import org.springframework.http.HttpStatus;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * The exception to throw when we cannot verify the token.
  *
  * @author Michael Haselton
-
  * @since 4.1.0
  */
 @ResponseStatus(value=HttpStatus.BAD_REQUEST, reason="invalid_token")

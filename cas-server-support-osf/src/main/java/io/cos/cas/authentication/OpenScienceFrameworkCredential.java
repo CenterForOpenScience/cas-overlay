@@ -80,28 +80,28 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /**
      * @return Returns the Verification Key.
      */
-    public final String getVerificationKey() {
+    public String getVerificationKey() {
         return this.verificationKey;
     }
 
     /**
      * @param verificationKey The Verification Key to set.
      */
-    public final void setVerificationKey(final String verificationKey) {
+    public void setVerificationKey(final String verificationKey) {
         this.verificationKey = verificationKey;
     }
 
     /**
      * @return Returns the One Time Password.
      */
-    public final String getOneTimePassword() {
+    public String getOneTimePassword() {
         return this.oneTimePassword;
     }
 
     /**
      * @param oneTimePassword The One Time Password to set.
      */
-    public final void setOneTimePassword(final String oneTimePassword) {
+    public void setOneTimePassword(final String oneTimePassword) {
         this.oneTimePassword = oneTimePassword;
     }
 

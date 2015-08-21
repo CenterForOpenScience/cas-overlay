@@ -30,6 +30,9 @@ public interface OAuthConstants {
     /** The redirect uri. */
     String REDIRECT_URI = "redirect_uri";
 
+    /** The response type. */
+    String RESPONSE_TYPE = "response_type";
+
     /** The client id. */
     String CLIENT_ID = "client_id";
 
@@ -38,6 +41,9 @@ public interface OAuthConstants {
 
     /** The scope. */
     String SCOPE = "scope";
+
+    /** The approval prompt. */
+    String ACCESS_TYPE = "access_type";
 
     /** The approval prompt. */
     String APPROVAL_PROMPT = "approval_prompt";
@@ -93,8 +99,8 @@ public interface OAuthConstants {
     /** The OATH h20_ approval prompt deny action. */
     String OAUTH20_APPROVAL_PROMPT_ACTION_DENY = "deny";
 
-    /** The OAUT h20_ callbackurl. */
-    String OAUTH20_CALLBACKURL = "oauth20_callback_url";
+    /** The OAUT h20_ redirect uri. */
+    String OAUTH20_REDIRECT_URI = "oauth20_redirect_uri";
 
     /** The OAUT h20_ login ticket id. */
     String OAUTH20_LOGIN_TICKET_ID = "oauth20_login_ticket_id";
@@ -106,10 +112,19 @@ public interface OAuthConstants {
     String OAUTH20_STATE = "oauth20_state";
 
     /** The OAUT h20_ scope. */
-    String OAUTH20_SCOPE_MAP = "oauth20_scope";
+    String OAUTH20_SCOPE = "oauth20_scope";
+
+    /** The OAUT h20_ scope map. */
+    String OAUTH20_SCOPE_SET = "oauth20_scope_set";
+
+    /** The OAUT h20_ response type. */
+    String OAUTH20_RESPONSE_TYPE = "oauth20_response_type";
 
     /** The OAUT h20_ client id. */
     String OAUTH20_CLIENT_ID = "oauth20_client_id";
+
+    /** The OAUT h20_ token type. */
+    String OAUTH20_TOKEN_TYPE = "oauth20_token_type";
 
     /** The OAUT h20_ approval prompt. */
     String OAUTH20_APPROVAL_PROMPT = "oauth20_approval_prompt";

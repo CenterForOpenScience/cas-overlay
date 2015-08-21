@@ -16,20 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.support.oauth.scope.handler.support;
+package org.jasig.cas.support.oauth.token;
 
-import org.jasig.cas.support.oauth.scope.OAuthScope;
+import org.jasig.cas.ticket.ServiceTicket;
 
 /**
- * Base class for OAuth Scope Handlers
+ * Interface for a Authorization Code Ticket.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
-public abstract class AbstractOAuthScopeHandler implements OAuthScopeHandler {
+public interface AuthorizationCode extends Token {
 
-    @Override
-    public OAuthScope getDefault() {
-        return null;
-    }
+    /** Prefix generally applied to unique ids generated
+     * by {@link org.jasig.cas.util.UniqueTicketIdGenerator}.
+     **/
+    String PREFIX = "AC";
+
+    ServiceTicket getServiceTicket();
 }

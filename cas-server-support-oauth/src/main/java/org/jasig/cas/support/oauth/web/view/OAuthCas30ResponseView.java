@@ -31,7 +31,6 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * Appends the OAuth Access Token to the attributes if found.
  *

@@ -18,24 +18,22 @@
  */
 package org.jasig.cas.support.oauth.scope;
 
-import java.io.Serializable;
-
 /**
- * OAuth Scope
+ * An OAuth Scope
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
-public class OAuthScope implements Serializable {
-    private String name;
-    private String description;
-    private Boolean isDefault;
+public final class Scope {
+    private final String name;
+    private final String description;
+    private final Boolean isDefault;
 
-    public OAuthScope(String name, String description) {
+    public Scope(final String name, final String description) {
         this(name, description, false);
     }
 
-    public OAuthScope(String name, String description, Boolean isDefault) {
+    public Scope(final String name, final String description, final Boolean isDefault) {
         this.name = name;
         this.description = description;
         this.isDefault = isDefault;

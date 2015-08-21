@@ -21,6 +21,7 @@ package org.jasig.cas.support.oauth.token.registry;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import org.jasig.cas.support.oauth.token.*;
@@ -28,13 +29,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
+import java.util.Collection;
+import java.util.Set;
+
 /**
- * todo...
+ * JPA Token Registry.
  *
  * @author Michael Haselton
- *
- * @since 4.2.1
- *
+ * @since 4.1.0
  */
 public final class JpaTokenRegistry implements TokenRegistry {
 
@@ -45,34 +47,23 @@ public final class JpaTokenRegistry implements TokenRegistry {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Override
     public void updateToken(final Token token) {
         entityManager.merge(token);
         logger.debug("Updated token [{}].", token);
     }
 
+    @Override
     public void addToken(final Token token) {
         entityManager.persist(token);
         logger.debug("Added token [{}] to registry.", token);
     }
 
     @SuppressWarnings("unchecked")
-    public final <T extends Token> T getToken(final String tokenId, final Class<? extends Token> clazz)
-            throws ClassCastException {
+    public final <T extends Token> T getToken(final String tokenId, final Class<T> clazz) throws ClassCastException {
         Assert.notNull(clazz, "clazz cannot be null");
 
-        Class<? extends Token> tokenImplClass;
-        if (CodeToken.class.isAssignableFrom(clazz)) {
-            tokenImplClass = CodeTokenImpl.class;
-        } else if (RefreshToken.class.isAssignableFrom(clazz)) {
-            tokenImplClass = RefreshTokenImpl.class;
-        } else if (AccessToken.class.isAssignableFrom(clazz)) {
-            tokenImplClass = AccessTokenImpl.class;
-        } else {
-            throw new ClassCastException("Could not cast " + clazz
-                    + " to a suitable token implementation class");
-        }
-
-        final Token token = entityManager.find(tokenImplClass, tokenId);
+        final Token token = entityManager.find(getClassImplementation(clazz), tokenId);
         if (token == null) {
             return null;
         }
@@ -86,18 +77,93 @@ public final class JpaTokenRegistry implements TokenRegistry {
         return (T) token;
     }
 
-    public final RefreshToken getRefreshToken(final String clientId, final String principalId) {
-        Assert.notNull(clientId, "clientId cannot be null");
-        Assert.notNull(principalId, "principalId cannot be null");
+    @Override
+    public <T extends Token> Collection<T> getTokens(String clientId, Class<T> clazz) throws ClassCastException {
+        return getTokens(clientId, null, clazz);
+    }
 
+    @Override
+    public <T extends Token> Collection<T> getTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException {
+        Assert.notNull(clientId, "clientId cannot be null");
+        Assert.notNull(clazz, "clazz cannot be null");
+
+        final Class<T> clazzImpl = getClassImplementation(clazz);
+        final Collection<T> tokens;
         try {
-            return entityManager
-                    .createQuery("select t from RefreshTokenImpl t where t.clientId = :clientId and t.principalId = :principalId", RefreshTokenImpl.class)
-                    .setParameter("clientId", clientId)
-                    .setParameter("principalId", principalId)
-                    .getSingleResult();
+            if (principalId == null) {
+                tokens = entityManager
+                        .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.clientId = :clientId", clazzImpl)
+                        .setParameter("clientId", clientId)
+                        .getResultList();
+            } else {
+                tokens = entityManager
+                        .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.clientId = :clientId and t.principalId = :principalId", clazzImpl)
+                        .setParameter("clientId", clientId)
+                        .setParameter("principalId", principalId)
+                        .getResultList();
+            }
         } catch (NoResultException ex) {
             return null;
         }
+
+        return tokens;
+    }
+
+    @Override
+    public <T extends Token> Boolean isToken(final String clientId, final String principalId, final Set<String> scopes, Class<T> clazz) {
+        return isToken(null, clientId, principalId, scopes, clazz);
+    }
+
+    @Override
+    public <T extends Token> Boolean isToken(final TokenType type, final String clientId, final String principalId, final Set<String> scopes, Class<T> clazz) {
+        Assert.notNull(clientId, "clientId cannot be null");
+        Assert.notNull(principalId, "principalId cannot be null");
+        Assert.notNull(scopes, "scopes cannot be null");
+        Assert.notNull(clazz, "clazz cannot be null");
+
+        final Class<T> clazzImpl = getClassImplementation(clazz);
+        final Collection<T> tokens;
+        try {
+            if (type == null) {
+                tokens = entityManager
+                        .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.clientId = :clientId and t.principalId = :principalId and t.scopesHash = :scopesHash", clazzImpl)
+                        .setParameter("clientId", clientId)
+                        .setParameter("principalId", principalId)
+                        .setParameter("scopesHash", scopes.hashCode())
+                        .getResultList();
+            } else {
+                tokens = entityManager
+                        .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.type = :type and t.clientId = :clientId and t.principalId = :principalId and t.scopesHash = :scopesHash", clazzImpl)
+                        .setParameter("type", type)
+                        .setParameter("clientId", clientId)
+                        .setParameter("principalId", principalId)
+                        .setParameter("scopesHash", scopes.hashCode())
+                        .getResultList();
+            }
+        } catch (NoResultException ex) {
+            return false;
+        }
+
+        for (final Token token : tokens) {
+            if (!token.getTicket().isExpired()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Token> Class<T> getClassImplementation(Class<T> clazz) throws ClassCastException {
+        if (AuthorizationCode.class.isAssignableFrom(clazz)) {
+            return (Class<T>) AuthorizationCodeImpl.class;
+        } else if (RefreshToken.class.isAssignableFrom(clazz)) {
+            return (Class<T>) RefreshTokenImpl.class;
+        } else if (AccessToken.class.isAssignableFrom(clazz)) {
+            return (Class<T>) AccessTokenImpl.class;
+        }
+
+        throw new ClassCastException("Could not cast " + clazz
+                + " to a suitable token implementation class");
     }
 }

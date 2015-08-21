@@ -18,38 +18,44 @@
  */
 package io.cos.cas.adaptors.mongodb;
 
-import org.jasig.cas.support.oauth.scope.OAuthScope;
-import org.jasig.cas.support.oauth.scope.handler.support.AbstractOAuthScopeHandler;
+import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
+import org.jasig.cas.support.oauth.personal.handler.support.AbstractPersonalAccessTokenHandler;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
+import java.util.HashSet;
 
-public class OpenScienceFrameworkOAuthScopeHandler extends AbstractOAuthScopeHandler
+public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler
         implements InitializingBean {
 
     @NotNull
     private MongoOperations mongoTemplate;
 
-    @Document(collection="apioauth2scope")
-    private class Scope {
+    @Document(collection="apioauth2personaltoken")
+    private class OpenScienceFrameworkPersonalToken {
         @Id
         private String id;
-        private String name;
-        private String description;
+        @Field("token_id")
+        private String tokenId;
+        @Field("user_id")
+        private String userId;
+        private String scopes;
         private Boolean active;
 
-        public String getName() {
-            return this.name;
+        public String getUserId() {
+            return this.userId;
         }
 
-        public String getDescription() {
-            return this.description;
+        public String getScopes() {
+            return this.scopes;
         }
 
         public Boolean getActive() {
@@ -58,7 +64,7 @@ public class OpenScienceFrameworkOAuthScopeHandler extends AbstractOAuthScopeHan
 
         @Override
         public String toString() {
-            return "OAuthScope [id=" + this.id + ", name=" + this.name + "]";
+            return "PersonalAccessToken [id=" + this.id + ", userId=" + this.userId + "]";
         }
     }
 
@@ -67,22 +73,23 @@ public class OpenScienceFrameworkOAuthScopeHandler extends AbstractOAuthScopeHan
     }
 
     @Override
-    public OAuthScope getScope(String name) {
-        final Scope scope = this.mongoTemplate.findOne(new Query(
+    public PersonalAccessToken getToken(String tokenId) {
+        final OpenScienceFrameworkPersonalToken token = this.mongoTemplate.findOne(new Query(
                 new Criteria().andOperator(
-                        Criteria.where("name").is(name),
+                        Criteria.where("token_id").is(tokenId),
                         Criteria.where("active").is(true)
                 )
-        ), Scope.class);
+        ), OpenScienceFrameworkPersonalToken.class);
 
-        if (scope == null) {
+        if (token == null) {
             return null;
         }
 
-        return new OAuthScope(scope.name, scope.description, false);
+        String scopes = token.scopes == null ? "" : token.scopes;
+        return new PersonalAccessToken(token.tokenId, token.userId, new HashSet<>(Arrays.asList(scopes.split(" "))));
     }
 
-    public final void setMongoTemplate(final MongoTemplate mongoTemplate) {
+    public void setMongoTemplate(final MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 }

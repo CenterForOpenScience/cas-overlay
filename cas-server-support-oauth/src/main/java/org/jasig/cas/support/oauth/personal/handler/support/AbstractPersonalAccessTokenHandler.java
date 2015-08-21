@@ -16,33 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jasig.cas.support.oauth.token;
-
-import org.jasig.cas.ticket.ServiceTicket;
-
-import java.util.HashSet;
-import java.util.Set;
+package org.jasig.cas.support.oauth.personal.handler.support;
 
 /**
- * Interface for a Service Ticket. A service ticket is used to grant access to a
- * specific service for a principal. A Service Ticket is generally a one-time
- * use ticket.
+ * Base class for Personal Token Handlers
  *
- * @author Scott Battaglia
- * @since 3.0.0
+ * @author Michael Haselton
+ * @since 4.1.0
  */
-public interface CodeToken extends Token {
-
-    /** Prefix generally applied to unique ids generated
-     * by {@link org.jasig.cas.util.UniqueTicketIdGenerator}.
-     **/
-    String PREFIX = "CT";
-
-    ServiceTicket getServiceTicket();
-
-    String getClientId();
-
-    String getCallbackUrl();
-
-    Set<String> getScope();
+public abstract class AbstractPersonalAccessTokenHandler implements PersonalAccessTokenHandler {
 }

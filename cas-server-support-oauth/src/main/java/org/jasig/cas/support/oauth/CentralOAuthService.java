@@ -18,13 +18,15 @@
  */
 package org.jasig.cas.support.oauth;
 
-import org.jasig.cas.support.oauth.scope.OAuthScope;
-import org.jasig.cas.support.oauth.token.AccessToken;
-import org.jasig.cas.support.oauth.token.CodeToken;
-import org.jasig.cas.support.oauth.token.RefreshToken;
-import org.jasig.cas.support.oauth.token.Token;
+import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.services.ServicesManager;
+import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
+import org.jasig.cas.support.oauth.scope.Scope;
+import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
+import org.jasig.cas.support.oauth.token.*;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.TicketException;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 
 import java.util.Map;
 import java.util.Set;
@@ -37,19 +39,35 @@ import java.util.Set;
  */
 public interface CentralOAuthService {
 
-    CodeToken grantCodeToken(String ticketGrantingTicketId, String clientId, String callbackUrl, Set<String> scope) throws TicketException;
+    OAuthRegisteredService getRegisteredService(String clientId);
 
-    RefreshToken grantRefreshToken(String code, String clientId, String clientSecret, String redirectUri) throws TicketException;
+    AuthorizationCode grantAuthorizationCode(TokenType type, String clientId, String ticketGrantingTicketId, String callbackUrl, Set<String> scopes) throws TicketException;
 
-    AccessToken grantAccessToken(RefreshToken refreshToken) throws TicketException;
+    RefreshToken grantOfflineRefreshToken(AuthorizationCode authorizationCode, String redirectUri) throws TicketException;
 
-    AccessToken grantAccessToken(String ticketGrantingTicketId, String serviceId) throws TicketException;
+    AccessToken grantCASAccessToken(TicketGrantingTicket ticketGrantingTicket, Service service) throws TicketException;
 
-    RefreshToken getRefreshToken(String clientId, String principalId);
+    AccessToken grantPersonalAccessToken(PersonalAccessToken personalAccessToken) throws TicketException;
 
-    <T extends Token> T getToken(String tokenId, Class<? extends Token> clazz) throws InvalidTicketException;
+    AccessToken grantOfflineAccessToken(RefreshToken refreshToken) throws TicketException;
 
-    Map<String, OAuthScope> getScopeMap(String scope);
+    AccessToken grantOnlineAccessToken(AuthorizationCode authorizationCode) throws TicketException;
 
-    OAuthScope getDefaultScope();
+    Boolean revokeToken(Token token);
+
+    Boolean revokeClientTokens(String clientId, String clientSecret);
+
+    Boolean revokeClientPrincipalTokens(AccessToken accessToken);
+
+    Boolean isRefreshToken(String clientId, String principalId, Set<String> scopes);
+
+    Boolean isAccessToken(TokenType type, String clientId, String principalId, Set<String> scopes);
+
+    Token getToken(String tokenId) throws InvalidTicketException;
+
+    <T extends Token> T getToken(String tokenId, Class<T> clazz) throws InvalidTicketException;
+
+    PersonalAccessToken getPersonalAccessToken(String tokenId);
+
+    Map<String, Scope> getScopes(Set<String> scopeSet);
 }

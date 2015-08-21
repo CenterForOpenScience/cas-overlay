@@ -24,9 +24,11 @@ import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.support.oauth.*;
+import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.token.AccessToken;
-import org.jasig.cas.support.oauth.token.RefreshToken;
+import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.InvalidTicketException;
+import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.validation.Assertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This controller returns a profile for the authenticated user
@@ -57,19 +60,18 @@ public final class OAuth20ProfileController extends AbstractController {
 
     private static final String SCOPE = "scope";
 
-    private final CentralAuthenticationService centralAuthenticationService;
-
     private final CentralOAuthService centralOAuthService;
+
+    private final CentralAuthenticationService centralAuthenticationService;
 
     /**
      * Instantiates a new o auth20 profile controller.
      *
      * @param centralOAuthService the central oauth service
      */
-    public OAuth20ProfileController(final CentralAuthenticationService centralAuthenticationService,
-                                    final CentralOAuthService centralOAuthService) {
-        this.centralAuthenticationService = centralAuthenticationService;
+    public OAuth20ProfileController(final CentralOAuthService centralOAuthService, final CentralAuthenticationService centralAuthenticationService) {
         this.centralOAuthService = centralOAuthService;
+        this.centralAuthenticationService = centralAuthenticationService;
     }
 
     @Override
@@ -84,45 +86,68 @@ public final class OAuth20ProfileController extends AbstractController {
                 LOGGER.debug("Missing Access Token");
                 return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
                 // TODO: verify the exception shows up properly to the user or remove it
-//                throw new TokenInvalidException();
+                // throw new TokenInvalidException();
             }
         }
 
-        final AccessToken accessToken;
+        AccessToken accessToken;
         try {
             accessToken = centralOAuthService.getToken(accessTokenId, AccessToken.class);
         } catch (InvalidTicketException e) {
-            LOGGER.error("Could not get Access Token [{}]", accessTokenId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
-            // TODO: verify the exception shows up properly to the user or remove it
-//                throw new TokenUnauthorizedException();
-        }
-
-        // validate the service ticket, and apply service specific attribute release policy
-        final Assertion assertion;
-        try {
-            assertion = centralAuthenticationService.validateServiceTicket(
-                    accessToken.getServiceTicket().getId(), accessToken.getServiceTicket().getService());
-        } catch (InvalidTicketException e) {
-            LOGGER.error("Could not validate Service Ticket [{}]", accessToken.getServiceTicket().getId());
-            return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
+            // attempt to grant a personal access token?
+            final PersonalAccessToken personalAccessToken = centralOAuthService.getPersonalAccessToken(accessTokenId);
+            if (personalAccessToken != null) {
+                accessToken = centralOAuthService.grantPersonalAccessToken(personalAccessToken);
+            } else {
+                LOGGER.error("Could not get Access Token [{}]", accessTokenId);
+                return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
+                // TODO: verify the exception shows up properly to the user or remove it
+                // throw new TokenUnauthorizedException();
+            }
         }
 
         final ObjectMapper mapper = new ObjectMapper();
         final Map<String, Object> map = new HashMap<>();
 
-        final Principal principal = assertion.getPrimaryAuthentication().getPrincipal();
+        final Principal principal;
+        if (accessToken.getType() == TokenType.PERSONAL) {
+            // personal access tokens do not have a service id, thus no attributes can be released.
+            // TODO: need to grant service ticket here if we would like keep stats on ticket usage.
+            principal = accessToken.getTicketGrantingTicket().getAuthentication().getPrincipal();
+        } else {
+            final ServiceTicket serviceTicket;
+            if (accessToken.getType() == TokenType.OFFLINE) {
+                serviceTicket = accessToken.getServiceTicket();
+            } else {
+                serviceTicket = centralAuthenticationService.grantServiceTicket(accessToken.getTicketGrantingTicket().getId(), accessToken.getService());
+            }
+
+            // validate the service ticket, and apply service specific attribute release policy
+            final Assertion assertion;
+            try {
+                assertion = centralAuthenticationService.validateServiceTicket(serviceTicket.getId(), serviceTicket.getService());
+            } catch (InvalidTicketException e) {
+                LOGGER.error("Could not validate Service Ticket [{}]", accessToken.getServiceTicket().getId());
+                return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
+            }
+
+            principal = assertion.getPrimaryAuthentication().getPrincipal();
+
+            final Map<String, Object> attributeMap = new HashMap<>();
+            for (final Map.Entry<String, Object> attribute : principal.getAttributes().entrySet()) {
+                attributeMap.put(attribute.getKey(), attribute.getValue());
+            }
+
+            if (attributeMap.size() > 0) {
+                map.put(ATTRIBUTES, attributeMap);
+            }
+        }
+
         map.put(ID, principal.getId());
 
-        final Map<String, Object> attributeMap = new HashMap<>();
-        for (final Map.Entry<String, Object> attribute : principal.getAttributes().entrySet()) {
-            attributeMap.put(attribute.getKey(), attribute.getValue());
-        }
-        map.put(ATTRIBUTES, attributeMap);
-
-        // add scope if a refresh token exists, otherwise we consider this a login access token generated during login
-        if (accessToken.getRefreshToken() != null) {
-            map.put(SCOPE, accessToken.getRefreshToken().getScope());
+        Set<String> scopes = accessToken.getScopes();
+        if (scopes.size() > 0) {
+            map.put(SCOPE, accessToken.getScopes());
         }
 
         final String result = mapper.writeValueAsString(map);
