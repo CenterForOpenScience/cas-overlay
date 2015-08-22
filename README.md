@@ -56,9 +56,26 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 
 #### Profile
 
-Provides the user's principal id, released attributes and a list of authorized scopes associated with the Access Token specified.
+Provides the user's principal id, any released attributes and a list of granted scopes.
 
 GET: /oauth2/profile
+
+###### Request
+
+```
+https://accounts.osf.io/oauth2/profile
+
+Authorization: Bearer AT-1-...
+```
+
+###### Response
+
+```json
+{
+    "id": "unique-user-identifier",
+    "scope": ["user.email", "user.profile"]
+}
+```
 
 #### Web Server Authorization
 
@@ -95,6 +112,8 @@ state | ... | ...
 
 #### Client Side Authorization
 
+GET: /oauth2/authorize
+
 Allows client side javascript the ability to request specified scopes for authorization and directly return an Access Token.
 
 ###### Request
@@ -130,12 +149,12 @@ state | ... | ...
 
 Exchange of an Authorization Code for an Access Token and potentially a Refresh Token if **offline** mode was specified.  
 
-GET: /oauth2/token
+POST: /oauth2/token
 
 ###### Request
 
 ```
-https://accounts.osf.io/oauth2/token?code=...&client_id=...&client_secret=*******&redirect_uri=https://my-application/callback/&grant_type=authorization_code
+https://accounts.osf.io/oauth2/token
 ```
 
 Parameter | Value | Description
@@ -164,19 +183,19 @@ expires_in | ... | ...
 refresh_token | ... | Included only when the authorization request was made with access_type **offline**.
 access_token | ... | ...
 
-#### Refresh Token Exchange
+#### Access Token Refresh
 
-The application may obtain a new Access Token by sending the Refresh Token to this endpoint.
+An authorized **offline** application may obtain a new Access Token from this endpoint.
 
 POST: /oauth2/token
 
 ###### Request
 
 ```
-https://accounts.osf.io/oauth2/token?refresh_token=...
+https://accounts.osf.io/oauth2/token
 ```
 
-Form / Parameter | Value | Description
+Parameter | Value | Description
 ------------- | ------------- | -------------
 refresh_token | ... | ...
 client_id | ... | ...
@@ -201,17 +220,17 @@ access_token | ... | ...
 
 #### Revoke a Token
 
-Handles revocation of a user's Refresh Token or Access Token.
+Handles revocation of Refresh and Access Tokens.
 
 POST: /oauth2/revoke
 
 ###### Request
 
 ```
-https://accounts.osf.io/oauth2/revoke?token=...
+https://accounts.osf.io/oauth2/revoke
 ```
 
-Form / Parameter | Value | Description
+Parameter | Value | Description
 ------------- | ------------- | -------------
 token | ... | ...
 
@@ -221,11 +240,74 @@ token | ... | ...
 HTTP 204 NO CONTENT
 ```
 
+#### Revoke All Tokens Issued to a Principal
+
+*e.g. user revokes application access*
+
+Revocation of all Tokens associated with the given user's Principal ID.
+
+POST: /oauth2/revoke
+
+###### Request
+
+```
+https://accounts.osf.io/oauth2/revoke
+
+Authorization: Bearer AT-1-...
+```
+
+###### Response
+
+```
+HTTP 204 NO CONTENT
+```
+
+#### Revoke All Client Tokens
+
+*e.g. application administrator revokes all tokens*
+
+Revocation of all Tokens associated with the given Client ID.
+
+POST: /oauth2/revoke
+
+###### Request
+
+```
+https://accounts.osf.io/oauth2/revoke
+```
+
 Parameter | Value | Description
 ------------- | ------------- | -------------
-token_type | Bearer | ...
-expires_in | ... | ...
-access_token | ... | ...
+client_id | ... | ...
+client_secret | ... | ...
+
+###### Response
+
+```
+HTTP 204 NO CONTENT
+```
+
+#### Principal Metadata
+
+*e.g. list applications authorized to access the user's account*
+
+Gathers metadata regarding token's associated withe the Principal ID specified.
+
+POST: /oauth2/metadata
+
+###### Request
+
+```
+https://accounts.osf.io/oauth2/metadata
+
+Authorization: Bearer AT-1-...
+```
+
+###### Response
+
+```
+HTTP 204 NO CONTENT
+```
 
 ### Service Registry
 

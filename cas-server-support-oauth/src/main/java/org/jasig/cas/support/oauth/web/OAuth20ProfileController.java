@@ -85,8 +85,6 @@ public final class OAuth20ProfileController extends AbstractController {
             } else {
                 LOGGER.debug("Missing Access Token");
                 return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
-                // TODO: verify the exception shows up properly to the user or remove it
-                // throw new TokenInvalidException();
             }
         }
 
@@ -101,8 +99,6 @@ public final class OAuth20ProfileController extends AbstractController {
             } else {
                 LOGGER.error("Could not get Access Token [{}]", accessTokenId);
                 return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
-                // TODO: verify the exception shows up properly to the user or remove it
-                // throw new TokenUnauthorizedException();
             }
         }
 

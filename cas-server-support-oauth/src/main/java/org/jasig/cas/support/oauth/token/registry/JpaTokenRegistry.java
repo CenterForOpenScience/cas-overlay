@@ -21,15 +21,18 @@ package org.jasig.cas.support.oauth.token.registry;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.jasig.cas.support.oauth.metadata.ClientMetadata;
+import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.token.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -78,12 +81,12 @@ public final class JpaTokenRegistry implements TokenRegistry {
     }
 
     @Override
-    public <T extends Token> Collection<T> getTokens(String clientId, Class<T> clazz) throws ClassCastException {
-        return getTokens(clientId, null, clazz);
+    public <T extends Token> Collection<T> getClientTokens(String clientId, Class<T> clazz) throws ClassCastException {
+        return getClientTokens(clientId, null, clazz);
     }
 
     @Override
-    public <T extends Token> Collection<T> getTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException {
+    public <T extends Token> Collection<T> getClientTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException {
         Assert.notNull(clientId, "clientId cannot be null");
         Assert.notNull(clazz, "clazz cannot be null");
 
@@ -102,6 +105,25 @@ public final class JpaTokenRegistry implements TokenRegistry {
                         .setParameter("principalId", principalId)
                         .getResultList();
             }
+        } catch (NoResultException ex) {
+            return null;
+        }
+
+        return tokens;
+    }
+
+    @Override
+    public <T extends Token> Collection<T> getPrincipalTokens(String principalId, Class<T> clazz) throws ClassCastException {
+        Assert.notNull(principalId, "principalId cannot be null");
+        Assert.notNull(clazz, "clazz cannot be null");
+
+        final Class<T> clazzImpl = getClassImplementation(clazz);
+        final Collection<T> tokens;
+        try {
+            tokens = entityManager
+                    .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.principalId = :principalId", clazzImpl)
+                    .setParameter("principalId", principalId)
+                    .getResultList();
         } catch (NoResultException ex) {
             return null;
         }
@@ -151,6 +173,32 @@ public final class JpaTokenRegistry implements TokenRegistry {
         }
 
         return false;
+    }
+
+    @Override
+    public Integer getPrincipalCount(String clientId) {
+        Assert.notNull(clientId, "clientId cannot be null");
+
+        final Set<String> principals = new HashSet<>();
+        try {
+            principals.addAll(entityManager
+                    .createQuery("select distinct t.principalId from RefreshTokenImpl t where t.clientId = :clientId", String.class)
+                    .setParameter("clientId", clientId)
+                    .getResultList());
+        } catch (NoResultException ex) {
+            // no results
+        }
+
+        try {
+            principals.addAll(entityManager
+                    .createQuery("select distinct t.principalId from AccessTokenImpl t where t.clientId = :clientId", String.class)
+                    .setParameter("clientId", clientId)
+                    .getResultList());
+        } catch (NoResultException ex) {
+            // no results
+        }
+
+        return principals.size();
     }
 
     @SuppressWarnings("unchecked")

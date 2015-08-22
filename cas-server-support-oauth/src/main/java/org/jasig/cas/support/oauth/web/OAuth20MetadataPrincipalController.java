@@ -18,11 +18,12 @@
  */
 package org.jasig.cas.support.oauth.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.*;
+import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.token.AccessToken;
-import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,25 +32,34 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 /**
- * This controller handles requests revoke all tokens associated with a client id and principal.
+ * This controller handles requests for metadata regarding a principal.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
-public final class OAuth20RevokeClientPrincipalTokensController extends AbstractController {
+public final class OAuth20MetadataPrincipalController extends AbstractController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20RevokeClientPrincipalTokensController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20MetadataPrincipalController.class);
+
+    private static final String ID = "id";
+
+    private static final String NAME = "name";
+
+    private static final String DESCRIPTION = "description";
+
+    private static final String SCOPES = "scopes";
 
     private final CentralOAuthService centralOAuthService;
 
     /**
-     * Instantiates a new o auth20 revoke client principal tokens controller.
+     * Instantiates a new o auth20 principal metadata controller.
      *
      * @param centralOAuthService the central oauth service
      */
-    public OAuth20RevokeClientPrincipalTokensController(CentralOAuthService centralOAuthService) {
+    public OAuth20MetadataPrincipalController(final CentralOAuthService centralOAuthService) {
         this.centralOAuthService = centralOAuthService;
     }
 
@@ -75,11 +85,25 @@ public final class OAuth20RevokeClientPrincipalTokensController extends Abstract
             return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
         }
 
-        if (!centralOAuthService.revokeClientPrincipalTokens(accessToken)) {
-            LOGGER.error("Could not revoke client principal tokens");
-            return OAuthUtils.writeText(response, null, HttpStatus.SC_BAD_REQUEST);
+        final Collection<PrincipalMetadata> metadata = centralOAuthService.getPrincipalMetadata(accessToken);
+
+        final List<Map<String, Object>> metadataList = new ArrayList<>();
+        for (final PrincipalMetadata item : metadata) {
+            final Map<String, Object> detailMap = new HashMap<>();
+            detailMap.put(ID, item.getId());
+            detailMap.put(NAME, item.getName());
+            detailMap.put(DESCRIPTION, item.getDescription());
+            detailMap.put(SCOPES, item.getScopes());
+            metadataList.add(detailMap);
         }
 
-        return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);
+        final Map<String, Object> map = new HashMap<>();
+        map.put("data", metadataList);
+
+        final String result = new ObjectMapper().writeValueAsString(map);
+        LOGGER.debug("result : {}", result);
+
+        response.setContentType("application/json");
+        return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
     }
 }

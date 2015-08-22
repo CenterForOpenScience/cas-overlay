@@ -52,40 +52,15 @@ public interface TokenRegistry {
      */
     <T extends Token> T getToken(String tokenId, Class<T> clazz) throws ClassCastException;
 
-    <T extends Token> Collection<T> getTokens(String clientId, Class<T> clazz) throws ClassCastException;
+    <T extends Token> Collection<T> getClientTokens(String clientId, Class<T> clazz) throws ClassCastException;
 
-    <T extends Token> Collection<T> getTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException;
+    <T extends Token> Collection<T> getClientTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException;
+
+    <T extends Token> Collection<T> getPrincipalTokens(String principalId, Class<T> clazz) throws ClassCastException;
 
     <T extends Token> Boolean isToken(String clientId, String principalId, Set<String> scopes, Class<T> clazz);
 
     <T extends Token> Boolean isToken(TokenType type, String clientId, String principalId, Set<String> scopes, Class<T> clazz);
 
-//    Boolean isRefreshToken(String clientId, String principalId, Set<String> scopes);
-
-//    Boolean isAccessToken(TokenType type, String clientId, String principalId, Set<String> scopes);
-
-//    /**
-//     * Retrieve a ticket from the registry.
-//     *
-//     * @param ticketId the id of the ticket we wish to retrieve
-//     * @return the requested ticket.
-//     */
-//    Ticket getTicket(String ticketId);
-
-//    /**
-//     * Remove a specific ticket from the registry.
-//     *
-//     * @param tokenId The id of the token to delete.
-//     * @return true if the ticket was removed and false if the ticket did not
-//     * exist.
-//     */
-//    boolean deleteToken(String tokenId);
-
-//    /**
-//     * Retrieve all tickets from the registry.
-//     *
-//     * @return collection of tickets currently stored in the registry. Tickets
-//     * might or might not be valid i.e. expired.
-//     */
-//    Collection<Ticket> getTickets();
+    Integer getPrincipalCount(String clientId);
 }

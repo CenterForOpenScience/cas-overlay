@@ -19,7 +19,8 @@
 package org.jasig.cas.support.oauth;
 
 import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.services.ServicesManager;
+import org.jasig.cas.support.oauth.metadata.ClientMetadata;
+import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.scope.Scope;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
@@ -28,6 +29,7 @@ import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,6 +60,10 @@ public interface CentralOAuthService {
     Boolean revokeClientTokens(String clientId, String clientSecret);
 
     Boolean revokeClientPrincipalTokens(AccessToken accessToken);
+
+    ClientMetadata getClientMetadata(String clientId, String clientSecret);
+
+    Collection<PrincipalMetadata> getPrincipalMetadata(AccessToken accessToken);
 
     Boolean isRefreshToken(String clientId, String principalId, Set<String> scopes);
 

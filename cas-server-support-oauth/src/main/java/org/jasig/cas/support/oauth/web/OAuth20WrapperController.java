@@ -51,7 +51,6 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
     private AbstractController authorizeCallbackController;
     private AbstractController authorizeCallbackActionController;
 
-    private AbstractController tokenAuthorizationController;
     private AbstractController tokenAuthorizationCodeController;
     private AbstractController tokenRefreshTokenController;
 
@@ -61,11 +60,8 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
     private AbstractController profileController;
 
-    private AbstractController metadataApplicationController;
-
-    /** Instance of CentralAuthenticationService. */
-    @NotNull
-    private TokenRegistry tokenRegistry;
+    private AbstractController metadataPrincipalController;
+    private AbstractController metadataClientController;
 
     /** Instance of CentralAuthenticationService. */
     @NotNull
@@ -77,13 +73,10 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        // TODO: move timeout to central oauth service
-
         authorizeController = new OAuth20AuthorizeController(centralOAuthService, loginUrl);
         authorizeCallbackController = new OAuth20AuthorizeCallbackController(centralOAuthService, ticketRegistry);
         authorizeCallbackActionController = new OAuth20AuthorizeCallbackActionController(centralOAuthService, timeout);
 
-//        tokenAuthorizationController = new OAuth20TokenAuthorizationController(servicesManager, centralAuthenticationService);
         tokenAuthorizationCodeController = new OAuth20TokenAuthorizationCodeController(centralOAuthService, timeout);
         tokenRefreshTokenController = new OAuth20TokenRefreshTokenController(centralOAuthService, timeout);
 
@@ -92,7 +85,9 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         revokeClientPrincipalTokensController = new OAuth20RevokeClientPrincipalTokensController(centralOAuthService);
 
         profileController = new OAuth20ProfileController(centralOAuthService, centralAuthenticationService);
-//        metadataApplicationController = new OAuth20MetadataApplicationController(servicesManager, centralAuthenticationService);
+
+        metadataPrincipalController = new OAuth20MetadataPrincipalController(centralOAuthService);
+        metadataClientController = new OAuth20MetadataClientController(centralOAuthService);
     }
 
     @Override
@@ -102,28 +97,24 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         if (OAuthConstants.AUTHORIZE_URL.equals(method) && request.getMethod().equals("GET")) {
             return authorizeController.handleRequest(request, response);
         }
-        // callback authorize
+        // authorize callback
         if (OAuthConstants.CALLBACK_AUTHORIZE_URL.equals(method) && request.getMethod().equals("GET")) {
             return authorizeCallbackController.handleRequest(request, response);
         }
-        // callback on authorize action
+        // authorize callback action
         if (OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL.equals(method) && request.getMethod().equals("GET")) {
             return authorizeCallbackActionController.handleRequest(request, response);
         }
 
         // token
-        if (OAuthConstants.TOKEN_URL.equals(method)) {
-            if (request.getMethod().equals("GET")) {
-                return tokenAuthorizationController.handleRequest(request, response);
-            } else if (request.getMethod().equals("POST")) {
-                final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
-                LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
+        if (OAuthConstants.TOKEN_URL.equals(method) && request.getMethod().equals("POST")) {
+            final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
+            LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
-                if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
-                    return tokenAuthorizationCodeController.handleRequest(request, response);
-                } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
-                    return tokenRefreshTokenController.handleRequest(request, response);
-                }
+            if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
+                return tokenAuthorizationCodeController.handleRequest(request, response);
+            } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
+                return tokenRefreshTokenController.handleRequest(request, response);
             }
         }
 
@@ -145,21 +136,19 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         }
 
         // metadata
-        if (OAuthConstants.METADATA_URL.equals(method) && request.getMethod().equals("GET")) {
+        if (OAuthConstants.METADATA_URL.equals(method) && request.getMethod().equals("POST")) {
             if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_ID) &&
                     request.getParameterMap().containsKey(OAuthConstants.CLIENT_SECRET)) {
-                return metadataApplicationController.handleRequest(request, response);
+                return metadataClientController.handleRequest(request, response);
+            } else {
+                return metadataPrincipalController.handleRequest(request, response);
             }
         }
 
-        // else error
+        // error
         logger.error("Unknown method : {}", method);
         OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_OK);
         return null;
-    }
-
-    public void setTokenRegistry(final TokenRegistry tokenRegistry) {
-        this.tokenRegistry = tokenRegistry;
     }
 
     public void setCentralAuthenticationService(final CentralAuthenticationService centralAuthenticationService) {

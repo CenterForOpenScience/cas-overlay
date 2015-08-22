@@ -27,6 +27,8 @@ import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
+import org.jasig.cas.support.oauth.metadata.ClientMetadata;
+import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.personal.PersonalAccessTokenManager;
 import org.jasig.cas.support.oauth.scope.Scope;
@@ -281,13 +283,13 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
             return false;
         }
 
-        final Collection<RefreshToken> refreshTokens = tokenRegistry.getTokens(clientId, RefreshToken.class);
+        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientTokens(clientId, RefreshToken.class);
         for (RefreshToken token : refreshTokens) {
             LOGGER.debug("Revoking refresh token : {}", token.getId());
             ticketRegistry.deleteTicket(token.getTicket().getId());
         }
 
-        final Collection<AccessToken> accessTokens = tokenRegistry.getTokens(clientId, AccessToken.class);
+        final Collection<AccessToken> accessTokens = tokenRegistry.getClientTokens(clientId, AccessToken.class);
         for (AccessToken token : accessTokens) {
             LOGGER.debug("Revoking access token : {}", token.getId());
             ticketRegistry.deleteTicket(token.getTicket().getId());
@@ -303,14 +305,14 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
             LOGGER.error("Cannot revoke personal access tokens");
         }
 
-        final Collection<RefreshToken> refreshTokens = tokenRegistry.getTokens(accessToken.getClientId(),
+        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientTokens(accessToken.getClientId(),
                 accessToken.getPrincipalId(), RefreshToken.class);
         for (RefreshToken token : refreshTokens) {
             LOGGER.debug("Revoking refresh token : {}", token.getId());
             ticketRegistry.deleteTicket(token.getTicket().getId());
         }
 
-        final Collection<AccessToken> accessTokens = tokenRegistry.getTokens(accessToken.getClientId(),
+        final Collection<AccessToken> accessTokens = tokenRegistry.getClientTokens(accessToken.getClientId(),
                 accessToken.getPrincipalId(), AccessToken.class);
         for (AccessToken token : accessTokens) {
             LOGGER.debug("Revoking access token : {}", token.getId());
@@ -318,6 +320,57 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
         }
 
         return true;
+    }
+
+    @Override
+    public ClientMetadata getClientMetadata(String clientId, String clientSecret) {
+        final OAuthRegisteredService service = getRegisteredService(clientId);
+        if (service == null) {
+            LOGGER.error("OAuth Registered Service could not be found for clientId : {}", clientId);
+            return null;
+        }
+        if (!service.getClientSecret().equals(clientSecret)) {
+            LOGGER.error("Invalid Client Secret specified for Client ID [{}]]", clientId);
+            return null;
+        }
+
+        return new ClientMetadata(service.getClientId(), service.getName(), service.getDescription(),
+                tokenRegistry.getPrincipalCount(clientId));
+    }
+
+    @Override
+    public Collection<PrincipalMetadata> getPrincipalMetadata(AccessToken accessToken) {
+        final Map<String, PrincipalMetadata> metadata = new HashMap<>();
+
+        for (final Token token : tokenRegistry.getPrincipalTokens(accessToken.getPrincipalId(), RefreshToken.class)) {
+            final PrincipalMetadata serviceDetail;
+            if (!metadata.containsKey(token.getClientId())) {
+                final OAuthRegisteredService service = getRegisteredService(token.getClientId());
+
+                serviceDetail = new PrincipalMetadata(service.getClientId(), service.getName(), service.getDescription());
+                metadata.put(token.getClientId(), serviceDetail);
+            } else {
+                serviceDetail = metadata.get(token.getClientId());
+            }
+
+            serviceDetail.getScopes().addAll(token.getScopes());
+        }
+
+        for (final Token token : tokenRegistry.getPrincipalTokens(accessToken.getPrincipalId(), AccessToken.class)) {
+            final PrincipalMetadata serviceDetail;
+            if (!metadata.containsKey(token.getClientId())) {
+                final OAuthRegisteredService service = getRegisteredService(token.getClientId());
+
+                serviceDetail = new PrincipalMetadata(service.getClientId(), service.getName(), service.getDescription());
+                metadata.put(token.getClientId(), serviceDetail);
+            } else {
+                serviceDetail = metadata.get(token.getClientId());
+            }
+
+            serviceDetail.getScopes().addAll(token.getScopes());
+        }
+
+        return metadata.values();
     }
 
     @Override

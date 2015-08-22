@@ -62,12 +62,12 @@ public final class OAuth20RevokeTokenController extends AbstractController {
             token = centralOAuthService.getToken(tokenId);
         } catch (InvalidTicketException e) {
             LOGGER.error("Unknown token : {}", tokenId);
-            throw new TokenInvalidException();
+            return OAuthUtils.writeText(response, null, HttpStatus.SC_BAD_REQUEST);
         }
 
         if (!centralOAuthService.revokeToken(token)) {
             LOGGER.error("Token revocation failed [{}]", token.getId());
-            throw new TokenInvalidException();
+            return OAuthUtils.writeText(response, null, HttpStatus.SC_BAD_REQUEST);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);
