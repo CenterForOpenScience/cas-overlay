@@ -323,8 +323,7 @@ Authorization: Bearer AT-1-...
         "scopes": [
             "nodes.create"
         ]
-    },
-    ...
+    }
 ]
 ```
 
