@@ -305,8 +305,58 @@ Authorization: Bearer AT-1-...
 
 ###### Response
 
+```json
+[
+    {
+        "id": "gJgfkHAtz",
+        "name": "Application #1",
+        "description": "An simple oauth application",
+        "scopes": [
+            "user.email",
+            "profile.basic"
+        ]
+    },
+    {
+        "id": "Joiuhwkjsl",
+        "name": "Third Party Application #2",
+        "description": "An oauth application",
+        "scopes": [
+            "nodes.create"
+        ]
+    },
+    ...
+]
 ```
-HTTP 204 NO CONTENT
+
+#### Client Metadata
+
+*e.g. application information, user count, etc...*
+
+Provides metadata about the Client ID specified.
+
+POST: /oauth2/metadata
+
+###### Request
+
+```
+https://accounts.osf.io/oauth2/metadata
+```
+
+Parameter | Value | Description
+------------- | ------------- | -------------
+client_id | ... | ...
+client_secret | ... | ...
+
+
+###### Response
+
+```json
+{
+    "id": "gJgfkHAtz",
+    "name": "Application #1",
+    "description": "An simple oauth application",
+    "users": 9000
+}
 ```
 
 ### Service Registry
