@@ -291,7 +291,7 @@ HTTP 204 NO CONTENT
 
 *e.g. list applications authorized to access the user's account*
 
-Gathers metadata regarding token's associated withe the Principal ID specified.
+Gathers metadata regarding token's associated with the Principal ID specified.
 
 POST: /oauth2/metadata
 
