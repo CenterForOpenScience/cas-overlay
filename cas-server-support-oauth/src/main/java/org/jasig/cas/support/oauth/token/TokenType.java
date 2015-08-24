@@ -19,7 +19,7 @@
 package org.jasig.cas.support.oauth.token;
 
 /**
- * Access Token Type
+ * Token Type
  *
  * @author Michael Haselton
  * @since 4.1.0
