@@ -23,8 +23,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
 
-import org.jasig.cas.support.oauth.metadata.ClientMetadata;
-import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.token.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +30,6 @@ import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -82,34 +79,50 @@ public final class JpaTokenRegistry implements TokenRegistry {
 
     @Override
     public <T extends Token> Collection<T> getClientTokens(String clientId, Class<T> clazz) throws ClassCastException {
-        return getClientTokens(clientId, null, clazz);
-    }
-
-    @Override
-    public <T extends Token> Collection<T> getClientTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException {
         Assert.notNull(clientId, "clientId cannot be null");
         Assert.notNull(clazz, "clazz cannot be null");
 
         final Class<T> clazzImpl = getClassImplementation(clazz);
-        final Collection<T> tokens;
         try {
-            if (principalId == null) {
-                tokens = entityManager
-                        .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.clientId = :clientId", clazzImpl)
-                        .setParameter("clientId", clientId)
-                        .getResultList();
-            } else {
-                tokens = entityManager
+            return entityManager
+                    .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.clientId = :clientId", clazzImpl)
+                    .setParameter("clientId", clientId)
+                    .getResultList();
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
+
+    @Override
+    public <T extends Token> Collection<T> getClientPrincipalTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException {
+        return getClientPrincipalTokens(clientId, principalId, null, clazz);
+    }
+
+    @Override
+    public <T extends Token> Collection<T> getClientPrincipalTokens(String clientId, String principalId, TokenType type, Class<T> clazz) throws ClassCastException {
+        Assert.notNull(clientId, "clientId cannot be null");
+        Assert.notNull(principalId, "principalId cannot be null");
+        Assert.notNull(clazz, "clazz cannot be null");
+
+        final Class<T> clazzImpl = getClassImplementation(clazz);
+        try {
+            if (type == null) {
+                return entityManager
                         .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.clientId = :clientId and t.principalId = :principalId", clazzImpl)
                         .setParameter("clientId", clientId)
                         .setParameter("principalId", principalId)
                         .getResultList();
             }
+
+            return entityManager
+                    .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.clientId = :clientId and t.principalId = :principalId and t.type = :type", clazzImpl)
+                    .setParameter("clientId", clientId)
+                    .setParameter("principalId", principalId)
+                    .setParameter("type", type)
+                    .getResultList();
         } catch (NoResultException ex) {
             return null;
         }
-
-        return tokens;
     }
 
     @Override
@@ -118,17 +131,14 @@ public final class JpaTokenRegistry implements TokenRegistry {
         Assert.notNull(clazz, "clazz cannot be null");
 
         final Class<T> clazzImpl = getClassImplementation(clazz);
-        final Collection<T> tokens;
         try {
-            tokens = entityManager
+            return entityManager
                     .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.principalId = :principalId", clazzImpl)
                     .setParameter("principalId", principalId)
                     .getResultList();
         } catch (NoResultException ex) {
             return null;
         }
-
-        return tokens;
     }
 
     @Override

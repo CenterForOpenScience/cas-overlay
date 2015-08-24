@@ -54,7 +54,9 @@ public interface TokenRegistry {
 
     <T extends Token> Collection<T> getClientTokens(String clientId, Class<T> clazz) throws ClassCastException;
 
-    <T extends Token> Collection<T> getClientTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException;
+    <T extends Token> Collection<T> getClientPrincipalTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException;
+
+    <T extends Token> Collection<T> getClientPrincipalTokens(String clientId, String principalId, TokenType type, Class<T> clazz) throws ClassCastException;
 
     <T extends Token> Collection<T> getPrincipalTokens(String principalId, Class<T> clazz) throws ClassCastException;
 

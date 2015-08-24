@@ -43,7 +43,7 @@ public final class AuthorizationCodeImpl extends AbstractToken implements Author
     private static final long serialVersionUID = -7608149809180111599L;
 
     /** The ServiceTicket this is associated with. */
-    @OneToOne(targetEntity=ServiceTicketImpl.class)
+    @OneToOne(targetEntity=ServiceTicketImpl.class, orphanRemoval=true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     private ServiceTicket serviceTicket;
 

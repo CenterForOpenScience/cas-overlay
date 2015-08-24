@@ -18,7 +18,6 @@
  */
 package org.jasig.cas.support.oauth.metadata;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,19 +28,19 @@ import java.util.Set;
  * @since 4.1.0
  */
 public class PrincipalMetadata {
-    private final String id;
+    private final String clientId;
     private final String name;
     private final String description;
     private final Set<String> scopes = new HashSet<>();
 
-    public PrincipalMetadata(final String id, final String name, final String description) {
-        this.id = id;
+    public PrincipalMetadata(final String clientId, final String name, final String description) {
+        this.clientId = clientId;
         this.name = name;
         this.description = description;
     }
 
-    public String getId() {
-        return this.id;
+    public String getClientId() {
+        return this.clientId;
     }
 
     public String getName() {

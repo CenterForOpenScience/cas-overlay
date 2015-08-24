@@ -311,7 +311,7 @@ Authorization: Bearer AT-1-...
         "id": "gJgfkHAtz",
         "name": "Application #1",
         "description": "An simple oauth application",
-        "scopes": [
+        "scope": [
             "user.email",
             "profile.basic"
         ]
@@ -320,7 +320,7 @@ Authorization: Bearer AT-1-...
         "id": "Joiuhwkjsl",
         "name": "Third Party Application #2",
         "description": "An oauth application",
-        "scopes": [
+        "scope": [
             "nodes.create"
         ]
     }
@@ -354,7 +354,7 @@ client_secret | ... | ...
     "id": "gJgfkHAtz",
     "name": "Application #1",
     "description": "An simple oauth application",
-    "users": 9000
+    "users": 9001
 }
 ```
 

@@ -25,20 +25,20 @@ package org.jasig.cas.support.oauth.metadata;
  * @since 4.1.0
  */
 public class ClientMetadata {
-    private final String id;
+    private final String clientId;
     private final String name;
     private final String description;
     private final Integer users;
 
-    public ClientMetadata(final String id, final String name, final String description, final Integer users) {
-        this.id = id;
+    public ClientMetadata(final String clientId, final String name, final String description, final Integer users) {
+        this.clientId = clientId;
         this.name = name;
         this.description = description;
         this.users = users;
     }
 
-    public String getId() {
-        return this.id;
+    public String getClientId() {
+        return this.clientId;
     }
 
     public String getName() {

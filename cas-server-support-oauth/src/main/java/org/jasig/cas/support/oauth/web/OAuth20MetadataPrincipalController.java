@@ -44,13 +44,13 @@ public final class OAuth20MetadataPrincipalController extends AbstractController
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20MetadataPrincipalController.class);
 
-    private static final String ID = "id";
+    private static final String CLIENT_ID = "client_id";
 
     private static final String NAME = "name";
 
     private static final String DESCRIPTION = "description";
 
-    private static final String SCOPES = "scopes";
+    private static final String SCOPE = "scope";
 
     private final CentralOAuthService centralOAuthService;
 
@@ -90,10 +90,10 @@ public final class OAuth20MetadataPrincipalController extends AbstractController
         final List<Map<String, Object>> metadataList = new ArrayList<>();
         for (final PrincipalMetadata item : metadata) {
             final Map<String, Object> detailMap = new HashMap<>();
-            detailMap.put(ID, item.getId());
+            detailMap.put(CLIENT_ID, item.getClientId());
             detailMap.put(NAME, item.getName());
             detailMap.put(DESCRIPTION, item.getDescription());
-            detailMap.put(SCOPES, item.getScopes());
+            detailMap.put(SCOPE, item.getScopes());
             metadataList.add(detailMap);
         }
 

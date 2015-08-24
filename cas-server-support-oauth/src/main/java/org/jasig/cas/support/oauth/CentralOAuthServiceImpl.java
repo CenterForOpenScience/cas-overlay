@@ -301,28 +301,25 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     @Override
     @Transactional(readOnly = false)
     public Boolean revokeClientPrincipalTokens(final AccessToken accessToken) {
-        if (accessToken.getType() == TokenType.PERSONAL) {
-            LOGGER.error("Cannot revoke personal access tokens");
-        }
-
-        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientTokens(accessToken.getClientId(),
+        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientPrincipalTokens(accessToken.getClientId(),
                 accessToken.getPrincipalId(), RefreshToken.class);
         for (RefreshToken token : refreshTokens) {
             LOGGER.debug("Revoking refresh token : {}", token.getId());
-            ticketRegistry.deleteTicket(token.getTicket().getId());
+            ticketRegistry.deleteTicket(token.getTicketGrantingTicket().getId());
         }
 
-        final Collection<AccessToken> accessTokens = tokenRegistry.getClientTokens(accessToken.getClientId(),
-                accessToken.getPrincipalId(), AccessToken.class);
+        final Collection<AccessToken> accessTokens = tokenRegistry.getClientPrincipalTokens(accessToken.getClientId(),
+                accessToken.getPrincipalId(), TokenType.ONLINE, AccessToken.class);
         for (AccessToken token : accessTokens) {
             LOGGER.debug("Revoking access token : {}", token.getId());
-            ticketRegistry.deleteTicket(token.getTicket().getId());
+            ticketRegistry.deleteTicket(token.getTicketGrantingTicket().getId());
         }
 
         return true;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ClientMetadata getClientMetadata(String clientId, String clientSecret) {
         final OAuthRegisteredService service = getRegisteredService(clientId);
         if (service == null) {
@@ -339,6 +336,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<PrincipalMetadata> getPrincipalMetadata(AccessToken accessToken) {
         final Map<String, PrincipalMetadata> metadata = new HashMap<>();
 
@@ -399,6 +397,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
         return getToken(tokenId, AccessToken.class);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @Timed(name = "GET_TOKEN_TIMER")
     @Metered(name = "GET_TOKEN_METER")
@@ -417,6 +416,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
         return token;
     }
 
+    @Override
     @Transactional(readOnly = false)
     public PersonalAccessToken getPersonalAccessToken(final String tokenId) {
         Assert.notNull(tokenId, "tokenId cannot be null");
@@ -428,6 +428,8 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
         return null;
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Map<String, Scope> getScopes(final Set<String> scopeSet) {
         Assert.notNull(scopeSet, "scopeSet cannot be null");
 

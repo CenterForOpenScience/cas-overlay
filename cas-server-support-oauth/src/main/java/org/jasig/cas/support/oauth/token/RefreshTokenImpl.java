@@ -26,6 +26,8 @@ import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.TicketGrantingTicketImpl;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Set;
 
 /**
@@ -42,8 +44,8 @@ public final class RefreshTokenImpl extends AbstractToken implements RefreshToke
     private static final long serialVersionUID = -4808149803180911589L;
 
     /** The TicketGrantingTicket this is associated with. */
-    @OneToOne(targetEntity=TicketGrantingTicketImpl.class)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    @OneToOne(targetEntity=TicketGrantingTicketImpl.class, orphanRemoval=true)
+    @OnDelete(action= OnDeleteAction.CASCADE)
     private TicketGrantingTicket ticketGrantingTicket;
 
     /** The service associated with the tgt. */

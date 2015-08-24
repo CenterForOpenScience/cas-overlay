@@ -24,6 +24,8 @@ import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.ticket.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Set;
 
 /**
@@ -40,8 +42,8 @@ public final class AccessTokenImpl extends AbstractToken implements AccessToken 
     private static final long serialVersionUID = -2608145809180961597L;
 
     /** The TicketGrantingTicket this is associated with. */
-    @OneToOne(targetEntity=TicketGrantingTicketImpl.class)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    @OneToOne(targetEntity=TicketGrantingTicketImpl.class, orphanRemoval=true)
+    @OnDelete(action= OnDeleteAction.CASCADE)
     private TicketGrantingTicket ticketGrantingTicket;
 
     /** The service associated with the tgt. */
@@ -50,7 +52,7 @@ public final class AccessTokenImpl extends AbstractToken implements AccessToken 
     private Service service;
 
     /** The ServiceTicket this is associated with. */
-    @OneToOne(targetEntity=ServiceTicketImpl.class)
+    @OneToOne(targetEntity=ServiceTicketImpl.class, orphanRemoval=true)
     @OnDelete(action=OnDeleteAction.CASCADE)
     private ServiceTicket serviceTicket;
 
