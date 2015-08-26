@@ -31,6 +31,8 @@ import org.jasig.cas.ticket.proxy.ProxyHandler;
 import org.jasig.cas.web.DelegateController;
 import org.jasig.cas.web.ServiceValidateController;
 import org.jasig.cas.web.support.ArgumentExtractor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,17 +66,34 @@ public class OAuth20ServiceValidateController extends DelegateController {
     @NotNull
     private ArgumentExtractor argumentExtractor;
 
+    /**
+     * Calls {@link #initServletContext(javax.servlet.ServletContext)} if the
+     * given ApplicationContext is a {@link WebApplicationContext}.
+     */
+    @Override
+    protected void initApplicationContext(ApplicationContext context) {
+        super.initApplicationContext(context);
+        wrapped.setApplicationContext(context);
+    }
+
     @Override
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         final WebApplicationService service = this.argumentExtractor.extractService(request);
         final String serviceTicketId = service != null ? service.getArtifactId() : null;
-        final ServiceTicket serviceTicket = this.centralAuthenticationService.getTicket(serviceTicketId, Ticket.class);
+
+        ServiceTicket serviceTicket = null;
+        try {
+            serviceTicket = this.centralAuthenticationService.getTicket(serviceTicketId, Ticket.class);
+        } catch (Exception e) {
+            // ignore, wrapped object will handle error appropriately.
+        }
 
         ModelAndView modelAndView = wrapped.handleRequest(request, response);
 
-        if (service != null && modelAndView.getViewName().equals(this.successView)) {
+        if (service != null && serviceTicket != null && modelAndView.getViewName().equals(this.successView)) {
             AccessToken accessToken = centralOAuthService.grantCASAccessToken(serviceTicket.getGrantingTicket(), serviceTicket.getService());
             modelAndView.addObject(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN, accessToken.getId());
+            modelAndView.addObject(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN_SCOPE, accessToken.getScopes());
         }
 
         return modelAndView;

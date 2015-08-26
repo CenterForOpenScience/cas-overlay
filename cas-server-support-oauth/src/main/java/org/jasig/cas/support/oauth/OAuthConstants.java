@@ -188,4 +188,7 @@ public interface OAuthConstants {
 
     /** The CAS protocol access token. */
     String CAS_PROTOCOL_ACCESS_TOKEN = "accessToken";
+
+    /** The CAS protocol access token scope. */
+    String CAS_PROTOCOL_ACCESS_TOKEN_SCOPE = "accessTokenScope";
 }
