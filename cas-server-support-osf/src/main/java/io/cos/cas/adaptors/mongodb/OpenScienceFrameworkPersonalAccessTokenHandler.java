@@ -48,7 +48,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
         @Field("user_id")
         private String userId;
         private String scopes;
-        private Boolean active;
+        private Boolean is_active;
 
         public String getUserId() {
             return this.userId;
@@ -59,7 +59,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
         }
 
         public Boolean getActive() {
-            return this.active;
+            return this.is_active;
         }
 
         @Override
@@ -77,7 +77,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
         final OpenScienceFrameworkPersonalToken token = this.mongoTemplate.findOne(new Query(
                 new Criteria().andOperator(
                         Criteria.where("token_id").is(tokenId),
-                        Criteria.where("active").is(true)
+                        Criteria.where("is_active").is(true)
                 )
         ), OpenScienceFrameworkPersonalToken.class);
 

@@ -42,7 +42,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
         private String id;
         private String name;
         private String description;
-        private Boolean active;
+        private Boolean is_active;
 
         public String getName() {
             return this.name;
@@ -53,7 +53,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
         }
 
         public Boolean getActive() {
-            return this.active;
+            return this.is_active;
         }
 
         @Override
@@ -71,7 +71,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
         final OpenScienceFrameworkScope scope = this.mongoTemplate.findOne(new Query(
                 new Criteria().andOperator(
                         Criteria.where("name").is(name),
-                        Criteria.where("active").is(true)
+                        Criteria.where("is_active").is(true)
                 )
         ), OpenScienceFrameworkScope.class);
 
