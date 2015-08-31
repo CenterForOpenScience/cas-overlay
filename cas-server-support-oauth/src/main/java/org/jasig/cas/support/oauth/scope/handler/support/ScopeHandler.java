@@ -23,13 +23,25 @@ import org.jasig.cas.support.oauth.scope.Scope;
 import java.util.Set;
 
 /**
- * Interface for OAuth Scope Handlers
+ * Interface for OAuth Scope Handlers.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 public interface ScopeHandler {
+
+    /**
+     * Get the scope specified by name.
+     *
+     * @param name the name of the scope.
+     * @return the scope
+     */
     Scope getScope(String name);
 
+    /**
+     * Get the list of default scopes.
+     *
+     * @return a list of default scopes.
+     */
     Set<Scope> getDefaults();
 }

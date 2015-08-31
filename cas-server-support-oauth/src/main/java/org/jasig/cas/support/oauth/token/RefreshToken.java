@@ -22,7 +22,7 @@ import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 
 /**
- * A Refresh Token
+ * A Refresh Token.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -34,7 +34,17 @@ public interface RefreshToken extends Token {
      **/
     String PREFIX = "RT";
 
+    /**
+     * Retrieves the ticket granting ticket.
+     *
+     * @return the requested ticket granting ticket.
+     */
     TicketGrantingTicket getTicketGrantingTicket();
 
+    /**
+     * Retrieves the service.
+     *
+     * @return the requested service.
+     */
     Service getService();
 }

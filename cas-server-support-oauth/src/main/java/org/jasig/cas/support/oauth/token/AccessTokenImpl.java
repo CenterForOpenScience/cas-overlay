@@ -21,15 +21,22 @@ package org.jasig.cas.support.oauth.token;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.ticket.*;
+import org.jasig.cas.ticket.ServiceTicket;
+import org.jasig.cas.ticket.ServiceTicketImpl;
+import org.jasig.cas.ticket.Ticket;
+import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.jasig.cas.ticket.TicketGrantingTicketImpl;
 
-import javax.persistence.*;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Set;
 
 /**
- * Access Token Implementation class
+ * Access Token Implementation class.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -53,7 +60,7 @@ public final class AccessTokenImpl extends AbstractToken implements AccessToken 
 
     /** The ServiceTicket this is associated with. */
     @OneToOne(targetEntity=ServiceTicketImpl.class, orphanRemoval=true)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    @OnDelete(action= OnDeleteAction.CASCADE)
     private ServiceTicket serviceTicket;
 
     /**
@@ -96,8 +103,7 @@ public final class AccessTokenImpl extends AbstractToken implements AccessToken 
     }
 
     @Override
-    public final TicketGrantingTicket getTicketGrantingTicket()
-    {
+    public TicketGrantingTicket getTicketGrantingTicket() {
         if (getType() == TokenType.OFFLINE) {
             return this.serviceTicket.getGrantingTicket();
         }

@@ -45,12 +45,18 @@ import java.util.concurrent.TimeUnit;
  */
 public final class OAuth20AuthorizeCallbackActionController extends AbstractController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizeCallbackActionController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizeCallbackActionController.class);
 
     private final CentralOAuthService centralOAuthService;
 
     private final Long timeout;
 
+    /**
+     * Instantiates a new o auth20 authorize callback action controller.
+     *
+     * @param centralOAuthService the central oauth service
+     * @param timeout the ticket timeout
+     */
     public OAuth20AuthorizeCallbackActionController(final CentralOAuthService centralOAuthService, final Long timeout) {
         this.centralOAuthService = centralOAuthService;
         this.timeout = timeout;
@@ -112,13 +118,16 @@ public final class OAuth20AuthorizeCallbackActionController extends AbstractCont
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
 
-        if (responseType.equals("token")) {
-            final AuthorizationCode authorizationCode = centralOAuthService.grantAuthorizationCode(TokenType.ONLINE, clientId, loginTicketId, redirectUri, scopeSet);
+        if ("token".equals(responseType)) {
+            final AuthorizationCode authorizationCode = centralOAuthService.grantAuthorizationCode(
+                    TokenType.ONLINE, clientId, loginTicketId, redirectUri, scopeSet);
             final AccessToken accessToken = centralOAuthService.grantOnlineAccessToken(authorizationCode);
 
             String callbackUrl = redirectUri;
             callbackUrl += "#" + OAuthConstants.ACCESS_TOKEN + "=" + accessToken.getId();
-            callbackUrl += "&" + OAuthConstants.EXPIRES_IN + "=" + (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getTicket().getCreationTime()));
+            callbackUrl += "&" + OAuthConstants.EXPIRES_IN + "="
+                    + (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()
+                    - accessToken.getTicket().getCreationTime()));
             callbackUrl += "&" + OAuthConstants.TOKEN_TYPE + "=" + OAuthConstants.BEARER_TOKEN;
             if (!StringUtils.isBlank(state)) {
                 callbackUrl += "&" + OAuthConstants.STATE + "=" + state;
@@ -128,12 +137,12 @@ public final class OAuth20AuthorizeCallbackActionController extends AbstractCont
         }
 
         // response type is code
-        final AuthorizationCode authorizationCode = centralOAuthService.grantAuthorizationCode(tokenType, clientId, loginTicketId, redirectUri, scopeSet);
+        final AuthorizationCode authorizationCode = centralOAuthService.grantAuthorizationCode(
+                tokenType, clientId, loginTicketId, redirectUri, scopeSet);
 
-        String callbackUrl = redirectUri;
-        callbackUrl += "?" + OAuthConstants.CODE + "=" + authorizationCode.getId();
+        String callbackUrl = OAuthUtils.addParameter(redirectUri, OAuthConstants.CODE, authorizationCode.getId());
         if (!StringUtils.isBlank(state)) {
-            callbackUrl += "&" + OAuthConstants.STATE + "=" + state;
+            callbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.STATE, state);
         }
         LOGGER.debug("Redirecting Client to : {}", callbackUrl);
         return OAuthUtils.redirectTo(callbackUrl);

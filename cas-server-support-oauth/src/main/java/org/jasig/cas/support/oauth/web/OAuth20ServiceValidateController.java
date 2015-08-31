@@ -26,13 +26,13 @@ import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.token.AccessToken;
-import org.jasig.cas.ticket.*;
+import org.jasig.cas.ticket.ServiceTicket;
+import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.proxy.ProxyHandler;
 import org.jasig.cas.web.DelegateController;
 import org.jasig.cas.web.ServiceValidateController;
 import org.jasig.cas.web.support.ArgumentExtractor;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 /**
- * This controller allows injection of an oauth access ticket into the CAS protocol.
+ * This controller allows injection of an oauth access token into the CAS protocol.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -68,30 +68,31 @@ public class OAuth20ServiceValidateController extends DelegateController {
 
     /**
      * Calls {@link #initServletContext(javax.servlet.ServletContext)} if the
-     * given ApplicationContext is a {@link WebApplicationContext}.
+     * given ApplicationContext is a WebApplicationContext.
      */
     @Override
-    protected void initApplicationContext(ApplicationContext context) {
+    protected void initApplicationContext(final ApplicationContext context) {
         super.initApplicationContext(context);
         wrapped.setApplicationContext(context);
     }
 
     @Override
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView handleRequest(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final WebApplicationService service = this.argumentExtractor.extractService(request);
         final String serviceTicketId = service != null ? service.getArtifactId() : null;
 
         ServiceTicket serviceTicket = null;
         try {
             serviceTicket = this.centralAuthenticationService.getTicket(serviceTicketId, Ticket.class);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // ignore, wrapped object will handle error appropriately.
         }
 
-        ModelAndView modelAndView = wrapped.handleRequest(request, response);
+        final ModelAndView modelAndView = wrapped.handleRequest(request, response);
 
         if (service != null && serviceTicket != null && modelAndView.getViewName().equals(this.successView)) {
-            AccessToken accessToken = centralOAuthService.grantCASAccessToken(serviceTicket.getGrantingTicket(), serviceTicket.getService());
+            final AccessToken accessToken = centralOAuthService.grantCASAccessToken(serviceTicket.getGrantingTicket(),
+                    serviceTicket.getService());
             modelAndView.addObject(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN, accessToken.getId());
             modelAndView.addObject(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN_SCOPE, accessToken.getScopes());
         }
@@ -100,7 +101,8 @@ public class OAuth20ServiceValidateController extends DelegateController {
     }
 
     @Override
-    protected ModelAndView handleRequestInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+    protected ModelAndView handleRequestInternal(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+            throws Exception {
         return null;
     }
 
@@ -129,6 +131,10 @@ public class OAuth20ServiceValidateController extends DelegateController {
         this.centralOAuthService = centralOAuthService;
     }
 
+    /**
+     * @param argumentExtractor The argumentExtractor to
+     * set.
+     */
     public void setArgumentExtractor(final ArgumentExtractor argumentExtractor) {
         this.argumentExtractor = argumentExtractor;
         wrapped.setArgumentExtractor(this.argumentExtractor);

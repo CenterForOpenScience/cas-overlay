@@ -18,11 +18,11 @@
  */
 package org.jasig.cas.support.oauth.token.registry;
 
-import java.util.Collection;
-import java.util.Set;
-
 import org.jasig.cas.support.oauth.token.Token;
 import org.jasig.cas.support.oauth.token.TokenType;
+
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * Token Registry interface.
@@ -33,36 +33,108 @@ import org.jasig.cas.support.oauth.token.TokenType;
 public interface TokenRegistry {
 
     /**
-     * Add a ticket to the registry. Ticket storage is based on the ticket id.
+     * Add a token to the registry. Token storage is based on the token id.
      *
-     * @param token The ticket we wish to add to the cache.
+     * @param token The token we wish to add to the cache.
      */
     void addToken(Token token);
 
+    /**
+     * Update a token in the registry.
+     *
+     * @param token The token we wish to update in the cache.
+     */
     void updateToken(Token token);
 
     /**
-     * Retrieve a token from the registry. If the token retrieved does not
-     * match the expected class, an InvalidTicketException is thrown.
+     * Retrieve a token from the registry.
      *
      * @param tokenId the id of the token we wish to retrieve.
-     * @param clazz The expected class of the ticket we wish to retrieve.
+     * @param clazz The expected class of the token we wish to retrieve.
      * @param <T> the generic token type to return that extends {@link Token}
      * @return the requested token.
+     * @throws ClassCastException the class cast exception.
      */
     <T extends Token> T getToken(String tokenId, Class<T> clazz) throws ClassCastException;
 
+    /**
+     * Retrieve a collection of tokens associated with the client id specified.
+     *
+     * @param clientId the client id of the tokens we wish to retrieve.
+     * @param clazz The expected class of the token we wish to retrieve.
+     * @param <T> the generic token type to return that extends {@link Token}
+     * @return a collection of requested tokens.
+     * @throws ClassCastException the class cast exception.
+     */
     <T extends Token> Collection<T> getClientTokens(String clientId, Class<T> clazz) throws ClassCastException;
 
+    /**
+     * Retrieve a collection of tokens associated with the client id & principal id specified.
+     *
+     * @param clientId the client id of the tokens we wish to retrieve.
+     * @param principalId the principal id of the tokens we wish to retrieve.
+     * @param clazz The expected class of the token we wish to retrieve.
+     * @param <T> the generic token type to return that extends {@link Token}
+     * @return a collection of requested tokens.
+     * @throws ClassCastException the class cast exception.
+     */
     <T extends Token> Collection<T> getClientPrincipalTokens(String clientId, String principalId, Class<T> clazz) throws ClassCastException;
 
-    <T extends Token> Collection<T> getClientPrincipalTokens(String clientId, String principalId, TokenType type, Class<T> clazz) throws ClassCastException;
+    /**
+     * Retrieve a collection of tokens associated with the client id, principal id and token type specified.
+     *
+     * @param clientId the client id of the tokens we wish to retrieve.
+     * @param principalId the principal id of the tokens we wish to retrieve.
+     * @param type the token type of the tokens we wish to retrieve.
+     * @param clazz The expected class of the token we wish to retrieve.
+     * @param <T> the generic token type to return that extends {@link Token}
+     * @return a collection of requested tokens.
+     * @throws ClassCastException the class cast exception.
+     */
+    <T extends Token> Collection<T> getClientPrincipalTokens(String clientId, String principalId, TokenType type, Class<T> clazz)
+            throws ClassCastException;
 
+    /**
+     * Retrieve a collection of tokens associated with the principal id specified.
+     *
+     * @param principalId the principal id of the tokens we wish to retrieve.
+     * @param clazz The expected class of the token we wish to retrieve.
+     * @param <T> the generic token type to return that extends {@link Token}
+     * @return a collection of requested tokens.
+     * @throws ClassCastException the class cast exception.
+     */
     <T extends Token> Collection<T> getPrincipalTokens(String principalId, Class<T> clazz) throws ClassCastException;
 
+    /**
+     * Check if a token exists by client id, principal id and assigned scopes.
+     *
+     * @param clientId the client id of the token we wish to find.
+     * @param principalId the principal id of the token we wish to find.
+     * @param scopes the scopes associated with the token we wish to find.
+     * @param clazz The expected class of the token we wish to find.
+     * @param <T> the generic token type to return that extends {@link Token}
+     * @return indicates if the token could be found.
+     */
     <T extends Token> Boolean isToken(String clientId, String principalId, Set<String> scopes, Class<T> clazz);
 
+    /**
+     * Check if a token exists by token type, client id, principal id and assigned scopes.
+     *
+     * @param type the token type of the token we wish to find.
+     * @param clientId the client id of the token we wish to find.
+     * @param principalId the principal id of the token we wish to find.
+     * @param scopes the scopes associated with the token we wish to find.
+     * @param clazz The expected class of the token we wish to find.
+     * @param <T> the generic token type to return that extends {@link Token}
+     * @return indicates if the token could be found.
+     */
     <T extends Token> Boolean isToken(TokenType type, String clientId, String principalId, Set<String> scopes, Class<T> clazz);
 
+    /**
+     * Count the number unique principal's assigned to a client token id.
+     *
+     * @param clientId the client id of the tokens we wish to find.
+     * @return a count of the number of unique principals.
+     */
     Integer getPrincipalCount(String clientId);
 }

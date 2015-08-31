@@ -36,7 +36,11 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This controller is called after successful authentication and
@@ -44,16 +48,23 @@ import java.util.*;
  * added which is the service ticket retrieved from previous authentication.
  *
  * @author Jerome Leleu
+ * @author Michael Haselton
  * @since 3.5.0
  */
 public final class OAuth20AuthorizeCallbackController extends AbstractController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizeCallbackController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizeCallbackController.class);
 
     private final CentralOAuthService centralOAuthService;
 
     private final TicketRegistry ticketRegistry;
 
+    /**
+     * Instantiates a new o auth20 authorize callback controller.
+     *
+     * @param centralOAuthService the central oauth service
+     * @param ticketRegistry the ticket registry
+     */
     public OAuth20AuthorizeCallbackController(final CentralOAuthService centralOAuthService, final TicketRegistry ticketRegistry) {
         this.centralOAuthService = centralOAuthService;
         this.ticketRegistry = ticketRegistry;
@@ -74,7 +85,7 @@ public final class OAuth20AuthorizeCallbackController extends AbstractController
             final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(serviceTicketId);
             if (serviceTicket == null || serviceTicket.isExpired()) {
                 LOGGER.error("Service Ticket expired : {}", serviceTicketId);
-                return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
             }
 
             final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
@@ -98,8 +109,8 @@ public final class OAuth20AuthorizeCallbackController extends AbstractController
         final TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
         if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
             LOGGER.error("Ticket Granting Ticket expired : {}", ticketGrantingTicketId);
-            // TODO: display error view as we are still interacting w/ the user.
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+            // display error view as we are still interacting w/ the user.
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
         }
 
         final String callbackUrl = request.getRequestURL().toString()
@@ -137,11 +148,12 @@ public final class OAuth20AuthorizeCallbackController extends AbstractController
         if (bypassApprovalPrompt != null && bypassApprovalPrompt) {
             return OAuthUtils.redirectTo(allowCallbackUrl);
         }
-        // if approval prompt is not forced, check if we have already approved the requested scopes, if so do not ask the user again for authorization.
+        // if approval prompt is not forced, check if we have already approved the requested scopes,
+        // if so do not ask the user again for authorization.
         if (StringUtils.isBlank(approvalPrompt) || !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)) {
             final String principalId = ticketGrantingTicket.getAuthentication().getPrincipal().getId();
-            final Boolean existingToken = (tokenType == TokenType.ONLINE) ?
-                    centralOAuthService.isAccessToken(tokenType, clientId, principalId, scopeMap.keySet())
+            final Boolean existingToken = (tokenType == TokenType.ONLINE)
+                    ? centralOAuthService.isAccessToken(tokenType, clientId, principalId, scopeMap.keySet())
                     : centralOAuthService.isRefreshToken(clientId, principalId, scopeMap.keySet());
 
             if (existingToken) {

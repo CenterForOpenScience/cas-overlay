@@ -23,7 +23,6 @@ import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
-import org.jasig.cas.support.oauth.token.registry.TokenRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -94,20 +93,20 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
     protected ModelAndView internalHandleRequest(final String method, final HttpServletRequest request,
                                                  final HttpServletResponse response) throws Exception {
         // authorize
-        if (OAuthConstants.AUTHORIZE_URL.equals(method) && request.getMethod().equals("GET")) {
+        if (OAuthConstants.AUTHORIZE_URL.equals(method) && "GET".equals(request.getMethod())) {
             return authorizeController.handleRequest(request, response);
         }
         // authorize callback
-        if (OAuthConstants.CALLBACK_AUTHORIZE_URL.equals(method) && request.getMethod().equals("GET")) {
+        if (OAuthConstants.CALLBACK_AUTHORIZE_URL.equals(method) && "GET".equals(request.getMethod())) {
             return authorizeCallbackController.handleRequest(request, response);
         }
         // authorize callback action
-        if (OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL.equals(method) && request.getMethod().equals("GET")) {
+        if (OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL.equals(method) && "GET".equals(request.getMethod())) {
             return authorizeCallbackActionController.handleRequest(request, response);
         }
 
         // token
-        if (OAuthConstants.TOKEN_URL.equals(method) && request.getMethod().equals("POST")) {
+        if (OAuthConstants.TOKEN_URL.equals(method) && "POST".equals(request.getMethod())) {
             final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
             LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
@@ -119,7 +118,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         }
 
         // revoke
-        if (OAuthConstants.REVOKE_URL.equals(method) && request.getMethod().equals("POST")) {
+        if (OAuthConstants.REVOKE_URL.equals(method) && "POST".equals(request.getMethod())) {
             if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_ID)) {
                 if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_SECRET)) {
                     return revokeClientTokensController.handleRequest(request, response);
@@ -131,14 +130,14 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         }
 
         // profile
-        if (OAuthConstants.PROFILE_URL.equals(method) && request.getMethod().equals("GET")) {
+        if (OAuthConstants.PROFILE_URL.equals(method) && "GET".equals(request.getMethod())) {
             return profileController.handleRequest(request, response);
         }
 
         // metadata
-        if (OAuthConstants.METADATA_URL.equals(method) && request.getMethod().equals("POST")) {
-            if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_ID) &&
-                    request.getParameterMap().containsKey(OAuthConstants.CLIENT_SECRET)) {
+        if (OAuthConstants.METADATA_URL.equals(method) && "POST".equals(request.getMethod())) {
+            if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_ID)
+                    && request.getParameterMap().containsKey(OAuthConstants.CLIENT_SECRET)) {
                 return metadataClientController.handleRequest(request, response);
             } else {
                 return metadataPrincipalController.handleRequest(request, response);
@@ -147,7 +146,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
         // error
         logger.error("Unknown method : {}", method);
-        OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_OK);
+        OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         return null;
     }
 

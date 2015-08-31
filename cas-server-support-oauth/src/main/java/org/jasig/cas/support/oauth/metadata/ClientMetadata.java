@@ -19,7 +19,7 @@
 package org.jasig.cas.support.oauth.metadata;
 
 /**
- * Client Metadata
+ * Client Metadata.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -30,6 +30,14 @@ public class ClientMetadata {
     private final String description;
     private final Integer users;
 
+    /**
+     * Constructors a new client metadata class.
+     *
+     * @param clientId the client id.
+     * @param name the name.
+     * @param description the description.
+     * @param users the users.
+     */
     public ClientMetadata(final String clientId, final String name, final String description, final Integer users) {
         this.clientId = clientId;
         this.name = name;

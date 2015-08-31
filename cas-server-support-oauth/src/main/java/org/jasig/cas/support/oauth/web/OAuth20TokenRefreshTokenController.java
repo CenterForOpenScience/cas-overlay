@@ -21,7 +21,9 @@ package org.jasig.cas.support.oauth.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.support.oauth.*;
+import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.OAuthConstants;
+import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.ticket.InvalidTicketException;
@@ -81,29 +83,30 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
 
         final boolean isVerified = verifyRequest(refreshTokenId, clientId, clientSecret, grantType);
         if (!isVerified) {
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
         final RefreshToken refreshToken;
         try {
             refreshToken = centralOAuthService.getToken(refreshTokenId, RefreshToken.class);
-        } catch (InvalidTicketException e) {
+        } catch (final InvalidTicketException e) {
             LOGGER.error("Invalid {} : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
         final AccessToken accessToken = centralOAuthService.grantOfflineAccessToken(refreshToken);
 
         final Map<String, Object> map = new HashMap<>();
         map.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
-        map.put(OAuthConstants.EXPIRES_IN, (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getTicket().getCreationTime())));
+        map.put(OAuthConstants.EXPIRES_IN,
+                (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getTicket().getCreationTime())));
         map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
 
         final ObjectMapper mapper = new ObjectMapper();
         final String result = mapper.writeValueAsString(map);
         LOGGER.debug("result : {}", result);
 
-        response.setContentType("application/json; charset=UTF-8");
+        response.setContentType("application/json");
         return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
     }
 

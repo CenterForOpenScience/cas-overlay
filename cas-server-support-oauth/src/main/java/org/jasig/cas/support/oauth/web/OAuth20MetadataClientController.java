@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This controller handles requests for metadata regarding a client
+ * This controller handles requests for metadata regarding a client.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -56,7 +56,7 @@ public final class OAuth20MetadataClientController extends AbstractController {
     private final CentralOAuthService centralOAuthService;
 
     /**
-     * Instantiates a new o auth20 cliente metadata controller.
+     * Instantiates a new o auth20 client metadata controller.
      *
      * @param centralOAuthService the central oauth service
      */

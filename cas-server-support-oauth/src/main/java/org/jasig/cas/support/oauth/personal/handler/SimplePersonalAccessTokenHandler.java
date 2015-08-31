@@ -25,26 +25,37 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Simple Personal Token Handler
+ * Simple Personal Token Handler.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 public class SimplePersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler {
 
-    private Set<PersonalAccessToken> tokens;
+    /**
+     * A list of personal access tokens.
+     */
+    private final Set<PersonalAccessToken> tokens;
 
+    /**
+     * Constructs a new instance of simple personal access token handler without any assigned tokens.
+     */
     public SimplePersonalAccessTokenHandler() {
         this(new HashSet<PersonalAccessToken>());
     }
 
-    public SimplePersonalAccessTokenHandler(Set<PersonalAccessToken> tokens) {
+    /**
+     * Constructs a new instance of simple personal access token handler with the set of tokens specified.
+     *
+     * @param tokens the set of tokens.
+     */
+    public SimplePersonalAccessTokenHandler(final Set<PersonalAccessToken> tokens) {
         this.tokens = tokens;
     }
 
     @Override
-    public PersonalAccessToken getToken(String tokenId) {
-        for (PersonalAccessToken token : this.tokens) {
+    public PersonalAccessToken getToken(final String tokenId) {
+        for (final PersonalAccessToken token : this.tokens) {
             if (token.getId().equals(tokenId)) {
                 return token;
             }

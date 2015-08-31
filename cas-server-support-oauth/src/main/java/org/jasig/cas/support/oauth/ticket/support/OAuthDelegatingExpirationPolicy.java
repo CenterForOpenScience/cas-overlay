@@ -18,9 +18,13 @@
  */
 package org.jasig.cas.support.oauth.ticket.support;
 
-import org.jasig.cas.support.oauth.token.TokenType;
+import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
-import org.jasig.cas.ticket.*;
+import org.jasig.cas.support.oauth.token.TokenType;
+import org.jasig.cas.ticket.AbstractTicket;
+import org.jasig.cas.ticket.ExpirationPolicy;
+import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.jasig.cas.ticket.TicketState;
 import org.jasig.cas.ticket.support.AbstractCasExpirationPolicy;
 
 import javax.validation.constraints.NotNull;
@@ -49,9 +53,16 @@ public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpiration
     @Override
     public boolean isExpired(final TicketState ticketState) {
         final AbstractTicket ticket = (AbstractTicket) ticketState;
-        final TicketGrantingTicket ticketGrantingTicket = ticket.getGrantingTicket() != null ? ticket.getGrantingTicket() : (TicketGrantingTicket) ticket;
+        final TicketGrantingTicket ticketGrantingTicket = ticket.getGrantingTicket();
 
-        final TokenType tokenType = (TokenType) ticketGrantingTicket.getAuthentication().getAttributes()
+        final Authentication authentication;
+        if (ticketGrantingTicket != null) {
+            authentication = ticketGrantingTicket.getAuthentication();
+        } else {
+            authentication = ticket.getAuthentication();
+        }
+
+        final TokenType tokenType = (TokenType) authentication.getAttributes()
                 .get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_ACCESS_TYPE);
 
         // offline
@@ -67,7 +78,7 @@ public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpiration
 
         // personal
         if (tokenType == TokenType.PERSONAL && ticket instanceof TicketGrantingTicket) {
-            return oAuthRefreshTokenExpirationPolicy.isExpired(ticketState);
+            return false;
         }
 
         // service validation / other

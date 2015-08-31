@@ -18,13 +18,13 @@
  */
 package org.jasig.cas.support.oauth.authentication.handler.support;
 
-import java.security.GeneralSecurityException;
-
 import org.jasig.cas.authentication.AbstractAuthenticationHandler;
 import org.jasig.cas.authentication.BasicCredentialMetaData;
-import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.Credential;
+import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
+
+import java.security.GeneralSecurityException;
 
 /**
  * Wraps the existing user authentication in an OAuth specific credential.
@@ -38,7 +38,8 @@ public final class OAuthCredentialsAuthenticationHandler extends AbstractAuthent
     public HandlerResult authenticate(final Credential credential) throws GeneralSecurityException {
         final OAuthCredential c = (OAuthCredential) credential;
 
-        return new HandlerResult(this, new BasicCredentialMetaData(credential), this.principalFactory.createPrincipal(c.getId(), c.getAttributes()));
+        return new HandlerResult(this, new BasicCredentialMetaData(credential),
+                this.principalFactory.createPrincipal(c.getId(), c.getAttributes()));
     }
 
     @Override

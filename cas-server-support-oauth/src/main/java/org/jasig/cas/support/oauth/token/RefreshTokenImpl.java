@@ -25,13 +25,14 @@ import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.TicketGrantingTicketImpl;
 
-import javax.persistence.*;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Set;
 
 /**
- * Refresh Token Implementation
+ * Refresh Token Implementation.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -83,12 +84,12 @@ public final class RefreshTokenImpl extends AbstractToken implements RefreshToke
     }
 
     @Override
-    public final TicketGrantingTicket getTicketGrantingTicket() {
+    public TicketGrantingTicket getTicketGrantingTicket() {
         return this.ticketGrantingTicket;
     }
 
     @Override
-    public final Service getService() {
+    public Service getService() {
         return this.service;
     }
 }

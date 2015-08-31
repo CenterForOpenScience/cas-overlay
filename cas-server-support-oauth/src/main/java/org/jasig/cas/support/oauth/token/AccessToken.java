@@ -19,11 +19,11 @@
 package org.jasig.cas.support.oauth.token;
 
 import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.ticket.ServiceTicket;
-import org.jasig.cas.ticket.TicketGrantingTicket;
+        import org.jasig.cas.ticket.ServiceTicket;
+        import org.jasig.cas.ticket.TicketGrantingTicket;
 
 /**
- * Access Token
+ * Access Token.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -35,9 +35,24 @@ public interface AccessToken extends Token {
      **/
     String PREFIX = "AT";
 
+    /**
+     * Retrieves the ticket granting ticket.
+     *
+     * @return the requested ticket granting ticket.
+     */
     TicketGrantingTicket getTicketGrantingTicket();
 
+    /**
+     * Retrieves the service.
+     *
+     * @return the requested service.
+     */
     Service getService();
 
+    /**
+     * Retrieves the service ticket.
+     *
+     * @return the requested service ticket.
+     */
     ServiceTicket getServiceTicket();
 }

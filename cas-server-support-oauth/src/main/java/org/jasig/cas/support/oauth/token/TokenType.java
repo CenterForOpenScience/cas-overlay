@@ -19,19 +19,39 @@
 package org.jasig.cas.support.oauth.token;
 
 /**
- * Token Type
+ * Token Type.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 public enum TokenType {
+    /**
+     *  Offline Token.
+     */
     OFFLINE(0),
+    /**
+     *  Online Token.
+     */
     ONLINE(1),
+    /**
+     *  Personal Token.
+     */
     PERSONAL(2),
+    /**
+     *  CAS Token.
+     */
     CAS(3);
 
+    /**
+     * The value of the token enumeration.
+     */
     private final int value;
 
+    /**
+     * Constructs a new Token Type.
+     *
+     * @param newValue the value representing the token type.
+     */
     TokenType(final int newValue) {
         value = newValue;
     }

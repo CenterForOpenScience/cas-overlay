@@ -20,7 +20,12 @@ package org.jasig.cas.support.oauth.token;
 
 import org.springframework.util.Assert;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -91,6 +96,9 @@ public abstract class AbstractToken implements Token {
         this.scopes.addAll(scopes);
     }
 
+    /**
+     * Compute the hash of all scopes upon saving the token.
+     */
     @PreUpdate
     @PrePersist
     private void updateScopesHash() {

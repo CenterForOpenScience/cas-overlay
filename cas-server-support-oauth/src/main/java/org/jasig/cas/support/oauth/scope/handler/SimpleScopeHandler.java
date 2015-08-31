@@ -25,26 +25,37 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Simple OAuth Scope Handler
+ * Simple OAuth Scope Handler.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 public class SimpleScopeHandler extends AbstractScopeHandler {
 
-    private Set<Scope> scopes;
+    /**
+     * The set of scopes added to the handler.
+     */
+    private final Set<Scope> scopes;
 
+    /**
+     * Constructs a new instance of the scope handler w/ a blank list of scopes.
+     */
     public SimpleScopeHandler() {
         this(new HashSet<Scope>());
     }
 
-    public SimpleScopeHandler(Set<Scope> scopes) {
+    /**
+     * Constructors a new instance of the scope handler w/ the scopes specified.
+     *
+     * @param scopes the list of scopes.
+     */
+    public SimpleScopeHandler(final Set<Scope> scopes) {
         this.scopes = scopes;
     }
 
     @Override
-    public Scope getScope(String name) {
-        for (Scope scope : this.scopes) {
+    public Scope getScope(final String name) {
+        for (final Scope scope : this.scopes) {
             if (scope.getName().equalsIgnoreCase(name)) {
                 return scope;
             }
@@ -55,7 +66,7 @@ public class SimpleScopeHandler extends AbstractScopeHandler {
     @Override
     public Set<Scope> getDefaults() {
         final Set<Scope> defaultScopes = new HashSet<>();
-        for (Scope scope : this.scopes) {
+        for (final Scope scope : this.scopes) {
             if (scope.getIsDefault()) {
                 defaultScopes.add(scope);
             }

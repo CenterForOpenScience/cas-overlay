@@ -23,7 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.support.oauth.*;
+import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.OAuthConstants;
+import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.TokenType;
@@ -68,8 +70,10 @@ public final class OAuth20ProfileController extends AbstractController {
      * Instantiates a new o auth20 profile controller.
      *
      * @param centralOAuthService the central oauth service
+     * @param centralAuthenticationService the central authentication service
      */
-    public OAuth20ProfileController(final CentralOAuthService centralOAuthService, final CentralAuthenticationService centralAuthenticationService) {
+    public OAuth20ProfileController(final CentralOAuthService centralOAuthService,
+                                    final CentralAuthenticationService centralAuthenticationService) {
         this.centralOAuthService = centralOAuthService;
         this.centralAuthenticationService = centralAuthenticationService;
     }
@@ -84,21 +88,21 @@ public final class OAuth20ProfileController extends AbstractController {
                 accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
             } else {
                 LOGGER.debug("Missing Access Token");
-                return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_BAD_REQUEST);
             }
         }
 
         AccessToken accessToken;
         try {
             accessToken = centralOAuthService.getToken(accessTokenId, AccessToken.class);
-        } catch (InvalidTicketException e) {
+        } catch (final InvalidTicketException e) {
             // attempt to grant a personal access token?
             final PersonalAccessToken personalAccessToken = centralOAuthService.getPersonalAccessToken(accessTokenId);
             if (personalAccessToken != null) {
                 accessToken = centralOAuthService.grantPersonalAccessToken(personalAccessToken);
             } else {
                 LOGGER.error("Could not get Access Token [{}]", accessTokenId);
-                return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
             }
         }
 
@@ -107,24 +111,25 @@ public final class OAuth20ProfileController extends AbstractController {
 
         final Principal principal;
         if (accessToken.getType() == TokenType.PERSONAL) {
-            // personal access tokens do not have a service id, thus no attributes can be released.
-            // TODO: need to grant service ticket here if we would like keep stats on ticket usage.
+            // personal access tokens do not have a service id, thus no attributes can be released,
+            // also need to grant service ticket here if we would like keep stats on ticket usage.
             principal = accessToken.getTicketGrantingTicket().getAuthentication().getPrincipal();
         } else {
             final ServiceTicket serviceTicket;
             if (accessToken.getType() == TokenType.OFFLINE) {
                 serviceTicket = accessToken.getServiceTicket();
             } else {
-                serviceTicket = centralAuthenticationService.grantServiceTicket(accessToken.getTicketGrantingTicket().getId(), accessToken.getService());
+                serviceTicket = centralAuthenticationService.grantServiceTicket(accessToken.getTicketGrantingTicket().getId(),
+                        accessToken.getService());
             }
 
             // validate the service ticket, and apply service specific attribute release policy
             final Assertion assertion;
             try {
                 assertion = centralAuthenticationService.validateServiceTicket(serviceTicket.getId(), serviceTicket.getService());
-            } catch (InvalidTicketException e) {
-                LOGGER.error("Could not validate Service Ticket [{}]", accessToken.getServiceTicket().getId());
-                return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
+            } catch (final InvalidTicketException e) {
+                LOGGER.error("Could not validate Service Ticket [{}] of Access Token [{}] ", serviceTicket.getId(), accessToken.getId());
+                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
             }
 
             principal = assertion.getPrimaryAuthentication().getPrincipal();
@@ -141,7 +146,7 @@ public final class OAuth20ProfileController extends AbstractController {
 
         map.put(ID, principal.getId());
 
-        Set<String> scopes = accessToken.getScopes();
+        final Set<String> scopes = accessToken.getScopes();
         if (scopes.size() > 0) {
             map.put(SCOPE, accessToken.getScopes());
         }

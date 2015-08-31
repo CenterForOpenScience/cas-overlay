@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Principal Metadata
+ * Principal Metadata.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -33,6 +33,13 @@ public class PrincipalMetadata {
     private final String description;
     private final Set<String> scopes = new HashSet<>();
 
+    /**
+     * Constructs a new principal metadata class.
+     *
+     * @param clientId the client id.
+     * @param name the name.
+     * @param description the description.
+     */
     public PrincipalMetadata(final String clientId, final String name, final String description) {
         this.clientId = clientId;
         this.name = name;

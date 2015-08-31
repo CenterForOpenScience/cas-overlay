@@ -23,7 +23,7 @@ import org.jasig.cas.support.oauth.scope.Scope;
 import java.util.Set;
 
 /**
- * Base class for OAuth Scope Handlers
+ * Base class for OAuth Scope Handlers.
  *
  * @author Michael Haselton
  * @since 4.1.0

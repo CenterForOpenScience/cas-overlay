@@ -21,30 +21,64 @@ package org.jasig.cas.support.oauth.personal;
 import java.util.Set;
 
 /**
- * OAuth Scope
+ * Personal Access Token.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 public final class PersonalAccessToken {
+
+    /**
+     * The id of the token.
+     */
     private final String id;
+
+    /**
+     * The principal id of the token.
+     */
     private final String principalId;
+
+    /**
+     * The scopes assigned to the token.
+     */
     private final Set<String> scopes;
 
+    /**
+     * Constructs a new instance of personal access token.
+     *
+     * @param id the id of the token
+     * @param principalId the principal id of the token
+     * @param scopes the scopes of the token
+     */
     public PersonalAccessToken(final String id, final String principalId, final Set<String> scopes) {
         this.id = id;
         this.principalId = principalId;
         this.scopes = scopes;
     }
 
+    /**
+     * Get the identifier of the token.
+     *
+     * @return the id.
+     */
     public String getId() {
         return this.id;
     }
 
+    /**
+     * Get the principal id of the token.
+     *
+     * @return the principal id.
+     */
     public String getPrincipalId() {
         return this.principalId;
     }
 
+    /**
+     * Get a set of scopes assigned to the token.
+     *
+     * @return a set of scopes.
+     */
     public Set<String> getScopes() {
         return this.scopes;
     }

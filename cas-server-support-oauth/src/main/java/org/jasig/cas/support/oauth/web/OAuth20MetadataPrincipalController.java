@@ -21,7 +21,9 @@ package org.jasig.cas.support.oauth.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.support.oauth.*;
+import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.OAuthConstants;
+import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.ticket.InvalidTicketException;
@@ -32,7 +34,11 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This controller handles requests for metadata regarding a principal.
@@ -73,16 +79,16 @@ public final class OAuth20MetadataPrincipalController extends AbstractController
                 accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
             } else {
                 LOGGER.debug("Missing Access Token");
-                return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
             }
         }
 
         final AccessToken accessToken;
         try {
             accessToken = centralOAuthService.getToken(accessTokenId, AccessToken.class);
-        } catch (InvalidTicketException e) {
+        } catch (final InvalidTicketException e) {
             LOGGER.error("Could not get Access Token [{}]", accessTokenId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
         }
 
         final Collection<PrincipalMetadata> metadata = centralOAuthService.getPrincipalMetadata(accessToken);

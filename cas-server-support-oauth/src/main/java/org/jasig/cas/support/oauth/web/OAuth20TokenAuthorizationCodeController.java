@@ -21,15 +21,14 @@ package org.jasig.cas.support.oauth.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
-import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.AuthorizationCode;
 import org.jasig.cas.support.oauth.token.RefreshToken;
+import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,29 +85,29 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
         LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
 
         if (!verifyRequest(redirectUri, clientId, clientSecret, code)) {
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
         final AuthorizationCode authorizationCode;
         try {
             authorizationCode = centralOAuthService.getToken(code, AuthorizationCode.class);
-        } catch (InvalidTicketException e) {
+        } catch (final InvalidTicketException e) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.AUTHORIZATION_CODE, code);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
         final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
         if (service == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
         if (!service.getClientSecret().equals(clientSecret)) {
             LOGGER.error("Mismatched Client Secret parameters");
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
         if (!redirectUri.matches(service.getServiceId())) {
             LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
         final Map<String, Object> map = new HashMap<>();
@@ -122,18 +121,19 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
         } else if (authorizationCode.getType() == TokenType.ONLINE) {
             accessToken = centralOAuthService.grantOnlineAccessToken(authorizationCode);
         } else {
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
         map.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
-        map.put(OAuthConstants.EXPIRES_IN, (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getTicket().getCreationTime())));
+        map.put(OAuthConstants.EXPIRES_IN,
+                (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getTicket().getCreationTime())));
         map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
 
         final ObjectMapper mapper = new ObjectMapper();
         final String result = mapper.writeValueAsString(map);
         LOGGER.debug("result : {}", result);
 
-        response.setContentType("application/json; charset=UTF-8");
+        response.setContentType("application/json");
         return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
     }
 

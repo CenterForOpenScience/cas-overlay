@@ -24,7 +24,7 @@ import org.jasig.cas.authentication.Credential;
 
 /**
  * Determines if the credential provided are for OAuth Services and then sets the appropriate
- * Authentication attribute if remember me services have been requested.
+ * Authentication attribute.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -34,7 +34,7 @@ public final class OAuthAuthenticationMetaDataPopulator implements
 
     @Override
     public void populateAttributes(final AuthenticationBuilder builder, final Credential credential) {
-        OAuthCredential c = (OAuthCredential) credential;
+        final OAuthCredential c = (OAuthCredential) credential;
         builder.addAttribute(OAuthCredential.AUTHENTICATION_ATTRIBUTE_ACCESS_TYPE, c.getAccessType());
     }
 

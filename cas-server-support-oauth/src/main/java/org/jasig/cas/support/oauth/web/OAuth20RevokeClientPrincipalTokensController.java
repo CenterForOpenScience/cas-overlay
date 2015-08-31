@@ -20,9 +20,10 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.support.oauth.*;
+import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.OAuthConstants;
+import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.token.AccessToken;
-import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public final class OAuth20RevokeClientPrincipalTokensController extends Abstract
      *
      * @param centralOAuthService the central oauth service
      */
-    public OAuth20RevokeClientPrincipalTokensController(CentralOAuthService centralOAuthService) {
+    public OAuth20RevokeClientPrincipalTokensController(final CentralOAuthService centralOAuthService) {
         this.centralOAuthService = centralOAuthService;
     }
 
@@ -63,21 +64,21 @@ public final class OAuth20RevokeClientPrincipalTokensController extends Abstract
                 accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
             } else {
                 LOGGER.debug("Missing Access Token");
-                return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
             }
         }
 
         final AccessToken accessToken;
         try {
             accessToken = centralOAuthService.getToken(accessTokenId, AccessToken.class);
-        } catch (InvalidTicketException e) {
+        } catch (final InvalidTicketException e) {
             LOGGER.error("Could not get Access Token [{}]", accessTokenId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
         }
 
         if (!centralOAuthService.revokeClientPrincipalTokens(accessToken)) {
             LOGGER.error("Could not revoke client principal tokens");
-            return OAuthUtils.writeText(response, null, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);

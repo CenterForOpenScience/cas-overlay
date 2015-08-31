@@ -24,8 +24,8 @@ import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.ServiceTicketImpl;
 import org.jasig.cas.ticket.Ticket;
 
-import javax.persistence.*;
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Set;
 
@@ -44,7 +44,7 @@ public final class AuthorizationCodeImpl extends AbstractToken implements Author
 
     /** The ServiceTicket this is associated with. */
     @OneToOne(targetEntity=ServiceTicketImpl.class, orphanRemoval=true)
-    @OnDelete(action=OnDeleteAction.CASCADE)
+    @OnDelete(action= OnDeleteAction.CASCADE)
     private ServiceTicket serviceTicket;
 
     /**
@@ -59,6 +59,9 @@ public final class AuthorizationCodeImpl extends AbstractToken implements Author
      * May throw an {@link IllegalArgumentException} if the Authentication object is null.
      *
      * @param id the id of the Ticket
+     * @param type the token type
+     * @param clientId the client id
+     * @param principalId the principal id
      * @param serviceTicket the service ticket
      * @param scopes the scopes
      */
@@ -74,7 +77,7 @@ public final class AuthorizationCodeImpl extends AbstractToken implements Author
     }
 
     @Override
-    public final ServiceTicket getServiceTicket() {
+    public ServiceTicket getServiceTicket() {
         return this.serviceTicket;
     }
 }

@@ -19,34 +19,68 @@
 package org.jasig.cas.support.oauth.scope;
 
 /**
- * An OAuth Scope
+ * An OAuth Scope.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 public final class Scope {
+
+    /** The scope name. */
     private final String name;
+
+    /** The scope description. */
     private final String description;
+
+    /** The scope default status. */
     private final Boolean isDefault;
 
+    /**
+     * Creates a new scope.
+     *
+     * @param name the scope name..
+     * @param description the scope description.
+     */
     public Scope(final String name, final String description) {
-        this(name, description, false);
+        this(name, description, Boolean.FALSE);
     }
 
+    /**
+     * Creates a new scope.
+     *
+     * @param name the scope name..
+     * @param description the scope description.
+     * @param isDefault the scope default status.
+     */
     public Scope(final String name, final String description, final Boolean isDefault) {
         this.name = name;
         this.description = description;
         this.isDefault = isDefault;
     }
 
+    /**
+     * Get the name of the scope.
+     *
+     * @return the name.
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * Get the description of the scope.
+     *
+     * @return the description.
+     */
     public String getDescription() {
         return this.description;
     }
 
+    /**
+     * Get the default status of the scope.
+     *
+     * @return the default status.
+     */
     public Boolean getIsDefault() {
         return this.isDefault;
     }

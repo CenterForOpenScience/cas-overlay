@@ -19,7 +19,9 @@
 package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
-import org.jasig.cas.support.oauth.*;
+import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.OAuthConstants;
+import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.token.Token;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.slf4j.Logger;
@@ -60,7 +62,7 @@ public final class OAuth20RevokeTokenController extends AbstractController {
         final Token token;
         try {
             token = centralOAuthService.getToken(tokenId);
-        } catch (InvalidTicketException e) {
+        } catch (final InvalidTicketException e) {
             LOGGER.error("Unknown token : {}", tokenId);
             return OAuthUtils.writeText(response, null, HttpStatus.SC_BAD_REQUEST);
         }

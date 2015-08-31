@@ -19,12 +19,11 @@
 package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
-import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
+import org.jasig.cas.support.oauth.token.TokenType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -96,15 +95,17 @@ public final class OAuth20AuthorizeController extends AbstractController {
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
         if (!redirectUri.matches(service.getServiceId())) {
-            LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
+            LOGGER.error("Unmatched {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
             return new ModelAndView(OAuthConstants.ERROR_VIEW);
         }
 
         // keep info in session
         final HttpSession session = request.getSession();
         session.setAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT, service.isBypassApprovalPrompt());
-        session.setAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT, StringUtils.isBlank(approvalPrompt) ? OAuthConstants.APPROVAL_PROMPT_AUTO : approvalPrompt);
-        session.setAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE, TokenType.valueOf(StringUtils.isBlank(accessType) ? "ONLINE" : accessType.toUpperCase()));
+        session.setAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT, StringUtils.isBlank(approvalPrompt)
+                ? OAuthConstants.APPROVAL_PROMPT_AUTO : approvalPrompt);
+        session.setAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE, TokenType.valueOf(StringUtils.isBlank(accessType)
+                ? "ONLINE" : accessType.toUpperCase()));
         session.setAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE, StringUtils.isBlank(responseType) ? "code" : responseType.toLowerCase());
         session.setAttribute(OAuthConstants.OAUTH20_CLIENT_ID, clientId);
         session.setAttribute(OAuthConstants.OAUTH20_REDIRECT_URI, redirectUri);
@@ -134,8 +135,8 @@ public final class OAuth20AuthorizeController extends AbstractController {
     private boolean verifyRequest(final String responseType, final String clientId, final String redirectUri, final String accessType) {
         // responseType must be valid
         if (!StringUtils.isBlank(responseType)) {
-            if (!responseType.equalsIgnoreCase("code") && !responseType.equalsIgnoreCase("token")) {
-                LOGGER.error("Invalid {} specified", OAuthConstants.RESPONSE_TYPE);
+            if (!"code".equalsIgnoreCase(responseType) && !"token".equalsIgnoreCase(responseType)) {
+                LOGGER.error("Invalid {} specified : {}", OAuthConstants.RESPONSE_TYPE, responseType);
                 return false;
             }
         }
@@ -152,13 +153,13 @@ public final class OAuth20AuthorizeController extends AbstractController {
         // accessType must be valid, default is ONLINE
         if (!StringUtils.isBlank(accessType)) {
             try {
-                TokenType tokenType = TokenType.valueOf(accessType.toUpperCase());
+                final TokenType tokenType = TokenType.valueOf(accessType.toUpperCase());
                 if (tokenType != TokenType.OFFLINE && tokenType != TokenType.ONLINE) {
                     LOGGER.error("Invalid {} specified", OAuthConstants.ACCESS_TYPE);
                     return false;
                 }
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Could not map enumeration for {}", OAuthConstants.ACCESS_TYPE);
+            } catch (final IllegalArgumentException e) {
+                LOGGER.error("Could not map enumeration for {} : {}", OAuthConstants.ACCESS_TYPE, accessType);
                 return false;
             }
         }

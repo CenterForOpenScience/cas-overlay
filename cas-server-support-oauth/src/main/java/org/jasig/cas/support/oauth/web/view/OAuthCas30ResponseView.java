@@ -20,8 +20,8 @@ package org.jasig.cas.support.oauth.web.view;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CasProtocolConstants;
-import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.authentication.support.CasAttributeEncoder;
+import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.web.view.Cas30ResponseView;
 import org.springframework.web.servlet.view.AbstractUrlBasedView;

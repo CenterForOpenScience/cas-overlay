@@ -33,5 +33,10 @@ public interface AuthorizationCode extends Token {
      **/
     String PREFIX = "AC";
 
+    /**
+     * Retrieves the service ticket.
+     *
+     * @return the requested service ticket.
+     */
     ServiceTicket getServiceTicket();
 }

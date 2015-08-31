@@ -21,19 +21,33 @@ package org.jasig.cas.support.oauth.personal;
 import org.jasig.cas.support.oauth.personal.handler.support.PersonalAccessTokenHandler;
 
 /**
- * Simple OAuth Scope Manager
+ * Personal Access Token Manager.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 public class PersonalAccessTokenManager {
 
+    /**
+     * An instance of the personal access token handler.
+     */
     private final PersonalAccessTokenHandler personalAccessTokenHandler;
 
-    public PersonalAccessTokenManager(PersonalAccessTokenHandler personalAccessTokenHandler) {
+    /**
+     * Constructs a new personal access token manager w/ the handler specified.
+     *
+     * @param personalAccessTokenHandler the handler.
+     */
+    public PersonalAccessTokenManager(final PersonalAccessTokenHandler personalAccessTokenHandler) {
         this.personalAccessTokenHandler = personalAccessTokenHandler;
     }
 
+    /**
+     * Get a personal access token from the handler by the token id specified.
+     *
+     * @param tokenId the token id.
+     * @return a personal access token or null.
+     */
     public PersonalAccessToken getToken(final String tokenId) {
         return personalAccessTokenHandler.getToken(tokenId);
     }

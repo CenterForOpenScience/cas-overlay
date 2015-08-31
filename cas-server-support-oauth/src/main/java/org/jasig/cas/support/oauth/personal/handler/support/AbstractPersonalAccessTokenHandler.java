@@ -19,7 +19,7 @@
 package org.jasig.cas.support.oauth.personal.handler.support;
 
 /**
- * Base class for Personal Token Handlers
+ * Base class for Personal Token Handler.
  *
  * @author Michael Haselton
  * @since 4.1.0

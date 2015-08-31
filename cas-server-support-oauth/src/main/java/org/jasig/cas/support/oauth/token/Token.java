@@ -38,15 +38,45 @@ public interface Token extends Serializable {
      */
     String getId();
 
+    /**
+     * Method to retrieve the client id.
+     *
+     * @return the client id
+     */
     String getClientId();
 
+    /**
+     * Method to retrieve the principal id.
+     *
+     * @return the principal id
+     */
     String getPrincipalId();
 
+    /**
+     * Method to retrieve the ticket.
+     *
+     * @return the ticket
+     */
     Ticket getTicket();
 
+    /**
+     * Method to retrieve the token type.
+     *
+     * @return the token type
+     */
     TokenType getType();
 
+    /**
+     * Method to retrieve the scopes.
+     *
+     * @return the scopes
+     */
     Set<String> getScopes();
 
+    /**
+     * Method to retrieve the computed hash of the assigned scopes.
+     *
+     * @return the hash
+     */
     Integer getScopesHash();
 }

@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * OAuth Credential
+ * OAuth Credential.
  *
  * @author Michael Haselton
  * @since 4.1.0
@@ -33,7 +33,7 @@ import java.util.Map;
 public final class OAuthCredential implements Credential {
 
     /** Authentication attribute name for access type. **/
-    public static String AUTHENTICATION_ATTRIBUTE_ACCESS_TYPE = "oAuthAccessType";
+    public static final String AUTHENTICATION_ATTRIBUTE_ACCESS_TYPE = "oAuthAccessType";
 
     private static final long serialVersionUID = -98723987239832729L;
 
@@ -51,7 +51,7 @@ public final class OAuthCredential implements Credential {
      * @param id the user id
      * @param accessType the access type
      */
-    public OAuthCredential(final String id, TokenType accessType) {
+    public OAuthCredential(final String id, final TokenType accessType) {
         this(id, new HashMap<String, Object>(), accessType);
     }
 
@@ -64,7 +64,7 @@ public final class OAuthCredential implements Credential {
      * @param attributes the attributes
      * @param accessType the access type
      */
-    public OAuthCredential(final String id, final Map<String, Object> attributes, TokenType accessType) {
+    public OAuthCredential(final String id, final Map<String, Object> attributes, final TokenType accessType) {
         this.id = id;
         this.attributes = attributes;
         this.accessType = accessType;

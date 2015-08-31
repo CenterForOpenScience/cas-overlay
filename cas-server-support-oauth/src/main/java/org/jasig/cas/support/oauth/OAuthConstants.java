@@ -84,9 +84,6 @@ public interface OAuthConstants {
     /** The authorization code. */
     String AUTHORIZATION_CODE = "authorization_code";
 
-    /** The password. */
-    String PASSWORD = "password";
-
     /** The bearer token. */
     String BEARER_TOKEN = "Bearer";
 
@@ -95,9 +92,6 @@ public interface OAuthConstants {
 
     /** The OATH h20_ approval prompt allow action. */
     String OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW = "allow";
-
-    /** The OATH h20_ approval prompt deny action. */
-    String OAUTH20_APPROVAL_PROMPT_ACTION_DENY = "deny";
 
     /** The OAUT h20_ redirect uri. */
     String OAUTH20_REDIRECT_URI = "oauth20_redirect_uri";
@@ -182,9 +176,6 @@ public interface OAuthConstants {
 
     /** The access denied. */
     String ACCESS_DENIED = "access_denied";
-
-    /** The access token url. */
-    String ACCESS_TOKEN_URL = "accessToken";
 
     /** The CAS protocol access token. */
     String CAS_PROTOCOL_ACCESS_TOKEN = "accessToken";
