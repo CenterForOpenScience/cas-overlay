@@ -28,20 +28,21 @@
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <bean id="personalAccessTokenManager" class="org.jasig.cas.support.oauth.personal.PersonalAccessTokenManager"
-          c:personalAccessTokenHandler-ref="simplePersonalTokenHandler" />
+          c:personalAccessTokenHandler-ref="openScienceFrameworkPersonalTokenHandler" />
 
-    <!--<bean id="openScienceFrameworkPersonalTokenHandler" class="org.jasig.cas.support.oauth.token.registry.OpenScienceFrameworkPersonalAccessTokenHandler" />-->
+    <bean id="openScienceFrameworkPersonalTokenHandler" class="io.cos.cas.adaptors.mongodb.OpenScienceFrameworkPersonalAccessTokenHandler"
+          p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
 
-    <bean id="simplePersonalTokenHandler" class="org.jasig.cas.support.oauth.personal.handler.SimplePersonalAccessTokenHandler">
-        <constructor-arg>
-            <util:set>
-                <bean class="org.jasig.cas.support.oauth.personal.PersonalAccessToken"
-                      c:id="desired-access-token-id"
-                      c:principalId="unique-user-identifier"
-                      c:scopes-ref="simplePersonalTokenScopes" />
-            </util:set>
-        </constructor-arg>
-    </bean>
+    <!--<bean id="simplePersonalTokenHandler" class="org.jasig.cas.support.oauth.personal.handler.SimplePersonalAccessTokenHandler">-->
+        <!--<constructor-arg>-->
+            <!--<util:set>-->
+                <!--<bean class="org.jasig.cas.support.oauth.personal.PersonalAccessToken"-->
+                      <!--c:id="desired-access-token-id"-->
+                      <!--c:principalId="unique-user-identifier"-->
+                      <!--c:scopes-ref="simplePersonalTokenScopes" />-->
+            <!--</util:set>-->
+        <!--</constructor-arg>-->
+    <!--</bean>-->
 
     <util:set id="simplePersonalTokenScopes">
         <value>user.profile</value>

@@ -20,6 +20,7 @@ package org.jasig.cas.support.oauth.scope.handler.support;
 
 import org.jasig.cas.support.oauth.scope.Scope;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -32,6 +33,6 @@ public abstract class AbstractScopeHandler implements ScopeHandler {
 
     @Override
     public Set<Scope> getDefaults() {
-        return null;
+        return new HashSet<>();
     }
 }
