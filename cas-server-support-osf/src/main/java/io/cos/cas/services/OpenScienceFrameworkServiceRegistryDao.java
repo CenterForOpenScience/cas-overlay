@@ -67,7 +67,8 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
         private String clientId;
         @Field("client_secret")
         private String clientSecret;
-        private Boolean is_active;
+        @Field("is_active")
+        private Boolean isActive;
 
         public String getId() {
             return this.id;
@@ -113,12 +114,12 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             this.clientSecret = clientSecret;
         }
 
-        public Boolean getActive() {
-            return this.is_active;
+        public Boolean getIsActive() {
+            return this.isActive;
         }
 
-        public void setActive(Boolean is_active) {
-            this.is_active = is_active;
+        public void setIsActive(Boolean isActive) {
+            this.isActive = isActive;
         }
 
         @Override
@@ -149,7 +150,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
     @Override
     public final synchronized List<RegisteredService> load() {
         List<OAuth> oAuthServices = this.mongoTemplate.find(new Query(Criteria
-                .where("is_active").is(true)
+                .where("isActive").is(true)
         ), OAuth.class);
 
         ReturnAllowedAttributeReleasePolicy attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
