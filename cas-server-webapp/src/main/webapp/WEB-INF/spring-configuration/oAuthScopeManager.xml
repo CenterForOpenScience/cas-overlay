@@ -48,8 +48,7 @@
     <bean id="casScopeHandler" class="org.jasig.cas.support.oauth.scope.handler.SimpleScopeHandler">
         <constructor-arg>
             <util:set>
-                <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="everything_under_the_sun" c:description="Special scope that only the target application understands" c:isDefault="true" />
-                <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="dark_side_of_the_moon" c:description="Special scope that only the other target application understands" c:isDefault="true" />
+                <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="osf.admin" c:description="Internal use, only! Cannot be requested by external users." c:isDefault="true" />
             </util:set>
         </constructor-arg>
     </bean>
