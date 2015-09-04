@@ -22,6 +22,7 @@ import com.codahale.metrics.annotation.Counted;
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
 import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
@@ -31,6 +32,7 @@ import org.jasig.cas.support.oauth.metadata.ClientMetadata;
 import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.personal.PersonalAccessTokenManager;
+import org.jasig.cas.support.oauth.scope.InvalidScopeException;
 import org.jasig.cas.support.oauth.scope.Scope;
 import org.jasig.cas.support.oauth.scope.ScopeManager;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
@@ -38,12 +40,12 @@ import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.AccessTokenImpl;
 import org.jasig.cas.support.oauth.token.AuthorizationCode;
 import org.jasig.cas.support.oauth.token.AuthorizationCodeImpl;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.RefreshTokenImpl;
 import org.jasig.cas.support.oauth.token.Token;
 import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.support.oauth.token.registry.TokenRegistry;
-import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
@@ -177,15 +179,15 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     @Override
     @Transactional(readOnly = false)
     public RefreshToken grantOfflineRefreshToken(final AuthorizationCode authorizationCode, final String redirectUri)
-            throws TicketException {
+            throws InvalidTokenException {
         final Principal principal = authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal();
         final OAuthCredential credential = new OAuthCredential(principal.getId(), principal.getAttributes(), TokenType.OFFLINE);
 
         final TicketGrantingTicket ticketGrantingTicket;
         try {
             ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credential);
-        } catch (final Exception e) {
-            throw new TokenUnauthorizedException();
+        } catch (final AuthenticationException | TicketException e) {
+            throw new InvalidTokenException(authorizationCode.getId());
         }
 
         final RefreshToken refreshToken = new RefreshTokenImpl(
@@ -203,7 +205,8 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = false)
-    public AccessToken grantCASAccessToken(final TicketGrantingTicket ticketGrantingTicket, final Service service) throws TicketException {
+    public AccessToken grantCASAccessToken(final TicketGrantingTicket ticketGrantingTicket, final Service service)
+            throws TicketException {
         final AccessToken accessToken = new AccessTokenImpl(
                 accessTokenUniqueIdGenerator.getNewTicketId(AccessToken.PREFIX), TokenType.CAS, null,
                 ticketGrantingTicket.getAuthentication().getPrincipal().getId(), ticketGrantingTicket, service, null,
@@ -217,14 +220,14 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = false)
-    public AccessToken grantPersonalAccessToken(final PersonalAccessToken personalAccessToken) throws TicketException {
+    public AccessToken grantPersonalAccessToken(final PersonalAccessToken personalAccessToken) throws InvalidTokenException {
         final OAuthCredential credential = new OAuthCredential(personalAccessToken.getPrincipalId(), TokenType.PERSONAL);
 
         final TicketGrantingTicket ticketGrantingTicket;
         try {
             ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credential);
-        } catch (final Exception e) {
-            throw new TokenUnauthorizedException();
+        } catch (final AuthenticationException | TicketException e) {
+            throw new InvalidTokenException(personalAccessToken.getId());
         }
 
         final AccessToken accessToken = new AccessTokenImpl(
@@ -239,13 +242,13 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = false)
-    public AccessToken grantOfflineAccessToken(final RefreshToken refreshToken) throws TicketException {
+    public AccessToken grantOfflineAccessToken(final RefreshToken refreshToken) throws InvalidTokenException {
         final ServiceTicket serviceTicket;
         try {
             serviceTicket = centralAuthenticationService.grantServiceTicket(refreshToken.getTicketGrantingTicket().getId(),
                     refreshToken.getService());
-        } catch (final Exception e) {
-            throw new TokenUnauthorizedException();
+        } catch (final TicketException e) {
+            throw new InvalidTokenException(refreshToken.getId());
         }
 
         final AccessToken accessToken = new AccessTokenImpl(
@@ -261,15 +264,15 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = false)
-    public AccessToken grantOnlineAccessToken(final AuthorizationCode authorizationCode) throws TicketException {
+    public AccessToken grantOnlineAccessToken(final AuthorizationCode authorizationCode) throws InvalidTokenException {
         final Principal principal = authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal();
         final OAuthCredential credential = new OAuthCredential(principal.getId(), principal.getAttributes(), TokenType.ONLINE);
 
         final TicketGrantingTicket ticketGrantingTicket;
         try {
             ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credential);
-        } catch (final Exception e) {
-            throw new TokenUnauthorizedException();
+        } catch (final AuthenticationException | TicketException e) {
+            throw new InvalidTokenException(authorizationCode.getId());
         }
 
         final AccessToken accessToken = new AccessTokenImpl(
@@ -407,7 +410,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = true)
-    public Token getToken(final String tokenId) throws InvalidTicketException {
+    public Token getToken(final String tokenId) throws InvalidTokenException {
         Assert.notNull(tokenId, "tokenId cannot be null");
 
         if (tokenId.startsWith(AuthorizationCode.PREFIX)) {
@@ -424,13 +427,13 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     @Metered(name = "GET_TOKEN_METER")
     @Counted(name="GET_TOKEN_COUNTER", monotonic=true)
     public <T extends Token> T getToken(final String tokenId, final Class<T> clazz)
-            throws InvalidTicketException {
+            throws InvalidTokenException {
         Assert.notNull(tokenId, "tokenId cannot be null");
 
         final T token = this.tokenRegistry.getToken(tokenId, clazz);
         if (token == null) {
             LOGGER.error("Token [{}] by type [{}] cannot be found in the token registry.", tokenId, clazz.getSimpleName());
-            throw new InvalidTicketException(tokenId);
+            throw new InvalidTokenException(tokenId);
         }
 
         if (token.getTicket().isExpired()) {
@@ -438,7 +441,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
             ticketRegistry.deleteTicket(token.getTicket().getId());
 
             LOGGER.error("Token [{}] ticket [{}] is expired.", tokenId, token.getTicket().getId());
-            throw new InvalidTicketException(tokenId);
+            throw new InvalidTokenException(tokenId);
         }
 
         return token;
@@ -458,16 +461,18 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Scope> getScopes(final Set<String> scopeSet) {
+    public Map<String, Scope> getScopes(final Set<String> scopeSet) throws InvalidScopeException {
         Assert.notNull(scopeSet, "scopeSet cannot be null");
 
         final Map<String, Scope> scopeMap = new HashMap<>();
 
         for (final String scope : scopeSet) {
             final Scope oAuthScope = scopeManager.getScope(scope);
-            if (oAuthScope != null) {
-                scopeMap.put(oAuthScope.getName(), oAuthScope);
+            if (oAuthScope == null) {
+                LOGGER.error("Could not find requested scope: {}", scope);
+                throw new InvalidScopeException(scope);
             }
+            scopeMap.put(oAuthScope.getName(), oAuthScope);
         }
 
         for (final Scope defaultScope : scopeManager.getDefaults()) {

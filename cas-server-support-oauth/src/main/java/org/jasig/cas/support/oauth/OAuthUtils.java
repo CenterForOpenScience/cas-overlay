@@ -18,7 +18,6 @@
  */
 package org.jasig.cas.support.oauth;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +38,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This class has some usefull methods to output data in plain text,
+ * This class has some useful methods to output data in plain text,
  * handle redirects, add parameter in url or find the right provider.
  *
  * @author Jerome Leleu
@@ -48,8 +47,6 @@ import java.util.Map;
 public final class OAuthUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuthUtils.class);
-
-    private final JsonFactory jsonFactory = new JsonFactory(new ObjectMapper());
 
     /**
      * Instantiates a new OAuth utils.
@@ -62,12 +59,16 @@ public final class OAuthUtils {
      *
      * @param response http response
      * @param error error message
+     * @param description error description
      * @param status status code
      * @return a null view
      */
-    public static ModelAndView writeJsonError(final HttpServletResponse response, final String error, final int status) {
+    public static ModelAndView writeJsonError(final HttpServletResponse response, final String error, final String description, final int status) {
         final Map<String, String> map = new HashMap<>();
         map.put("error", error);
+        if (description != null) {
+            map.put("error_description", description);
+        }
         try {
             response.setContentType("application/json");
             return writeText(response, new ObjectMapper().writeValueAsString(map), status);

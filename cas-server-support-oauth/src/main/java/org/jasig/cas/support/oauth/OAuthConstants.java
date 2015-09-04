@@ -133,7 +133,7 @@ public interface OAuthConstants {
     String CONFIRM_VIEW = "oauthConfirmView";
 
     /** The error view. */
-    String ERROR_VIEW = "viewServiceErrorView";
+    String ERROR_VIEW = "oauthFailureView";
 
     /** The invalid request. */
     String INVALID_REQUEST = "invalid_request";

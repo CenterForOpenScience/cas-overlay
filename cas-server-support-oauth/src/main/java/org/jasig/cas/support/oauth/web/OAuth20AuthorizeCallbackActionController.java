@@ -20,6 +20,7 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.token.AccessToken;
@@ -33,6 +34,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -110,12 +112,12 @@ public final class OAuth20AuthorizeCallbackActionController extends AbstractCont
 
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("{} is missing from the session and can not be retrieved.", OAuthConstants.OAUTH20_CLIENT_ID);
-            return new ModelAndView(OAuthConstants.ERROR_VIEW);
+            throw new InvalidParameterException(OAuthConstants.OAUTH20_CLIENT_ID);
         }
 
         if (StringUtils.isBlank(redirectUri)) {
             LOGGER.error("{} is missing from the session and can not be retrieved.", OAuthConstants.OAUTH20_REDIRECT_URI);
-            return new ModelAndView(OAuthConstants.ERROR_VIEW);
+            throw new InvalidParameterException(OAuthConstants.OAUTH20_REDIRECT_URI);
         }
 
         if ("token".equals(responseType)) {

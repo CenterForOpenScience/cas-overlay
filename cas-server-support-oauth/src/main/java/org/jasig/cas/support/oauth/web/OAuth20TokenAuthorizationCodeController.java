@@ -22,14 +22,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.AuthorizationCode;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.TokenType;
-import org.jasig.cas.ticket.InvalidTicketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -84,30 +85,32 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
         final String redirectUri = request.getParameter(OAuthConstants.REDIRECT_URI);
         LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
 
-        if (!verifyRequest(redirectUri, clientId, clientSecret, code)) {
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        try {
+            verifyRequest(redirectUri, clientId, clientSecret, code);
+        } catch (final InvalidParameterException e) {
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
         final AuthorizationCode authorizationCode;
         try {
             authorizationCode = centralOAuthService.getToken(code, AuthorizationCode.class);
-        } catch (final InvalidTicketException e) {
+        } catch (final InvalidTokenException e) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.AUTHORIZATION_CODE, code);
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Code", HttpStatus.SC_BAD_REQUEST);
         }
 
         final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
         if (service == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Client ID or Client Secret", HttpStatus.SC_BAD_REQUEST);
         }
         if (!service.getClientSecret().equals(clientSecret)) {
             LOGGER.error("Mismatched Client Secret parameters");
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Client ID or Client Secret", HttpStatus.SC_BAD_REQUEST);
         }
         if (!redirectUri.matches(service.getServiceId())) {
             LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Redirect URI", HttpStatus.SC_BAD_REQUEST);
         }
 
         final Map<String, Object> map = new HashMap<>();
@@ -121,7 +124,7 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
         } else if (authorizationCode.getType() == TokenType.ONLINE) {
             accessToken = centralOAuthService.grantOnlineAccessToken(authorizationCode);
         } else {
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT, "Invalid Grant Type", HttpStatus.SC_BAD_REQUEST);
         }
 
         map.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
@@ -144,31 +147,29 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
      * @param clientId the client id
      * @param clientSecret the client secret
      * @param code the code
-     * @return true, if successful
+     * @throws InvalidParameterException with the name of the invalid parameter
      */
-    private boolean verifyRequest(final String redirectUri, final String clientId, final String clientSecret,
-                                  final String code) {
+    private void verifyRequest(final String redirectUri, final String clientId, final String clientSecret,
+                                  final String code) throws InvalidParameterException {
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
         // clientSecret is required
         if (StringUtils.isBlank(clientSecret)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_SECRET);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_SECRET);
         }
         // code is required
         if (StringUtils.isBlank(code)) {
             LOGGER.error("Missing {}", OAuthConstants.CODE);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CODE);
         }
         // redirectUri is required
         if (StringUtils.isBlank(redirectUri)) {
             LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.REDIRECT_URI);
         }
-
-        return true;
     }
 }

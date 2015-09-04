@@ -22,14 +22,15 @@ import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.support.oauth.metadata.ClientMetadata;
 import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
+import org.jasig.cas.support.oauth.scope.InvalidScopeException;
 import org.jasig.cas.support.oauth.scope.Scope;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.AuthorizationCode;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.Token;
 import org.jasig.cas.support.oauth.token.TokenType;
-import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 
@@ -73,9 +74,9 @@ public interface CentralOAuthService {
      * @param authorizationCode the authorization code token
      * @param redirectUri the redirect uri
      * @return a refresh token to be passed back to the client request.
-     * @throws TicketException the ticket exception
+     * @throws InvalidTokenException the invalid token exception
      */
-    RefreshToken grantOfflineRefreshToken(AuthorizationCode authorizationCode, String redirectUri) throws TicketException;
+    RefreshToken grantOfflineRefreshToken(AuthorizationCode authorizationCode, String redirectUri) throws InvalidTokenException;
 
     /**
      * Grant CAS Access Token. Generates an access token associated with a Ticket Granting Ticket given to the CAS client.
@@ -92,27 +93,27 @@ public interface CentralOAuthService {
      *
      * @param personalAccessToken the personal access token
      * @return an access token tied to the personal access token
-     * @throws TicketException the ticket exception
+     * @throws InvalidTokenException the invalid token exception
      */
-    AccessToken grantPersonalAccessToken(PersonalAccessToken personalAccessToken) throws TicketException;
+    AccessToken grantPersonalAccessToken(PersonalAccessToken personalAccessToken) throws InvalidTokenException;
 
     /**
      * Grant an Offline Access Token.
      *
      * @param refreshToken a refresh token
      * @return a new access token based on the refresh token provided
-     * @throws TicketException the ticket exception
+     * @throws InvalidTokenException the invalid token exception
      */
-    AccessToken grantOfflineAccessToken(RefreshToken refreshToken) throws TicketException;
+    AccessToken grantOfflineAccessToken(RefreshToken refreshToken) throws InvalidTokenException;
 
     /**
      * Grant an Online Access Token.
      *
      * @param authorizationCode the authorization code
      * @return a new access token based on the authorization code provided
-     * @throws TicketException the ticket exception
+     * @throws InvalidTokenException the invalid token exception
      */
-    AccessToken grantOnlineAccessToken(AuthorizationCode authorizationCode) throws TicketException;
+    AccessToken grantOnlineAccessToken(AuthorizationCode authorizationCode) throws InvalidTokenException;
 
     /**
      * Revoke a Token.
@@ -182,9 +183,9 @@ public interface CentralOAuthService {
      *
      * @param tokenId the token id
      * @return a token
-     * @throws InvalidTicketException the invalid ticket exception
+     * @throws InvalidTokenException the invalid token exception
      */
-    Token getToken(String tokenId) throws InvalidTicketException;
+    Token getToken(String tokenId) throws InvalidTokenException;
 
     /**
      * Get the token by the id and clazz specified.
@@ -193,9 +194,9 @@ public interface CentralOAuthService {
      * @param clazz The expected class of the token we wish to retrieve.
      * @param <T> the generic token type to return that extends {@link Token}
      * @return a token
-     * @throws InvalidTicketException the invalid ticket exception
+     * @throws InvalidTokenException the invalid token exception
      */
-    <T extends Token> T getToken(String tokenId, Class<T> clazz) throws InvalidTicketException;
+    <T extends Token> T getToken(String tokenId, Class<T> clazz) throws InvalidTokenException;
 
     /**
      * Get the personal access token of the id specified.
@@ -210,6 +211,7 @@ public interface CentralOAuthService {
      *
      * @param scopeSet the set of scopes
      * @return a validated set of scopes
+     * @throws InvalidScopeException the invalid scope exception
      */
-    Map<String, Scope> getScopes(Set<String> scopeSet);
+    Map<String, Scope> getScopes(Set<String> scopeSet) throws InvalidScopeException;
 }

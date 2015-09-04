@@ -199,7 +199,7 @@ public final class JpaTokenRegistry implements TokenRegistry {
             }
         }
 
-        return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
     @Override

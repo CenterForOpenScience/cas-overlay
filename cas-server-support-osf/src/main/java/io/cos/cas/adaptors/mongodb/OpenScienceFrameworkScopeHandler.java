@@ -25,6 +25,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
@@ -42,6 +43,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
         private String id;
         private String name;
         private String description;
+        @Field("is_active")
         private Boolean isActive;
 
         public String getName() {
@@ -70,7 +72,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
     public Scope getScope(String name) {
         final OpenScienceFrameworkScope scope = this.mongoTemplate.findOne(new Query(
                 new Criteria().andOperator(
-                        Criteria.where("name").is(name),
+                        Criteria.where("name").is(name.toLowerCase()),
                         Criteria.where("isActive").is(true)
                 )
         ), OpenScienceFrameworkScope.class);

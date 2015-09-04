@@ -28,6 +28,7 @@ import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
@@ -88,21 +89,21 @@ public final class OAuth20ProfileController extends AbstractController {
                 accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
             } else {
                 LOGGER.debug("Missing Access Token");
-                return OAuthUtils.writeJsonError(response, OAuthConstants.MISSING_ACCESS_TOKEN, HttpStatus.SC_BAD_REQUEST);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.MISSING_ACCESS_TOKEN, "Missing Access Token", HttpStatus.SC_BAD_REQUEST);
             }
         }
 
         AccessToken accessToken;
         try {
             accessToken = centralOAuthService.getToken(accessTokenId, AccessToken.class);
-        } catch (final InvalidTicketException e) {
+        } catch (final InvalidTokenException e) {
             // attempt to grant a personal access token?
             final PersonalAccessToken personalAccessToken = centralOAuthService.getPersonalAccessToken(accessTokenId);
             if (personalAccessToken != null) {
                 accessToken = centralOAuthService.grantPersonalAccessToken(personalAccessToken);
             } else {
                 LOGGER.error("Could not get Access Token [{}]", accessTokenId);
-                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, "Invalid Access Token", HttpStatus.SC_UNAUTHORIZED);
             }
         }
 
@@ -129,7 +130,7 @@ public final class OAuth20ProfileController extends AbstractController {
                 assertion = centralAuthenticationService.validateServiceTicket(serviceTicket.getId(), serviceTicket.getService());
             } catch (final InvalidTicketException e) {
                 LOGGER.error("Could not validate Service Ticket [{}] of Access Token [{}] ", serviceTicket.getId(), accessToken.getId());
-                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, HttpStatus.SC_UNAUTHORIZED);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, "Invalid Access Token", HttpStatus.SC_UNAUTHORIZED);
             }
 
             principal = assertion.getPrimaryAuthentication().getPrincipal();

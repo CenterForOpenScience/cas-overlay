@@ -21,6 +21,7 @@ package org.jasig.cas.support.oauth.web;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.slf4j.Logger;
@@ -61,14 +62,15 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
         final String clientSecret = request.getParameter(OAuthConstants.CLIENT_SECRET);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_SECRET, "************");
 
-        if (!verifyRequest(clientId, clientSecret)) {
-            LOGGER.error("Could not validate request parameters");
-            return OAuthUtils.writeText(response, null, HttpStatus.SC_BAD_REQUEST);
+        try {
+            verifyRequest(clientId, clientSecret);
+        } catch (final InvalidParameterException e) {
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
         if (!centralOAuthService.revokeClientTokens(clientId, clientSecret)) {
             LOGGER.error("Could not revoke client tokens, mismatched client id or client secret");
-            return OAuthUtils.writeText(response, null, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Client ID or Client Secret", HttpStatus.SC_BAD_REQUEST);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);
@@ -79,20 +81,18 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
      *
      * @param clientId the client id
      * @param clientSecret the client secret
-     * @return true, if successful
+     * @throws InvalidParameterException with the name of the invalid parameter
      */
-    private boolean verifyRequest(final String clientId, final String clientSecret) {
+    private void verifyRequest(final String clientId, final String clientSecret) throws InvalidParameterException {
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
         // clientSecret is required
         if (StringUtils.isBlank(clientSecret)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_SECRET);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_SECRET);
         }
-
-        return true;
     }
 }

@@ -20,6 +20,7 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.authentication.RootCasException;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
@@ -32,6 +33,8 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This controller is the main entry point for OAuth version 2.0
@@ -87,6 +90,18 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
         metadataPrincipalController = new OAuth20MetadataPrincipalController(centralOAuthService);
         metadataClientController = new OAuth20MetadataClientController(centralOAuthService);
+    }
+
+    @Override
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        try {
+            return super.handleRequest(request, response);
+        } catch (final RootCasException e) {
+            // capture any root cas exceptions and display them properly to the user.
+            final Map<String, Object> map = new HashMap<>();
+            map.put("rootCauseException", e);
+            return new ModelAndView(OAuthConstants.ERROR_VIEW, map);
+        }
     }
 
     @Override

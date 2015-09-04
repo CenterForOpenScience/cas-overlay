@@ -20,6 +20,7 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
@@ -85,18 +86,16 @@ public final class OAuth20AuthorizeController extends AbstractController {
         final String approvalPrompt = request.getParameter(OAuthConstants.APPROVAL_PROMPT);
         LOGGER.debug("{} : {}", OAuthConstants.APPROVAL_PROMPT, approvalPrompt);
 
-        if (!verifyRequest(responseType, clientId, redirectUri, accessType)) {
-            return new ModelAndView(OAuthConstants.ERROR_VIEW);
-        }
+        verifyRequest(responseType, clientId, redirectUri, accessType);
 
         final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
         if (service == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return new ModelAndView(OAuthConstants.ERROR_VIEW);
+            throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
         if (!redirectUri.matches(service.getServiceId())) {
             LOGGER.error("Unmatched {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
-            return new ModelAndView(OAuthConstants.ERROR_VIEW);
+            throw new InvalidParameterException(OAuthConstants.REDIRECT_URI);
         }
 
         // keep info in session
@@ -130,25 +129,26 @@ public final class OAuth20AuthorizeController extends AbstractController {
      * @param clientId the client id
      * @param redirectUri the redirect uri
      * @param accessType the access type
-     * @return true, if successful
+     * @throws InvalidParameterException with the name of the invalid parameter
      */
-    private boolean verifyRequest(final String responseType, final String clientId, final String redirectUri, final String accessType) {
+    private void verifyRequest(final String responseType, final String clientId, final String redirectUri, final String accessType)
+        throws InvalidParameterException {
         // responseType must be valid
         if (!StringUtils.isBlank(responseType)) {
             if (!"code".equalsIgnoreCase(responseType) && !"token".equalsIgnoreCase(responseType)) {
                 LOGGER.error("Invalid {} specified : {}", OAuthConstants.RESPONSE_TYPE, responseType);
-                return false;
+                throw new InvalidParameterException(OAuthConstants.RESPONSE_TYPE);
             }
         }
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
         // redirectUri is required
         if (StringUtils.isBlank(redirectUri)) {
             LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.REDIRECT_URI);
         }
         // accessType must be valid, default is ONLINE
         if (!StringUtils.isBlank(accessType)) {
@@ -156,14 +156,12 @@ public final class OAuth20AuthorizeController extends AbstractController {
                 final TokenType tokenType = TokenType.valueOf(accessType.toUpperCase());
                 if (tokenType != TokenType.OFFLINE && tokenType != TokenType.ONLINE) {
                     LOGGER.error("Invalid {} specified", OAuthConstants.ACCESS_TYPE);
-                    return false;
+                    throw new InvalidParameterException(OAuthConstants.ACCESS_TYPE);
                 }
             } catch (final IllegalArgumentException e) {
                 LOGGER.error("Could not map enumeration for {} : {}", OAuthConstants.ACCESS_TYPE, accessType);
-                return false;
+                throw new InvalidParameterException(OAuthConstants.ACCESS_TYPE);
             }
         }
-
-        return true;
     }
 }

@@ -22,8 +22,8 @@ import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.Token;
-import org.jasig.cas.ticket.InvalidTicketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -62,14 +62,14 @@ public final class OAuth20RevokeTokenController extends AbstractController {
         final Token token;
         try {
             token = centralOAuthService.getToken(tokenId);
-        } catch (final InvalidTicketException e) {
-            LOGGER.error("Unknown token : {}", tokenId);
-            return OAuthUtils.writeText(response, null, HttpStatus.SC_BAD_REQUEST);
+        } catch (final InvalidTokenException e) {
+            LOGGER.error("Invalid token : {}", tokenId);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
         if (!centralOAuthService.revokeToken(token)) {
             LOGGER.error("Token revocation failed [{}]", token.getId());
-            return OAuthUtils.writeText(response, null, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Token revocation failed", HttpStatus.SC_BAD_REQUEST);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);

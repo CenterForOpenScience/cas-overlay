@@ -22,11 +22,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
-import org.jasig.cas.ticket.InvalidTicketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -81,17 +82,18 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
         final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
         LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
-        final boolean isVerified = verifyRequest(refreshTokenId, clientId, clientSecret, grantType);
-        if (!isVerified) {
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        try {
+            verifyRequest(refreshTokenId, clientId, clientSecret, grantType);
+        } catch (final InvalidParameterException e) {
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
         final RefreshToken refreshToken;
         try {
             refreshToken = centralOAuthService.getToken(refreshTokenId, RefreshToken.class);
-        } catch (final InvalidTicketException e) {
+        } catch (final InvalidTokenException e) {
             LOGGER.error("Invalid {} : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId);
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Refresh Token", HttpStatus.SC_BAD_REQUEST);
         }
 
         final AccessToken accessToken = centralOAuthService.grantOfflineAccessToken(refreshToken);
@@ -117,34 +119,33 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
      * @param clientId the client id
      * @param clientSecret the client secret
      * @param grantType the grant type
-     * @return true, if successful
+     * @throws InvalidParameterException with the name of the invalid parameter
      */
-    private boolean verifyRequest(final String refreshTokenId, final String clientId, final String clientSecret, final String grantType) {
+    private void verifyRequest(final String refreshTokenId, final String clientId, final String clientSecret, final String grantType)
+        throws InvalidParameterException {
         // refreshToken is required
         if (StringUtils.isBlank(refreshTokenId)) {
             LOGGER.error("Missing {}", OAuthConstants.REFRESH_TOKEN);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.REFRESH_TOKEN);
         }
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
         // clientSecret is required
         if (StringUtils.isBlank(clientSecret)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_SECRET);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_SECRET);
         }
         // grantType is required
         if (StringUtils.isBlank(grantType)) {
             LOGGER.error("Missing {}", OAuthConstants.GRANT_TYPE);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.GRANT_TYPE);
         }
         if (!grantType.equalsIgnoreCase(OAuthConstants.REFRESH_TOKEN)) {
             LOGGER.error("Invalid {} : {}", OAuthConstants.GRANT_TYPE, grantType);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.GRANT_TYPE);
         }
-
-        return true;
     }
 }

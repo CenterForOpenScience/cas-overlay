@@ -85,7 +85,7 @@ public final class OAuth20AuthorizeCallbackController extends AbstractController
             final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(serviceTicketId);
             if (serviceTicket == null || serviceTicket.isExpired()) {
                 LOGGER.error("Service Ticket expired : {}", serviceTicketId);
-                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT, "Service Ticket expired", HttpStatus.SC_BAD_REQUEST);
             }
 
             final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
@@ -110,7 +110,7 @@ public final class OAuth20AuthorizeCallbackController extends AbstractController
         if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
             LOGGER.error("Ticket Granting Ticket expired : {}", ticketGrantingTicketId);
             // display error view as we are still interacting w/ the user.
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT, "Ticket Granting Ticket expired", HttpStatus.SC_BAD_REQUEST);
         }
 
         final String callbackUrl = request.getRequestURL().toString()
@@ -137,8 +137,7 @@ public final class OAuth20AuthorizeCallbackController extends AbstractController
 
         final Set<String> requestedScopeSet = new HashSet<>(Arrays.asList(scope.split(" ")));
 
-        // we use the scope map rather than scope set as the oauth service has the potential to add default scopes(s)
-        // and/or filtered out invalid scopes.
+        // we use the scope map rather than scope set as the oauth service has the potential to add default scopes(s).
         final Map<String, Scope> scopeMap = centralOAuthService.getScopes(requestedScopeSet);
         session.setAttribute(OAuthConstants.OAUTH20_SCOPE_SET, scopeMap.keySet());
 
