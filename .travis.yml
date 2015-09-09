@@ -18,9 +18,12 @@
 #
 
 language: java
+sudo: false
 jdk:
 - oraclejdk7
-- openjdk7
 - oraclejdk8
+cache:
+  directories:
+    - '$HOME/.m2/repository'
 script:
 - mvn -T 10 clean test
