@@ -29,6 +29,7 @@ import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
@@ -77,7 +78,7 @@ public final class OAuth20ProfileControllerTests {
     @Test
     public void verifyNoAccessToken() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenThrow(new InvalidTicketException("error"));
+        when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenThrow(new InvalidTokenException("error"));
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
                 + OAuthConstants.PROFILE_URL);
@@ -91,13 +92,15 @@ public final class OAuth20ProfileControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.MISSING_ACCESS_TOKEN + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.MISSING_ACCESS_TOKEN + "\",\"error_description\":\""
+                        + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
     public void verifyInvalidAccessToken() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenThrow(new InvalidTicketException("error"));
+        when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenThrow(new InvalidTokenException("error"));
         when(centralOAuthService.getPersonalAccessToken(AT_ID)).thenReturn(null);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
@@ -113,7 +116,9 @@ public final class OAuth20ProfileControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_UNAUTHORIZED, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
+                        + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
@@ -157,7 +162,9 @@ public final class OAuth20ProfileControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_UNAUTHORIZED, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
+                        + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test

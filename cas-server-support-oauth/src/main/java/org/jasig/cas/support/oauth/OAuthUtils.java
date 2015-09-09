@@ -63,7 +63,8 @@ public final class OAuthUtils {
      * @param status status code
      * @return a null view
      */
-    public static ModelAndView writeJsonError(final HttpServletResponse response, final String error, final String description, final int status) {
+    public static ModelAndView writeJsonError(final HttpServletResponse response, final String error, final String description,
+                                              final int status) {
         final Map<String, String> map = new HashMap<>();
         map.put("error", error);
         if (description != null) {

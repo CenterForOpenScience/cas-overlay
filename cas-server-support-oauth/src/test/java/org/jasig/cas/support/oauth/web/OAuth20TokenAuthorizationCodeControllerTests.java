@@ -26,13 +26,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.AuthorizationCode;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.TokenType;
-import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -88,7 +89,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                        + new InvalidParameterException(OAuthConstants.CODE).getMessage() + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
@@ -109,7 +112,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                        + new InvalidParameterException(OAuthConstants.CLIENT_ID).getMessage() + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
@@ -130,7 +135,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                        + new InvalidParameterException(OAuthConstants.CLIENT_SECRET).getMessage() + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
@@ -151,13 +158,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                        + new InvalidParameterException(OAuthConstants.REDIRECT_URI).getMessage() + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
     public void verifyNoAuthorizationCode() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenThrow(new InvalidTicketException("error"));
+        when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenThrow(new InvalidTokenException("error"));
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
                 + OAuthConstants.TOKEN_URL);
@@ -177,7 +186,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                        + OAuthConstants.INVALID_CODE_DESCRIPTION + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
@@ -209,7 +220,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                        + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
@@ -242,7 +255,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                        + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
@@ -277,7 +292,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                        + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test
@@ -312,7 +329,47 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\"}", mockResponse.getContentAsString());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                        + OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION + "\"}",
+                mockResponse.getContentAsString());
+    }
+
+    @Test
+    public void verifyInvalidGrantType() throws Exception {
+        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
+        when(serviceTicket.isExpired()).thenReturn(Boolean.FALSE);
+
+        final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
+        when(authorizationCode.getTicket()).thenReturn(serviceTicket);
+        when(authorizationCode.getType()).thenReturn(TokenType.PERSONAL);
+
+        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_SECRET);
+
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
+                + OAuthConstants.TOKEN_URL);
+        mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
+        mockRequest.setParameter(OAuthConstants.CODE, CODE);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("application/json", mockResponse.getContentType());
+        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_GRANT + "\",\"error_description\":\""
+                        + OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION + "\"}",
+                mockResponse.getContentAsString());
     }
 
     @Test

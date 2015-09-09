@@ -89,7 +89,9 @@ public final class OAuth20ProfileController extends AbstractController {
                 accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
             } else {
                 LOGGER.debug("Missing Access Token");
-                return OAuthUtils.writeJsonError(response, OAuthConstants.MISSING_ACCESS_TOKEN, "Missing Access Token", HttpStatus.SC_BAD_REQUEST);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.MISSING_ACCESS_TOKEN,
+                        OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION,
+                        HttpStatus.SC_BAD_REQUEST);
             }
         }
 
@@ -103,7 +105,9 @@ public final class OAuth20ProfileController extends AbstractController {
                 accessToken = centralOAuthService.grantPersonalAccessToken(personalAccessToken);
             } else {
                 LOGGER.error("Could not get Access Token [{}]", accessTokenId);
-                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, "Invalid Access Token", HttpStatus.SC_UNAUTHORIZED);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST,
+                        OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION,
+                        HttpStatus.SC_UNAUTHORIZED);
             }
         }
 
@@ -130,7 +134,9 @@ public final class OAuth20ProfileController extends AbstractController {
                 assertion = centralAuthenticationService.validateServiceTicket(serviceTicket.getId(), serviceTicket.getService());
             } catch (final InvalidTicketException e) {
                 LOGGER.error("Could not validate Service Ticket [{}] of Access Token [{}] ", serviceTicket.getId(), accessToken.getId());
-                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, "Invalid Access Token", HttpStatus.SC_UNAUTHORIZED);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST,
+                        OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION,
+                        HttpStatus.SC_UNAUTHORIZED);
             }
 
             principal = assertion.getPrimaryAuthentication().getPrincipal();

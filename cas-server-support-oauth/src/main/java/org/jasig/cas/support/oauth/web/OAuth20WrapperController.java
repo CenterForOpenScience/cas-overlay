@@ -93,7 +93,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
     }
 
     @Override
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView handleRequest(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         try {
             return super.handleRequest(request, response);
         } catch (final RootCasException e) {

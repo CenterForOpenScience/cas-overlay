@@ -182,4 +182,31 @@ public interface OAuthConstants {
 
     /** The CAS protocol access token scope. */
     String CAS_PROTOCOL_ACCESS_TOKEN_SCOPE = "accessTokenScope";
+
+    /** The invalid code error description. */
+    String INVALID_CODE_DESCRIPTION = "Invalid Code";
+
+    /** The invalid access token error description. */
+    String INVALID_ACCESS_TOKEN_DESCRIPTION = "Invalid Access Token";
+
+    /** The missing access token error description. */
+    String MISSING_ACCESS_TOKEN_DESCRIPTION = "Missing Access Token";
+
+    /** The ticket granting ticket expired error description. */
+    String EXPIRED_TGT_DESCRIPTION = "Ticket Granting Ticket Expired";
+
+    /** The service ticket expired error description. */
+    String EXPIRED_ST_DESCRIPTION = "Service Ticket Expired";
+
+    /** The invalid client id or client secret error description. */
+    String INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION = "Invalid Client ID or Client Secret";
+
+    /** The invalid redirect uri error description. */
+    String INVALID_REDIRECT_URI_DESCRIPTION = "Invalid Redirect URI";
+
+    /** The invalid grant type error description. */
+    String INVALID_GRANT_TYPE_DESCRIPTION = "Invalid Grant Type";
+
+    /** The failed token revocation error description. */
+    String FAILED_TOKEN_REVOCATION_DESCRIPTION = "Token Revocation Failed";
 }

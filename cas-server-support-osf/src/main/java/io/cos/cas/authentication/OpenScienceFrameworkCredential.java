@@ -36,7 +36,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     private static final String VERIFICATION_KEY_SUFFIX = "+vk";
 
     /** Time-based One Time Password suffix appended to username in string representation. */
-    private static final String ONETIMEPASSWORD_SUFFIX = "+otp";
+    private static final String ONE_TIME_PASSWORD_SUFFIX = "+otp";
 
     /** The Verification Key. */
     private String verificationKey;
@@ -56,7 +56,8 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      * @param rememberMe remember me.
      * @param verificationKey verification key.
      */
-    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe, final String verificationKey) {
+    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe,
+                                          final String verificationKey) {
         this(username, password, rememberMe, verificationKey, null);
     }
 
@@ -69,7 +70,8 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      * @param verificationKey verification key.
      * @param oneTimePassword one time password.
      */
-    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe, final String verificationKey, final String oneTimePassword) {
+    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe,
+                                          final String verificationKey, final String oneTimePassword) {
         this.setUsername(username);
         this.setPassword(password);
         this.setRememberMe(rememberMe);
@@ -121,7 +123,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
             representation += VERIFICATION_KEY_SUFFIX;
         }
         if (this.oneTimePassword != null) {
-            representation += ONETIMEPASSWORD_SUFFIX;
+            representation += ONE_TIME_PASSWORD_SUFFIX;
         }
         return representation;
     }
@@ -131,8 +133,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         if (this == obj) {
             return true;
         }
-        if (!super.equals(obj))
-        {
+        if (!super.equals(obj)) {
             return false;
         }
         if (getClass() != obj.getClass()) {

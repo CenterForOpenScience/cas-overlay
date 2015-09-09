@@ -70,7 +70,9 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
 
         if (!centralOAuthService.revokeClientTokens(clientId, clientSecret)) {
             LOGGER.error("Could not revoke client tokens, mismatched client id or client secret");
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Client ID or Client Secret", HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION,
+                    HttpStatus.SC_BAD_REQUEST);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);

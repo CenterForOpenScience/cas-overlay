@@ -33,6 +33,12 @@ import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashSet;
 
+/**
+ * The Open Science Framework Personal Access Token handler.
+ *
+ * @author Michael Haselton
+ * @since 4.1.0
+ */
 public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler
         implements InitializingBean {
 
@@ -40,13 +46,13 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
     private MongoOperations mongoTemplate;
 
     @Document(collection="apioauth2personaltoken")
-    private class OpenScienceFrameworkPersonalToken {
+    private static class OpenScienceFrameworkPersonalToken {
         @Id
         private String id;
         @Field("token_id")
         private String tokenId;
         @Field("user_id")
-        private String userId;
+            private String userId;
         private String scopes;
         @Field("is_active")
         private Boolean isActive;
@@ -65,7 +71,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
 
         @Override
         public String toString() {
-            return "PersonalAccessToken [id=" + this.id + ", userId=" + this.userId + "]";
+            return String.format("PersonalAccessToken [id=%s, userId=%s]", this.id, this.userId);
         }
     }
 
@@ -74,11 +80,11 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
     }
 
     @Override
-    public PersonalAccessToken getToken(String tokenId) {
+    public PersonalAccessToken getToken(final String tokenId) {
         final OpenScienceFrameworkPersonalToken token = this.mongoTemplate.findOne(new Query(
                 new Criteria().andOperator(
                         Criteria.where("tokenId").is(tokenId),
-                        Criteria.where("isActive").is(true)
+                        Criteria.where("isActive").is(Boolean.TRUE)
                 )
         ), OpenScienceFrameworkPersonalToken.class);
 
@@ -86,7 +92,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
             return null;
         }
 
-        String scopes = token.scopes == null ? "" : token.scopes;
+        final String scopes = token.scopes == null ? "" : token.scopes;
         return new PersonalAccessToken(token.tokenId, token.userId, new HashSet<>(Arrays.asList(scopes.split(" "))));
     }
 

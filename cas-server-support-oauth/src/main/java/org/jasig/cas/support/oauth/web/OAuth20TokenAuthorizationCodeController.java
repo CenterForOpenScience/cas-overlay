@@ -96,21 +96,25 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
             authorizationCode = centralOAuthService.getToken(code, AuthorizationCode.class);
         } catch (final InvalidTokenException e) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.AUTHORIZATION_CODE, code);
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Code", HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_CODE_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
 
         final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
         if (service == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Client ID or Client Secret", HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
         if (!service.getClientSecret().equals(clientSecret)) {
             LOGGER.error("Mismatched Client Secret parameters");
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Client ID or Client Secret", HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
         if (!redirectUri.matches(service.getServiceId())) {
             LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Redirect URI", HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
 
         final Map<String, Object> map = new HashMap<>();
@@ -124,7 +128,8 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
         } else if (authorizationCode.getType() == TokenType.ONLINE) {
             accessToken = centralOAuthService.grantOnlineAccessToken(authorizationCode);
         } else {
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT, "Invalid Grant Type", HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT,
+                    OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
 
         map.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());

@@ -64,7 +64,8 @@ public final class OAuth20RevokeClientPrincipalTokensController extends Abstract
                 accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
             } else {
                 LOGGER.debug("Missing Access Token");
-                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Missing Access Token", HttpStatus.SC_BAD_REQUEST);
+                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION,
+                        HttpStatus.SC_BAD_REQUEST);
             }
         }
 
@@ -73,12 +74,14 @@ public final class OAuth20RevokeClientPrincipalTokensController extends Abstract
             accessToken = centralOAuthService.getToken(accessTokenId, AccessToken.class);
         } catch (final InvalidTokenException e) {
             LOGGER.error("Could not get Access Token [{}]", accessTokenId);
-            return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, "Invalid Access Token", HttpStatus.SC_UNAUTHORIZED);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION,
+                    HttpStatus.SC_UNAUTHORIZED);
         }
 
         if (!centralOAuthService.revokeClientPrincipalTokens(accessToken)) {
             LOGGER.error("Could not revoke client principal tokens");
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Access Token", HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION,
+                    HttpStatus.SC_BAD_REQUEST);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);

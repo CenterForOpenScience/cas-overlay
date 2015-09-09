@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.cos.cas.web.flow;
 
 import org.jasig.cas.CentralAuthenticationService;
@@ -26,7 +25,6 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import javax.validation.constraints.NotNull;
-
 
 /**
  * Webflow action that checks whether the Action paramter is specified and invalidates the TGT.
@@ -61,7 +59,7 @@ public class OpenScienceFrameworkTicketGrantingTicketCheckAction extends TicketG
     protected Event doExecute(final RequestContext requestContext) throws Exception {
         final Event event = super.doExecute(requestContext);
         if (event.getId().equals(VALID)) {
-            String auto = requestContext.getRequestParameters().get("auto");
+            final String auto = requestContext.getRequestParameters().get("auto");
             if (auto != null && auto.equalsIgnoreCase(Boolean.TRUE.toString())) {
                 final String tgtId = WebUtils.getTicketGrantingTicketId(requestContext);
                 this.centralAuthenticationService.destroyTicketGrantingTicket(tgtId);

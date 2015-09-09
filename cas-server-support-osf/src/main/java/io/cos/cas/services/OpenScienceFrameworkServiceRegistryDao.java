@@ -22,8 +22,6 @@ import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -33,7 +31,9 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkServiceRegistryDao.class);
+    private static final int HEX_RADIX = 16;
 
     @NotNull
     private MongoOperations mongoTemplate;
@@ -56,7 +56,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
     @Document(collection="apioauth2application")
-    private class OAuth {
+    private static class OAuth {
         @Id
         private String id;
         private String name;
@@ -78,7 +78,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             return this.name;
         }
 
-        public void setName(String name) {
+        public void setName(final String name) {
             this.name = name;
         }
 
@@ -86,7 +86,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             return this.description;
         }
 
-        public void setDescription(String description) {
+        public void setDescription(final String description) {
             this.description = description;
         }
 
@@ -94,7 +94,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             return this.callbackUrl;
         }
 
-        public void setCallbackUrl(String callbackUrl) {
+        public void setCallbackUrl(final String callbackUrl) {
             this.callbackUrl = callbackUrl;
         }
 
@@ -102,7 +102,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             return this.clientId;
         }
 
-        public void setClientId(String clientId) {
+        public void setClientId(final String clientId) {
             this.clientId = clientId;
         }
 
@@ -110,7 +110,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             return this.clientSecret;
         }
 
-        public void setClientSecret(String clientSecret) {
+        public void setClientSecret(final String clientSecret) {
             this.clientSecret = clientSecret;
         }
 
@@ -118,13 +118,13 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             return this.isActive;
         }
 
-        public void setIsActive(Boolean isActive) {
+        public void setIsActive(final Boolean isActive) {
             this.isActive = isActive;
         }
 
         @Override
         public String toString() {
-            return "OAuth [id=" + this.id + ", name=" + this.name + "]";
+            return String.format("OAuth [id=%s, name=%s]", this.id, this.name);
         }
     }
 
@@ -149,25 +149,26 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
 
     @Override
     public final synchronized List<RegisteredService> load() {
-        List<OAuth> oAuthServices = this.mongoTemplate.find(new Query(Criteria
-                .where("isActive").is(true)
+        final List<OAuth> oAuthServices = this.mongoTemplate.find(new Query(Criteria
+                .where("isActive").is(Boolean.TRUE)
         ), OAuth.class);
 
-        ReturnAllowedAttributeReleasePolicy attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
-        ArrayList<String> allowedAttributes = new ArrayList<>();
-//        allowedAttributes.add("username");
-//        allowedAttributes.add("givenName");
-//        allowedAttributes.add("familyName");
+        final ReturnAllowedAttributeReleasePolicy attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
+        final ArrayList<String> allowedAttributes = new ArrayList<>();
+        // e.g. global attribute release
+        // allowedAttributes.add("username");
+        // allowedAttributes.add("givenName");
+        // allowedAttributes.add("familyName");
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
 
         final Map<Long, RegisteredService> temp = new ConcurrentHashMap<>();
         for (final OAuth oAuthService : oAuthServices) {
-            OAuthRegisteredService service = new OAuthRegisteredService();
-            service.setId(new BigInteger(oAuthService.getId(), 16).longValue());
+            final OAuthRegisteredService service = new OAuthRegisteredService();
+            service.setId(new BigInteger(oAuthService.getId(), HEX_RADIX).longValue());
             service.setName(oAuthService.getName());
             service.setDescription(oAuthService.getDescription());
             service.setServiceId(oAuthService.getCallbackUrl());
-            service.setBypassApprovalPrompt(false);
+            service.setBypassApprovalPrompt(Boolean.FALSE);
             service.setClientId(oAuthService.getClientId());
             service.setClientSecret(oAuthService.getClientSecret());
             service.setAttributeReleasePolicy(attributeReleasePolicy);

@@ -69,7 +69,8 @@ public final class OAuth20RevokeTokenController extends AbstractController {
 
         if (!centralOAuthService.revokeToken(token)) {
             LOGGER.error("Token revocation failed [{}]", token.getId());
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Token revocation failed", HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, OAuthConstants.FAILED_TOKEN_REVOCATION_DESCRIPTION,
+                    HttpStatus.SC_BAD_REQUEST);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);

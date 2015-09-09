@@ -31,6 +31,12 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * The Open Science Framework Scope handler.
+ *
+ * @author Michael Haselton
+ * @since 4.1.0
+ */
 public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
         implements InitializingBean {
 
@@ -38,7 +44,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
     private MongoOperations mongoTemplate;
 
     @Document(collection="apioauth2scope")
-    private class OpenScienceFrameworkScope {
+    private static class OpenScienceFrameworkScope {
         @Id
         private String id;
         private String name;
@@ -60,7 +66,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
 
         @Override
         public String toString() {
-            return "OpenScienceFrameworkScope [id=" + this.id + ", name=" + this.name + "]";
+            return String.format("OpenScienceFrameworkScope [id=%s, name=%s]", this.id, this.name);
         }
     }
 
@@ -69,11 +75,11 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
     }
 
     @Override
-    public Scope getScope(String name) {
+    public Scope getScope(final String name) {
         final OpenScienceFrameworkScope scope = this.mongoTemplate.findOne(new Query(
                 new Criteria().andOperator(
                         Criteria.where("name").is(name.toLowerCase()),
-                        Criteria.where("isActive").is(true)
+                        Criteria.where("isActive").is(Boolean.TRUE)
                 )
         ), OpenScienceFrameworkScope.class);
 
@@ -81,7 +87,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler
             return null;
         }
 
-        return new Scope(scope.name, scope.description, false);
+        return new Scope(scope.name, scope.description, Boolean.FALSE);
     }
 
     public void setMongoTemplate(final MongoTemplate mongoTemplate) {
