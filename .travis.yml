@@ -28,6 +28,6 @@ cache:
 before_install:
   - rm ~/.m2/settings.xml
 install:
-  - mvn install -DskipTests=true -Dcheckstyle.skip=true -Dfindbugs.skip=true -Dmaven.javadoc.skip=true -B -V
+  - mvn install -DskipTests=true -Dcheckstyle.skip=true -Dfindbugs.skip=true -Dmaven.javadoc.skip=true -B -V -q
 script:
   - mvn clean test -Dmaven.javadoc.skip=true -B -V
