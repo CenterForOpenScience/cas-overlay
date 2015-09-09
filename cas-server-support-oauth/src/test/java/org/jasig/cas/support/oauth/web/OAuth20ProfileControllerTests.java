@@ -92,9 +92,15 @@ public final class OAuth20ProfileControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.MISSING_ACCESS_TOKEN + "\",\"error_description\":\""
-                        + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.MISSING_ACCESS_TOKEN + "\",\"error_description\":\""
+                + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -116,9 +122,15 @@ public final class OAuth20ProfileControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_UNAUTHORIZED, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
-                        + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -162,9 +174,15 @@ public final class OAuth20ProfileControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_UNAUTHORIZED, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
-                        + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -372,9 +390,19 @@ public final class OAuth20ProfileControllerTests {
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("id").asText(), receivedObj.get("id").asText());
 
-        final JsonNode expectedScope = expectedObj.get("scope");
-        final JsonNode receivedScope = receivedObj.get("scope");
+        assertEquals(expectedObj.get("scope").size(), receivedObj.get("scope").size());
 
-        assertEquals(expectedScope, receivedScope);
+        for (final JsonNode expectedNode : expectedObj.get("scope")) {
+            Boolean found = Boolean.FALSE;
+
+            for (final JsonNode receivedNode : receivedObj.get("scope")) {
+                if (receivedNode.asText().equals(expectedNode.asText())) {
+                    found = Boolean.TRUE;
+                    break;
+                }
+            }
+
+            assertEquals(found, Boolean.TRUE);
+        }
     }
 }

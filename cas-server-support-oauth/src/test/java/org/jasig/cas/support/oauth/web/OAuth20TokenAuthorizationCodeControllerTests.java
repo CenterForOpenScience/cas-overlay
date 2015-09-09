@@ -89,9 +89,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                        + new InvalidParameterException(OAuthConstants.CODE).getMessage() + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + new InvalidParameterException(OAuthConstants.CODE).getMessage() + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -112,9 +118,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                        + new InvalidParameterException(OAuthConstants.CLIENT_ID).getMessage() + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + new InvalidParameterException(OAuthConstants.CLIENT_ID).getMessage() + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -135,9 +147,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                        + new InvalidParameterException(OAuthConstants.CLIENT_SECRET).getMessage() + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + new InvalidParameterException(OAuthConstants.CLIENT_SECRET).getMessage() + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -158,9 +176,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                        + new InvalidParameterException(OAuthConstants.REDIRECT_URI).getMessage() + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + new InvalidParameterException(OAuthConstants.REDIRECT_URI).getMessage() + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -186,9 +210,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                        + OAuthConstants.INVALID_CODE_DESCRIPTION + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_CODE_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -220,9 +250,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                        + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -255,9 +291,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                        + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -292,9 +334,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                        + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -329,9 +377,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                        + OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
@@ -367,9 +421,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertNull(modelAndView);
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("application/json", mockResponse.getContentType());
-        assertEquals("{\"error\":\"" + OAuthConstants.INVALID_GRANT + "\",\"error_description\":\""
-                        + OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION + "\"}",
-                mockResponse.getContentAsString());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
