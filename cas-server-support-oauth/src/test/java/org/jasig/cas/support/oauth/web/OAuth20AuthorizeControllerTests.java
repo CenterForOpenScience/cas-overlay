@@ -61,6 +61,8 @@ public final class OAuth20AuthorizeControllerTests {
 
     private static final String INVALID_ACCESS_TYPE = "not_online_or_offline";
 
+    private static final String UNSUPPORTED_ACCESS_TYPE = "personal";
+
     private static final String CAS_SERVER = "casserver";
 
     private static final String CAS_SCHEME = "https";
@@ -132,6 +134,24 @@ public final class OAuth20AuthorizeControllerTests {
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
         mockRequest.setParameter(OAuthConstants.ACCESS_TYPE, INVALID_ACCESS_TYPE);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertEquals(OAuthConstants.ERROR_VIEW, modelAndView.getViewName());
+    }
+
+    @Test
+    public void verifyUnsupportedAccessType() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
+                + OAuthConstants.AUTHORIZE_URL);
+        mockRequest.setParameter(OAuthConstants.RESPONSE_TYPE, RESPONSE_TYPE);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
+        mockRequest.setParameter(OAuthConstants.ACCESS_TYPE, UNSUPPORTED_ACCESS_TYPE);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
