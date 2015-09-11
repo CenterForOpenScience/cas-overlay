@@ -79,7 +79,8 @@ public final class OAuth20MetadataPrincipalController extends AbstractController
                 accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
             } else {
                 LOGGER.debug("Missing Access Token");
-                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION,
+                return OAuthUtils.writeJsonError(response, OAuthConstants.MISSING_ACCESS_TOKEN,
+                        OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION,
                         HttpStatus.SC_BAD_REQUEST);
             }
         }
