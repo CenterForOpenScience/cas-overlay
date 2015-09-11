@@ -153,7 +153,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     public OAuthRegisteredService getRegisteredService(final String clientId) {
-        LOGGER.debug("hi");
         return OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
     }
 
