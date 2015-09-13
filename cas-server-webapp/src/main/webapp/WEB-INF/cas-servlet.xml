@@ -222,10 +222,10 @@
   <!--<bean id="abstractValidateController" class="org.jasig.cas.web.ServiceValidateController" abstract="true"-->
   <bean id="abstractValidateController" class="org.jasig.cas.support.oauth.web.OAuth20ServiceValidateController" abstract="true"
         p:centralAuthenticationService-ref="centralAuthenticationService"
+        p:centralOAuthService-ref="centralOAuthService"
         p:proxyHandler-ref="proxy20Handler"
         p:argumentExtractor-ref="casArgumentExtractor"
-        p:servicesManager-ref="servicesManager"
-        p:cipherExecutor-ref="oauth20CipherExecutor" />
+        p:servicesManager-ref="servicesManager" />
 
   <bean id="proxyValidateController" parent="abstractValidateController"/>
 
@@ -318,16 +318,10 @@
 
   <!-- OAuth2 -->
   <bean id="oauth20WrapperController" class="org.jasig.cas.support.oauth.web.OAuth20WrapperController"
-        p:loginUrl="https://localhost:8443/cas/login"
+        p:loginUrl="${oauth.loginUrl:https://localhost:8443/cas/login}"
         p:servicesManager-ref="servicesManager"
         p:ticketRegistry-ref="ticketRegistry"
         p:centralAuthenticationService-ref="centralAuthenticationService"
         p:timeout="${oauth.accessTokenDuration:3600}"
-        p:cipherExecutor-ref="oauth20CipherExecutor" />
-
-  <bean id="oauth20CipherExecutor" class="org.jasig.cas.util.DefaultCipherExecutor"
-        c:secretKeyEncryption="${oauth.encryption.key}"
-        c:secretKeySigning="${oauth.signing.key}"
-        c:contentEncryptionAlgorithmIdentifier="A128CBC-HS256"
-        c:signingAlgorithm="HS512" />
+        p:centralOAuthService-ref="centralOAuthService" />
 </beans>

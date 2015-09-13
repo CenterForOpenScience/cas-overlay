@@ -19,47 +19,59 @@
 package org.jasig.cas.support.oauth.authentication.principal;
 
 import org.jasig.cas.authentication.Credential;
+import org.jasig.cas.support.oauth.token.TokenType;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Scott Battaglia
- * @since 3.1
+ * OAuth Credential.
+ *
+ * @author Michael Haselton
+ * @since 4.1.0
  */
 public final class OAuthCredential implements Credential {
 
-    /** Authentication attribute name for remember-me. **/
-    public static String AUTHENTICATION_ATTRIBUTE_OAUTH = "org.jasig.cas.support.oauth.authentication.principal.OAUTH";
+    /** Authentication attribute name for access type. **/
+    public static final String AUTHENTICATION_ATTRIBUTE_ACCESS_TYPE = "oAuthAccessType";
 
     private static final long serialVersionUID = -98723987239832729L;
-
-    private final String clientId;
 
     private final String id;
 
     private final Map<String, Object> attributes;
+
+    private final TokenType accessType;
 
     /**
      * Instantiates a new OAuth credential.
      * Since oauth credentials rely on the primary authentication we wrapping the
      * existing authorization so we can apply specific expiration policies
      *
-     * @param clientId the client id
+     * @param id the user id
+     * @param accessType the access type
+     */
+    public OAuthCredential(final String id, final TokenType accessType) {
+        this(id, new HashMap<String, Object>(), accessType);
+    }
+
+    /**
+     * Instantiates a new OAuth credential.
+     * Since oauth credentials rely on the primary authentication we wrapping the
+     * existing authorization so we can apply specific expiration policies
+     *
      * @param id the user id
      * @param attributes the attributes
+     * @param accessType the access type
      */
-    public OAuthCredential(final String clientId, final String id, final Map<String, Object> attributes) {
-        this.clientId = clientId;
+    public OAuthCredential(final String id, final Map<String, Object> attributes, final TokenType accessType) {
         this.id = id;
         this.attributes = attributes;
+        this.accessType = accessType;
     }
 
     public Map<String, Object> getAttributes() {
         return this.attributes;
-    }
-
-    public String getClientId() {
-        return this.clientId;
     }
 
     @Override
@@ -67,9 +79,12 @@ public final class OAuthCredential implements Credential {
         return this.id;
     }
 
+    public TokenType getAccessType() {
+        return this.accessType;
+    }
+
     @Override
     public String toString() {
         return this.getId();
     }
-
 }

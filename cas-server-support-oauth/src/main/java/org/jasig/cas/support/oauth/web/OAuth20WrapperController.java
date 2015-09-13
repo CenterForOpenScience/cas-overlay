@@ -20,9 +20,10 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.authentication.RootCasException;
+import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
-import org.jasig.cas.util.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -32,6 +33,8 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This controller is the main entry point for OAuth version 2.0
@@ -47,104 +50,118 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20WrapperController.class);
 
     private AbstractController authorizeController;
-    private AbstractController callbackAuthorizeController;
-    private AbstractController callbackAuthorizeActionController;
+    private AbstractController authorizeCallbackController;
+    private AbstractController authorizeCallbackActionController;
 
-    private AbstractController authorizationsController;
-    private AbstractController authorizationCodeController;
-    private AbstractController refreshTokenController;
+    private AbstractController tokenAuthorizationCodeController;
+    private AbstractController tokenRefreshTokenController;
 
-    private AbstractController revokeUserTokenController;
-    private AbstractController revokeUserApplicationController;
-    private AbstractController revokeApplicationTokenController;
+    private AbstractController revokeTokenController;
+    private AbstractController revokeClientPrincipalTokensController;
+    private AbstractController revokeClientTokensController;
 
     private AbstractController profileController;
 
-    private AbstractController metadataApplicationController;
+    private AbstractController metadataPrincipalController;
+    private AbstractController metadataClientController;
 
     /** Instance of CentralAuthenticationService. */
     @NotNull
     private CentralAuthenticationService centralAuthenticationService;
 
-    /** Instance of CipherExecutor. */
+    /** Instance of CentralOAuthService. */
     @NotNull
-    private CipherExecutor cipherExecutor;
+    private CentralOAuthService centralOAuthService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        authorizeController = new OAuth20AuthorizeController(servicesManager, loginUrl);
-        callbackAuthorizeController = new OAuth20CallbackAuthorizeController(ticketRegistry, centralAuthenticationService);
-        callbackAuthorizeActionController = new OAuth20CallbackAuthorizeActionController(servicesManager, centralAuthenticationService, cipherExecutor);
-        authorizationsController = new OAuth20TokenAuthorizationController(servicesManager, centralAuthenticationService, cipherExecutor);
-        authorizationCodeController = new OAuth20TokenAuthorizationCodeController(servicesManager, ticketRegistry, centralAuthenticationService, cipherExecutor, timeout);
-        refreshTokenController = new OAuth20TokenRefreshTokenController(servicesManager, centralAuthenticationService, cipherExecutor, timeout);
-        revokeUserTokenController = new OAuth20RevokeUserTokenController(ticketRegistry, centralAuthenticationService, cipherExecutor);
-        revokeUserApplicationController = new OAuth20RevokeUserApplicationController(ticketRegistry, centralAuthenticationService, cipherExecutor);
-        revokeApplicationTokenController = new OAuth20RevokeApplicationTokenController(servicesManager, ticketRegistry, centralAuthenticationService);
-        profileController = new OAuth20ProfileController(centralAuthenticationService, cipherExecutor);
-        metadataApplicationController = new OAuth20MetadataApplicationController(servicesManager, centralAuthenticationService);
+        authorizeController = new OAuth20AuthorizeController(centralOAuthService, loginUrl);
+        authorizeCallbackController = new OAuth20AuthorizeCallbackController(centralOAuthService, ticketRegistry);
+        authorizeCallbackActionController = new OAuth20AuthorizeCallbackActionController(centralOAuthService, timeout);
+
+        tokenAuthorizationCodeController = new OAuth20TokenAuthorizationCodeController(centralOAuthService, timeout);
+        tokenRefreshTokenController = new OAuth20TokenRefreshTokenController(centralOAuthService, timeout);
+
+        revokeTokenController = new OAuth20RevokeTokenController(centralOAuthService);
+        revokeClientTokensController = new OAuth20RevokeClientTokensController(centralOAuthService);
+        revokeClientPrincipalTokensController = new OAuth20RevokeClientPrincipalTokensController(centralOAuthService);
+
+        profileController = new OAuth20ProfileController(centralOAuthService, centralAuthenticationService);
+
+        metadataPrincipalController = new OAuth20MetadataPrincipalController(centralOAuthService);
+        metadataClientController = new OAuth20MetadataClientController(centralOAuthService);
+    }
+
+    @Override
+    public ModelAndView handleRequest(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+        try {
+            return super.handleRequest(request, response);
+        } catch (final RootCasException e) {
+            // capture any root cas exceptions and display them properly to the user.
+            final Map<String, Object> map = new HashMap<>();
+            map.put("rootCauseException", e);
+            return new ModelAndView(OAuthConstants.ERROR_VIEW, map);
+        }
     }
 
     @Override
     protected ModelAndView internalHandleRequest(final String method, final HttpServletRequest request,
                                                  final HttpServletResponse response) throws Exception {
         // authorize
-        if (OAuthConstants.AUTHORIZE_URL.equals(method) && request.getMethod().equals("GET")) {
+        if (OAuthConstants.AUTHORIZE_URL.equals(method) && "GET".equals(request.getMethod())) {
             return authorizeController.handleRequest(request, response);
         }
-        // callback on authorize
-        if (OAuthConstants.CALLBACK_AUTHORIZE_URL.equals(method) && request.getMethod().equals("GET")) {
-            return callbackAuthorizeController.handleRequest(request, response);
+        // authorize callback
+        if (OAuthConstants.CALLBACK_AUTHORIZE_URL.equals(method) && "GET".equals(request.getMethod())) {
+            return authorizeCallbackController.handleRequest(request, response);
         }
-        // callback on authorize action
-        if (OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL.equals(method) && request.getMethod().equals("GET")) {
-            return callbackAuthorizeActionController.handleRequest(request, response);
+        // authorize callback action
+        if (OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL.equals(method) && "GET".equals(request.getMethod())) {
+            return authorizeCallbackActionController.handleRequest(request, response);
         }
 
         // token
-        if (OAuthConstants.TOKEN_URL.equals(method)) {
-            if (request.getMethod().equals("GET")) {
-                return authorizationsController.handleRequest(request, response);
-            } else if (request.getMethod().equals("POST")) {
-                final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
-                LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
+        if (OAuthConstants.TOKEN_URL.equals(method) && "POST".equals(request.getMethod())) {
+            final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
+            LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
-                if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
-                    return authorizationCodeController.handleRequest(request, response);
-                } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
-                    return refreshTokenController.handleRequest(request, response);
-                }
+            if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
+                return tokenAuthorizationCodeController.handleRequest(request, response);
+            } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
+                return tokenRefreshTokenController.handleRequest(request, response);
             }
         }
 
         // revoke
-        if (OAuthConstants.REVOKE_URL.equals(method) && request.getMethod().equals("POST")) {
+        if (OAuthConstants.REVOKE_URL.equals(method) && "POST".equals(request.getMethod())) {
             if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_ID)) {
                 if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_SECRET)) {
-                    return revokeApplicationTokenController.handleRequest(request, response);
+                    return revokeClientTokensController.handleRequest(request, response);
                 }
-                return revokeUserApplicationController.handleRequest(request, response);
+                return revokeClientPrincipalTokensController.handleRequest(request, response);
             } else {
-                return revokeUserTokenController.handleRequest(request, response);
+                return revokeTokenController.handleRequest(request, response);
             }
         }
 
         // profile
-        if (OAuthConstants.PROFILE_URL.equals(method) && request.getMethod().equals("GET")) {
+        if (OAuthConstants.PROFILE_URL.equals(method) && "GET".equals(request.getMethod())) {
             return profileController.handleRequest(request, response);
         }
 
         // metadata
-        if (OAuthConstants.METADATA_URL.equals(method) && request.getMethod().equals("GET")) {
-            if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_ID) &&
-                    request.getParameterMap().containsKey(OAuthConstants.CLIENT_SECRET)) {
-                return metadataApplicationController.handleRequest(request, response);
+        if (OAuthConstants.METADATA_URL.equals(method) && "POST".equals(request.getMethod())) {
+            if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_ID)
+                    && request.getParameterMap().containsKey(OAuthConstants.CLIENT_SECRET)) {
+                return metadataClientController.handleRequest(request, response);
+            } else {
+                return metadataPrincipalController.handleRequest(request, response);
             }
         }
 
-        // else error
+        // error
         logger.error("Unknown method : {}", method);
-        OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_OK);
+        OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         return null;
     }
 
@@ -152,7 +169,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         this.centralAuthenticationService = centralAuthenticationService;
     }
 
-    public void setCipherExecutor(final CipherExecutor cipherExecutor) {
-        this.cipherExecutor = cipherExecutor;
+    public void setCentralOAuthService(final CentralOAuthService centralOAuthService) {
+        this.centralOAuthService = centralOAuthService;
     }
 }

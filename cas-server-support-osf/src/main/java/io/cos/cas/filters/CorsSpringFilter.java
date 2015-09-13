@@ -22,7 +22,12 @@ import com.thetransactioncompany.cors.CORSConfiguration;
 import com.thetransactioncompany.cors.CORSFilter;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.io.IOException;
 
 /**
@@ -33,29 +38,39 @@ import java.io.IOException;
  * @since 4.1.0
  */
 @Component
-public class CorsSpringFilter implements javax.servlet.Filter {
-    static CORSFilter corsFilter;
+public final class CorsSpringFilter implements Filter {
 
-    public CorsSpringFilter(CORSConfiguration corsConfiguration) throws ServletException {
-        corsFilter = new CORSFilter(corsConfiguration);
-    }
+    private static CORSFilter CORS_FILTER;
 
+    /**
+     * Constructs a new instance of the CORS Spring Filter class.
+     */
     public CorsSpringFilter() {
         super();
     }
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-
+    /**
+     * Constructs a new instance of the CORS Spring Filter class.
+     *
+     * @param corsConfiguration the CORS configuration
+     * @throws ServletException On an issue when parsing the configuration
+     */
+    public CorsSpringFilter(final CORSConfiguration corsConfiguration) throws ServletException {
+        CORS_FILTER = new CORSFilter(corsConfiguration);
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        corsFilter.doFilter(request, response, chain);
+    public void init(final FilterConfig filterConfig) throws ServletException {
+    }
+
+    @Override
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
+            throws IOException, ServletException {
+        CORS_FILTER.doFilter(request, response, chain);
     }
 
     @Override
     public void destroy() {
-        corsFilter.destroy();
+        CORS_FILTER.destroy();
     }
 }
