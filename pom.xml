@@ -354,6 +354,7 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
           <configuration>
+            <skipTests>${skipTests}</skipTests>
             <forkMode>once</forkMode>
             <includes>
               <include>**/*Tests.java</include>
@@ -416,6 +417,7 @@
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>${maven-findbugs-plugin.version}</version>
         <configuration>
+          <skip>${skipTests}</skip>
           <plugins>
             <plugin>
               <groupId>com.mebigfatguy.fb-contrib</groupId>
@@ -435,7 +437,7 @@
         <executions>
           <execution>
             <id>findbugs-check</id>
-            <phase>compile</phase>
+            <phase>test</phase>
             <goals>
               <goal>check</goal>
             </goals>
@@ -447,6 +449,7 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>${maven-checkstyle-plugin.version}</version>
         <configuration>
+          <skip>${skipTests}</skip>
           <consoleOutput>true</consoleOutput>
           <configLocation>${cs.dir}/checkstyle-rules.xml</configLocation>
           <suppressionsLocation>${cs.dir}/checkstyle-suppressions.xml</suppressionsLocation>
@@ -459,7 +462,7 @@
             <goals>
               <goal>checkstyle</goal>
             </goals>
-            <phase>compile</phase>
+            <phase>test</phase>
           </execution>
         </executions>
         <dependencies>
