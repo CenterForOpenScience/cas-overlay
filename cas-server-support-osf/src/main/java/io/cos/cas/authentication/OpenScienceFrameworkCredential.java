@@ -156,5 +156,4 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
                 .append(oneTimePassword)
                 .toHashCode();
     }
-
 }

@@ -69,14 +69,12 @@ public class MergingServiceRegistryDao implements ServiceRegistryDao {
     public final synchronized List<RegisteredService> load() {
         final Map<Long, RegisteredService> temp = new ConcurrentHashMap<>();
         for (final ServiceRegistryDao serviceRegistry : serviceRegistries) {
-            final List<RegisteredService> registeredServices = serviceRegistry.load();
-            for (final RegisteredService registeredService : registeredServices) {
-                if (!temp.containsKey(registeredService.getId())) {
-                    temp.put(registeredService.getId(), registeredService);
-                } else {
-                    LOGGER.warn("Registered service [{}] already exists while loading [{}]", registeredService.getId(),
+            for (final RegisteredService service : serviceRegistry.load()) {
+                if (temp.containsKey(service.getId())) {
+                    LOGGER.warn("Registered service [{}] already exists while loading [{}]", service.getId(),
                             serviceRegistry.getClass().getSimpleName());
                 }
+                temp.put(service.getId(), service);
             }
         }
         this.serviceMap = temp;
