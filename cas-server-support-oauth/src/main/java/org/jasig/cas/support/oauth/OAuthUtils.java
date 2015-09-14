@@ -34,7 +34,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -170,13 +169,11 @@ public final class OAuthUtils {
      * @return null, or the located {@link OAuthRegisteredService} instance in the service registry.
      */
     public static OAuthRegisteredService getRegisteredOAuthService(final ServicesManager servicesManager, final String clientId) {
-        final Iterator<RegisteredService> it = servicesManager.getAllServices().iterator();
-        while (it.hasNext()) {
-            final RegisteredService aService = it.next();
-            if (aService instanceof OAuthRegisteredService) {
-                final OAuthRegisteredService service = (OAuthRegisteredService) aService;
-                if (service.getClientId().equals(clientId)) {
-                    return service;
+        for (final RegisteredService registeredService : servicesManager.getAllServices()) {
+            if (registeredService instanceof OAuthRegisteredService) {
+                final OAuthRegisteredService oAuthRegisteredService = (OAuthRegisteredService) registeredService;
+                if (oAuthRegisteredService.getClientId().equals(clientId)) {
+                    return oAuthRegisteredService;
                 }
             }
         }
