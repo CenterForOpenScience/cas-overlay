@@ -77,15 +77,11 @@ public final class OAuth20ProfileControllerTests {
 
     @Test
     public void verifyNoAccessToken() throws Exception {
-        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenThrow(new InvalidTokenException("error"));
-
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
                 + OAuthConstants.PROFILE_URL);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
-        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
         oauth20WrapperController.afterPropertiesSet();
 
         final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
@@ -97,6 +93,31 @@ public final class OAuth20ProfileControllerTests {
 
         final String expected = "{\"error\":\"" + OAuthConstants.MISSING_ACCESS_TOKEN + "\",\"error_description\":\""
                 + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
+    }
+
+    @Test
+    public void verifyNoTokenAndAuthHeaderIsMalformed() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
+                + OAuthConstants.PROFILE_URL);
+        mockRequest.addHeader("Authorization", "Let me in i am authorized");
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals(CONTENT_TYPE, mockResponse.getContentType());
+
+        final String expected = "{\"error\":\"" + OAuthConstants.MISSING_ACCESS_TOKEN + "\",\"error_description\":\""
+                + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}";
+
+        final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
