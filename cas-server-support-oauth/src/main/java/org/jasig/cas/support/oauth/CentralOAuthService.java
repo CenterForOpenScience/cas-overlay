@@ -18,7 +18,6 @@
  */
 package org.jasig.cas.support.oauth;
 
-import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.support.oauth.metadata.ClientMetadata;
 import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
@@ -32,7 +31,6 @@ import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.Token;
 import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.TicketException;
-import org.jasig.cas.ticket.TicketGrantingTicket;
 
 import java.util.Collection;
 import java.util.Map;
@@ -79,16 +77,6 @@ public interface CentralOAuthService {
     RefreshToken grantOfflineRefreshToken(AuthorizationCode authorizationCode, String redirectUri) throws InvalidTokenException;
 
     /**
-     * Grant CAS Access Token. Generates an access token associated with a Ticket Granting Ticket given to the CAS client.
-     *
-     * @param ticketGrantingTicket the ticket granting ticket
-     * @param service the service
-     * @return an access token to be integrated in the CAS service validation attributes.
-     * @throws TicketException the ticket exception
-     */
-    AccessToken grantCASAccessToken(TicketGrantingTicket ticketGrantingTicket, Service service) throws TicketException;
-
-    /**
      * Grant a Personal Access Token. Generates an access token associated with the personal access token.
      *
      * @param personalAccessToken the personal access token
@@ -133,12 +121,14 @@ public interface CentralOAuthService {
     Boolean revokeClientTokens(String clientId, String clientSecret);
 
     /**
-     * Revoke all Tokens associated with the client id and principal id specified.
+     * Revoke all Tokens associated with the specified client id and principal id authorized by the client secret.
      *
-     * @param accessToken the access token
-     * @return a Boolean status if the tokens were successfully revoked.
+     * @param clientId the client id
+     * @param clientSecret the client secret
+     * @param principalId the principal id
+     * @return a Boolean status if tokens were successfully revoked.
      */
-    Boolean revokeClientPrincipalTokens(AccessToken accessToken);
+    Boolean revokeClientPrincipalTokens(String clientId, String clientSecret, String principalId);
 
     /**
      * Get metadata about the client id requested, authorized by the client secret.

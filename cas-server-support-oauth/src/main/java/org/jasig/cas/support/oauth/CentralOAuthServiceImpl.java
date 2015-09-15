@@ -204,21 +204,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = false)
-    public AccessToken grantCASAccessToken(final TicketGrantingTicket ticketGrantingTicket, final Service service)
-            throws TicketException {
-        final AccessToken accessToken = new AccessTokenImpl(
-                accessTokenUniqueIdGenerator.getNewTicketId(AccessToken.PREFIX), TokenType.CAS, null,
-                ticketGrantingTicket.getAuthentication().getPrincipal().getId(), ticketGrantingTicket, service, null,
-                scopeManager.getCASScopes());
-        LOGGER.debug("CAS {} : {}", OAuthConstants.ACCESS_TOKEN, accessToken);
-
-        tokenRegistry.addToken(accessToken);
-
-        return accessToken;
-    }
-
-    @Override
-    @Transactional(readOnly = false)
     public AccessToken grantPersonalAccessToken(final PersonalAccessToken personalAccessToken) throws InvalidTokenException {
         final OAuthCredential credential = new OAuthCredential(personalAccessToken.getPrincipalId(), TokenType.PERSONAL);
 
@@ -323,16 +308,25 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = false)
-    public Boolean revokeClientPrincipalTokens(final AccessToken accessToken) {
-        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientPrincipalTokens(accessToken.getClientId(),
-                accessToken.getPrincipalId(), RefreshToken.class);
+    public Boolean revokeClientPrincipalTokens(final String clientId, final String clientSecret, final String principalId) {
+        final OAuthRegisteredService service = getRegisteredService(clientId);
+        if (service == null) {
+            LOGGER.error("OAuth Registered Service could not be found for clientId : {}", clientId);
+            return Boolean.FALSE;
+        }
+        if (!service.getClientSecret().equals(clientSecret)) {
+            LOGGER.error("Invalid client secret");
+            return Boolean.FALSE;
+        }
+
+        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientPrincipalTokens(clientId, principalId, RefreshToken.class);
         for (final RefreshToken token : refreshTokens) {
             LOGGER.debug("Revoking refresh token : {}", token.getId());
             ticketRegistry.deleteTicket(token.getTicketGrantingTicket().getId());
         }
 
-        final Collection<AccessToken> accessTokens = tokenRegistry.getClientPrincipalTokens(accessToken.getClientId(),
-                accessToken.getPrincipalId(), TokenType.ONLINE, AccessToken.class);
+        final Collection<AccessToken> accessTokens = tokenRegistry.getClientPrincipalTokens(clientId, principalId, TokenType.ONLINE,
+                AccessToken.class);
         for (final AccessToken token : accessTokens) {
             LOGGER.debug("Revoking access token : {}", token.getId());
             ticketRegistry.deleteTicket(token.getTicketGrantingTicket().getId());
