@@ -32,7 +32,6 @@ import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
-//import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
