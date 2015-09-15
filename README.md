@@ -43,6 +43,7 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
   * Refresh Token Support
   * Revoke Access Tokens & Refresh Tokens
   * Personal Access Tokens (Optional)
+  * CAS Login Access Tokens (Optional)
 * Service Specific Attribute Release
 * Delegated Ticket Expiration
   * Access Token: 60 minutes
@@ -241,6 +242,35 @@ token | ... | ...
 HTTP 204 NO CONTENT
 ```
 
+#### Revoke All Tokens Issued to a Principal
+
+*e.g. user revokes application access*
+
+Revocation of all Tokens for a specified Client ID and the given token's Principal ID.
+
+If the Access Token is of type CAS any valid Client ID can be specified, otherwise the Access Token
+may only revoke the Client ID it was generated with.
+
+POST: /oauth2/revoke
+
+###### Request
+
+```
+https://accounts.osf.io/oauth2/revoke
+
+Authorization: Bearer AT-1-...
+```
+
+Parameter | Value | Description
+------------- | ------------- | -------------
+client_id | ... | ...
+
+###### Response
+
+```
+HTTP 204 NO CONTENT
+```
+
 #### Revoke All Client Tokens
 
 *e.g. application administrator revokes all tokens*
@@ -259,32 +289,6 @@ Parameter | Value | Description
 ------------- | ------------- | -------------
 client_id | ... | ...
 client_secret | ... | ...
-
-###### Response
-
-```
-HTTP 204 NO CONTENT
-```
-
-#### Revoke All Client Tokens Issued to a Principal
-
-*e.g. user revokes application access*
-
-Revocation of all Tokens associated with the given Client ID and Principal ID.
-
-POST: /oauth2/revoke
-
-###### Request
-
-```
-https://accounts.osf.io/oauth2/revoke
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-client_id | ... | ...
-client_secret | ... | ...
-principal_id | ... | ...
 
 ###### Response
 
