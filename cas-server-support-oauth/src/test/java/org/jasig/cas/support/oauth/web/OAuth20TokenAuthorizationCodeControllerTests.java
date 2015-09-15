@@ -262,7 +262,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
     public void verifyWrongSecret() throws Exception {
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
 
-        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, WRONG_CLIENT_SECRET);
+        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_SECRET);
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
@@ -273,7 +273,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
-        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, WRONG_CLIENT_SECRET);
         mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -301,7 +301,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
     public void verifyRedirectUriDoesNotStartWithServiceId() throws Exception {
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
 
-        final OAuthRegisteredService service = getRegisteredService(OTHER_REDIRECT_URI, CLIENT_SECRET);
+        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_SECRET);
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
@@ -313,7 +313,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
-        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, OTHER_REDIRECT_URI);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
