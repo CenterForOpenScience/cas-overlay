@@ -36,11 +36,7 @@ public enum TokenType {
     /**
      *  Personal Token.
      */
-    PERSONAL(2),
-    /**
-     *  CAS Token.
-     */
-    CAS(3);
+    PERSONAL(2);
 
     /**
      * The value of the token enumeration.

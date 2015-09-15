@@ -43,7 +43,6 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
   * Refresh Token Support
   * Revoke Access Tokens & Refresh Tokens
   * Personal Access Tokens (Optional)
-  * CAS Login Access Tokens (Optional)
 * Service Specific Attribute Release
 * Delegated Ticket Expiration
   * Access Token: 60 minutes

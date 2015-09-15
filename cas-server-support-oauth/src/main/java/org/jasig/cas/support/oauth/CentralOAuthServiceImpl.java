@@ -204,21 +204,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = false)
-    public AccessToken grantCASAccessToken(final TicketGrantingTicket ticketGrantingTicket, final Service service)
-            throws TicketException {
-        final AccessToken accessToken = new AccessTokenImpl(
-                accessTokenUniqueIdGenerator.getNewTicketId(AccessToken.PREFIX), TokenType.CAS, null,
-                ticketGrantingTicket.getAuthentication().getPrincipal().getId(), ticketGrantingTicket, service, null,
-                scopeManager.getCASScopes());
-        LOGGER.debug("CAS {} : {}", OAuthConstants.ACCESS_TOKEN, accessToken);
-
-        tokenRegistry.addToken(accessToken);
-
-        return accessToken;
-    }
-
-    @Override
-    @Transactional(readOnly = false)
     public AccessToken grantPersonalAccessToken(final PersonalAccessToken personalAccessToken) throws InvalidTokenException {
         final OAuthCredential credential = new OAuthCredential(personalAccessToken.getPrincipalId(), TokenType.PERSONAL);
 
