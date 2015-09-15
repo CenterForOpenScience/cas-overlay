@@ -121,12 +121,14 @@ public interface CentralOAuthService {
     Boolean revokeClientTokens(String clientId, String clientSecret);
 
     /**
-     * Revoke all Tokens associated with the client id and principal id specified.
+     * Revoke all Tokens associated with the specified client id and principal id authorized by the client secret.
      *
-     * @param accessToken the access token
-     * @return a Boolean status if the tokens were successfully revoked.
+     * @param clientId the client id
+     * @param clientSecret the client secret
+     * @param principalId the principal id
+     * @return a Boolean status if tokens were successfully revoked.
      */
-    Boolean revokeClientPrincipalTokens(AccessToken accessToken);
+    Boolean revokeClientPrincipalTokens(String clientId, String clientSecret, String principalId);
 
     /**
      * Get metadata about the client id requested, authorized by the client secret.
