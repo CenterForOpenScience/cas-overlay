@@ -159,6 +159,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
         final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
         assertTrue(modelAndView.getView() instanceof RedirectView);
+        final RedirectView redirectView = (RedirectView) modelAndView.getView();
+        assertTrue(redirectView.getUrl().endsWith(CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL));
     }
 
     @Test
@@ -271,6 +273,9 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
         final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
         assertTrue(modelAndView.getView() instanceof RedirectView);
+        final RedirectView redirectView = (RedirectView) modelAndView.getView();
+        assertTrue(redirectView.getUrl().endsWith(
+            CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"));
     }
 
     @Test
@@ -316,6 +321,9 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
         final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
         assertTrue(modelAndView.getView() instanceof RedirectView);
+        final RedirectView redirectView = (RedirectView) modelAndView.getView();
+        assertTrue(redirectView.getUrl().endsWith(
+            CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"));
     }
 
     @Test
@@ -363,6 +371,9 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
         final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
         assertTrue(modelAndView.getView() instanceof RedirectView);
+        final RedirectView redirectView = (RedirectView) modelAndView.getView();
+        assertTrue(redirectView.getUrl().endsWith(
+            CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"));
     }
 
     @Test
