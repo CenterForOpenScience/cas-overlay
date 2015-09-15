@@ -157,7 +157,7 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
-        when(centralOAuthService.revokeClientPrincipalTokens(accessToken)).thenReturn(true);
+        when(centralOAuthService.revokeClientPrincipalTokens(accessToken, CLIENT_ID)).thenReturn(true);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
                 + OAuthConstants.REVOKE_URL);
@@ -183,7 +183,7 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
-        when(centralOAuthService.revokeClientPrincipalTokens(accessToken)).thenReturn(true);
+        when(centralOAuthService.revokeClientPrincipalTokens(accessToken, CLIENT_ID)).thenReturn(true);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
                 + OAuthConstants.REVOKE_URL);
@@ -209,7 +209,7 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
-        when(centralOAuthService.revokeClientPrincipalTokens(accessToken)).thenReturn(false);
+        when(centralOAuthService.revokeClientPrincipalTokens(accessToken, CLIENT_ID)).thenReturn(false);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
                 + OAuthConstants.REVOKE_URL);
