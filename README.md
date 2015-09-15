@@ -246,7 +246,10 @@ HTTP 204 NO CONTENT
 
 *e.g. user revokes application access*
 
-Revocation of all Tokens associated with the given user's Principal ID.
+Revocation of all Tokens for a specified Client ID and the given token's Principal ID.
+
+If the Access Token is of type CAS any valid Client ID can be specified, otherwise the Access Token
+may only revoke the Client ID it was generated with.
 
 POST: /oauth2/revoke
 
@@ -257,6 +260,10 @@ https://accounts.osf.io/oauth2/revoke
 
 Authorization: Bearer AT-1-...
 ```
+
+Parameter | Value | Description
+------------- | ------------- | -------------
+client_id | ... | ...
 
 ###### Response
 

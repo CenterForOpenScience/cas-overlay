@@ -323,15 +323,31 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     @Transactional(readOnly = false)
-    public Boolean revokeClientPrincipalTokens(final AccessToken accessToken) {
-        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientPrincipalTokens(accessToken.getClientId(),
+    public Boolean revokeClientPrincipalTokens(final AccessToken accessToken, final String clientId) {
+        final String targetClientId;
+        if (accessToken.getType() == TokenType.CAS) {
+            // Only CAS Tokens are allowed to specify the client id for revocation.
+            if (clientId == null) {
+                LOGGER.warn("CAS Token used for revocation, Client ID must be specified");
+                return Boolean.FALSE;
+            }
+            targetClientId = clientId;
+        } else {
+            if (!accessToken.getClientId().equals(clientId)) {
+                LOGGER.warn("Access Token's Client ID and specified Client ID must match");
+                return Boolean.FALSE;
+            }
+            targetClientId = accessToken.getClientId();
+        }
+
+        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientPrincipalTokens(targetClientId,
                 accessToken.getPrincipalId(), RefreshToken.class);
         for (final RefreshToken token : refreshTokens) {
             LOGGER.debug("Revoking refresh token : {}", token.getId());
             ticketRegistry.deleteTicket(token.getTicketGrantingTicket().getId());
         }
 
-        final Collection<AccessToken> accessTokens = tokenRegistry.getClientPrincipalTokens(accessToken.getClientId(),
+        final Collection<AccessToken> accessTokens = tokenRegistry.getClientPrincipalTokens(targetClientId,
                 accessToken.getPrincipalId(), TokenType.ONLINE, AccessToken.class);
         for (final AccessToken token : accessTokens) {
             LOGGER.debug("Revoking access token : {}", token.getId());

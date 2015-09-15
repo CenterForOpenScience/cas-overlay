@@ -57,6 +57,9 @@ public final class OAuth20RevokeClientPrincipalTokensController extends Abstract
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
+        final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
+        LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
+
         String accessTokenId = request.getParameter(OAuthConstants.ACCESS_TOKEN);
         if (StringUtils.isBlank(accessTokenId)) {
             final String authHeader = request.getHeader("Authorization");
@@ -78,7 +81,7 @@ public final class OAuth20RevokeClientPrincipalTokensController extends Abstract
                     HttpStatus.SC_UNAUTHORIZED);
         }
 
-        if (!centralOAuthService.revokeClientPrincipalTokens(accessToken)) {
+        if (!centralOAuthService.revokeClientPrincipalTokens(accessToken, clientId)) {
             LOGGER.error("Could not revoke client principal tokens");
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION,
                     HttpStatus.SC_BAD_REQUEST);
