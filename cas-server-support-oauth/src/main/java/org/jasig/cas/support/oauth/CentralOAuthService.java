@@ -18,6 +18,7 @@
  */
 package org.jasig.cas.support.oauth;
 
+import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.support.oauth.metadata.ClientMetadata;
 import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
@@ -31,6 +32,7 @@ import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.Token;
 import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.TicketException;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 
 import java.util.Collection;
 import java.util.Map;
@@ -75,6 +77,16 @@ public interface CentralOAuthService {
      * @throws InvalidTokenException the invalid token exception
      */
     RefreshToken grantOfflineRefreshToken(AuthorizationCode authorizationCode, String redirectUri) throws InvalidTokenException;
+
+    /**
+     * Grant CAS Access Token. Generates an access token associated with a Ticket Granting Ticket given to the CAS client.
+     *
+     * @param ticketGrantingTicket the ticket granting ticket
+     * @param service the service
+     * @return an access token to be integrated in the CAS service validation attributes.
+     * @throws TicketException the ticket exception
+     */
+    AccessToken grantCASAccessToken(TicketGrantingTicket ticketGrantingTicket, Service service) throws TicketException;
 
     /**
      * Grant a Personal Access Token. Generates an access token associated with the personal access token.
