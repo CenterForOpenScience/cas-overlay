@@ -39,9 +39,6 @@ public interface OAuthConstants {
     /** The client secret. */
     String CLIENT_SECRET = "client_secret";
 
-    /** The principal id. */
-    String PRINCIPAL_ID = "principal_id";
-
     /** The scope. */
     String SCOPE = "scope";
 

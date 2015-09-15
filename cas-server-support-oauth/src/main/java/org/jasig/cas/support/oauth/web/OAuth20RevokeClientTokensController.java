@@ -62,29 +62,17 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
         final String clientSecret = request.getParameter(OAuthConstants.CLIENT_SECRET);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_SECRET, "************");
 
-        final String principalId = request.getParameter(OAuthConstants.PRINCIPAL_ID);
-        LOGGER.debug("{} : {}", OAuthConstants.PRINCIPAL_ID, principalId);
-
         try {
             verifyRequest(clientId, clientSecret);
         } catch (final InvalidParameterException e) {
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
-        if (principalId != null) {
-            if (!centralOAuthService.revokeClientPrincipalTokens(clientId, clientSecret, principalId)) {
-                LOGGER.error("Could not revoke client principal tokens, mismatched principal id, client id or client secret");
-                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
-                        OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION,
-                        HttpStatus.SC_BAD_REQUEST);
-            }
-        } else {
-            if (!centralOAuthService.revokeClientTokens(clientId, clientSecret)) {
-                LOGGER.error("Could not revoke client tokens, mismatched client id or client secret");
-                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
-                        OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION,
-                        HttpStatus.SC_BAD_REQUEST);
-            }
+        if (!centralOAuthService.revokeClientTokens(clientId, clientSecret)) {
+            LOGGER.error("Could not revoke client tokens, mismatched client id or client secret");
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION,
+                    HttpStatus.SC_BAD_REQUEST);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);

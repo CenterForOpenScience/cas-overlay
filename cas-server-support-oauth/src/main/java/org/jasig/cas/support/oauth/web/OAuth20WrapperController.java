@@ -57,6 +57,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
     private AbstractController tokenRefreshTokenController;
 
     private AbstractController revokeTokenController;
+    private AbstractController revokeClientPrincipalTokensController;
     private AbstractController revokeClientTokensController;
 
     private AbstractController profileController;
@@ -83,6 +84,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
 
         revokeTokenController = new OAuth20RevokeTokenController(centralOAuthService);
         revokeClientTokensController = new OAuth20RevokeClientTokensController(centralOAuthService);
+        revokeClientPrincipalTokensController = new OAuth20RevokeClientPrincipalTokensController(centralOAuthService);
 
         profileController = new OAuth20ProfileController(centralOAuthService, centralAuthenticationService);
 
@@ -133,7 +135,10 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         // revoke
         if (OAuthConstants.REVOKE_URL.equals(method) && "POST".equals(request.getMethod())) {
             if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_ID)) {
-                return revokeClientTokensController.handleRequest(request, response);
+                if (request.getParameterMap().containsKey(OAuthConstants.CLIENT_SECRET)) {
+                    return revokeClientTokensController.handleRequest(request, response);
+                }
+                return revokeClientPrincipalTokensController.handleRequest(request, response);
             } else {
                 return revokeTokenController.handleRequest(request, response);
             }
@@ -155,7 +160,7 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
         }
 
         // error
-        LOGGER.error("Unknown method : {}", method);
+        logger.error("Unknown method : {}", method);
         OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
         return null;
     }
