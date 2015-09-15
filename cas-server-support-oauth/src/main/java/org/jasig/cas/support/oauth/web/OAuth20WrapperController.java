@@ -22,6 +22,7 @@ import org.apache.http.HttpStatus;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.RootCasException;
 import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.slf4j.Logger;
@@ -123,17 +124,17 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
             final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
             LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
-            if (grantType == null) {
-                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
-                                                 OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
-            } else if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
-                return tokenAuthorizationCodeController.handleRequest(request, response);
-            } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
-                return tokenRefreshTokenController.handleRequest(request, response);
-            } else {
-                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
-                                                 OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
+            if (grantType != null) {
+                if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
+                    return tokenAuthorizationCodeController.handleRequest(request, response);
+                } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
+                    return tokenRefreshTokenController.handleRequest(request, response);
+                }
             }
+
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                                             new InvalidParameterException(OAuthConstants.GRANT_TYPE).getMessage(),
+                                             HttpStatus.SC_BAD_REQUEST);
         }
 
         // revoke

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpStatus;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -126,7 +127,7 @@ public class OAuth20WrapperControllerTests {
         final ObjectMapper mapper = new ObjectMapper();
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION + "\"}";
+                + new InvalidParameterException(OAuthConstants.GRANT_TYPE).getMessage() + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -150,7 +151,7 @@ public class OAuth20WrapperControllerTests {
         final ObjectMapper mapper = new ObjectMapper();
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION + "\"}";
+                + new InvalidParameterException(OAuthConstants.GRANT_TYPE).getMessage() + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
