@@ -123,10 +123,16 @@ public final class OAuth20WrapperController extends BaseOAuthWrapperController i
             final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
             LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
-            if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
+            if (grantType == null) {
+                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                                                 OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
+            } else if (grantType.equals(OAuthConstants.AUTHORIZATION_CODE)) {
                 return tokenAuthorizationCodeController.handleRequest(request, response);
             } else if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
                 return tokenRefreshTokenController.handleRequest(request, response);
+            } else {
+                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                                                 OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
             }
         }
 

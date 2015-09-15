@@ -20,6 +20,8 @@ package org.jasig.cas.support.oauth.web;
 
 import static org.junit.Assert.assertEquals;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.junit.Test;
@@ -106,6 +108,53 @@ public class OAuth20WrapperControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals("text/plain", mockResponse.getContentType());
         assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
+    }
+
+    @Test
+    public void verifyNoGrantTypeForTokenCtrls() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
+            "POST", CONTEXT + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("application/json", mockResponse.getContentType());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
+    }
+
+    @Test
+    public void verifyInvalidGrantTypeForTokenCtrls() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
+            "POST", CONTEXT + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+        mockRequest.setParameter(OAuthConstants.GRANT_TYPE, "banana");
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("application/json", mockResponse.getContentType());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
     @Test
