@@ -189,6 +189,9 @@ public interface OAuthConstants {
     /** The invalid code error description. */
     String INVALID_CODE_DESCRIPTION = "Invalid Code";
 
+    /** The invalid refresh token error description. */
+    String INVALID_REFRESH_TOKEN_DESCRIPTION = "Invalid Refresh Token";
+
     /** The invalid access token error description. */
     String INVALID_ACCESS_TOKEN_DESCRIPTION = "Invalid Access Token";
 

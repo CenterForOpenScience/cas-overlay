@@ -105,7 +105,6 @@ public final class OAuth20TokenRefreshTokenControllerTests {
         mockRequest.setParameter(OAuthConstants.REFRESH_TOKEN, RT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
 
-
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -180,7 +179,7 @@ public final class OAuth20TokenRefreshTokenControllerTests {
         final ObjectMapper mapper = new ObjectMapper();
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid Refresh Token\"}";
+                + OAuthConstants.INVALID_REFRESH_TOKEN_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
