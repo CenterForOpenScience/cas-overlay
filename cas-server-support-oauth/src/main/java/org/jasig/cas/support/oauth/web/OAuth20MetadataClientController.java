@@ -83,7 +83,7 @@ public final class OAuth20MetadataClientController extends AbstractController {
         final ClientMetadata metadata = centralOAuthService.getClientMetadata(clientId, clientSecret);
         if (metadata == null) {
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
-                        "Nothing found matching given client id and secret", HttpStatus.SC_BAD_REQUEST);
+                        OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
 
         final Map<String, Object> map = new HashMap<>();

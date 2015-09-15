@@ -126,6 +126,8 @@ public final class OAuth20MetadataClientControllerTests {
     @Test
     public void verifyOK() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getClientMetadata(NO_SUCH_CLIENT_ID, CLIENT_SECRET)).thenReturn(null);
+        when(centralOAuthService.getClientMetadata(CLIENT_ID, WRONG_CLIENT_SECRET)).thenReturn(null);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, CLIENT_SECRET)).thenReturn(METADATA);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
@@ -159,6 +161,8 @@ public final class OAuth20MetadataClientControllerTests {
     @Test
     public void verifyNoSuchClientId() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getClientMetadata(NO_SUCH_CLIENT_ID, CLIENT_SECRET)).thenReturn(null);
+        when(centralOAuthService.getClientMetadata(CLIENT_ID, WRONG_CLIENT_SECRET)).thenReturn(null);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, CLIENT_SECRET)).thenReturn(METADATA);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
@@ -177,7 +181,7 @@ public final class OAuth20MetadataClientControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Nothing found matching given client id and secret\"}";
+                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -189,6 +193,8 @@ public final class OAuth20MetadataClientControllerTests {
     @Test
     public void verifyWrongClientSecret() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getClientMetadata(NO_SUCH_CLIENT_ID, CLIENT_SECRET)).thenReturn(null);
+        when(centralOAuthService.getClientMetadata(CLIENT_ID, WRONG_CLIENT_SECRET)).thenReturn(null);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, CLIENT_SECRET)).thenReturn(METADATA);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
@@ -207,7 +213,7 @@ public final class OAuth20MetadataClientControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Nothing found matching given client id and secret\"}";
+                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
