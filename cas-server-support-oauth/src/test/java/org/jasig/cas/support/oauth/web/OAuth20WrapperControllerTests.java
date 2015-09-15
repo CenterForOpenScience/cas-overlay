@@ -49,4 +49,108 @@ public class OAuth20WrapperControllerTests {
         assertEquals("text/plain", mockResponse.getContentType());
         assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
     }
+
+    @Test
+    public void verifyNoPostForAuthCtrl() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.AUTHORIZE_URL);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("text/plain", mockResponse.getContentType());
+        assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
+    }
+
+    @Test
+    public void verifyNoPostForAuthCallbackCtrl() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("text/plain", mockResponse.getContentType());
+        assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
+    }
+
+    @Test
+    public void verifyNoPostForAuthCallbackActionCtrl() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
+            "POST", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("text/plain", mockResponse.getContentType());
+        assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
+    }
+
+    @Test
+    public void verifyNoGetForTokenCtrls() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
+            "GET", CONTEXT + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("text/plain", mockResponse.getContentType());
+        assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
+    }
+
+    @Test
+    public void verifyNoGetForRevokeCtrls() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
+            "GET", CONTEXT + OAuthConstants.REVOKE_URL);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("text/plain", mockResponse.getContentType());
+        assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
+    }
+
+    @Test
+    public void verifyNoPostForProfileCtrl() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
+            "POST", CONTEXT + OAuthConstants.PROFILE_URL);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("text/plain", mockResponse.getContentType());
+        assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
+    }
+
+    @Test
+    public void verifyNoGetForProfileCtrl() throws Exception {
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
+            "GET", CONTEXT + OAuthConstants.METADATA_URL);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("text/plain", mockResponse.getContentType());
+        assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
+    }
+
 }
