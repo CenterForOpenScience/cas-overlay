@@ -30,6 +30,8 @@ public final class OAuth20RevokeClientTokensControllerTests {
 
     private static final String CLIENT_SECRET = "secret";
 
+    private static final String PRINCIPAL_ID = "foo";
+
     private static final String NO_SUCH_CLIENT_ID = "nope-no-way";
 
     private static final String WRONG_CLIENT_SECRET = "gorblewharf";
@@ -98,8 +100,103 @@ public final class OAuth20RevokeClientTokensControllerTests {
     }
 
     @Test
-    public void verifyNoSuchClientId() throws Exception {
+    public void verifyPrincipalWithNoSuchClient() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.revokeClientPrincipalTokens(NO_SUCH_CLIENT_ID, CLIENT_SECRET, PRINCIPAL_ID)).thenReturn(false);
+        when(centralOAuthService.revokeClientPrincipalTokens(CLIENT_ID, WRONG_CLIENT_SECRET, PRINCIPAL_ID)).thenReturn(false);
+        when(centralOAuthService.revokeClientPrincipalTokens(CLIENT_ID, CLIENT_SECRET, PRINCIPAL_ID)).thenReturn(true);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
+                + OAuthConstants.REVOKE_URL);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, NO_SUCH_CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.PRINCIPAL_ID, PRINCIPAL_ID);
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals(CONTENT_TYPE, mockResponse.getContentType());
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
+    }
+
+    @Test
+    public void verifyPrincipalWithWrongSecret() throws Exception {
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.revokeClientPrincipalTokens(NO_SUCH_CLIENT_ID, CLIENT_SECRET, PRINCIPAL_ID)).thenReturn(false);
+        when(centralOAuthService.revokeClientPrincipalTokens(CLIENT_ID, WRONG_CLIENT_SECRET, PRINCIPAL_ID)).thenReturn(false);
+        when(centralOAuthService.revokeClientPrincipalTokens(CLIENT_ID, CLIENT_SECRET, PRINCIPAL_ID)).thenReturn(true);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
+                + OAuthConstants.REVOKE_URL);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, WRONG_CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.PRINCIPAL_ID, PRINCIPAL_ID);
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals(CONTENT_TYPE, mockResponse.getContentType());
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
+    }
+
+    @Test
+    public void verifyPrincipalOK() throws Exception {
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.revokeClientPrincipalTokens(NO_SUCH_CLIENT_ID, CLIENT_SECRET, PRINCIPAL_ID)).thenReturn(false);
+        when(centralOAuthService.revokeClientPrincipalTokens(CLIENT_ID, WRONG_CLIENT_SECRET, PRINCIPAL_ID)).thenReturn(false);
+        when(centralOAuthService.revokeClientPrincipalTokens(CLIENT_ID, CLIENT_SECRET, PRINCIPAL_ID)).thenReturn(true);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
+                + OAuthConstants.REVOKE_URL);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.PRINCIPAL_ID, PRINCIPAL_ID);
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_NO_CONTENT, mockResponse.getStatus());
+        assertNull(mockResponse.getContentType());
+        assertEquals("null", mockResponse.getContentAsString());
+    }
+
+
+
+    @Test
+    public void verifyClientWithNoSuchClient() throws Exception {
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.revokeClientTokens(NO_SUCH_CLIENT_ID, CLIENT_SECRET)).thenReturn(false);
+        when(centralOAuthService.revokeClientTokens(CLIENT_ID, WRONG_CLIENT_SECRET)).thenReturn(false);
         when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
@@ -128,9 +225,12 @@ public final class OAuth20RevokeClientTokensControllerTests {
     }
 
     @Test
-    public void verifyWrongClientSecret() throws Exception {
+    public void verifyClientWithWrongSecret() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(false);
+        when(centralOAuthService.revokeClientTokens(NO_SUCH_CLIENT_ID, CLIENT_SECRET)).thenReturn(false);
+        when(centralOAuthService.revokeClientTokens(CLIENT_ID, WRONG_CLIENT_SECRET)).thenReturn(false);
+        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
+
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
                 + OAuthConstants.REVOKE_URL);
@@ -160,6 +260,8 @@ public final class OAuth20RevokeClientTokensControllerTests {
     @Test
     public void verifyOK() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.revokeClientTokens(NO_SUCH_CLIENT_ID, CLIENT_SECRET)).thenReturn(false);
+        when(centralOAuthService.revokeClientTokens(CLIENT_ID, WRONG_CLIENT_SECRET)).thenReturn(false);
         when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
@@ -178,5 +280,6 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertNull(mockResponse.getContentType());
         assertEquals("null", mockResponse.getContentAsString());
     }
+
 
 }
