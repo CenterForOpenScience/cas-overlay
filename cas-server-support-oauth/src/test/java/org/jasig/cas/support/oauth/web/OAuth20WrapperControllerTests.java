@@ -35,7 +35,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @author Jerome Leleu
  * @since 3.5.2
  */
-public class OAuth20WrapperControllerTests {
+public final class OAuth20WrapperControllerTests {
 
     private static final String CONTEXT = "/oauth2.0/";
 
