@@ -426,4 +426,123 @@ public final class OAuth20ProfileControllerTests {
             assertEquals(found, Boolean.TRUE);
         }
     }
+
+    @Test
+    public void verifyOKWithPersonalToken() throws Exception {
+        final Map<String, Object> map = new HashMap<>();
+        map.put(NAME, VALUE);
+        final List<String> list = Arrays.asList(VALUE, VALUE);
+        map.put(NAME2, list);
+
+        final Principal principal = mock(Principal.class);
+        when(principal.getId()).thenReturn(ID);
+        when(principal.getAttributes()).thenReturn(map);
+
+        final Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(principal);
+
+        final TicketGrantingTicket ticketGrantingTicket = mock(TicketGrantingTicket.class);
+        when(ticketGrantingTicket.isExpired()).thenReturn(false);
+        when(ticketGrantingTicket.getAuthentication()).thenReturn(authentication);
+
+        final Service service = new SimpleWebApplicationServiceImpl("id");
+
+        final AccessToken accessToken = mock(AccessToken.class);
+        when(accessToken.getId()).thenReturn(AT_ID);
+        when(accessToken.getType()).thenReturn(TokenType.PERSONAL);
+        when(accessToken.getService()).thenReturn(service);
+        when(accessToken.getTicketGrantingTicket()).thenReturn(ticketGrantingTicket);
+
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
+
+          final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
+                + OAuthConstants.PROFILE_URL);
+        mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_OK, mockResponse.getStatus());
+        assertEquals(CONTENT_TYPE, mockResponse.getContentType());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"id\":\"" + ID + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("id").asText(), receivedObj.get("id").asText());
+    }
+
+    @Test
+    public void verifyOKWithOfflineToken() throws Exception {
+        final Service service = new SimpleWebApplicationServiceImpl("id");
+
+        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
+        when(serviceTicket.getId()).thenReturn(ID);
+        when(serviceTicket.getService()).thenReturn(service);
+
+        final AccessToken accessToken = mock(AccessToken.class);
+        when(accessToken.getId()).thenReturn(AT_ID);
+        when(accessToken.getType()).thenReturn(TokenType.OFFLINE);
+        when(accessToken.getServiceTicket()).thenReturn(serviceTicket);
+
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
+
+        final Map<String, Object> map = new HashMap<>();
+        map.put(NAME, VALUE);
+        final List<String> list = Arrays.asList(VALUE, VALUE);
+        map.put(NAME2, list);
+
+        final Principal principal = mock(Principal.class);
+        when(principal.getId()).thenReturn(ID);
+        when(principal.getAttributes()).thenReturn(map);
+
+        final Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(principal);
+
+        final Assertion assertion = mock(Assertion.class);
+        when(assertion.getPrimaryAuthentication()).thenReturn(authentication);
+
+        final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
+        when(centralAuthenticationService.validateServiceTicket(serviceTicket.getId(),
+                serviceTicket.getService())).thenReturn(assertion);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
+                + OAuthConstants.PROFILE_URL);
+        mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.setCentralAuthenticationService(centralAuthenticationService);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_OK, mockResponse.getStatus());
+        assertEquals(CONTENT_TYPE, mockResponse.getContentType());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"id\":\"" + ID + "\",\"attributes\":[{\"" + NAME + "\":\"" + VALUE + "\"},{\"" + NAME2
+                + "\":[\"" + VALUE + "\",\"" + VALUE + "\"]}]}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("id").asText(), receivedObj.get("id").asText());
+
+        final JsonNode expectedAttributes = expectedObj.get("attributes");
+        final JsonNode receivedAttributes = receivedObj.get("attributes");
+
+        assertEquals(expectedAttributes.findValue(NAME).asText(), receivedAttributes.findValue(NAME).asText());
+        assertEquals(expectedAttributes.findValues(NAME2), receivedAttributes.findValues(NAME2));
+    }
+
 }
