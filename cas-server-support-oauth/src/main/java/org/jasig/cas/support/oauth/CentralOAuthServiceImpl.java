@@ -21,6 +21,7 @@ package org.jasig.cas.support.oauth;
 import com.codahale.metrics.annotation.Counted;
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
+import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.principal.Principal;
@@ -327,7 +328,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
         final String targetClientId;
         if (accessToken.getType() == TokenType.CAS) {
             // Only CAS Tokens are allowed to specify the client id for revocation.
-            if (clientId == null) {
+            if (StringUtils.isBlank(clientId)) {
                 LOGGER.warn("CAS Token used for revocation, Client ID must be specified");
                 return Boolean.FALSE;
             }
