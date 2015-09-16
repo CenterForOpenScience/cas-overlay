@@ -424,7 +424,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public Token getToken(final String tokenId) throws InvalidTokenException {
         Assert.notNull(tokenId, "tokenId cannot be null");
 
@@ -437,7 +437,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     @Timed(name = "GET_TOKEN_TIMER")
     @Metered(name = "GET_TOKEN_METER")
     @Counted(name="GET_TOKEN_COUNTER", monotonic=true)
