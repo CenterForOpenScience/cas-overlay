@@ -19,10 +19,8 @@
 package org.jasig.cas.support.oauth.web;
 
 
-// import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
-// import org.jasig.cas.support.oauth.scope.Scope;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.AuthorizationCode;
 import org.jasig.cas.support.oauth.token.TokenType;
@@ -39,7 +37,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-// import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -104,8 +102,14 @@ public final class OAuth20AuthorizeCallbackActionControllerTests {
         assertTrue(modelAndView.getView() instanceof RedirectView);
         final RedirectView redirectView = (RedirectView) modelAndView.getView();
         assertTrue(redirectView.getUrl().endsWith(REDIRECT_URI + "?" + OAuthConstants.ERROR + "=" + OAuthConstants.ACCESS_DENIED));
-        // assertEquals(redirectView.getUrl(), REDIRECT_URI + "?" + OAuthConstants.ERROR
-        //              + "=" + OAuthConstants.ACCESS_DENIED);
+
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_STATE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_REDIRECT_URI));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -130,6 +134,14 @@ public final class OAuth20AuthorizeCallbackActionControllerTests {
 
         final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
         assertEquals(OAuthConstants.ERROR_VIEW, modelAndView.getViewName());
+
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_STATE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_REDIRECT_URI));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -154,6 +166,14 @@ public final class OAuth20AuthorizeCallbackActionControllerTests {
 
         final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
         assertEquals(OAuthConstants.ERROR_VIEW, modelAndView.getViewName());
+
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_STATE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_REDIRECT_URI));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
 
@@ -205,6 +225,14 @@ public final class OAuth20AuthorizeCallbackActionControllerTests {
                          + "&" + OAuthConstants.EXPIRES_IN   + '=' + TIMEOUT
                          + "&" + OAuthConstants.TOKEN_TYPE   + '=' + OAuthConstants.BEARER_TOKEN
                          + "&" + OAuthConstants.STATE        + '=' + STATE);
+
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_STATE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_REDIRECT_URI));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -253,6 +281,14 @@ public final class OAuth20AuthorizeCallbackActionControllerTests {
             REDIRECT_URI + "#" + OAuthConstants.ACCESS_TOKEN + "=" + accessToken.getId()
                          + "&" + OAuthConstants.EXPIRES_IN   + '=' + TIMEOUT
                          + "&" + OAuthConstants.TOKEN_TYPE   + '=' + OAuthConstants.BEARER_TOKEN);
+
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_STATE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_REDIRECT_URI));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -293,6 +329,14 @@ public final class OAuth20AuthorizeCallbackActionControllerTests {
         assertEquals(redirectView.getUrl(),
             REDIRECT_URI + "?" + OAuthConstants.CODE + "=" + AC_ID
                          + "&" + OAuthConstants.STATE   + '=' + STATE);
+
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_STATE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_REDIRECT_URI));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -330,6 +374,14 @@ public final class OAuth20AuthorizeCallbackActionControllerTests {
         assertTrue(modelAndView.getView() instanceof RedirectView);
         final RedirectView redirectView = (RedirectView) modelAndView.getView();
         assertEquals(redirectView.getUrl(), REDIRECT_URI + "?" + OAuthConstants.CODE + "=" + AC_ID);
+
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_STATE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_REDIRECT_URI));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID));
+        assertNull(mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 }
 

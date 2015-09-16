@@ -53,6 +53,8 @@ public final class OAuth20AuthorizeControllerTests {
 
     private static final String CLIENT_ID = "1";
 
+    private static final String NO_SUCH_CLIENT_ID = "nope";
+
     private static final String REDIRECT_URI = "http://someurl";
 
     private static final String OTHER_REDIRECT_URI = "http://someotherurl";
@@ -168,13 +170,16 @@ public final class OAuth20AuthorizeControllerTests {
 
     @Test
     public void verifyNoRegisteredService() throws Exception {
+        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_ID);
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(null);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
+        when(centralOAuthService.getRegisteredService(NO_SUCH_CLIENT_ID)).thenReturn(null);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
                 + OAuthConstants.AUTHORIZE_URL);
         mockRequest.setParameter(OAuthConstants.RESPONSE_TYPE, RESPONSE_TYPE);
-        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, NO_SUCH_CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
         mockRequest.setParameter(OAuthConstants.ACCESS_TYPE, ACCESS_TYPE);
 
@@ -190,7 +195,7 @@ public final class OAuth20AuthorizeControllerTests {
 
     @Test
     public void verifyRedirectUriDoesNotStartWithServiceId() throws Exception {
-        final OAuthRegisteredService service = getRegisteredService(OTHER_REDIRECT_URI, CLIENT_ID);
+        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_ID);
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
@@ -199,7 +204,7 @@ public final class OAuth20AuthorizeControllerTests {
                 + OAuthConstants.AUTHORIZE_URL);
         mockRequest.setParameter(OAuthConstants.RESPONSE_TYPE, RESPONSE_TYPE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
-        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, OTHER_REDIRECT_URI);
         mockRequest.setParameter(OAuthConstants.ACCESS_TYPE, ACCESS_TYPE);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();

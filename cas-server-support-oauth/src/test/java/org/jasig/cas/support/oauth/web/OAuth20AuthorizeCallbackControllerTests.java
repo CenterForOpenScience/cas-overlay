@@ -324,6 +324,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         final RedirectView redirectView = (RedirectView) modelAndView.getView();
         assertTrue(redirectView.getUrl().endsWith(
             CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"));
+
+        assertEquals(scopeMap.keySet(), mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -374,6 +376,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         final RedirectView redirectView = (RedirectView) modelAndView.getView();
         assertTrue(redirectView.getUrl().endsWith(
             CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"));
+
+        assertEquals(scopeMap.keySet(), mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -421,6 +425,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         final Map<String, Object> map = modelAndView.getModel();
         assertEquals(SERVICE_NAME, map.get("serviceName"));
         assertEquals(scopeMap.hashCode(), map.get("scopeMap").hashCode());
+
+        assertEquals(scopeMap.keySet(), mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -469,6 +475,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         final Map<String, Object> map = modelAndView.getModel();
         assertEquals(SERVICE_NAME, map.get("serviceName"));
         assertEquals(scopeMap.hashCode(), map.get("scopeMap").hashCode());
+
+        assertEquals(scopeMap.keySet(), mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -519,6 +527,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         final Map<String, Object> map = modelAndView.getModel();
         assertEquals(SERVICE_NAME, map.get("serviceName"));
         assertEquals(scopeMap.hashCode(), map.get("scopeMap").hashCode());
+
+        assertEquals(scopeMap.keySet(), mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
@@ -570,6 +580,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         final Map<String, Object> map = modelAndView.getModel();
         assertEquals(SERVICE_NAME, map.get("serviceName"));
         assertEquals(scopeMap.hashCode(), map.get("scopeMap").hashCode());
+
+        assertEquals(scopeMap.keySet(), mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
 }
