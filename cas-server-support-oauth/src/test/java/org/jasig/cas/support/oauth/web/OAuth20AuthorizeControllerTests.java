@@ -242,6 +242,9 @@ public final class OAuth20AuthorizeControllerTests {
 
         final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
         assertTrue(modelAndView.getView() instanceof RedirectView);
+        final RedirectView redirectView = (RedirectView) modelAndView.getView();
+        assertTrue(redirectView.getUrl().contains("?service=http"));
+        assertTrue(redirectView.getUrl().endsWith(OAuthConstants.CALLBACK_AUTHORIZE_URL));
 
         final HttpSession session = mockRequest.getSession();
         assertEquals(Boolean.FALSE, session.getAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT));
@@ -277,6 +280,9 @@ public final class OAuth20AuthorizeControllerTests {
 
         final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
         assertTrue(modelAndView.getView() instanceof RedirectView);
+        final RedirectView redirectView = (RedirectView) modelAndView.getView();
+        assertTrue(redirectView.getUrl().contains("?service=http"));
+        assertTrue(redirectView.getUrl().endsWith(OAuthConstants.CALLBACK_AUTHORIZE_URL));
 
         final HttpSession session = mockRequest.getSession();
         assertEquals(Boolean.FALSE, session.getAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT));
