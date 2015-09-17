@@ -93,7 +93,8 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
             refreshToken = centralOAuthService.getToken(refreshTokenId, RefreshToken.class);
         } catch (final InvalidTokenException e) {
             LOGGER.error("Invalid {} : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId);
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, "Invalid Refresh Token", HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, OAuthConstants.INVALID_REFRESH_TOKEN_DESCRIPTION,
+                                             HttpStatus.SC_BAD_REQUEST);
         }
 
         final AccessToken accessToken = centralOAuthService.grantOfflineAccessToken(refreshToken);

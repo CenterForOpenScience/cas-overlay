@@ -222,52 +222,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
     }
 
     @Test
-    public void verifyExpiredServiceTicket() throws Exception {
-        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
-        when(serviceTicket.isExpired()).thenReturn(Boolean.TRUE);
-
-        final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
-        when(authorizationCode.getTicket()).thenReturn(serviceTicket);
-
-        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
-
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
-        mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
-        mockRequest.setParameter(OAuthConstants.CODE, CODE);
-        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
-        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
-        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
-
-        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
-
-        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
-        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
-        oauth20WrapperController.afterPropertiesSet();
-
-        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
-        assertNull(modelAndView);
-        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
-        assertEquals("application/json", mockResponse.getContentType());
-
-        final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
-        final JsonNode expectedObj = mapper.readTree(expected);
-        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
-        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
-        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
-    }
-
-    @Test
     public void verifyNoRegisteredService() throws Exception {
-        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
-        when(serviceTicket.isExpired()).thenReturn(Boolean.FALSE);
-
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
-        when(authorizationCode.getTicket()).thenReturn(serviceTicket);
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
@@ -304,13 +260,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyWrongSecret() throws Exception {
-        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
-        when(serviceTicket.isExpired()).thenReturn(Boolean.FALSE);
-
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
-        when(authorizationCode.getTicket()).thenReturn(serviceTicket);
 
-        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, WRONG_CLIENT_SECRET);
+        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_SECRET);
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
@@ -321,7 +273,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
-        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, WRONG_CLIENT_SECRET);
         mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -347,13 +299,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyRedirectUriDoesNotStartWithServiceId() throws Exception {
-        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
-        when(serviceTicket.isExpired()).thenReturn(Boolean.FALSE);
-
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
-        when(authorizationCode.getTicket()).thenReturn(serviceTicket);
 
-        final OAuthRegisteredService service = getRegisteredService(OTHER_REDIRECT_URI, CLIENT_SECRET);
+        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_SECRET);
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
@@ -365,7 +313,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
-        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, OTHER_REDIRECT_URI);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -390,11 +338,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyInvalidGrantType() throws Exception {
-        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
-        when(serviceTicket.isExpired()).thenReturn(Boolean.FALSE);
-
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
-        when(authorizationCode.getTicket()).thenReturn(serviceTicket);
         when(authorizationCode.getType()).thenReturn(TokenType.PERSONAL);
 
         final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_SECRET);
@@ -435,7 +379,6 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
     @Test
     public void verifyOfflineOK() throws Exception {
         final ServiceTicket serviceTicket = mock(ServiceTicket.class);
-        when(serviceTicket.isExpired()).thenReturn(Boolean.FALSE);
         when(serviceTicket.getCreationTime()).thenReturn(new Date().getTime());
 
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
@@ -486,6 +429,57 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertTrue("received expires_at greater or equal to expected",
                 expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt());
         assertEquals(expectedObj.get("refresh_token").asText(), receivedObj.get("refresh_token").asText());
+        assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
+    }
+
+    @Test
+    public void verifyOnlineOK() throws Exception {
+        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
+        when(serviceTicket.getCreationTime()).thenReturn(new Date().getTime());
+
+        final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
+        when(authorizationCode.getTicket()).thenReturn(serviceTicket);
+        when(authorizationCode.getType()).thenReturn(TokenType.ONLINE);
+
+        final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_SECRET);
+
+        final AccessToken accessToken = mock(AccessToken.class);
+        when(accessToken.getId()).thenReturn(AT_ID);
+        when(accessToken.getTicket()).thenReturn(serviceTicket);
+
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
+        when(centralOAuthService.grantOnlineAccessToken(authorizationCode)).thenReturn(accessToken);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
+                + OAuthConstants.TOKEN_URL);
+        mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
+        mockRequest.setParameter(OAuthConstants.CODE, CODE);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REDIRECT_URI);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.setTimeout(TIMEOUT);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_OK, mockResponse.getStatus());
+        assertEquals("application/json", mockResponse.getContentType());
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final String expected = "{\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\",\"expires_in\":\"" + TIMEOUT
+                + "\",\"access_token\":\"" + AT_ID + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("token_type").asText(), receivedObj.get("token_type").asText());
+        assertTrue("received expires_at greater or equal to expected",
+                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt());
         assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
     }
 

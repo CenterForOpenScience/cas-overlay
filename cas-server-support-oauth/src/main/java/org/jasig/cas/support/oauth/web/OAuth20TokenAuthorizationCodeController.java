@@ -85,8 +85,11 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
         final String redirectUri = request.getParameter(OAuthConstants.REDIRECT_URI);
         LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
 
+        final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
+        LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
+
         try {
-            verifyRequest(redirectUri, clientId, clientSecret, code);
+            verifyRequest(redirectUri, clientId, clientSecret, code, grantType);
         } catch (final InvalidParameterException e) {
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
@@ -152,10 +155,11 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
      * @param clientId the client id
      * @param clientSecret the client secret
      * @param code the code
+     * @param grantType the grant type
      * @throws InvalidParameterException with the name of the invalid parameter
      */
     private void verifyRequest(final String redirectUri, final String clientId, final String clientSecret,
-                                  final String code) throws InvalidParameterException {
+                                  final String code, final String grantType) throws InvalidParameterException {
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
@@ -175,6 +179,15 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
         if (StringUtils.isBlank(redirectUri)) {
             LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
             throw new InvalidParameterException(OAuthConstants.REDIRECT_URI);
+        }
+        // grantType is required
+        if (StringUtils.isBlank(grantType)) {
+            LOGGER.error("Missing {}", OAuthConstants.GRANT_TYPE);
+            throw new InvalidParameterException(OAuthConstants.GRANT_TYPE);
+        }
+        if (!grantType.equalsIgnoreCase(OAuthConstants.AUTHORIZATION_CODE)) {
+            LOGGER.error("Invalid {} : {}", OAuthConstants.GRANT_TYPE, grantType);
+            throw new InvalidParameterException(OAuthConstants.GRANT_TYPE);
         }
     }
 }
