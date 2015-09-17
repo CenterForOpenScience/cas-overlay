@@ -21,15 +21,13 @@ package org.jasig.cas.support.oauth.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
-import org.jasig.cas.services.ServicesManager;
-import org.jasig.cas.support.oauth.*;
-import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
-import org.jasig.cas.ticket.ServiceTicket;
-import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.util.CipherExecutor;
+import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
+import org.jasig.cas.support.oauth.OAuthConstants;
+import org.jasig.cas.support.oauth.OAuthUtils;
+import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
+import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -53,100 +51,102 @@ public final class OAuth20TokenRefreshTokenController extends AbstractController
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20TokenRefreshTokenController.class);
 
-    private final ServicesManager servicesManager;
-
-    private final CentralAuthenticationService centralAuthenticationService;
-
-    private final CipherExecutor cipherExecutor;
+    private final CentralOAuthService centralOAuthService;
 
     private final long timeout;
 
     /**
      * Instantiates a new o auth20 grant type refresh token controller.
      *
-     * @param servicesManager the services manager
-     * @param centralAuthenticationService the central authentication service
-     * @param cipherExecutor the cipher executor
+     * @param centralOAuthService the central oauth service
      * @param timeout the timeout
      */
-    public OAuth20TokenRefreshTokenController(final ServicesManager servicesManager,
-                                              final CentralAuthenticationService centralAuthenticationService,
-                                              final CipherExecutor cipherExecutor, final long timeout) {
-        this.servicesManager = servicesManager;
-        this.centralAuthenticationService = centralAuthenticationService;
-        this.cipherExecutor = cipherExecutor;
+    public OAuth20TokenRefreshTokenController(final CentralOAuthService centralOAuthService,
+                                              final long timeout) {
+        this.centralOAuthService = centralOAuthService;
         this.timeout = timeout;
     }
 
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
+        final String refreshTokenId = request.getParameter(OAuthConstants.REFRESH_TOKEN);
+        LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId);
+
         final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
 
         final String clientSecret = request.getParameter(OAuthConstants.CLIENT_SECRET);
+        LOGGER.debug("{} : {}", OAuthConstants.CLIENT_SECRET, "*********");
 
-        final boolean isVerified = verifyRequest(clientId, clientSecret);
-        if (!isVerified) {
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
+        LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
+
+        try {
+            verifyRequest(refreshTokenId, clientId, clientSecret, grantType);
+        } catch (final InvalidParameterException e) {
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
-        final OAuthToken refreshToken = OAuthTokenUtils.getToken(request, cipherExecutor, OAuthConstants.REFRESH_TOKEN);
-        final TicketGrantingTicket refreshTicket = (TicketGrantingTicket) OAuthTokenUtils.getTicket(centralAuthenticationService, refreshToken);
-
-        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        if (registeredService == null) {
-            LOGGER.error("Could not find registered service for client id : {}", clientId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+        final RefreshToken refreshToken;
+        try {
+            refreshToken = centralOAuthService.getToken(refreshTokenId, RefreshToken.class);
+        } catch (final InvalidTokenException e) {
+            LOGGER.error("Invalid {} : {}", OAuthConstants.REFRESH_TOKEN, refreshTokenId);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, OAuthConstants.INVALID_REFRESH_TOKEN_DESCRIPTION,
+                                             HttpStatus.SC_BAD_REQUEST);
         }
 
-        final Service service = new SimpleWebApplicationServiceImpl(registeredService.getServiceId());
-        final ServiceTicket accessTicket = OAuthTokenUtils.fetchAccessTicket(centralAuthenticationService, refreshTicket, service);
+        final AccessToken accessToken = centralOAuthService.grantOfflineAccessToken(refreshToken);
 
-        final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessTicket.getCreationTime()));
-
-        final ObjectMapper mapper = new ObjectMapper();
         final Map<String, Object> map = new HashMap<>();
-        map.put(OAuthConstants.ACCESS_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, accessTicket));
-        map.put(OAuthConstants.EXPIRES_IN, expires);
+        map.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
+        map.put(OAuthConstants.EXPIRES_IN,
+                (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getTicket().getCreationTime())));
         map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
 
+        final ObjectMapper mapper = new ObjectMapper();
         final String result = mapper.writeValueAsString(map);
         LOGGER.debug("result : {}", result);
 
-        response.setContentType("application/json; charset=UTF-8");
+        response.setContentType("application/json");
         return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
     }
 
     /**
      * Verify the request by reviewing the values of client id, client secret, refresh token, etc.
      *
+     * @param refreshTokenId the refresh token id
      * @param clientId the client id
      * @param clientSecret the client secret
-     * @return true, if successful
+     * @param grantType the grant type
+     * @throws InvalidParameterException with the name of the invalid parameter
      */
-    private boolean verifyRequest(final String clientId, final String clientSecret) {
+    private void verifyRequest(final String refreshTokenId, final String clientId, final String clientSecret, final String grantType)
+        throws InvalidParameterException {
+        // refreshToken is required
+        if (StringUtils.isBlank(refreshTokenId)) {
+            LOGGER.error("Missing {}", OAuthConstants.REFRESH_TOKEN);
+            throw new InvalidParameterException(OAuthConstants.REFRESH_TOKEN);
+        }
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
         // clientSecret is required
         if (StringUtils.isBlank(clientSecret)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_SECRET);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_SECRET);
         }
-
-        final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        if (service == null) {
-            LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return false;
+        // grantType is required
+        if (StringUtils.isBlank(grantType)) {
+            LOGGER.error("Missing {}", OAuthConstants.GRANT_TYPE);
+            throw new InvalidParameterException(OAuthConstants.GRANT_TYPE);
         }
-        if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {
-            LOGGER.error("Wrong client secret for service {}", service);
-            return false;
+        if (!grantType.equalsIgnoreCase(OAuthConstants.REFRESH_TOKEN)) {
+            LOGGER.error("Invalid {} : {}", OAuthConstants.GRANT_TYPE, grantType);
+            throw new InvalidParameterException(OAuthConstants.GRANT_TYPE);
         }
-
-        return true;
     }
 }

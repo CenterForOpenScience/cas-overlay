@@ -16,19 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.jasig.cas.support.oauth;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+package org.jasig.cas.support.oauth.personal.handler.support;
 
 /**
- * The exception to throw when a token is provided however it is found to be unauthorized.
+ * Base class for Personal Token Handler.
  *
  * @author Michael Haselton
-
  * @since 4.1.0
  */
-@ResponseStatus(value=HttpStatus.UNAUTHORIZED, reason="unauthorized")
-public class TokenUnauthorizedException extends RuntimeException {
+public abstract class AbstractPersonalAccessTokenHandler implements PersonalAccessTokenHandler {
 }

@@ -18,12 +18,14 @@
  */
 package io.cos.cas.web.flow;
 
-import io.cos.cas.authentication.*;
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CasProtocolConstants;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.Message;
-import org.jasig.cas.authentication.*;
+import org.jasig.cas.authentication.AuthenticationException;
+import org.jasig.cas.authentication.Credential;
+import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.ServiceTicket;
@@ -195,7 +197,8 @@ public class OpenScienceFrameworkAuthenticationViaFormAction {
      * @return the resulting event.
      * @since 4.1.0
      */
-    protected Event createTicketGrantingTicket(final RequestContext context, final MessageContext messageContext, final Credential credential) {
+    protected Event createTicketGrantingTicket(final RequestContext context, final MessageContext messageContext,
+                                               final Credential credential) {
         try {
             final TicketGrantingTicket tgt = this.centralAuthenticationService.createTicketGrantingTicket(credential);
             WebUtils.putTicketGrantingTicketInScopes(context, tgt);
@@ -276,9 +279,14 @@ public class OpenScienceFrameworkAuthenticationViaFormAction {
      * @return the event
      */
     private Event newEvent(final String id, final Exception error) {
-        return new Event(this, id, new LocalAttributeMap("error", error));
+        return new Event(this, id, new LocalAttributeMap<Object>("error", error));
     }
 
+    /**
+     * Sets the central authentication service.
+     *
+     * @param centralAuthenticationService central authentication service.
+     */
     public final void setCentralAuthenticationService(final CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
     }

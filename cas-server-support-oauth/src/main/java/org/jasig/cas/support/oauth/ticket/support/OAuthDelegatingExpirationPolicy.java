@@ -19,22 +19,22 @@
 package org.jasig.cas.support.oauth.ticket.support;
 
 import org.jasig.cas.authentication.Authentication;
-import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
+import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.AbstractTicket;
 import org.jasig.cas.ticket.ExpirationPolicy;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.TicketState;
 import org.jasig.cas.ticket.support.AbstractCasExpirationPolicy;
 
 import javax.validation.constraints.NotNull;
 
 /**
- * Delegates to different expiration policies depending on whether oauth
- * is true or not.
+ * Delegates to different expiration policies depending on oauth
+ * token type specified by the credential.
  *
  * @author Michael Haselton
  * @since 4.1.0
- *
  */
 public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpirationPolicy {
 
@@ -42,30 +42,55 @@ public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpiration
     private static final long serialVersionUID = 4461752518354198401L;
 
     @NotNull
-    private ExpirationPolicy oAuthExpirationPolicy;
+    private ExpirationPolicy oAuthRefreshTokenExpirationPolicy;
+
+    @NotNull
+    private ExpirationPolicy oAuthAccessTokenExpirationPolicy;
 
     @NotNull
     private ExpirationPolicy sessionExpirationPolicy;
 
     @Override
     public boolean isExpired(final TicketState ticketState) {
-        AbstractTicket ticket = (AbstractTicket) ticketState;
-        Authentication authentication = ticket.getAuthentication();
-        if (authentication == null) {
-            authentication = ticket.getGrantingTicket().getAuthentication();
+        final AbstractTicket ticket = (AbstractTicket) ticketState;
+        final TicketGrantingTicket ticketGrantingTicket = ticket.getGrantingTicket();
+
+        final Authentication authentication;
+        if (ticketGrantingTicket != null) {
+            authentication = ticketGrantingTicket.getAuthentication();
+        } else {
+            authentication = ticket.getAuthentication();
         }
 
-        final Boolean b = (Boolean) authentication.getAttributes().
-            get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH);
-        if (b == null || b.equals(Boolean.FALSE)) {
-            return this.sessionExpirationPolicy.isExpired(ticketState);
+        final TokenType tokenType = (TokenType) authentication.getAttributes()
+                .get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_ACCESS_TYPE);
+
+        // offline
+        if (tokenType == TokenType.OFFLINE) {
+            return ticket instanceof TicketGrantingTicket ? oAuthRefreshTokenExpirationPolicy.isExpired(ticketState)
+                    : oAuthAccessTokenExpirationPolicy.isExpired(ticketState);
         }
 
-        return this.oAuthExpirationPolicy.isExpired(ticketState);
+        // online
+        if (tokenType == TokenType.ONLINE && ticket instanceof TicketGrantingTicket) {
+            return oAuthAccessTokenExpirationPolicy.isExpired(ticketState);
+        }
+
+        // personal
+        if (tokenType == TokenType.PERSONAL && ticket instanceof TicketGrantingTicket) {
+            return false;
+        }
+
+        // service validation / other
+        return sessionExpirationPolicy.isExpired(ticketState);
     }
 
-    public void setOAuthExpirationPolicy(final ExpirationPolicy oAuthExpirationPolicy) {
-        this.oAuthExpirationPolicy = oAuthExpirationPolicy;
+    public void setOAuthRefreshTokenExpirationPolicy(final ExpirationPolicy oAuthRefreshTokenExpirationPolicy) {
+        this.oAuthRefreshTokenExpirationPolicy = oAuthRefreshTokenExpirationPolicy;
+    }
+
+    public void setOAuthAccessTokenExpirationPolicy(final ExpirationPolicy oAuthAccessTokenExpirationPolicy) {
+        this.oAuthAccessTokenExpirationPolicy = oAuthAccessTokenExpirationPolicy;
     }
 
     public void setSessionExpirationPolicy(final ExpirationPolicy sessionExpirationPolicy) {

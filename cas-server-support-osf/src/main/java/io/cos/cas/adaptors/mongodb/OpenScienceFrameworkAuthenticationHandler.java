@@ -19,6 +19,10 @@
 package io.cos.cas.adaptors.mongodb;
 
 import java.security.GeneralSecurityException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
@@ -27,7 +31,11 @@ import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import org.bson.types.ObjectId;
 import org.apache.commons.codec.binary.Base32;
 
-import org.jasig.cas.authentication.*;
+import org.jasig.cas.authentication.AccountDisabledException;
+import org.jasig.cas.authentication.BasicCredentialMetaData;
+import org.jasig.cas.authentication.Credential;
+import org.jasig.cas.authentication.HandlerResult;
+import org.jasig.cas.authentication.PreventedException;
 import org.jasig.cas.authentication.handler.NoOpPrincipalNameTransformer;
 import org.jasig.cas.authentication.handler.PrincipalNameTransformer;
 import org.jasig.cas.authentication.handler.support.AbstractPreAndPostProcessingAuthenticationHandler;
@@ -45,8 +53,6 @@ import javax.security.auth.login.FailedLoginException;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.DatatypeConverter;
 
-import java.util.*;
-
 import org.jasig.cas.Message;
 import org.jasig.cas.authentication.principal.Principal;
 
@@ -54,8 +60,17 @@ import io.cos.cas.authentication.oath.TotpUtils;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+/**
+ * The Open Science Framework Authentication handler.
+ *
+ * @author Michael Haselton
+ * @since 4.1.0
+ */
 public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPostProcessingAuthenticationHandler
         implements InitializingBean {
+
+    private static final int TOTP_INTERVAL = 30;
+    private static final int TOTP_WINDOW = 1;
 
     @NotNull
     private PrincipalNameTransformer principalNameTransformer = new NoOpPrincipalNameTransformer();
@@ -64,7 +79,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     private MongoOperations mongoTemplate;
 
     @Document(collection="user")
-    private class User {
+    private static class OpenScienceFrameworkUser {
         @Id
         private String id;
         private String username;
@@ -90,7 +105,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             return this.username;
         }
 
-        public void setUsername(String username) {
+        public void setUsername(final String username) {
             this.username = username;
         }
 
@@ -98,7 +113,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             return this.password;
         }
 
-        public void setPassword(String password) {
+        public void setPassword(final String password) {
             this.password = password;
         }
 
@@ -106,7 +121,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             return this.verificationKey;
         }
 
-        public void setVerificationKey(String verificationKey) {
+        public void setVerificationKey(final String verificationKey) {
             this.verificationKey = verificationKey;
         }
 
@@ -114,7 +129,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             return this.givenName;
         }
 
-        public void setGivenName(String givenName) {
+        public void setGivenName(final String givenName) {
             this.givenName = givenName;
         }
 
@@ -122,7 +137,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             return this.familyName;
         }
 
-        public void setFamilyName(String familyName) {
+        public void setFamilyName(final String familyName) {
             this.familyName = familyName;
         }
 
@@ -130,7 +145,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             return this.isClaimed;
         }
 
-        public void setIsClaimed(Boolean isClaimed) {
+        public void setIsClaimed(final Boolean isClaimed) {
             this.isClaimed = isClaimed;
         }
 
@@ -156,33 +171,57 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         @Override
         public String toString() {
-            return "User [id=" + this.id + ", username=" + this.username + "]";
+            return String.format("OpenScienceFrameworkUser [id=%s, username=%s]", this.id, this.username);
         }
     }
 
     @Document(collection="twofactorusersettings")
-    private class TimeBasedOneTimePassword {
+    private static class TimeBasedOneTimePassword {
         @Id
         private ObjectId id;
         @Field("totp_secret")
         private String totpSecret;
+        @Field("is_confirmed")
+        private Boolean isConfirmed;
+        private Boolean deleted;
 
         public String getTotpSecret() {
             return this.totpSecret;
         }
 
-        public void setTotpSecret(String totpSecret) {
+        public void setTotpSecret(final String totpSecret) {
             this.totpSecret = totpSecret;
         }
 
+        public Boolean getIsConfirmed() {
+            return this.isConfirmed;
+        }
+
+        public void setIsConfirmed(final Boolean isConfirmed) {
+            this.isConfirmed = isConfirmed;
+        }
+
+        public Boolean getDeleted() {
+            return this.deleted;
+        }
+
+        public void setDeleted(final Boolean deleted) {
+            this.deleted = deleted;
+        }
+
+        /**
+         * Returns the TOTP secret in encoded as Base32.
+         *
+         * @return the encoded secret
+         */
         public String getTotpSecretBase32() {
-            byte[] bytes = DatatypeConverter.parseHexBinary(this.totpSecret);
+            final byte[] bytes = DatatypeConverter.parseHexBinary(this.totpSecret);
             return new Base32().encodeAsString(bytes);
         }
 
         @Override
         public String toString() {
-            return "TimeBasedOneTimePassword [id=" + this.id + "]";
+            return String.format("TimeBasedOneTimePassword [id=%s]", this.id);
         }
     }
 
@@ -201,6 +240,17 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         return authenticateInternal(osfCredential);
     }
 
+    /**
+     * Authenticates a Open Science Framework credential.
+     *
+     * @param credential the credential object bearing the username, password, etc...
+     *
+     * @return HandlerResult resolved from credential on authentication success or null if no principal could be resolved
+     * from the credential.
+     *
+     * @throws GeneralSecurityException On authentication failure.
+     * @throws PreventedException On the indeterminate case when authentication is prevented.
+     */
     protected final HandlerResult authenticateInternal(final OpenScienceFrameworkCredential credential)
             throws GeneralSecurityException, PreventedException {
         final String username = credential.getUsername().toLowerCase();
@@ -208,12 +258,12 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
-        final User user = this.mongoTemplate.findOne(new Query(
+        final OpenScienceFrameworkUser user = this.mongoTemplate.findOne(new Query(
                 new Criteria().orOperator(
                         Criteria.where("emails").is(username),
                         Criteria.where("username").is(username)
                 )
-        ), User.class);
+        ), OpenScienceFrameworkUser.class);
 
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");
@@ -230,10 +280,10 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             throw new FailedLoginException(username + " invalid verification key or password");
         }
 
-        TimeBasedOneTimePassword timeBasedOneTimePassword = this.mongoTemplate.findOne(new Query(Criteria
+        final TimeBasedOneTimePassword timeBasedOneTimePassword = this.mongoTemplate.findOne(new Query(Criteria
                 .where("owner").is(user.id)
-                .and("is_confirmed").is(true)
-                .and("deleted").is(false)
+                .and("isConfirmed").is(Boolean.TRUE)
+                .and("deleted").is(Boolean.FALSE)
         ), TimeBasedOneTimePassword.class);
 
         if (timeBasedOneTimePassword != null && timeBasedOneTimePassword.totpSecret != null) {
@@ -241,10 +291,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                 throw new OneTimePasswordRequiredException("Time-based One Time Password required");
             }
             try {
-                if (!TotpUtils.checkCode(timeBasedOneTimePassword.getTotpSecretBase32(), Long.valueOf(oneTimePassword), 30, 1)) {
+                final Long longOneTimePassword = Long.valueOf(oneTimePassword);
+                if (!TotpUtils.checkCode(timeBasedOneTimePassword.getTotpSecretBase32(), longOneTimePassword, TOTP_INTERVAL, TOTP_WINDOW)) {
                     throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password");
                 }
-            } catch (Exception ex) {
+            } catch (final Exception e) {
                 throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password");
             }
         }
@@ -294,17 +345,17 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         return new HandlerResult(this, new BasicCredentialMetaData(credential), principal, warnings);
     }
 
-    public final void setPrincipalNameTransformer(final PrincipalNameTransformer principalNameTransformer) {
+    public void setPrincipalNameTransformer(final PrincipalNameTransformer principalNameTransformer) {
         this.principalNameTransformer = principalNameTransformer;
     }
 
-    public final void setMongoTemplate(final MongoTemplate mongoTemplate) {
+    public void setMongoTemplate(final MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
     /**
      * {@inheritDoc}
-     * @return True if credential is a {@link UsernamePasswordCredential}, false otherwise.
+     * @return True if credential is a {@link OpenScienceFrameworkCredential}, false otherwise.
      */
     @Override
     public boolean supports(final Credential credential) {

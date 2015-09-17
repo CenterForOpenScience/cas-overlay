@@ -21,19 +21,16 @@ package org.jasig.cas.support.oauth.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.authentication.principal.Principal;
-import org.jasig.cas.authentication.principal.Service;
-import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
-import org.jasig.cas.services.ServicesManager;
+import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
-import org.jasig.cas.support.oauth.OAuthTokenUtils;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
-import org.jasig.cas.ticket.ServiceTicket;
-import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.registry.TicketRegistry;
-import org.jasig.cas.util.CipherExecutor;
+import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.AuthorizationCode;
+import org.jasig.cas.support.oauth.token.InvalidTokenException;
+import org.jasig.cas.support.oauth.token.RefreshToken;
+import org.jasig.cas.support.oauth.token.TokenType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -41,7 +38,6 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -59,106 +55,96 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20TokenAuthorizationCodeController.class);
 
-    private final ServicesManager servicesManager;
+    private final CentralOAuthService centralOAuthService;
 
-    private final TicketRegistry ticketRegistry;
-
-    private final CentralAuthenticationService centralAuthenticationService;
-
-    private final CipherExecutor cipherExecutor;
-
-    private final long timeout;
+    private final Long timeout;
 
     /**
      * Instantiates a new o auth20 grant type authorization code controller.
      *
-     * @param servicesManager the services manager
-     * @param ticketRegistry the ticket registry
-     * @param centralAuthenticationService the central authentication service
+     * @param centralOAuthService the central oauth service
      * @param timeout the timeout
      */
-    public OAuth20TokenAuthorizationCodeController(final ServicesManager servicesManager, final TicketRegistry ticketRegistry,
-                                                   final CentralAuthenticationService centralAuthenticationService,
-                                                   final CipherExecutor cipherExecutor, final long timeout) {
-        this.servicesManager = servicesManager;
-        this.ticketRegistry = ticketRegistry;
-        this.centralAuthenticationService = centralAuthenticationService;
-        this.cipherExecutor = cipherExecutor;
+    public OAuth20TokenAuthorizationCodeController(final CentralOAuthService centralOAuthService, final Long timeout) {
+        this.centralOAuthService = centralOAuthService;
         this.timeout = timeout;
     }
 
     @Override
     protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String redirectUri = request.getParameter(OAuthConstants.REDIRECT_URI);
-        LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
+        final String code = request.getParameter(OAuthConstants.CODE);
+        LOGGER.debug("{} : {}", OAuthConstants.CODE, code);
 
         final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
 
         final String clientSecret = request.getParameter(OAuthConstants.CLIENT_SECRET);
+        LOGGER.debug("{} : {}", OAuthConstants.CLIENT_SECRET, "*********");
 
-        final String code = request.getParameter(OAuthConstants.CODE);
-        LOGGER.debug("{} : {}", OAuthConstants.CODE, code);
+        final String redirectUri = request.getParameter(OAuthConstants.REDIRECT_URI);
+        LOGGER.debug("{} : {}", OAuthConstants.REDIRECT_URI, redirectUri);
 
-        final String serviceTicketId = cipherExecutor.decode(code);
-        LOGGER.debug("Service Ticket : {}", serviceTicketId);
+        final String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
+        LOGGER.debug("{} : {}", OAuthConstants.GRANT_TYPE, grantType);
 
-        final boolean isVerified = verifyRequest(redirectUri, clientId, clientSecret, code);
-        if (!isVerified) {
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_REQUEST, HttpStatus.SC_BAD_REQUEST);
+        try {
+            verifyRequest(redirectUri, clientId, clientSecret, code, grantType);
+        } catch (final InvalidParameterException e) {
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
-        final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(serviceTicketId);
-        // service ticket should be valid
-        if (serviceTicket == null || serviceTicket.isExpired()) {
-            LOGGER.error("{} (Service Ticket) expired : {}", OAuthConstants.CODE, serviceTicketId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+        final AuthorizationCode authorizationCode;
+        try {
+            authorizationCode = centralOAuthService.getToken(code, AuthorizationCode.class);
+        } catch (final InvalidTokenException e) {
+            LOGGER.error("Unknown {} : {}", OAuthConstants.AUTHORIZATION_CODE, code);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_CODE_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
-        // remove service ticket
-        ticketRegistry.deleteTicket(serviceTicket.getId());
-
-        final Principal loginPrincipal = ticketGrantingTicket.getAuthentication().getPrincipal();
-
-        // do we have an existing refresh token?
-        final TicketGrantingTicket refreshToken = OAuthTokenUtils.getRefreshToken(centralAuthenticationService, clientId, loginPrincipal);
-        LOGGER.debug("{} : {}", OAuthConstants.REFRESH_TOKEN, refreshToken);
-
-        final TicketGrantingTicket refreshTicket;
-        if (refreshToken != null) {
-            refreshTicket = (TicketGrantingTicket) ticketRegistry.getTicket(refreshToken.getId());
-        } else {
-            refreshTicket = OAuthTokenUtils.fetchRefreshTicket(centralAuthenticationService, clientId, loginPrincipal);
+        final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
+        if (service == null) {
+            LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
-        if (refreshTicket == null) {
-            LOGGER.error("Could not fetch refresh ticket [{}]", loginPrincipal);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
+        if (!service.getClientSecret().equals(clientSecret)) {
+            LOGGER.error("Mismatched Client Secret parameters");
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
+        }
+        if (!redirectUri.matches(service.getServiceId())) {
+            LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+                    OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
 
-        final OAuthRegisteredService registeredService = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        if (registeredService == null) {
-            LOGGER.error("Could not find registered service for client id [{}]", clientId);
-            return OAuthUtils.writeTextError(response, OAuthConstants.INVALID_GRANT, HttpStatus.SC_BAD_REQUEST);
-        }
-
-        final Service service = new SimpleWebApplicationServiceImpl(redirectUri);
-        final ServiceTicket accessTicket = OAuthTokenUtils.fetchAccessTicket(centralAuthenticationService, refreshTicket, service);
-
-        final int expires = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessTicket.getCreationTime()));
-
-        final ObjectMapper mapper = new ObjectMapper();
         final Map<String, Object> map = new HashMap<>();
-        map.put(OAuthConstants.ACCESS_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, accessTicket));
-        map.put(OAuthConstants.REFRESH_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, refreshTicket, service));
-        map.put(OAuthConstants.EXPIRES_IN, expires);
+
+        final AccessToken accessToken;
+        if (authorizationCode.getType() == TokenType.OFFLINE) {
+            final RefreshToken refreshToken = centralOAuthService.grantOfflineRefreshToken(authorizationCode, redirectUri);
+            map.put(OAuthConstants.REFRESH_TOKEN, refreshToken.getId());
+
+            accessToken = centralOAuthService.grantOfflineAccessToken(refreshToken);
+        } else if (authorizationCode.getType() == TokenType.ONLINE) {
+            accessToken = centralOAuthService.grantOnlineAccessToken(authorizationCode);
+        } else {
+            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT,
+                    OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
+        }
+
+        map.put(OAuthConstants.ACCESS_TOKEN, accessToken.getId());
+        map.put(OAuthConstants.EXPIRES_IN,
+                (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - accessToken.getTicket().getCreationTime())));
         map.put(OAuthConstants.TOKEN_TYPE, OAuthConstants.BEARER_TOKEN);
 
+        final ObjectMapper mapper = new ObjectMapper();
         final String result = mapper.writeValueAsString(map);
         LOGGER.debug("result : {}", result);
 
-        response.setContentType("application/json; charset=UTF-8");
+        response.setContentType("application/json");
         return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
     }
 
@@ -169,46 +155,39 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
      * @param clientId the client id
      * @param clientSecret the client secret
      * @param code the code
-     * @return true, if successful
+     * @param grantType the grant type
+     * @throws InvalidParameterException with the name of the invalid parameter
      */
-    private boolean verifyRequest(final String redirectUri, final String clientId, final String clientSecret,
-                                  final String code) {
+    private void verifyRequest(final String redirectUri, final String clientId, final String clientSecret,
+                                  final String code, final String grantType) throws InvalidParameterException {
         // clientId is required
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
         // clientSecret is required
         if (StringUtils.isBlank(clientSecret)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_SECRET);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CLIENT_SECRET);
         }
         // code is required
         if (StringUtils.isBlank(code)) {
             LOGGER.error("Missing {}", OAuthConstants.CODE);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.CODE);
         }
         // redirectUri is required
         if (StringUtils.isBlank(redirectUri)) {
             LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
-            return false;
+            throw new InvalidParameterException(OAuthConstants.REDIRECT_URI);
         }
-
-        final OAuthRegisteredService service = OAuthUtils.getRegisteredOAuthService(servicesManager, clientId);
-        if (service == null) {
-            LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
-            return false;
+        // grantType is required
+        if (StringUtils.isBlank(grantType)) {
+            LOGGER.error("Missing {}", OAuthConstants.GRANT_TYPE);
+            throw new InvalidParameterException(OAuthConstants.GRANT_TYPE);
         }
-        if (!StringUtils.equals(service.getClientSecret(), clientSecret)) {
-            LOGGER.error("Wrong client secret for service {}", service);
-            return false;
+        if (!grantType.equalsIgnoreCase(OAuthConstants.AUTHORIZATION_CODE)) {
+            LOGGER.error("Invalid {} : {}", OAuthConstants.GRANT_TYPE, grantType);
+            throw new InvalidParameterException(OAuthConstants.GRANT_TYPE);
         }
-        final String serviceId = service.getServiceId();
-        if (!redirectUri.matches(serviceId)) {
-            LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, serviceId);
-            return false;
-        }
-
-        return true;
     }
 }

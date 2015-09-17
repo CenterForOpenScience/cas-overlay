@@ -21,24 +21,21 @@ package org.jasig.cas.support.oauth.authentication.principal;
 import org.jasig.cas.authentication.AuthenticationBuilder;
 import org.jasig.cas.authentication.AuthenticationMetaDataPopulator;
 import org.jasig.cas.authentication.Credential;
-import org.jasig.cas.support.oauth.OAuthConstants;
 
 /**
  * Determines if the credential provided are for OAuth Services and then sets the appropriate
- * Authentication attribute if remember me services have been requested.
+ * Authentication attribute.
  *
  * @author Michael Haselton
  * @since 4.1.0
- *
  */
 public final class OAuthAuthenticationMetaDataPopulator implements
         AuthenticationMetaDataPopulator {
 
     @Override
     public void populateAttributes(final AuthenticationBuilder builder, final Credential credential) {
-        OAuthCredential c = (OAuthCredential) credential;
-        builder.addAttribute(OAuthCredential.AUTHENTICATION_ATTRIBUTE_OAUTH, Boolean.TRUE);
-        builder.addAttribute(OAuthConstants.CLIENT_ID, c.getClientId());
+        final OAuthCredential c = (OAuthCredential) credential;
+        builder.addAttribute(OAuthCredential.AUTHENTICATION_ATTRIBUTE_ACCESS_TYPE, c.getAccessType());
     }
 
     @Override

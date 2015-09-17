@@ -18,9 +18,10 @@
  */
 package org.jasig.cas.support.oauth.web.view;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CasProtocolConstants;
-import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.authentication.support.CasAttributeEncoder;
+import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.web.view.Cas30ResponseView;
 import org.springframework.web.servlet.view.AbstractUrlBasedView;
@@ -30,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Set;
 
 /**
  * Appends the OAuth Access Token to the attributes if found.
@@ -54,10 +55,14 @@ public class OAuthCas30ResponseView extends Cas30ResponseView {
                                             final HttpServletResponse response) throws Exception {
         super.prepareMergedOutputModel(model, request, response);
 
-        HashMap attributes = (HashMap) model.get(CasProtocolConstants.VALIDATION_CAS_MODEL_ATTRIBUTE_NAME_ATTRIBUTES);
+        final HashMap attributes = (HashMap) model.get(CasProtocolConstants.VALIDATION_CAS_MODEL_ATTRIBUTE_NAME_ATTRIBUTES);
         final String accessToken = (String) model.get(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN);
         if (accessToken != null) {
             attributes.put(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN, accessToken);
+        }
+        final Set<String> accessTokenScope = (Set<String>) model.get(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN_SCOPE);
+        if (accessToken != null) {
+            attributes.put(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN_SCOPE, StringUtils.join(accessTokenScope, " "));
         }
     }
 

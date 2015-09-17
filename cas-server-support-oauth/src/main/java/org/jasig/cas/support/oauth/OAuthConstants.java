@@ -30,11 +30,20 @@ public interface OAuthConstants {
     /** The redirect uri. */
     String REDIRECT_URI = "redirect_uri";
 
+    /** The response type. */
+    String RESPONSE_TYPE = "response_type";
+
     /** The client id. */
     String CLIENT_ID = "client_id";
 
     /** The client secret. */
     String CLIENT_SECRET = "client_secret";
+
+    /** The scope. */
+    String SCOPE = "scope";
+
+    /** The approval prompt. */
+    String ACCESS_TYPE = "access_type";
 
     /** The approval prompt. */
     String APPROVAL_PROMPT = "approval_prompt";
@@ -75,9 +84,6 @@ public interface OAuthConstants {
     /** The authorization code. */
     String AUTHORIZATION_CODE = "authorization_code";
 
-    /** The password. */
-    String PASSWORD = "password";
-
     /** The bearer token. */
     String BEARER_TOKEN = "Bearer";
 
@@ -87,11 +93,8 @@ public interface OAuthConstants {
     /** The OATH h20_ approval prompt allow action. */
     String OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW = "allow";
 
-    /** The OATH h20_ approval prompt deny action. */
-    String OAUTH20_APPROVAL_PROMPT_ACTION_DENY = "deny";
-
-    /** The OAUT h20_ callbackurl. */
-    String OAUTH20_CALLBACKURL = "oauth20_callback_url";
+    /** The OAUT h20_ redirect uri. */
+    String OAUTH20_REDIRECT_URI = "oauth20_redirect_uri";
 
     /** The OAUT h20_ login ticket id. */
     String OAUTH20_LOGIN_TICKET_ID = "oauth20_login_ticket_id";
@@ -102,8 +105,20 @@ public interface OAuthConstants {
     /** The OAUT h20_ state. */
     String OAUTH20_STATE = "oauth20_state";
 
+    /** The OAUT h20_ scope. */
+    String OAUTH20_SCOPE = "oauth20_scope";
+
+    /** The OAUT h20_ scope map. */
+    String OAUTH20_SCOPE_SET = "oauth20_scope_set";
+
+    /** The OAUT h20_ response type. */
+    String OAUTH20_RESPONSE_TYPE = "oauth20_response_type";
+
     /** The OAUT h20_ client id. */
     String OAUTH20_CLIENT_ID = "oauth20_client_id";
+
+    /** The OAUT h20_ token type. */
+    String OAUTH20_TOKEN_TYPE = "oauth20_token_type";
 
     /** The OAUT h20_ approval prompt. */
     String OAUTH20_APPROVAL_PROMPT = "oauth20_approval_prompt";
@@ -118,10 +133,13 @@ public interface OAuthConstants {
     String CONFIRM_VIEW = "oauthConfirmView";
 
     /** The error view. */
-    String ERROR_VIEW = "viewServiceErrorView";
+    String ERROR_VIEW = "oauthFailureView";
 
     /** The invalid request. */
     String INVALID_REQUEST = "invalid_request";
+
+    /** The unauthorized request. */
+    String UNAUTHORIZED_REQUEST = "unauthorized";
 
     /** The invalid grant. */
     String INVALID_GRANT = "invalid_grant";
@@ -159,9 +177,39 @@ public interface OAuthConstants {
     /** The access denied. */
     String ACCESS_DENIED = "access_denied";
 
-    /** The access token url. */
-    String ACCESS_TOKEN_URL = "accessToken";
-
     /** The CAS protocol access token. */
     String CAS_PROTOCOL_ACCESS_TOKEN = "accessToken";
+
+    /** The CAS protocol access token scope. */
+    String CAS_PROTOCOL_ACCESS_TOKEN_SCOPE = "accessTokenScope";
+
+    /** The invalid code error description. */
+    String INVALID_CODE_DESCRIPTION = "Invalid Code";
+
+    /** The invalid refresh token error description. */
+    String INVALID_REFRESH_TOKEN_DESCRIPTION = "Invalid Refresh Token";
+
+    /** The invalid access token error description. */
+    String INVALID_ACCESS_TOKEN_DESCRIPTION = "Invalid Access Token";
+
+    /** The missing access token error description. */
+    String MISSING_ACCESS_TOKEN_DESCRIPTION = "Missing Access Token";
+
+    /** The ticket granting ticket expired error description. */
+    String EXPIRED_TGT_DESCRIPTION = "Ticket Granting Ticket Expired";
+
+    /** The service ticket expired error description. */
+    String EXPIRED_ST_DESCRIPTION = "Service Ticket Expired";
+
+    /** The invalid client id or client secret error description. */
+    String INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION = "Invalid Client ID or Client Secret";
+
+    /** The invalid redirect uri error description. */
+    String INVALID_REDIRECT_URI_DESCRIPTION = "Invalid Redirect URI";
+
+    /** The invalid grant type error description. */
+    String INVALID_GRANT_TYPE_DESCRIPTION = "Invalid Grant Type";
+
+    /** The failed token revocation error description. */
+    String FAILED_TOKEN_REVOCATION_DESCRIPTION = "Token Revocation Failed";
 }

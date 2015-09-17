@@ -16,19 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.jasig.cas.support.oauth.scope.handler.support;
 
-package org.jasig.cas.support.oauth;
+import org.jasig.cas.support.oauth.scope.Scope;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * The exception to throw when we cannot verify the token.
+ * Base class for OAuth Scope Handlers.
  *
  * @author Michael Haselton
-
  * @since 4.1.0
  */
-@ResponseStatus(value=HttpStatus.BAD_REQUEST, reason="invalid_token")
-public class TokenInvalidException extends RuntimeException {
+public abstract class AbstractScopeHandler implements ScopeHandler {
+
+    @Override
+    public Set<Scope> getDefaults() {
+        return new HashSet<>();
+    }
 }

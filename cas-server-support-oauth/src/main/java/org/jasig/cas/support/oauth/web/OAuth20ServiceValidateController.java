@@ -23,15 +23,15 @@ package org.jasig.cas.support.oauth.web;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.principal.WebApplicationService;
 import org.jasig.cas.services.ServicesManager;
+import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
-import org.jasig.cas.support.oauth.OAuthTokenUtils;
-import org.jasig.cas.ticket.*;
+import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.ticket.ServiceTicket;
+import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.proxy.ProxyHandler;
-import org.jasig.cas.util.CipherExecutor;
 import org.jasig.cas.web.DelegateController;
 import org.jasig.cas.web.ServiceValidateController;
 import org.jasig.cas.web.support.ArgumentExtractor;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -40,16 +40,21 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
 /**
- * This controller allows injection of an oauth access ticket into the CAS protocol.
+ * This controller allows injection of an oauth access token into the CAS protocol.
  *
  * @author Michael Haselton
  * @since 4.1.0
  */
 public class OAuth20ServiceValidateController extends DelegateController {
+
     /** Wrapped Service Validate Controller. */
     private ServiceValidateController wrapped = new ServiceValidateController();
 
-    /** The CORE which we will delegate all requests to. */
+    /** The central oauth service. */
+    @NotNull
+    private CentralOAuthService centralOAuthService;
+
+    /** The central authentication service. */
     @NotNull
     private CentralAuthenticationService centralAuthenticationService;
 
@@ -61,44 +66,43 @@ public class OAuth20ServiceValidateController extends DelegateController {
     @NotNull
     private ArgumentExtractor argumentExtractor;
 
-    /** Instance of CipherExecutor. */
-    @NotNull
-    private CipherExecutor cipherExecutor;
-
     /**
      * Calls {@link #initServletContext(javax.servlet.ServletContext)} if the
-     * given ApplicationContext is a {@link WebApplicationContext}.
+     * given ApplicationContext is a WebApplicationContext.
      */
     @Override
-    protected void initApplicationContext(ApplicationContext context) {
+    protected void initApplicationContext(final ApplicationContext context) {
         super.initApplicationContext(context);
         wrapped.setApplicationContext(context);
     }
 
     @Override
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView handleRequest(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final WebApplicationService service = this.argumentExtractor.extractService(request);
         final String serviceTicketId = service != null ? service.getArtifactId() : null;
 
         ServiceTicket serviceTicket = null;
         try {
             serviceTicket = this.centralAuthenticationService.getTicket(serviceTicketId, Ticket.class);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // ignore, wrapped object will handle error appropriately.
         }
 
-        ModelAndView modelAndView = wrapped.handleRequest(request, response);
+        final ModelAndView modelAndView = wrapped.handleRequest(request, response);
 
         if (service != null && serviceTicket != null && modelAndView.getViewName().equals(this.successView)) {
-            TicketGrantingTicket accessTicket = serviceTicket.getGrantingTicket();
-            modelAndView.addObject(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN, OAuthTokenUtils.getJsonWebToken(cipherExecutor, accessTicket, service));
+            final AccessToken accessToken = centralOAuthService.grantCASAccessToken(serviceTicket.getGrantingTicket(),
+                    serviceTicket.getService());
+            modelAndView.addObject(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN, accessToken.getId());
+            modelAndView.addObject(OAuthConstants.CAS_PROTOCOL_ACCESS_TOKEN_SCOPE, accessToken.getScopes());
         }
 
         return modelAndView;
     }
 
     @Override
-    protected ModelAndView handleRequestInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+    protected ModelAndView handleRequestInternal(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+            throws Exception {
         return null;
     }
 
@@ -114,13 +118,24 @@ public class OAuth20ServiceValidateController extends DelegateController {
      * @param centralAuthenticationService The centralAuthenticationService to
      * set.
      */
-    public final void setCentralAuthenticationService(final CentralAuthenticationService centralAuthenticationService) {
+    public void setCentralAuthenticationService(final CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
-        wrapped.setCentralAuthenticationService(this.centralAuthenticationService);
+        wrapped.setCentralAuthenticationService(centralAuthenticationService);
     }
 
+    /**
+     * @param centralOAuthService The centralOAuthService to
+     * set.
+     */
+    public void setCentralOAuthService(final CentralOAuthService centralOAuthService) {
+        this.centralOAuthService = centralOAuthService;
+    }
 
-    public final void setArgumentExtractor(final ArgumentExtractor argumentExtractor) {
+    /**
+     * @param argumentExtractor The argumentExtractor to
+     * set.
+     */
+    public void setArgumentExtractor(final ArgumentExtractor argumentExtractor) {
         this.argumentExtractor = argumentExtractor;
         wrapped.setArgumentExtractor(this.argumentExtractor);
     }
@@ -129,21 +144,21 @@ public class OAuth20ServiceValidateController extends DelegateController {
      * @param validationSpecificationClass The authenticationSpecificationClass
      * to set.
      */
-    public final void setValidationSpecificationClass(final Class<?> validationSpecificationClass) {
+    public void setValidationSpecificationClass(final Class<?> validationSpecificationClass) {
         wrapped.setValidationSpecificationClass(validationSpecificationClass);
     }
 
     /**
      * @param failureView The failureView to set.
      */
-    public final void setFailureView(final String failureView) {
+    public void setFailureView(final String failureView) {
         wrapped.setFailureView(failureView);
     }
 
     /**
      * @param successView The successView to set.
      */
-    public final void setSuccessView(final String successView) {
+    public void setSuccessView(final String successView) {
         this.successView = successView;
         wrapped.setSuccessView(this.successView);
     }
@@ -151,7 +166,7 @@ public class OAuth20ServiceValidateController extends DelegateController {
     /**
      * @param proxyHandler The proxyHandler to set.
      */
-    public final void setProxyHandler(final ProxyHandler proxyHandler) {
+    public void setProxyHandler(final ProxyHandler proxyHandler) {
         wrapped.setProxyHandler(proxyHandler);
     }
 
@@ -160,11 +175,7 @@ public class OAuth20ServiceValidateController extends DelegateController {
      *
      * @param servicesManager the new services manager
      */
-    public final void setServicesManager(final ServicesManager servicesManager) {
+    public void setServicesManager(final ServicesManager servicesManager) {
         wrapped.setServicesManager(servicesManager);
-    }
-
-    public void setCipherExecutor(final CipherExecutor cipherExecutor) {
-        this.cipherExecutor = cipherExecutor;
     }
 }

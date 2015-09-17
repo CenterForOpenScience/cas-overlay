@@ -89,6 +89,10 @@
     <bean id="oauthConfirmView" class="org.springframework.web.servlet.view.JstlView"
           c:url="/WEB-INF/view/jsp/protocol/oauth/confirm.jsp" />
 
+    <!-- Failure OAuth Views -->
+    <bean id="oauthFailureView" class="org.springframework.web.servlet.view.JstlView"
+          c:url="/WEB-INF/view/jsp/protocol/oauth/oAuthFailureView.jsp" />
+
     <!-- OpenId View -->
 
     <!-- OpenId Service Views -->
