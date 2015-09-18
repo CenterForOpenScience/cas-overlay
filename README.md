@@ -88,7 +88,7 @@ GET: /oauth2/authorize
 ###### Request
 
 ```
-https://accounts.osf.io/oauth2/authorize?client_id=gJgfkHAtz&redirect_uri=https://my-application/oauth/callback/osf/&scope=user.profile&state=FSyUOBgWiki_hyaBsa
+https://accounts.osf.io/oauth2/authorize?client_id=gJgfkHAtz&redirect_uri=https%3A%2F%2Fmy-application%2Foauth%2Fcallback%2Fosf%2F&scope=user.profile%2Bwrite&state=FSyUOBgWiki_hyaBsa
 ```
 
 Parameter | Value | Description
@@ -121,7 +121,7 @@ Allows client side javascript the ability to request specified scopes for author
 ###### Request
 
 ```
-https://accounts.osf.io/oauth2/authorize?response_type=token&client_id=gJgfkHAtz&redirect_uri=https://my-application/oauth/callback/osf/&scope=user.profile&state=FSyUOBgWiki_hyaBsa
+https://accounts.osf.io/oauth2/authorize?response_type=token&client_id=gJgfkHAtz&redirect_uri=https%3A%2F%2Fmy-application%2Foauth%2Fcallback%2Fosf%2F&scope=user.profile%2Bwrite&state=FSyUOBgWiki_hyaBsa
 ```
 
 Parameter | Value | Description
