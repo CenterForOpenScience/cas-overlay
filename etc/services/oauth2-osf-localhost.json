@@ -3,7 +3,7 @@
   "id" : 29872387398229,
   "name" : "Open Science Framework (Testing)",
   "description" : "OAuth Client Service URL",
-  "serviceId" : "^(\\Qhttp://localhost:5000/oauth/callback/googledrive/\\E|\\Qhttp://127.0.0.1:5000/oauth/callback/googledrive/\\E|\\Qhttp://192.168.99.100:5000/oauth/callback/googledrive/\\E)",
+  "serviceId" : "^(\\Qhttp://localhost:5000/oauth/callback/googledrive/\\E|\\Qhttp://127.0.0.1:5000/oauth/callback/googledrive/\\E)",
   "bypassApprovalPrompt" : false,
   "clientId" : "gJgfkHAtz_FSyUOBgWiki_hyaBsa",
   "clientSecret" : "esiLUJc2idUh5HaikEK7EAjMDwIa",
