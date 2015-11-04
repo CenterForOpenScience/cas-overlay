@@ -32,9 +32,9 @@
 
     <mongo:db-factory id="openScienceFrameworkMongoDbFactory"
         mongo-ref="openScienceFrameworkMongo"
-        dbname="${osf.mongodb.dbname}" />
-        <!--username="${osf.mongodb.username}"-->
-        <!--password="${osf.mongodb.password}" />-->
+        dbname="${osf.mongodb.dbname}"
+        username="${osf.mongodb.username:#{null}}"
+        password="${osf.mongodb.password:#{null}}" />
 
     <bean id="openScienceFrameworkMongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate"
         c:mongoDbFactory-ref="openScienceFrameworkMongoDbFactory" />
