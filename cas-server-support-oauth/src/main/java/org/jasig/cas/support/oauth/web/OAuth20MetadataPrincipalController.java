@@ -94,7 +94,14 @@ public final class OAuth20MetadataPrincipalController extends AbstractController
                     HttpStatus.SC_UNAUTHORIZED);
         }
 
-        final Collection<PrincipalMetadata> metadata = centralOAuthService.getPrincipalMetadata(accessToken);
+        final Collection<PrincipalMetadata> metadata;
+        try {
+            metadata = centralOAuthService.getPrincipalMetadata(accessToken);
+        } catch (final InvalidTokenException e) {
+            LOGGER.error("Invalid Access Token [{}] type [{}]", accessToken.getId(), accessToken.getType());
+            return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION,
+                    HttpStatus.SC_UNAUTHORIZED);
+        }
 
         final List<Map<String, Object>> metadataList = new ArrayList<>();
         for (final PrincipalMetadata item : metadata) {

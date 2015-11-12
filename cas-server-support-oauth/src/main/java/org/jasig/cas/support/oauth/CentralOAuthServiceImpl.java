@@ -365,9 +365,15 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    public Collection<PrincipalMetadata> getPrincipalMetadata(final AccessToken accessToken) {
-        final Map<String, PrincipalMetadata> metadata = new HashMap<>();
+    public Collection<PrincipalMetadata> getPrincipalMetadata(final AccessToken accessToken)
+            throws InvalidTokenException {
+        if (accessToken.getType() != TokenType.CAS) {
+            // Only CAS Tokens are allowed to access principal metadata.
+            LOGGER.warn("Principal Metadata can only be accessed with an Access Token of type CAS");
+            throw new InvalidTokenException(accessToken.getId());
+        }
 
+        final Map<String, PrincipalMetadata> metadata = new HashMap<>();
         for (final Token token : tokenRegistry.getPrincipalTokens(accessToken.getPrincipalId(), RefreshToken.class)) {
             final PrincipalMetadata serviceDetail;
             if (!metadata.containsKey(token.getClientId())) {
