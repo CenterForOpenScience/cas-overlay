@@ -396,6 +396,12 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
         for (final Token token : tokenRegistry.getPrincipalTokens(accessToken.getPrincipalId(), AccessToken.class)) {
             final PrincipalMetadata serviceDetail;
+
+            // Skip Personal Access Tokens
+            if (token.getClientId() == null) {
+                continue;
+            }
+
             if (!metadata.containsKey(token.getClientId())) {
                 final OAuthRegisteredService service = getRegisteredService(token.getClientId());
 
