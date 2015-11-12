@@ -54,7 +54,6 @@ import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.validation.constraints.NotNull;
@@ -158,7 +157,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public AuthorizationCode grantAuthorizationCode(final TokenType type, final String clientId,
                                                     final String ticketGrantingTicketId, final String redirectUri,
                                                     final Set<String> scopes) throws TicketException {
@@ -177,7 +175,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public RefreshToken grantOfflineRefreshToken(final AuthorizationCode authorizationCode, final String redirectUri)
             throws InvalidTokenException {
         final Principal principal = authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal();
@@ -204,7 +201,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public AccessToken grantCASAccessToken(final TicketGrantingTicket ticketGrantingTicket, final Service service)
             throws TicketException {
         final AccessToken accessToken = new AccessTokenImpl(
@@ -219,7 +215,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public AccessToken grantPersonalAccessToken(final PersonalAccessToken personalAccessToken) throws InvalidTokenException {
         final OAuthCredential credential = new OAuthCredential(personalAccessToken.getPrincipalId(), TokenType.PERSONAL);
 
@@ -241,7 +236,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public AccessToken grantOfflineAccessToken(final RefreshToken refreshToken) throws InvalidTokenException {
         final ServiceTicket serviceTicket;
         try {
@@ -263,7 +257,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public AccessToken grantOnlineAccessToken(final AuthorizationCode authorizationCode) throws InvalidTokenException {
         final Principal principal = authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal();
         final OAuthCredential credential = new OAuthCredential(principal.getId(), principal.getAttributes(), TokenType.ONLINE);
@@ -289,13 +282,11 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public Boolean revokeToken(final Token token) {
         return ticketRegistry.deleteTicket(token.getTicket().getId());
     }
 
     @Override
-    @Transactional(readOnly = false)
     public Boolean revokeClientTokens(final String clientId, final String clientSecret) {
         final OAuthRegisteredService service = getRegisteredService(clientId);
         if (service == null) {
@@ -323,7 +314,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public Boolean revokeClientPrincipalTokens(final AccessToken accessToken, final String clientId) {
         final String targetClientId;
         if (accessToken.getType() == TokenType.CAS) {
@@ -359,7 +349,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public ClientMetadata getClientMetadata(final String clientId, final String clientSecret) {
         final OAuthRegisteredService service = getRegisteredService(clientId);
         if (service == null) {
@@ -376,7 +365,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Collection<PrincipalMetadata> getPrincipalMetadata(final AccessToken accessToken) {
         final Map<String, PrincipalMetadata> metadata = new HashMap<>();
 
@@ -396,12 +384,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
         for (final Token token : tokenRegistry.getPrincipalTokens(accessToken.getPrincipalId(), AccessToken.class)) {
             final PrincipalMetadata serviceDetail;
-
-            // Skip Personal Access Tokens
-            if (token.getClientId() == null) {
-                continue;
-            }
-
             if (!metadata.containsKey(token.getClientId())) {
                 final OAuthRegisteredService service = getRegisteredService(token.getClientId());
 
@@ -418,20 +400,17 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Boolean isRefreshToken(final String clientId, final String principalId, final Set<String> scopes) {
         return tokenRegistry.isToken(clientId, principalId, scopes, RefreshToken.class);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Boolean isAccessToken(final TokenType type, final String clientId, final String principalId,
                                  final Set<String> scopes) {
         return tokenRegistry.isToken(type, clientId, principalId, scopes, AccessToken.class);
     }
 
     @Override
-    @Transactional(readOnly = false)
     public Token getToken(final String tokenId) throws InvalidTokenException {
         Assert.notNull(tokenId, "tokenId cannot be null");
 
@@ -444,7 +423,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     @Timed(name = "GET_TOKEN_TIMER")
     @Metered(name = "GET_TOKEN_METER")
     @Counted(name="GET_TOKEN_COUNTER", monotonic=true)
@@ -470,7 +448,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public PersonalAccessToken getPersonalAccessToken(final String tokenId) {
         Assert.notNull(tokenId, "tokenId cannot be null");
 
@@ -482,7 +459,6 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Map<String, Scope> getScopes(final Set<String> scopeSet) throws InvalidScopeException {
         Assert.notNull(scopeSet, "scopeSet cannot be null");
 
