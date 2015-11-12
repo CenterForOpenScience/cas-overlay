@@ -3,27 +3,19 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.cos.cas</groupId>
   <artifactId>cas-server</artifactId>
-  <version>4.1.0-SNAPSHOT</version>
+  <version>4.1.1</version>
   <packaging>pom</packaging>
   <name>Apereo Central Authentication Service</name>
   <description>Apereo CAS SSO server libraries and Web application.</description>
 
   <repositories>
-    <!--<repository>-->
-      <!--<id>sonatype-releases</id>-->
-      <!--<url>http://oss.sonatype.org/content/repositories/releases/</url>-->
-    <!--</repository>-->
-    <!--<repository>-->
-      <!--<id>sonatype-snapshots</id>-->
-      <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
-    <!--</repository>-->
     <repository>
-      <id>pinned-cas-maven-repo</id>
-      <url>https://raw.githubusercontent.com/icereval/cas-maven/master/</url>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
+      <id>sonatype-releases</id>
+      <url>http://oss.sonatype.org/content/repositories/releases/</url>
+    </repository>
+    <repository>
+      <id>sonatype-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
   </repositories>
 
@@ -272,6 +264,12 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>com.mchange</groupId>
+        <artifactId>c3p0</artifactId>
+        <version>${c3p0.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
         <version>${hibernate.core.version}</version>
@@ -288,12 +286,6 @@
         <artifactId>commons-codec</artifactId>
         <version>${commons.codec.version}</version>
         <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-dbcp2</artifactId>
-        <version>${dbcp.version}</version>
-        <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.postgresql</groupId>
@@ -631,7 +623,6 @@
   </build>
 
   <modules>
-    <module>cas-server-support-jdbc</module>
     <module>cas-server-support-oauth</module>
     <module>cas-server-support-osf</module>
     <module>cas-server-webapp</module>
@@ -641,12 +632,12 @@
     <!-- Dependency Versions -->
     <spring.webflow.version>2.4.1.RELEASE</spring.webflow.version>
     <spring.version>4.1.6.RELEASE</spring.version>
-    <spring.security.version>4.0.0.RELEASE</spring.security.version>
+    <spring.security.version>4.0.1.RELEASE</spring.security.version>
     <spring.data.version>1.7.0.RELEASE</spring.data.version>
     <aspectj.version>1.8.6</aspectj.version>
     <commons.codec.version>1.10</commons.codec.version>
-    <dbcp.version>2.1</dbcp.version>
-    <hibernate.core.version>4.3.8.Final</hibernate.core.version>
+    <c3p0.version>0.9.5.1</c3p0.version>
+    <hibernate.core.version>4.3.10.Final</hibernate.core.version>
     <junit.version>4.12</junit.version>
     <mockito.version>1.10.19</mockito.version>
     <slf4j.version>1.7.12</slf4j.version>
@@ -669,6 +660,7 @@
     <maven-findbugs-contrib-plugin.version>6.2.1</maven-findbugs-contrib-plugin.version>
     <maven-findbugs-security-plugin.version>1.4.1</maven-findbugs-security-plugin.version>
     <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
+    <maven-jetty-plugin.version>9.3.0.v20150612</maven-jetty-plugin.version>
 
     <!-- Project configuration -->
     <cs.dir>${project.basedir}</cs.dir>

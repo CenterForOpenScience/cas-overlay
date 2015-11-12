@@ -21,7 +21,7 @@
   <parent>
     <groupId>io.cos.cas</groupId>
     <artifactId>cas-server</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>4.1.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cas-server-support-osf</artifactId>
@@ -38,6 +38,10 @@
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-server-core</artifactId>
     </dependency>
+    <!--<dependency>-->
+      <!--<groupId>org.jasig.cas</groupId>-->
+      <!--<artifactId>cas-server-support-jdbc</artifactId>-->
+    <!--</dependency>-->
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
