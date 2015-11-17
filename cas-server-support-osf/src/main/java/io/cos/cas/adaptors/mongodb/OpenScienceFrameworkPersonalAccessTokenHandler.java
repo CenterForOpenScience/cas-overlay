@@ -51,14 +51,13 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
         private String id;
         @Field("token_id")
         private String tokenId;
-        @Field("user_id")
-            private String userId;
+        private String owner;
         private String scopes;
         @Field("is_active")
         private Boolean isActive;
 
-        public String getUserId() {
-            return this.userId;
+        public String getOwner() {
+            return this.owner;
         }
 
         public String getScopes() {
@@ -71,7 +70,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
 
         @Override
         public String toString() {
-            return String.format("PersonalAccessToken [id=%s, userId=%s]", this.id, this.userId);
+            return String.format("PersonalAccessToken [id=%s, owner=%s]", this.id, this.owner);
         }
     }
 
@@ -93,7 +92,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
         }
 
         final String scopes = token.scopes == null ? "" : token.scopes;
-        return new PersonalAccessToken(token.tokenId, token.userId, new HashSet<>(Arrays.asList(scopes.split(" "))));
+        return new PersonalAccessToken(token.tokenId, token.owner, new HashSet<>(Arrays.asList(scopes.split(" "))));
     }
 
     public void setMongoTemplate(final MongoTemplate mongoTemplate) {
