@@ -244,12 +244,10 @@
         <url-pattern>/v1/*</url-pattern>
     </servlet-mapping>
 
-    <!--
     <servlet-mapping>
         <servlet-name>cas</servlet-name>
-        <url-pattern>/samlValidate</url-pattern>
+        <url-pattern>/shibbolethLogin</url-pattern>
     </servlet-mapping>
-    -->
 
     <session-config>
         <!-- Default to 5 minute session timeouts -->

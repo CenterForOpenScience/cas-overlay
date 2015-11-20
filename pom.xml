@@ -109,6 +109,12 @@
         <scope>provided</scope>
       </dependency>
 
+      <dependency>
+        <groupId>org.jasig.cas</groupId>
+        <artifactId>cas-server-security-filter</artifactId>
+        <version>${cas-server-security-filter.version}</version>
+      </dependency>
+
       <!-- Spring Security Dependencies -->
       <dependency>
         <groupId>org.springframework.security</groupId>
@@ -625,6 +631,7 @@
   <modules>
     <module>cas-server-support-oauth</module>
     <module>cas-server-support-osf</module>
+    <module>cas-server-support-shibboleth</module>
     <module>cas-server-webapp</module>
   </modules>
 
@@ -634,6 +641,7 @@
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring.security.version>4.0.1.RELEASE</spring.security.version>
     <spring.data.version>1.7.0.RELEASE</spring.data.version>
+    <cas-server-security-filter.version>2.0.3</cas-server-security-filter.version>
     <aspectj.version>1.8.6</aspectj.version>
     <commons.codec.version>1.10</commons.codec.version>
     <c3p0.version>0.9.5.1</c3p0.version>
