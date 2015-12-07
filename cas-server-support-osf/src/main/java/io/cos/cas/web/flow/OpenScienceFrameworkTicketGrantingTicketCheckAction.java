@@ -27,7 +27,7 @@ import org.springframework.webflow.execution.RequestContext;
 import javax.validation.constraints.NotNull;
 
 /**
- * Webflow action that checks whether the Action paramter is specified and invalidates the TGT.
+ * Webflow action that checks whether the Action parameter is specified and invalidates the TGT.
  *
  * @author Michael Haselton
  * @since 4.1.0
