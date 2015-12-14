@@ -25,7 +25,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.EncryptionMethod;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWEAlgorithm;
+import com.nimbusds.jose.JWEHeader;
+import com.nimbusds.jose.JWEObject;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -77,6 +85,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
     private static final int TOTP_INTERVAL = 30;
     private static final int TOTP_WINDOW = 1;
+    private static final int SIXTY_SECONDS = 60 * 1000;
 
     @NotNull
     private PrincipalNameTransformer principalNameTransformer = new NoOpPrincipalNameTransformer();
@@ -360,7 +369,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .subject(credential.getUsername())
                     .claim("data", new ObjectMapper().writeValueAsString(credential.getAuthenticationHeaders()))
-                    .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                    .expirationTime(new Date(new Date().getTime() + SIXTY_SECONDS))
                     .build();
 
             final SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
@@ -387,7 +396,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                     credential.getUsername(),
                     httpResponse.getStatusLine().getStatusCode()
             );
-        } catch (JOSEException | IOException e) {
+        } catch (final JOSEException | IOException e) {
             // log the error and return the user to the login flow
             logger.error(ExceptionUtils.getStackTrace(e));
         }

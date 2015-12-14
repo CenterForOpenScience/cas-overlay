@@ -30,7 +30,7 @@ import org.springframework.webflow.execution.RequestContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Collections;
 
 /**
  * Implementation of the NonInteractiveCredentialsAction that looks for a remote
@@ -62,7 +62,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         // Clear the shibboleth session cookie, allows the user to logout of our system and login as a different user.
         // Assumes we would redirect the user to the proper (custom) Shibboleth logout endpoint from OSF.
         final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
-        for (Cookie cookie : request.getCookies()) {
+        for (final Cookie cookie : request.getCookies()) {
             if (cookie.getName().startsWith(SHIBBOLETH_COOKIE_PREFIX)) {
                 final Cookie shibbolethCookie = new Cookie(cookie.getName(), null);
                 shibbolethCookie.setMaxAge(0);
@@ -89,8 +89,6 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
             return credential;
         }
-
-        // TODO: Consider moving Verification Key logic here.
 
         logger.debug("Remote User not found in HttpServletRequest.");
         return null;
