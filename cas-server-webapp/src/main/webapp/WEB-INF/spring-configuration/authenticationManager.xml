@@ -42,7 +42,10 @@
     </bean>
 
     <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.mongodb.OpenScienceFrameworkAuthenticationHandler"
-          p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
+          p:mongoTemplate-ref="openScienceFrameworkMongoTemplate"
+          p:casLoginUrl="${osf.api.casLogin.url}"
+          p:casLoginJweSecret="${osf.api.casLogin.jweSecret}"
+          p:casLoginJwtSecret="${osf.api.casLogin.jwtSecret}" />
 
     <bean id="oAuthAuthenticationHandler" class="org.jasig.cas.support.oauth.authentication.handler.support.OAuthCredentialsAuthenticationHandler" />
 

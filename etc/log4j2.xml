@@ -32,6 +32,27 @@
         </File> -->
     </Appenders>
     <Loggers>
+        <!--<Logger name="org.springframework" level="trace" additivity="false">-->
+            <!--<AppenderRef ref="Console" />-->
+        <!--</Logger>-->
+        <!--<Logger name="org.springframework.webflow" level="trace" additivity="false">-->
+            <!--<AppenderRef ref="Console" />-->
+        <!--</Logger>-->
+        <!--<Logger name="org.springframework.web.servlet" level="trace" additivity="false">-->
+            <!--<AppenderRef ref="Console" />-->
+        <!--</Logger>-->
+        <!--<Logger name="javax.servlet.http" level="trace" additivity="false">-->
+            <!--<AppenderRef ref="Console" />-->
+        <!--</Logger>-->
+        <!--<Logger name="org.springframework.web" level="trace" additivity="false">-->
+            <!--<AppenderRef ref="Console" />-->
+        <!--</Logger>-->
+        <!--<Logger name="org.jasig.cas.web.flow" level="trace" additivity="false">-->
+            <!--<AppenderRef ref="Console" />-->
+        <!--</Logger>-->
+        <!--<Logger name="org.jasig.inspektr.aspect" level="trace" additivity="false">-->
+            <!--<AppenderRef ref="Console" />-->
+        <!--</Logger>-->
         <!-- <Logger name="org.jasig" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>

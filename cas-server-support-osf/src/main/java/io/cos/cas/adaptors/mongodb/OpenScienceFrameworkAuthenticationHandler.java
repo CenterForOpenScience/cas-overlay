@@ -18,15 +18,26 @@
  */
 package io.cos.cas.adaptors.mongodb;
 
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.DirectEncrypter;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.ContentType;
 import org.bson.types.ObjectId;
 import org.apache.commons.codec.binary.Base32;
 
@@ -72,6 +83,15 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
     @NotNull
     private MongoOperations mongoTemplate;
+
+    @NotNull
+    private String casLoginUrl;
+
+    @NotNull
+    private String casLoginJweSecret;
+
+    @NotNull
+    private String casLoginJwtSecret;
 
     @Document(collection="user")
     private static class OpenScienceFrameworkUser {
@@ -253,11 +273,15 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
+        if (credential.isRemotePrincipal()) {
+            this.remotePrincipalAuthenticateInternal(credential);
+        }
+
         final OpenScienceFrameworkUser user = this.mongoTemplate.findOne(new Query(
-                new Criteria().orOperator(
-                        Criteria.where("emails").is(username),
-                        Criteria.where("username").is(username)
-                )
+            new Criteria().orOperator(
+                    Criteria.where("emails").is(username),
+                    Criteria.where("username").is(username)
+            )
         ), OpenScienceFrameworkUser.class);
 
         if (user == null) {
@@ -265,8 +289,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         Boolean validPassphrase = Boolean.FALSE;
-        // verification key can substitute as a temporary password.
-        if (verificationKey != null && verificationKey.equals(user.verificationKey)) {
+        if (credential.isRemotePrincipal()) {
+            // remote principal's are already verified by a third party (in our case a third party SAML authentication).
+            validPassphrase = Boolean.TRUE;
+        } else if (verificationKey != null && verificationKey.equals(user.verificationKey)) {
+            // verification key can substitute as a temporary password.
             validPassphrase = Boolean.TRUE;
         } else if (BCrypt.checkpw(plainTextPassword, user.password)) {
             validPassphrase = Boolean.TRUE;
@@ -320,6 +347,52 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         return createHandlerResult(credential, this.principalFactory.createPrincipal(user.id, attributes), null);
     }
 
+    /**
+     * Remote Principal Authentication of an Open Science Framework credential, securely notifies the OSF
+     * the operation has occurred. Allowing the OSF the opportunity to create a verified user account and/or assign
+     * institutional affiliation to the user's account.
+     *
+     * @param credential the credential object bearing the username, password, etc...
+     */
+    private void remotePrincipalAuthenticateInternal(final OpenScienceFrameworkCredential credential) {
+        try {
+            // Build a JWT and wrap it with JWE for secure transport to the OSF API.
+            final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                    .subject(credential.getUsername())
+                    .claim("data", new ObjectMapper().writeValueAsString(credential.getAuthenticationHeaders()))
+                    .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+                    .build();
+
+            final SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+
+            final JWSSigner signer = new MACSigner(this.casLoginJwtSecret.getBytes());
+            signedJWT.sign(signer);
+
+            final JWEObject jweObject = new JWEObject(
+                    new JWEHeader.Builder(JWEAlgorithm.DIR, EncryptionMethod.A256GCM)
+                            .contentType("JWT")
+                            .build(),
+                    new Payload(signedJWT));
+            jweObject.encrypt(new DirectEncrypter(this.casLoginJweSecret.getBytes()));
+            final String jweString = jweObject.serialize();
+
+            // A call is made to the OSF CAS Institution Login Endpoint to create a registered user (if
+            // one does not already exist) and apply institutional affiliation.
+            final HttpResponse httpResponse = Request.Post(this.casLoginUrl)
+                    .bodyString(jweString, ContentType.APPLICATION_JSON)
+                    .execute()
+                    .returnResponse();
+            logger.info(
+                    "Remote Principal Authenticate (OSF API) Response: <{}> Status Code {}",
+                    credential.getUsername(),
+                    httpResponse.getStatusLine().getStatusCode()
+            );
+        } catch (JOSEException | IOException e) {
+            // log the error and return the user to the login flow
+            logger.error(ExceptionUtils.getStackTrace(e));
+        }
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
     }
@@ -330,6 +403,18 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
     public void setMongoTemplate(final MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
+    }
+
+    public void setCasLoginUrl(final String casLoginUrl) {
+        this.casLoginUrl = casLoginUrl;
+    }
+
+    public void setCasLoginJweSecret(final String casLoginJweSecret) {
+        this.casLoginJweSecret = casLoginJweSecret;
+    }
+
+    public void setCasLoginJwtSecret(final String casLoginJwtSecret) {
+        this.casLoginJwtSecret = casLoginJwtSecret;
     }
 
     /**

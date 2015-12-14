@@ -45,9 +45,6 @@
        The scan is controlled by the application context config file -->
   <mvc:annotation-driven />
 
-  <security:http pattern="/shibbolethLogin" security="none"/>
-  <security:http pattern="/login" security="none"/>
-
   <import resource="spring-configuration/propertyFileConfigurer.xml"/>
 
   <!-- Theme Resolver -->
@@ -350,6 +347,9 @@
         c:warnCookieGenerator-ref="warnCookieGenerator"/>
 
   <bean id="acceptableUsagePolicyFormAction" class="org.jasig.cas.web.flow.AcceptableUsagePolicyFormAction"/>
+
+  <bean id="principalFromRemoteAction" class="io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction"
+        p:centralAuthenticationService-ref="centralAuthenticationService" />
 
   <!--<bean id="shibbolethLoginController" class="org.jasig.cas.web.ServiceValidateController"-->
           <!--p:validationSpecificationClass="org.jasig.cas.validation.Cas20WithoutProxyingValidationSpecification"-->

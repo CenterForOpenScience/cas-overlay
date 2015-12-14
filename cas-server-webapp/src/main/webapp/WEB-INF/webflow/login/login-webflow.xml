@@ -80,7 +80,13 @@
 
     <action-state id="generateLoginTicket">
         <evaluate expression="generateLoginTicketAction.generate(flowRequestContext)"/>
-        <transition on="generated" to="viewLoginForm"/>
+        <transition on="generated" to="remoteAuthenticate"/>
+    </action-state>
+
+    <action-state id="remoteAuthenticate">
+        <evaluate expression="principalFromRemoteAction" />
+        <transition on="success" to="sendTicketGrantingTicket" />
+        <transition on="error" to="viewLoginForm" />
     </action-state>
 
     <view-state id="viewLoginForm" view="casLoginView" model="credential">
