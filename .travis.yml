@@ -17,7 +17,7 @@
 # under the License.
 #
 
-language: ruby
+language: java
 sudo: false
 jdk:
   - oraclejdk7
@@ -27,9 +27,9 @@ cache:
     - '$HOME/.m2/repository'
 before_install:
   - rm ~/.m2/settings.xml
-#  - curl -L --cookie 'oraclelicense=accept-securebackup-cookie;' http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip -o /tmp/policy.zip && unzip -j -o /tmp/policy.zip *.jar -d `jdk_switcher home oraclejdk8`/jre/lib/security && rm /tmp/policy.zip
-  - echo "gem 'unlimited-jce-policy-jdk7', github: 'travis-ci/unlimited-jce-policy-jdk7'" > Gemfile
-gemfile: Gemfile
+  - curl -L --cookie 'oraclelicense=accept-securebackup-cookie;' http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip -o /tmp/policy.zip
+  - unzip -j -o /tmp/policy.zip *.jar -d $JAVA_HOME/jre/lib/security
+  - rm /tmp/policy.zip
 install:
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -q
 script:
