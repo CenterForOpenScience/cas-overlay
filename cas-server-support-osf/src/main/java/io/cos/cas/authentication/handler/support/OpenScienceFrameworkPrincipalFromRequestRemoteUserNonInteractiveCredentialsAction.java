@@ -227,7 +227,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         document.appendChild(rootElement);
 
         for (final String key : credential.getAuthenticationHeaders().keySet()) {
-            final org.w3c.dom.Element attribute = document.createElement("attribute");
+            final Element attribute = document.createElement("attribute");
             attribute.setAttribute("name", key);
             attribute.setAttribute("value", credential.getAuthenticationHeaders().get(key));
             rootElement.appendChild(attribute);
