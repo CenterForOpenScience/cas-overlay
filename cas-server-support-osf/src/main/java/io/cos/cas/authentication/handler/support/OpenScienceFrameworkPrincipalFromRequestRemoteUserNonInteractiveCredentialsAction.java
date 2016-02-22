@@ -124,12 +124,15 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
         // Clear the shibboleth session cookie, allows the user to logout of our system and login as a different user.
         // Assumes we would redirect the user to the proper (custom) Shibboleth logout endpoint from OSF.
-        final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
-        for (final Cookie cookie : request.getCookies()) {
-            if (cookie.getName().startsWith(SHIBBOLETH_COOKIE_PREFIX)) {
-                final Cookie shibbolethCookie = new Cookie(cookie.getName(), null);
-                shibbolethCookie.setMaxAge(0);
-                response.addCookie(shibbolethCookie);
+        final Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
+            for (final Cookie cookie : cookies) {
+                if (cookie.getName().startsWith(SHIBBOLETH_COOKIE_PREFIX)) {
+                    final Cookie shibbolethCookie = new Cookie(cookie.getName(), null);
+                    shibbolethCookie.setMaxAge(0);
+                    response.addCookie(shibbolethCookie);
+                }
             }
         }
 
