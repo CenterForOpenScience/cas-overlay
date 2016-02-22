@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.cos.cas</groupId>
   <artifactId>cas-server</artifactId>
-  <version>4.1.4</version>
+  <version>4.1.5</version>
   <packaging>pom</packaging>
   <name>Apereo Central Authentication Service</name>
   <description>Apereo CAS SSO server libraries and Web application.</description>
