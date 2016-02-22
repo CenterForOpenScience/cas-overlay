@@ -141,6 +141,10 @@
               <name>log4j.config.location</name>
               <value>file:${project.parent.basedir}/etc/log4j2.xml</value>
             </systemProperty>
+            <systemProperty>
+              <name>osf.api.institutions.auth.xslLocation</name>
+              <value>file:${project.parent.basedir}/etc/institutions-auth.xsl</value>
+            </systemProperty>
           </systemProperties>
           <jettyXml>${project.parent.basedir}/etc/jetty/jetty.xml,${project.parent.basedir}/etc/jetty/jetty-http.xml,${project.parent.basedir}/etc/jetty/jetty-ssl.xml,${project.parent.basedir}/etc/jetty/jetty-https.xml</jettyXml>
           <contextXml>${project.parent.basedir}/etc/jetty/jetty-context.xml</contextXml>
