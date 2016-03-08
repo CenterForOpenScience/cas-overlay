@@ -86,6 +86,7 @@
     <action-state id="remoteAuthenticate">
         <evaluate expression="principalFromRemoteAction" />
         <transition on="success" to="sendTicketGrantingTicket" />
+        <transition on="authenticationFailure" to="handleAuthenticationFailure" />
         <transition on="error" to="viewLoginForm" />
     </action-state>
 
@@ -171,6 +172,7 @@
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
         <!-- Open Science Framework -->
         <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
+        <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
         <!-- One Time Password -->
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
         <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
@@ -243,6 +245,7 @@
     <end-state id="casBadHoursView" view="casBadHoursView"/>
     <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
     <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
+    <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
 
     <end-state id="postView" view="postResponseView">
         <on-entry>

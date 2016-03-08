@@ -11,7 +11,7 @@
         <idp><xsl:value-of select="$idp"/></idp>
         <xsl:choose>
             <xsl:when test="$idp='https://login.circle.edu/idp/shibboleth'">
-                <id>CIR</id>
+                <id>cir</id>
                 <user>
                     <username><xsl:value-of select="//attribute[@name='eppn']/@value"/></username>
                     <!--<email><xsl:value-of select="//attribute[@name='mail']/@value"/></email>-->
@@ -23,7 +23,7 @@
                 </user>
             </xsl:when>
             <xsl:otherwise>
-                <error>unknown identity provider</error>
+                <xsl:message terminate="yes">Error: Unknown Identity Provider '<xsl:value-of select="$idp"/>'</xsl:message>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>

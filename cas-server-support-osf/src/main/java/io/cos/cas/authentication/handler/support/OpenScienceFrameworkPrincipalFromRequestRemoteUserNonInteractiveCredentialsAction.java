@@ -32,13 +32,20 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import io.cos.cas.authentication.RemoteUserFailedLoginException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.message.BasicHeader;
+import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.Credential;
-import org.jasig.cas.web.flow.AbstractNonInteractiveCredentialsAction;
+import org.jasig.cas.authentication.principal.DefaultPrincipalFactory;
+import org.jasig.cas.authentication.principal.PrincipalFactory;
+import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.ticket.ServiceTicket;
+import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.web.support.WebUtils;
 import org.json.JSONObject;
 import org.json.XML;
@@ -46,10 +53,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.webflow.action.AbstractAction;
+import org.springframework.webflow.core.collection.LocalAttributeMap;
+import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.security.auth.login.AccountException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,6 +79,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Implementation of the NonInteractiveCredentialsAction that looks for a remote
@@ -80,7 +93,7 @@ import java.util.Date;
  * @since 4.1.1
  */
 public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction
-            extends AbstractNonInteractiveCredentialsAction {
+            extends AbstractAction {
 
     private static final String REMOTE_USER = "REMOTE_USER";
 
@@ -89,6 +102,9 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     private static final String SHIBBOLETH_COOKIE_PREFIX = "_shibsession_";
 
     private static final int SIXTY_SECONDS = 60 * 1000;
+
+    /** Authentication failure result. */
+    public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
 
     @NotNull
     private String institutionsAuthUrl;
@@ -104,7 +120,92 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
     private Transformer institutionsAuthTransformer;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    /**
+     * AbstractNonInteractiveCredentialsAction
+     */
+
+    /** The logger instance. */
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * The Principal factory.
+     */
+    protected PrincipalFactory principalFactory = new DefaultPrincipalFactory();
+
+    /** Instance of CentralAuthenticationService. */
+    @NotNull
+    private CentralAuthenticationService centralAuthenticationService;
+
+    /**
+     * Checks if is renew present.
+     *
+     * @param context the context
+     * @return true, if  renew present
+     */
+    protected final boolean isRenewPresent(final RequestContext context) {
+        return StringUtils.hasText(context.getRequestParameters().get("renew"));
+    }
+
+    @Override
+    protected final Event doExecute(final RequestContext context) throws Exception {
+        final Credential credential;
+        try {
+            credential = constructCredentialsFromRequest(context);
+        } catch (final AccountException e) {
+            final Map<String, Class<? extends Exception>> failures = new LinkedHashMap<>();
+            failures.put(e.getClass().getSimpleName(), e.getClass());
+            return getEventFactorySupport().event(
+                    this,
+                    AUTHENTICATION_FAILURE,
+                    new LocalAttributeMap<Object>("error", new AuthenticationException(failures))
+            );
+        }
+
+        if (credential == null) {
+            return error();
+        }
+
+        final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
+        final Service service = WebUtils.getService(context);
+
+        if (isRenewPresent(context)
+                && ticketGrantingTicketId != null
+                && service != null) {
+
+            try {
+                final ServiceTicket serviceTicketId = this.centralAuthenticationService
+                        .grantServiceTicket(ticketGrantingTicketId,
+                                service,
+                                credential);
+                WebUtils.putServiceTicketInRequestScope(context, serviceTicketId);
+                return result("warn");
+            } catch (final AuthenticationException e) {
+                onError(context, credential);
+                return error();
+            } catch (final TicketException e) {
+                this.centralAuthenticationService.destroyTicketGrantingTicket(ticketGrantingTicketId);
+                logger.debug("Attempted to generate a ServiceTicket using renew=true with different credential", e);
+            }
+        }
+
+        try {
+            WebUtils.putTicketGrantingTicketInScopes(
+                    context,
+                    this.centralAuthenticationService
+                            .createTicketGrantingTicket(credential));
+            onSuccess(context, credential);
+            return success();
+        } catch (final AuthenticationException e) {
+            return getEventFactorySupport().event(
+                    this,
+                    AUTHENTICATION_FAILURE,
+                    new LocalAttributeMap<Object>("error", e)
+            );
+        } catch (final Exception e) {
+            onError(context, credential);
+            return error();
+        }
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -116,9 +217,15 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         super.afterPropertiesSet();
     }
 
-    @Override
-    protected Credential constructCredentialsFromRequest(
-            final RequestContext context) {
+    /**
+     * Abstract method to implement to construct the credential from the
+     * request object.
+     *
+     * @param context the context for this request.
+     * @return the constructed credential or null if none could be constructed
+     * from the request.
+     */
+    protected Credential constructCredentialsFromRequest(final RequestContext context) throws AccountException {
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
         final OpenScienceFrameworkCredential credential = (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
 
@@ -141,26 +248,29 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         // rejects any conflicting / forged headers.
         final String remoteUser = request.getHeader(REMOTE_USER);
         if (StringUtils.hasText(remoteUser)) {
-            logger.debug("Remote  User [{}] found in HttpServletRequest", remoteUser);
+            logger.info("Remote  User [{}] found in HttpServletRequest", remoteUser);
             credential.setRemotePrincipal(Boolean.TRUE);
             credential.setUsername(remoteUser);
 
             for (final String headerName : Collections.list(request.getHeaderNames())) {
                 if (headerName.startsWith(ATTRIBUTE_PREFIX)) {
+                    final String headerValue = request.getHeader(headerName);
+                    logger.debug("Remote User [{}] Auth Header '{}': '{}'", remoteUser, headerName, headerValue);
+
                     credential.getAuthenticationHeaders().put(
                             headerName.substring(ATTRIBUTE_PREFIX.length()),
-                            request.getHeader(headerName)
+                            headerValue
                     );
                 }
             }
 
             // Notify the OSF of the remote principal authentication.
-            remotePrincipalAuthenticated(credential);
+            notifyRemotePrincipalAuthenticated(credential);
 
             return credential;
         }
 
-        logger.debug("Remote User not found in HttpServletRequest.");
+        logger.debug("Remote User not found in HttpServletRequest");
         return null;
     }
 
@@ -170,9 +280,15 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      *
      * @param credential the credential object bearing the username, fullname, etc...
      */
-    private void remotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential) {
+    private void notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
+            throws AccountException {
         try {
             final String payload = this.normalizeRemotePrincipal(credential);
+            logger.debug(
+                    "Notify Remote Principal Authenticated [{}] Normalized Payload '{}'",
+                    credential.getUsername(),
+                    payload
+            );
 
             // Build a JWT and wrap it with JWE for secure transport to the OSF API.
             final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -201,14 +317,22 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
                     .bodyString(jweString, ContentType.APPLICATION_JSON)
                     .execute()
                     .returnResponse();
+            final int statusCode = httpResponse.getStatusLine().getStatusCode();
             logger.info(
-                    "Remote Principal Authenticate (OSF API) Response: <{}> Status Code {}",
+                    "Notify Remote Principal Authenticated [OSF API] Response: <{}> Status Code {}",
                     credential.getUsername(),
-                    httpResponse.getStatusLine().getStatusCode()
+                    statusCode
             );
+            // The institutional authentication endpoint should always respond with a 204 No Content when successful.
+            if (statusCode != 204) {
+                final String responseString = new BasicResponseHandler().handleResponse(httpResponse);
+                logger.error("Notify Remote Principal Authenticated [OSF API] Response Body: '{}'", responseString);
+                throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");
+            }
         } catch (final JOSEException | IOException | ParserConfigurationException | TransformerException e) {
-            // log the error and return the user to the login flow
-            logger.error(ExceptionUtils.getStackTrace(e));
+            logger.error("Notify Remote Principal Authenticated [{}] Exception: {}", credential.getUsername(), e.getMessage());
+            logger.trace("Notify Remote Principal Authenticated [{}] Exception: {}", credential.getUsername(), e);
+            throw new RemoteUserFailedLoginException("Unable to Build Message for OSF API Endpoint");
         }
     }
 
@@ -240,6 +364,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         final DOMSource source = new DOMSource(document);
         final StringWriter writer = new StringWriter();
         final StreamResult result = new StreamResult(writer);
+
         this.institutionsAuthTransformer.transform(source, result);
 
         // convert transformed xml to json
@@ -261,5 +386,51 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
     public void setInstitutionsAuthXslLocation(final String institutionsAuthXslLocation) {
         this.institutionsAuthXslLocation = institutionsAuthXslLocation;
+    }
+
+    /**
+     * AbstractNonInteractiveCredentialsAction
+     */
+
+    public CentralAuthenticationService getCentralAuthenticationService() {
+        return centralAuthenticationService;
+    }
+
+    public final void setCentralAuthenticationService(
+            final CentralAuthenticationService centralAuthenticationService) {
+        this.centralAuthenticationService = centralAuthenticationService;
+    }
+
+    /**
+     * Sets principal factory to create principal objects.
+     *
+     * @param principalFactory the principal factory
+     */
+    public void setPrincipalFactory(final PrincipalFactory principalFactory) {
+        this.principalFactory = principalFactory;
+    }
+
+    /**
+     * Hook method to allow for additional processing of the response before
+     * returning an error event.
+     *
+     * @param context the context for this specific request.
+     * @param credential the credential for this request.
+     */
+    protected void onError(final RequestContext context,
+                           final Credential credential) {
+        // default implementation does nothing
+    }
+
+    /**
+     * Hook method to allow for additional processing of the response before
+     * returning a success event.
+     *
+     * @param context the context for this specific request.
+     * @param credential the credential for this request.
+     */
+    protected void onSuccess(final RequestContext context,
+                             final Credential credential) {
+        // default implementation does nothing
     }
 }

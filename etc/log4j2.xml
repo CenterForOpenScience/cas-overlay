@@ -35,9 +35,9 @@
         <!--<Logger name="org.springframework" level="trace" additivity="false">-->
             <!--<AppenderRef ref="Console" />-->
         <!--</Logger>-->
-        <!--<Logger name="org.springframework.webflow" level="trace" additivity="false">-->
-            <!--<AppenderRef ref="Console" />-->
-        <!--</Logger>-->
+        <Logger name="org.springframework.webflow" level="trace" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger>
         <!--<Logger name="org.springframework.web.servlet" level="trace" additivity="false">-->
             <!--<AppenderRef ref="Console" />-->
         <!--</Logger>-->
@@ -58,23 +58,23 @@
         </Logger>
         <Logger name="org.springframework" level="info" additivity="false">
             <AppenderRef ref="Console" />
-        </Logger>
-        <Logger name="org.springframework.webflow" level="info" additivity="false">
-            <AppenderRef ref="Console" />
-        </Logger>
+        </Logger>-->
+        <!--<Logger name="org.springframework.webflow" level="info" additivity="false">-->
+            <!--<AppenderRef ref="Console" />-->
+        <!--</Logger>-->
         <Logger name="org.springframework.web" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
         <Logger name="org.springframework.security" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
-        <Logger name="org.hibernate" level="info" additivity="false">
+        <!--<Logger name="org.hibernate" level="info" additivity="false">
             <AppenderRef ref="Console" />
-        </Logger>
+        </Logger>-->
         <Logger name="org.jasig.cas.web.flow" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
-        <Logger name="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" level="info" additivity="false">
+        <!--<Logger name="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" level="info" additivity="false">
             <AppenderRef ref="Console" />
         </Logger> -->
         <!--<Logger name="org.jasig.inspektr" level="trace" additivity="false">-->
@@ -89,6 +89,9 @@
         <!--<Logger name="org.jasig.cas.ticket" level="trace" additivity="false">-->
             <!--<AppenderRef ref="Console" />-->
         <!--</Logger>-->
+        <Logger name="io.cos.cas.authentication.handler.support" level="debug" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger>
         <Logger name="perfStatsLogger" level="error" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
