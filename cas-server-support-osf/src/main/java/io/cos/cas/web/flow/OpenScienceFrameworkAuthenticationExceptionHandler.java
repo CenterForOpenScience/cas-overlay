@@ -55,6 +55,9 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
     }
 
+    /**
+     * The Open Science Framework Authentication Exception Handler.
+     */
     public OpenScienceFrameworkAuthenticationExceptionHandler() {
         super.setErrors(DEFAULT_ERROR_LIST);
     }

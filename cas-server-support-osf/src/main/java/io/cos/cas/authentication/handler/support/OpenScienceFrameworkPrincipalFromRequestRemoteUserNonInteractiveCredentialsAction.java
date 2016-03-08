@@ -34,6 +34,7 @@ import com.nimbusds.jwt.SignedJWT;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.RemoteUserFailedLoginException;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicResponseHandler;
@@ -95,6 +96,9 @@ import java.util.Map;
 public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction
             extends AbstractAction {
 
+    /** Authentication failure result. */
+    public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
+
     private static final String REMOTE_USER = "REMOTE_USER";
 
     private static final String ATTRIBUTE_PREFIX = "AUTH-";
@@ -103,8 +107,13 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
     private static final int SIXTY_SECONDS = 60 * 1000;
 
-    /** Authentication failure result. */
-    public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
+    /** The logger instance. */
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * The Principal factory.
+     */
+    protected PrincipalFactory principalFactory = new DefaultPrincipalFactory();
 
     @NotNull
     private String institutionsAuthUrl;
@@ -120,18 +129,6 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
     private Transformer institutionsAuthTransformer;
 
-    /**
-     * AbstractNonInteractiveCredentialsAction
-     */
-
-    /** The logger instance. */
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    /**
-     * The Principal factory.
-     */
-    protected PrincipalFactory principalFactory = new DefaultPrincipalFactory();
-
     /** Instance of CentralAuthenticationService. */
     @NotNull
     private CentralAuthenticationService centralAuthenticationService;
@@ -142,12 +139,12 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @param context the context
      * @return true, if  renew present
      */
-    protected final boolean isRenewPresent(final RequestContext context) {
+    protected boolean isRenewPresent(final RequestContext context) {
         return StringUtils.hasText(context.getRequestParameters().get("renew"));
     }
 
     @Override
-    protected final Event doExecute(final RequestContext context) throws Exception {
+    protected Event doExecute(final RequestContext context) throws Exception {
         final Credential credential;
         try {
             credential = constructCredentialsFromRequest(context);
@@ -224,6 +221,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @param context the context for this request.
      * @return the constructed credential or null if none could be constructed
      * from the request.
+     * @throws AccountException a account exception
      */
     protected Credential constructCredentialsFromRequest(final RequestContext context) throws AccountException {
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
@@ -279,6 +277,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * to create a verified user account and/or assign institutional affiliation to the user's account.
      *
      * @param credential the credential object bearing the username, fullname, etc...
+     * @throws AccountException a account exception
      */
     private void notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
             throws AccountException {
@@ -324,7 +323,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
                     statusCode
             );
             // The institutional authentication endpoint should always respond with a 204 No Content when successful.
-            if (statusCode != 204) {
+            if (statusCode != HttpStatus.SC_NO_CONTENT) {
                 final String responseString = new BasicResponseHandler().handleResponse(httpResponse);
                 logger.error("Notify Remote Principal Authenticated [OSF API] Response Body: '{}'", responseString);
                 throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");
@@ -389,14 +388,14 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     }
 
     /**
-     * AbstractNonInteractiveCredentialsAction
+     * AbstractNonInteractiveCredentialsAction.
+     * @return the central authentication service
      */
-
     public CentralAuthenticationService getCentralAuthenticationService() {
         return centralAuthenticationService;
     }
 
-    public final void setCentralAuthenticationService(
+    public void setCentralAuthenticationService(
             final CentralAuthenticationService centralAuthenticationService) {
         this.centralAuthenticationService = centralAuthenticationService;
     }
