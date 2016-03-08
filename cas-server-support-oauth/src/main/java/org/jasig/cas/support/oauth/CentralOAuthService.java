@@ -155,8 +155,9 @@ public interface CentralOAuthService {
      *
      * @param accessToken the access token
      * @return metadata regarding the access token and its principal id.
+     * @throws InvalidTokenException the invalid token exception
      */
-    Collection<PrincipalMetadata> getPrincipalMetadata(AccessToken accessToken);
+    Collection<PrincipalMetadata> getPrincipalMetadata(AccessToken accessToken) throws InvalidTokenException;
 
     /**
      * Check if a refresh token exists for the client, principal and scopes specified.

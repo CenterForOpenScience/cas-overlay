@@ -21,7 +21,6 @@ package io.cos.cas.adaptors.mongodb;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.cos.cas.authentication.LoginNotAllowedException;
@@ -32,7 +31,6 @@ import org.bson.types.ObjectId;
 import org.apache.commons.codec.binary.Base32;
 
 import org.jasig.cas.authentication.AccountDisabledException;
-import org.jasig.cas.authentication.BasicCredentialMetaData;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.PreventedException;
@@ -52,9 +50,6 @@ import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.FailedLoginException;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.DatatypeConverter;
-
-import org.jasig.cas.Message;
-import org.jasig.cas.authentication.principal.Principal;
 
 import io.cos.cas.authentication.oath.TotpUtils;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -225,6 +220,15 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
     }
 
+    /**
+     * Instantiates a new Open Science Framework accounts service factory.
+     */
+    public OpenScienceFrameworkAuthenticationHandler() {}
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+    }
+
     @Override
     protected final HandlerResult doAuthentication(final Credential credential)
             throws GeneralSecurityException, PreventedException {
@@ -259,10 +263,10 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String oneTimePassword = credential.getOneTimePassword();
 
         final OpenScienceFrameworkUser user = this.mongoTemplate.findOne(new Query(
-                new Criteria().orOperator(
-                        Criteria.where("emails").is(username),
-                        Criteria.where("username").is(username)
-                )
+            new Criteria().orOperator(
+                    Criteria.where("emails").is(username),
+                    Criteria.where("username").is(username)
+            )
         ), OpenScienceFrameworkUser.class);
 
         if (user == null) {
@@ -270,8 +274,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         Boolean validPassphrase = Boolean.FALSE;
-        // verification key can substitute as a temporary password.
-        if (verificationKey != null && verificationKey.equals(user.verificationKey)) {
+        if (credential.isRemotePrincipal()) {
+            // remote principal's are already verified by a third party (in our case a third party SAML authentication).
+            validPassphrase = Boolean.TRUE;
+        } else if (verificationKey != null && verificationKey.equals(user.verificationKey)) {
+            // verification key can substitute as a temporary password.
             validPassphrase = Boolean.TRUE;
         } else if (BCrypt.checkpw(plainTextPassword, user.password)) {
             validPassphrase = Boolean.TRUE;
@@ -323,26 +330,6 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         attributes.put("givenName", user.givenName);
         attributes.put("familyName", user.familyName);
         return createHandlerResult(credential, this.principalFactory.createPrincipal(user.id, attributes), null);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-    }
-
-    /**
-     * Helper method to construct a handler result
-     * on successful authentication events.
-     *
-     * @param credential the credential on which the authentication was successfully performed.
-     * Note that this credential instance may be different from what was originally provided
-     * as transformation of the username may have occurred, if one is in fact defined.
-     * @param principal the resolved principal
-     * @param warnings the warnings
-     * @return the constructed handler result
-     */
-    protected final HandlerResult createHandlerResult(final Credential credential, final Principal principal,
-            final List<Message> warnings) {
-        return new HandlerResult(this, new BasicCredentialMetaData(credential), principal, warnings);
     }
 
     public void setPrincipalNameTransformer(final PrincipalNameTransformer principalNameTransformer) {

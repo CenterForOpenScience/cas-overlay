@@ -10,3 +10,4 @@
 **/*.log.*
 **/*.iml
 **/*-checkpoint.ipynb
+**/overlays

@@ -24,22 +24,41 @@
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
-           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
-          p:driverClassName="org.postgresql.Driver"
-          p:url="${database.url}"
-          p:username="${database.username}"
-          p:password="${database.password}" />
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          p:driverClass="${database.driverClass:org.hsqldb.jdbcDriver}"
+          p:jdbcUrl="${database.url:jdbc:hsqldb:mem:cas-ticket-registry}"
+          p:user="${database.user:sa}"
+          p:password="${database.password:}"
+          p:initialPoolSize="${database.pool.minSize:6}"
+          p:minPoolSize="${database.pool.minSize:6}"
+          p:maxPoolSize="${database.pool.maxSize:18}"
+          p:maxIdleTimeExcessConnections="${database.pool.maxIdleTime:1000}"
+          p:checkoutTimeout="${database.pool.maxWait:2000}"
+          p:acquireIncrement="${database.pool.acquireIncrement:16}"
+          p:acquireRetryAttempts="${database.pool.acquireRetryAttempts:5}"
+          p:acquireRetryDelay="${database.pool.acquireRetryDelay:2000}"
+          p:idleConnectionTestPeriod="${database.pool.idleConnectionTestPeriod:30}"
+          p:autoCommitOnClose="false"
+          p:preferredTestQuery="${database.pool.connectionHealthQuery:select 1}" />
 
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
 
     <util:list id="packagesToScan">
+        <value>org.jasig.cas.services</value>
         <value>org.jasig.cas.ticket</value>
+        <value>org.jasig.cas.adaptors.jdbc</value>
         <value>org.jasig.cas.support.oauth.token</value>
     </util:list>
+
+    <bean id="jpaVendorAdapter"
+          class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+          p:generateDdl="true"
+          p:showSql="${database.hibernate.showSql:true}" />
 
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
           p:dataSource-ref="dataSource"
@@ -47,20 +66,79 @@
           p:packagesToScan-ref="packagesToScan">
         <property name="jpaProperties">
             <props>
-                <prop key="hibernate.dialect">${database.hibernate.dialect}</prop>
+                <prop key="hibernate.dialect">${database.hibernate.dialect:org.hibernate.dialect.HSQLDialect}</prop>
                 <prop key="hibernate.hbm2ddl.auto">update</prop>
-                <prop key="hibernate.jdbc.batch_size">${database.hibernate.jdbc.batchSize}</prop>
+                <prop key="hibernate.jdbc.batch_size">${database.hibernate.batchSize:1}</prop>
             </props>
         </property>
     </bean>
 
-    <bean id="jpaVendorAdapter"
-          class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
-          p:generateDdl="true"
-          p:showSql="${database.hibernate.showSql:true}" />
-
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
           p:entityManagerFactory-ref="entityManagerFactory" />
 
-    <tx:annotation-driven transaction-manager="transactionManager" />
+    <tx:advice id="txAdviceTicketReg" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="add*" read-only="false"/>
+            <tx:method name="delete*" read-only="false"/>
+            <tx:method name="save*" read-only="false"/>
+            <tx:method name="update*" read-only="false"/>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*" />
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="ticketRegistryOperations" expression="execution(* org.jasig.cas.ticket.registry.JpaTicketRegistry.*(..))"/>
+        <aop:pointcut id="abstractTicketRegistryOperations" expression="execution(* org.jasig.cas.ticket.registry.AbstractTicketRegistry.*(..))"/>
+        <aop:pointcut id="ticketRegistryLockingOperations" expression="execution(* org.jasig.cas.ticket.registry.support.JpaLockingStrategy.*(..))"/>
+
+        <aop:advisor advice-ref="txAdviceTicketReg" pointcut-ref="ticketRegistryOperations"/>
+        <aop:advisor advice-ref="txAdviceTicketReg" pointcut-ref="abstractTicketRegistryOperations"/>
+        <aop:advisor advice-ref="txAdviceTicketReg" pointcut-ref="ticketRegistryLockingOperations"/>
+    </aop:config>
+
+    <tx:advice id="txAdviceServiceReg" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="delete*" read-only="false"/>
+            <tx:method name="save*" read-only="false"/>
+            <tx:method name="update*" read-only="false"/>
+            <tx:method name="*" />
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="servicesManagerOperations" expression="execution(* org.jasig.cas.services.JpaServiceRegistryDaoImpl.*(..))"/>
+        <aop:advisor advice-ref="txAdviceServiceReg" pointcut-ref="servicesManagerOperations"/>
+    </aop:config>
+
+    <tx:advice id="txCentralAuthenticationSvc" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="grant*" read-only="false"/>
+            <tx:method name="*" />
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="centralAuthenticationServiceImplOperations" expression="execution(* org.jasig.cas.CentralAuthenticationServiceImpl.*(..))"/>
+
+        <aop:advisor advice-ref="txCentralAuthenticationSvc" pointcut-ref="centralAuthenticationServiceImplOperations"/>
+    </aop:config>
+
+    <tx:advice id="txCentralOAuthSvc" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="grant*" read-only="false"/>
+            <tx:method name="revoke*" read-only="false"/>
+            <tx:method name="getToken" read-only="false"/>
+            <tx:method name="getPersonalAccessToken" read-only="false"/>
+            <tx:method name="is*" read-only="true"/>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*" />
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="centralOAuthServiceImplOperations" expression="execution(* org.jasig.cas.support.oauth.CentralOAuthServiceImpl.*(..))"/>
+
+        <aop:advisor advice-ref="txCentralOAuthSvc" pointcut-ref="centralOAuthServiceImplOperations"/>
+    </aop:config>
 </beans>

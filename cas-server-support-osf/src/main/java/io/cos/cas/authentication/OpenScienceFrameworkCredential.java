@@ -21,6 +21,9 @@ package io.cos.cas.authentication;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jasig.cas.authentication.RememberMeUsernamePasswordCredential;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Credential for authenticating with a username and password.
  *
@@ -31,6 +34,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
 
     /** Unique ID for serialization. */
     private static final long serialVersionUID = -3006234230814410939L;
+
+    /** Remote Principal appended to username in string representation. */
+    private static final String REMOTE_PRINCIPAL_SUFFIX = "+rp";
 
     /** Verification Key appended to username in string representation. */
     private static final String VERIFICATION_KEY_SUFFIX = "+vk";
@@ -43,6 +49,12 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
 
     /** The One Time Password. */
     private String oneTimePassword;
+
+    /** Indicates a Remote Principal. */
+    private Boolean remotePrincipal = Boolean.FALSE;
+
+    /** The Authentication Headers. */
+    private Map<String, String> authenticationHeaders = new HashMap<>();
 
     /** Default constructor. */
     public OpenScienceFrameworkCredential() {
@@ -108,6 +120,27 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
+     * @return Returns the Remote Principal.
+     */
+    public final Boolean isRemotePrincipal() {
+        return this.remotePrincipal;
+    }
+
+    /**
+     * @param remotePrincipal The Remote Principal.
+     */
+    public final void setRemotePrincipal(final Boolean remotePrincipal) {
+        this.remotePrincipal = remotePrincipal;
+    }
+
+    /**
+     * @return Returns the Authentication Headers.
+     */
+    public final Map<String, String> getAuthenticationHeaders() {
+        return authenticationHeaders;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -119,6 +152,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     public String toString() {
         String representation = super.toString();
 
+        if (this.remotePrincipal) {
+            representation += REMOTE_PRINCIPAL_SUFFIX;
+        }
         if (this.verificationKey != null) {
             representation += VERIFICATION_KEY_SUFFIX;
         }
@@ -142,7 +178,11 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         final OpenScienceFrameworkCredential other = (OpenScienceFrameworkCredential) obj;
         if (!this.verificationKey.equals(other.verificationKey)) {
             return false;
-        } else if (!this.oneTimePassword.equals(other.oneTimePassword)) {
+        }
+        if (!this.oneTimePassword.equals(other.oneTimePassword)) {
+            return false;
+        }
+        if (!this.remotePrincipal.equals(other.remotePrincipal)) {
             return false;
         }
         return true;
@@ -154,6 +194,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
                 .appendSuper(super.hashCode())
                 .append(verificationKey)
                 .append(oneTimePassword)
+                .append(remotePrincipal)
                 .toHashCode();
     }
 }

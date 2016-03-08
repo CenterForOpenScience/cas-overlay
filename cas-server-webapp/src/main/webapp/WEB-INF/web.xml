@@ -23,7 +23,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
-    <display-name>Central Authentication System (CAS) 4.1.0-SNAPSHOT</display-name>
+    <display-name>Central Authentication System (CAS) 4.1.5</display-name>
 
     <context-param>
         <param-name>isLog4jAutoInitializationDisabled</param-name>
@@ -52,6 +52,15 @@
     </filter-mapping>
 
     <filter>
+        <filter-name>characterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>characterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
         <filter-name>CAS Client Info Logging Filter</filter-name>
         <filter-class>org.jasig.inspektr.common.web.ClientInfoThreadLocalFilter</filter-class>
     </filter>
@@ -62,19 +71,7 @@
 
     <filter>
         <filter-name>requestParameterSecurityFilter</filter-name>
-        <filter-class>org.jasig.cas.security.RequestParameterPolicyEnforcementFilter</filter-class>
-        <init-param>
-            <param-name>parametersToCheck</param-name>
-            <param-value>ticket service renew gateway warn target SAMLart pgtUrl pgt pgtId pgtIou targetService</param-value>
-        </init-param>
-        <init-param>
-            <param-name>charactersToForbid</param-name>
-            <param-value>none</param-value>
-        </init-param>
-        <init-param>
-            <param-name>allowMultiValuedParameters</param-name>
-            <param-value>false</param-value>
-        </init-param>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>requestParameterSecurityFilter</filter-name>
@@ -94,15 +91,6 @@
         <url-pattern>/statistics/*</url-pattern>
     </filter-mapping>
 
-    <filter>
-        <filter-name>characterEncodingFilter</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>characterEncodingFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
     <!--
       - Loads the CAS ApplicationContext.
     -->
@@ -110,6 +98,8 @@
         <listener-class>
             org.springframework.web.context.ContextLoaderListener
         </listener-class>
+    </listener>
+    <listener>
         <listener-class>
             org.jasig.cas.CasEnvironmentContextListener
         </listener-class>
@@ -248,10 +238,15 @@
         <servlet-name>cas</servlet-name>
         <url-pattern>/authorizationFailure.html</url-pattern>
     </servlet-mapping>
-    <!-- REST support if cas-server-extension-rest is included -->
+    <!-- REST support if cas-server-support-rest is included -->
     <servlet-mapping>
         <servlet-name>cas</servlet-name>
         <url-pattern>/v1/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>cas</servlet-name>
+        <url-pattern>/shibbolethLogin</url-pattern>
     </servlet-mapping>
 
     <session-config>
