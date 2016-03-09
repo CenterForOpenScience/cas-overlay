@@ -97,6 +97,20 @@
       <artifactId>jetty-servlet</artifactId>
       <version>${maven-jetty-plugin.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.crashub</groupId>
+      <artifactId>crash.embed.spring</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.crashub</groupId>
+      <artifactId>crash.shell</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.crashub</groupId>
+      <artifactId>crash.packaging</artifactId>
+      <type>war</type>
+      <classifier>spring</classifier>
+    </dependency>
   </dependencies>
 
   <build>
