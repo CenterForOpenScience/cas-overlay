@@ -381,6 +381,12 @@ client_secret | ... | ...
   * `mvn -pl cas-server-webapp/ jetty:run`
 * Optimized for faster builds
 
+If you have trouble building CAS via `mvn clean install`, you may need to install the "Java Cryptography Extension (JCE) Unlimited Strength
+Jurisdiction Policy Files". Follow
+[these instructions](http://bigdatazone.blogspot.com/2014/01/mac-osx-where-to-put-unlimited-jce-java.html) to unpack
+the zip file, back up existing policy files files, and install the new, stronger cryptography policy files.
+
+
 ### TODO
 
 * Request Throttling
