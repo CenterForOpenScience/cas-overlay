@@ -11,4 +11,5 @@
 **/*.iml
 **/*-checkpoint.ipynb
 **/overlays
-serialization-cache/*
+serialization*/*
+.DS_Store
