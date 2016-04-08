@@ -10,3 +10,6 @@
 **/*.log.*
 **/*.iml
 **/*-checkpoint.ipynb
+**/overlays
+serialization*/*
+.DS_Store

@@ -19,14 +19,15 @@
     under the License.
 
 -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:c="http://www.springframework.org/schema/c"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
     <description>
-        Defines the cookie that stores the TicketGrantingTicket.  You most likely should never modify these (especially the "secure" property).
+        Defines the cookie that stores the TicketGrantingTicket. You most likely should never modify these (especially
+        the "secure" property).
         You can change the name if you want to make it harder for people to guess.
     </description>
 
@@ -36,14 +37,14 @@
           p:cookieMaxAge="-1"
           p:rememberMeMaxAge="${tgt.rememberMeDuration:1209600}"
           p:cookieName="TGC"
-          p:cookiePath="/cas" />
+          p:cookiePath="/cas"/>
 
     <bean id="cookieCipherExecutor" class="org.jasig.cas.util.DefaultCipherExecutor"
           c:secretKeyEncryption="${tgc.encryption.key}"
           c:secretKeySigning="${tgc.signing.key}"/>
 
     <bean id="cookieValueManager" class="org.jasig.cas.web.support.DefaultCasCookieValueManager"
-          c:cipherExecutor-ref="cookieCipherExecutor" />
+          c:cipherExecutor-ref="cookieCipherExecutor"/>
 
     <!-- As an alternative, the cookie value verification and encryption can be turned off via
     the following configuration

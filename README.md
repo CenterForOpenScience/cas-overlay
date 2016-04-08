@@ -248,8 +248,8 @@ HTTP 204 NO CONTENT
 
 Revocation of all Tokens for a specified Client ID and the given token's Principal ID.
 
-If the Access Token is of type CAS any valid Client ID can be specified, otherwise the Access Token
-may only revoke the Client ID it was generated with.
+*If the Access Token is of type CAS any valid Client ID can be specified, otherwise the Access Token
+may only revoke the Client ID it was generated with.*
 
 POST: /oauth2/revoke
 
@@ -301,6 +301,8 @@ HTTP 204 NO CONTENT
 *e.g. list applications authorized to access the user's account*
 
 Gathers metadata regarding token's associated with the Principal ID specified.
+
+*The Access Token must be type CAS.*
 
 POST: /oauth2/metadata
 
@@ -378,6 +380,12 @@ client_secret | ... | ...
 * Startup Server Command
   * `mvn -pl cas-server-webapp/ jetty:run`
 * Optimized for faster builds
+
+If you have trouble building CAS via `mvn clean install`, you may need to install the "Java Cryptography Extension (JCE) Unlimited Strength
+Jurisdiction Policy Files". Follow
+[these instructions](http://bigdatazone.blogspot.com/2014/01/mac-osx-where-to-put-unlimited-jce-java.html) to unpack
+the zip file, back up existing policy files files, and install the new, stronger cryptography policy files.
+
 
 ### TODO
 

@@ -27,17 +27,19 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:c="http://www.springframework.org/schema/c"
        xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:security="http://www.springframework.org/schema/security"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
-       http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.3.xsd">
+       http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.3.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
   <!--
   | The base-package indicates where components stored. Spring will scan this
   | folder and find out the annotated beans and register it in Spring container.
   -->
   <context:component-scan base-package="org.jasig.cas" />
+  <context:annotation-config/>
 
   <!-- Scan CAS artifacts to mvc annotations, such as controllers.
        The scan is controlled by the application context config file -->
@@ -76,6 +78,11 @@
   <bean id="xmlViewResolver" class="org.springframework.web.servlet.view.XmlViewResolver"
           p:order="1"
           p:location="${cas.viewResolver.xmlFile:classpath:/META-INF/spring/views.xml}" />
+
+
+    <bean id="xmlViewResolver" class="org.springframework.web.servlet.view.XmlViewResolver"
+          p:order="1"
+          p:location="${cas.viewResolver.xmlFile:classpath:/META-INF/spring/saml-protocol-views.xml}" />
   -->
 
   <bean id="urlBasedViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver"
@@ -107,6 +114,8 @@
       <util:properties>
         <prop key="/serviceValidate">serviceValidateController</prop>
         <prop key="/proxyValidate">proxyValidateController</prop>
+
+        <!--<prop key="/shibbolethLogin">shibbolethLoginController</prop>-->
 
         <prop key="/p3/serviceValidate">v3ServiceValidateController</prop>
         <prop key="/p3/proxyValidate">v3ProxyValidateController</prop>
@@ -165,7 +174,35 @@
 
   This behaviour can be altered by defining an explicit CipherBean.
   -->
-  <bean id="loginFlowStateTranscoder" class="org.jasig.spring.webflow.plugin.EncryptedTranscoder"/>
+    <bean id="loginFlowStateTranscoder" class="org.jasig.spring.webflow.plugin.EncryptedTranscoder"
+          c:cipherBean-ref="loginFlowCipherBean" />
+
+    <bean id="loginFlowCipherBean" class="org.cryptacular.bean.BufferedBlockCipherBean"
+          p:keyAlias="${cas.webflow.keyalias:aes128}"
+          p:keyStore-ref="loginFlowCipherKeystore"
+          p:keyPassword="${cas.webflow.keypassword:changeit}">
+        <property name="nonce">
+            <bean class="org.cryptacular.generator.sp80038a.RBGNonce" />
+        </property>
+        <property name="blockCipherSpec">
+            <bean class="org.cryptacular.spec.BufferedBlockCipherSpec"
+                  c:algName="${cas.webflow.cipher.alg:AES}"
+                  c:cipherMode="${cas.webflow.cipher.mode:CBC}"
+                  c:cipherPadding="${cas.webflow.cipher.padding:PKCS7}" />
+        </property>
+    </bean>
+
+    <bean id="loginFlowCipherKeystore" class="java.security.KeyStore"
+          factory-bean="loginFlowCipherKeystoreFactory" factory-method="newInstance" />
+
+    <bean id="loginFlowCipherKeystoreFactory" class="org.cryptacular.bean.KeyStoreFactoryBean"
+          c:type="${cas.webflow.keystore.type:JCEKS}"
+          c:password="${cas.webflow.keystore.password:changeit}">
+        <constructor-arg name="resource">
+            <bean class="org.cryptacular.io.URLResource"
+                  c:url="${cas.webflow.keystore:classpath:/etc/keystore.jceks}" />
+        </constructor-arg>
+    </bean>
 
   <webflow:flow-registry id="loginFlowRegistry" flow-builder-services="builder" base-path="/WEB-INF/webflow">
     <webflow:flow-location-pattern value="/login/*-webflow.xml"/>
@@ -311,10 +348,21 @@
 
   <bean id="acceptableUsagePolicyFormAction" class="org.jasig.cas.web.flow.AcceptableUsagePolicyFormAction"/>
 
-  <!-- OSF -->
-  <bean id="osfAuthenticationViaFormAction" class="io.cos.cas.web.flow.OpenScienceFrameworkAuthenticationViaFormAction"
+  <bean id="principalFromRemoteAction" class="io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction"
         p:centralAuthenticationService-ref="centralAuthenticationService"
-        p:warnCookieGenerator-ref="warnCookieGenerator" />
+        p:institutionsAuthUrl="${osf.api.institutions.auth.url}"
+        p:institutionsAuthJweSecret="${osf.api.institutions.auth.jweSecret}"
+        p:institutionsAuthJwtSecret="${osf.api.institutions.auth.jwtSecret}"
+        p:institutionsAuthXslLocation="${osf.api.institutions.auth.xslLocation}"/>
+
+  <!--<bean id="shibbolethLoginController" class="org.jasig.cas.web.ServiceValidateController"-->
+          <!--p:validationSpecificationClass="org.jasig.cas.validation.Cas20WithoutProxyingValidationSpecification"-->
+          <!--p:centralAuthenticationService-ref="centralAuthenticationService"-->
+          <!--p:servicesManager-ref="servicesManager"-->
+          <!--p:proxyHandler-ref="proxy20Handler"-->
+          <!--p:argumentExtractor-ref="shibbolethArgumentExtractor"-->
+          <!--p:successView="casSamlServiceSuccessView"-->
+          <!--p:failureView="casSamlServiceFailureView"/>-->
 
   <!-- OAuth2 -->
   <bean id="oauth20WrapperController" class="org.jasig.cas.support.oauth.web.OAuth20WrapperController"
@@ -324,4 +372,32 @@
         p:centralAuthenticationService-ref="centralAuthenticationService"
         p:timeout="${oauth.accessTokenDuration:3600}"
         p:centralOAuthService-ref="centralOAuthService" />
+
+  <!-- CRaSH -->
+  <!--<bean class="org.crsh.spring.SpringWebBootstrap">-->
+    <!--<property name="cmdMountPointConfig" value="war:/WEB-INF/crash/commands/"/>-->
+    <!--<property name="confMountPointConfig" value="war:/WEB-INF/crash/"/>-->
+
+    <!--<property name="config">-->
+      <!--<props>-->
+        <!--&lt;!&ndash; VFS configuration &ndash;&gt;-->
+        <!--<prop key="crash.vfs.refresh_period">1</prop>-->
+
+        <!--&lt;!&ndash; SSH configuration &ndash;&gt;-->
+        <!--<prop key="crash.ssh.port">2000</prop>-->
+
+        <!--&lt;!&ndash; Optional SSH timeouts &ndash;&gt;-->
+        <!--<prop key="crash.ssh.auth_timeout">300000</prop>-->
+        <!--<prop key="crash.ssh.idle_timeout">300000</prop>-->
+
+        <!--&lt;!&ndash; Telnet configuration &ndash;&gt;-->
+        <!--<prop key="crash.telnet.port">3000</prop>-->
+
+        <!--&lt;!&ndash; Authentication configuration &ndash;&gt;-->
+        <!--<prop key="crash.auth">simple</prop>-->
+        <!--<prop key="crash.auth.simple.username">${crash.auth.simple.username}</prop>-->
+        <!--<prop key="crash.auth.simple.password">${crash.auth.simple.password}</prop>-->
+      <!--</props>-->
+    <!--</property>-->
+  <!--</bean>-->
 </beans>

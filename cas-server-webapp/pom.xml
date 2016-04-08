@@ -2,7 +2,7 @@
   <parent>
     <groupId>io.cos.cas</groupId>
     <artifactId>cas-server</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>4.1.5</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>cas-server-webapp</artifactId>
@@ -11,9 +11,14 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.cos.cas</groupId>
-      <artifactId>cas-server-support-jdbc</artifactId>
-      <version>${project.version}</version>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-hibernate5</artifactId>
+      <version>2.7.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.7.2</version>
     </dependency>
     <dependency>
       <groupId>io.cos.cas</groupId>
@@ -42,6 +47,17 @@
     <dependency>
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-server-webapp-support</artifactId>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>c3p0</artifactId>
+          <groupId>c3p0</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -61,12 +77,17 @@
       <artifactId>hibernate-entitymanager</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-dbcp2</artifactId>
+      <groupId>com.mchange</groupId>
+      <artifactId>c3p0</artifactId>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jasig.cas</groupId>
+      <artifactId>cas-server-security-filter</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>net.kencochrane.raven</groupId>
@@ -75,6 +96,30 @@
     <dependency>
       <groupId>com.thetransactioncompany</groupId>
       <artifactId>cors-filter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${maven-jetty-plugin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>${maven-jetty-plugin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.crashub</groupId>
+      <artifactId>crash.embed.spring</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.crashub</groupId>
+      <artifactId>crash.shell</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.crashub</groupId>
+      <artifactId>crash.packaging</artifactId>
+      <type>war</type>
+      <classifier>spring</classifier>
     </dependency>
   </dependencies>
 
@@ -101,7 +146,7 @@
       <plugin>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
-        <version>9.2.10.v20150310</version>
+        <version>${maven-jetty-plugin.version}</version>
         <configuration>
           <systemProperties>
             <systemProperty>
@@ -119,6 +164,10 @@
             <systemProperty>
               <name>log4j.config.location</name>
               <value>file:${project.parent.basedir}/etc/log4j2.xml</value>
+            </systemProperty>
+            <systemProperty>
+              <name>osf.api.institutions.auth.xslLocation</name>
+              <value>file:${project.parent.basedir}/etc/institutions-auth.xsl</value>
             </systemProperty>
           </systemProperties>
           <jettyXml>${project.parent.basedir}/etc/jetty/jetty.xml,${project.parent.basedir}/etc/jetty/jetty-http.xml,${project.parent.basedir}/etc/jetty/jetty-ssl.xml,${project.parent.basedir}/etc/jetty/jetty-https.xml</jettyXml>
@@ -142,7 +191,7 @@
           <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-quickstart</artifactId>
-            <version>9.2.10.v20150310</version>
+            <version>${maven-jetty-plugin.version}</version>
           </dependency>
         </dependencies>
       </plugin>
