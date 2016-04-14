@@ -286,6 +286,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             final String username = normalized.getJSONObject("provider").getJSONObject("user").getString("username");
             final String payload = normalized.toString();
 
+            logger.info("Notify Remote Principal Authenticated : {}", username);
             logger.debug("Notify Remote Principal Authenticated [{}] Normalized Payload '{}'", username, payload);
 
             // Build a JWT and wrap it with JWE for secure transport to the OSF API.
