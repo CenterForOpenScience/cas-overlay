@@ -283,7 +283,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             throws AccountException {
         try {
             final JSONObject normalized = this.normalizeRemotePrincipal(credential);
-            final String username = normalized.getJSONObject("user").getString("username");
+            final String username = normalized.getJSONObject("provider").getJSONObject("user").getString("username");
             final String payload = normalized.toString();
 
             logger.debug("Notify Remote Principal Authenticated [{}] Normalized Payload '{}'", username, payload);
