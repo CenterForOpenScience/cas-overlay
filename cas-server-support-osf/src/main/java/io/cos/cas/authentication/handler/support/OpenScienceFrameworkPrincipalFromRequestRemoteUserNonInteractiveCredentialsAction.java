@@ -246,9 +246,8 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         // rejects any conflicting / forged headers.
         final String remoteUser = request.getHeader(REMOTE_USER);
         if (StringUtils.hasText(remoteUser)) {
-            logger.info("Remote  User [{}] found in HttpServletRequest", remoteUser);
+            logger.info("Remote  User from HttpServletRequest '{}'", remoteUser);
             credential.setRemotePrincipal(Boolean.TRUE);
-            credential.setUsername(remoteUser);
 
             for (final String headerName : Collections.list(request.getHeaderNames())) {
                 if (headerName.startsWith(ATTRIBUTE_PREFIX)) {
@@ -263,12 +262,12 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             // Notify the OSF of the remote principal authentication.
-            notifyRemotePrincipalAuthenticated(credential);
+            final String username = notifyRemotePrincipalAuthenticated(credential);
+            credential.setUsername(username);
 
             return credential;
         }
 
-        logger.debug("Remote User not found in HttpServletRequest");
         return null;
     }
 
@@ -276,22 +275,22 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * Securely notify the OSF of a Remote Principal Authentication credential. Allows the OSF the opportunity
      * to create a verified user account and/or assign institutional affiliation to the user's account.
      *
-     * @param credential the credential object bearing the username, fullname, etc...
+     * @param credential the credential object bearing the authentication headers from the idp
+     * @return the username from the idp and setup on the OSF
      * @throws AccountException a account exception
      */
-    private void notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
+    private String notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
             throws AccountException {
         try {
-            final String payload = this.normalizeRemotePrincipal(credential);
-            logger.debug(
-                    "Notify Remote Principal Authenticated [{}] Normalized Payload '{}'",
-                    credential.getUsername(),
-                    payload
-            );
+            final JSONObject normalized = this.normalizeRemotePrincipal(credential);
+            final String username = normalized.getJSONObject("user").getString("username");
+            final String payload = normalized.toString();
+
+            logger.debug("Notify Remote Principal Authenticated [{}] Normalized Payload '{}'", username, payload);
 
             // Build a JWT and wrap it with JWE for secure transport to the OSF API.
             final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                    .subject(credential.getUsername())
+                    .subject(username)
                     .claim("data", payload)
                     .expirationTime(new Date(new Date().getTime() + SIXTY_SECONDS))
                     .build();
@@ -319,7 +318,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             final int statusCode = httpResponse.getStatusLine().getStatusCode();
             logger.info(
                     "Notify Remote Principal Authenticated [OSF API] Response: <{}> Status Code {}",
-                    credential.getUsername(),
+                    username,
                     statusCode
             );
             // The institutional authentication endpoint should always respond with a 204 No Content when successful.
@@ -328,9 +327,12 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
                 logger.error("Notify Remote Principal Authenticated [OSF API] Response Body: '{}'", responseString);
                 throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");
             }
+
+            // return the username for the credential build.
+            return username;
         } catch (final JOSEException | IOException | ParserConfigurationException | TransformerException e) {
-            logger.error("Notify Remote Principal Authenticated [{}] Exception: {}", credential.getUsername(), e.getMessage());
-            logger.trace("Notify Remote Principal Authenticated [{}] Exception: {}", credential.getUsername(), e);
+            logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
+            logger.trace("Notify Remote Principal Authenticated Exception: {}", e);
             throw new RemoteUserFailedLoginException("Unable to Build Message for OSF API Endpoint");
         }
     }
@@ -339,11 +341,11 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * Normalize the Remote Principal credential.
      *
      * @param credential the credential object bearing the username, password, etc...
-     * @return the json serialized authorization for the OSF API
+     * @return the json object to serialize for authorization with the OSF API
      * @throws ParserConfigurationException a parser configuration exception
      * @throws TransformerException a transformer exception
      */
-    private String normalizeRemotePrincipal(final OpenScienceFrameworkCredential credential)
+    private JSONObject normalizeRemotePrincipal(final OpenScienceFrameworkCredential credential)
             throws ParserConfigurationException, TransformerException {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         final DocumentBuilder builder = factory.newDocumentBuilder();
@@ -367,8 +369,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         this.institutionsAuthTransformer.transform(source, result);
 
         // convert transformed xml to json
-        final JSONObject xmlJSONObj = XML.toJSONObject(writer.getBuffer().toString());
-        return xmlJSONObj.toString();
+        return XML.toJSONObject(writer.getBuffer().toString());
     }
 
     public void setInstitutionsAuthUrl(final String institutionsAuthUrl) {
