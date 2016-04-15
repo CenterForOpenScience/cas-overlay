@@ -94,10 +94,6 @@
       <artifactId>raven-log4j2</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.thetransactioncompany</groupId>
-      <artifactId>cors-filter</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
       <version>${maven-jetty-plugin.version}</version>
