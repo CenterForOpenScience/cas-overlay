@@ -47,7 +47,10 @@
       <header>
         <%-- <a id="logo" href="http://www.apereo.org" title="<spring:message code="logo.title" />">Apereo</a>
         <h1>Central Authentication Service (CAS)</h1> --%>
-        <a id="logo" href="" title="<spring:message code="logo.title" />">Open Science Framework | Sign In</a>
+        <a id="logo" href="http://www.osf.io" title="<spring:message code="logo.title" />">Open Science Framework | Sign In</a>
+        <div align="center" class="center">
+        <span id="title">Open Science Framework</span>
+        </div>
         <%-- <h1>Central Authentication Service (CAS)</h1> --%>
       </header>
       <div id="content">
