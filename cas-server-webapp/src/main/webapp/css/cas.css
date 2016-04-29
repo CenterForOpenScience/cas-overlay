@@ -29,7 +29,7 @@ abbr[title], dfn[title] { border-bottom: 1px dotted; cursor: help; }
 table { border-collapse: collapse; border-spacing: 0; }
 hr { display: block; height: 1px; border: 0; border-top: 1px solid #cccccc; margin: 1em 0; padding: 0; }
 input, select { vertical-align: middle; }
-body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.4em; background: #eee; }
+body { font-family: 'Open Sans'; font-size: 12px; line-height: 1.4em; background: #eee; }
 
 h2 {
  font-size: 16px;
@@ -38,9 +38,6 @@ h2 {
 
 #title {
  font-size: 34px;
- font-family: 'Open Sans';
- font-weight: bold;
-
 }
 .center {
  padding-top: 30px;
