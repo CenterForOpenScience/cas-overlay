@@ -17,7 +17,6 @@
  * under the License.
  */
 html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary, time, mark, audio, video { margin: 0; padding: 0; border: 0; outline: 0; font-size: 100%; vertical-align: baseline; background: transparent; }
-body { line-height: 1; }
 nav ul { list-style: none; }
 blockquote, q { quotes: none; }
 blockquote:before, blockquote:after, q:before, q:after { content: ''; content: none; }
@@ -37,17 +36,17 @@ h2 {
 }
 
 #title {
- font-size: 34px;
+  line-height: 1;
+  font-size: 34px;
 }
 .center {
- padding-top: 30px;
+ padding-top: 10px;
 }
 
 #container { width: 100%; }
 
 @media only screen and (max-width: 960px) { 
   #container { width: 100%; }
-  #content { -webkit-border-bottom-right-radius: 0px; -webkit-border-bottom-left-radius: 0px; -moz-border-radius-bottomright: 0px; -moz-border-radius-bottomleft: 0px; border-bottom-right-radius: 0px; border-bottom-left-radius: 0px; } 
 }
 
 body {
@@ -68,16 +67,16 @@ p {
 
 header {
   overflow: hidden;
-  padding: 40px 0;
+  padding: 20px 0;
 }
 
 #logo {
   display: block;
-  width: 140px;
-  height:140px;
+  width: 110px;
+  height: 110px;
   margin: 0 auto;
   background: url(../images/osf-logo.png) no-repeat;
-  background-size: 140px 140px;
+  background-size: 100%;
   text-indent: -999em;
   border-right: 1px solid rgba(255,255,255,0.25);
 }
@@ -93,9 +92,13 @@ header h1 {
   width: 274px;
   margin: 0 auto;
 
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
+  -webkit-border-bottom-right-radius: 0px;
+  -webkit-border-bottom-left-radius: 0px;
+  -moz-border-radius-bottomright: 0px;
+  -moz-border-radius-bottomleft: 0px;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+
   -webkit-box-shadow: 0 0 8px 0 rgba(0,0,0,0.15);
   box-shadow: 0 0 8px 0 rgba(0,0,0,0.15);
 }
@@ -232,9 +235,9 @@ footer a:link, footer a:visited {
 #fm1 .row .btn-reset { display: none; }
 
 @media only screen and (max-width: 799px) { 
-  header { padding: 10px;}
+  /*header { padding: 10px;}*/
   footer { width:  300px; }
-  #logo { width: 126px; height: 50px; background-size: 126px 50px; /*margin-right: 20px;*/ }
+  /*#logo { width: 80px; height: 80px; }*/
   #login { float: none; width: 100%; }
   #sidebar { margin-top: 20px; }
   #sidebar .sidebar-content { padding: 0; }
