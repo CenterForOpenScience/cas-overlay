@@ -29,11 +29,18 @@ abbr[title], dfn[title] { border-bottom: 1px dotted; cursor: help; }
 table { border-collapse: collapse; border-spacing: 0; }
 hr { display: block; height: 1px; border: 0; border-top: 1px solid #cccccc; margin: 1em 0; padding: 0; }
 input, select { vertical-align: middle; }
-body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.4em; background: #eee; }
+body { font-family: 'Open Sans'; font-size: 12px; line-height: 1.4em; background: #eee; }
 
 h2 {
  font-size: 16px;
  padding-bottom: 10px;
+}
+
+#title {
+ font-size: 34px;
+}
+.center {
+ padding-top: 30px;
 }
 
 #container { width: 100%; }
@@ -66,11 +73,11 @@ header {
 
 #logo {
   display: block;
-  width: 189px;
-  height: 75px;
+  width: 140px;
+  height:140px;
   margin: 0 auto;
-  background: url(../images/cos-logo.png) no-repeat;
-  background-size: 189px 75px;
+  background: url(../images/osf-logo.png) no-repeat;
+  background-size: 140px 140px;
   text-indent: -999em;
   border-right: 1px solid rgba(255,255,255,0.25);
 }
