@@ -23,6 +23,8 @@
     <div class="row" style="text-align: center;">
         <hr>
         <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
+        <spring:eval var="osfInstitutionLoginUrl" expression="@casProperties.getProperty('osf.institutionLogin.url')" />
+        <a href="${osfInstitutionLoginUrl}${not empty param.service ? '&redirect_url=' : ''}${param.service}">Login through your Institution</a>&nbsp;&nbsp;
         <a href="${osfUrl}">Back to OSF</a>
     </div>
 </div> <!-- END #content -->
