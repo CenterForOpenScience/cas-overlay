@@ -103,6 +103,8 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
     private static final String ATTRIBUTE_PREFIX = "AUTH-";
 
+    private static final String SHIBBOLETH_SESSION_HEADER = ATTRIBUTE_PREFIX + "Shib-Session-ID";
+
     private static final String SHIBBOLETH_COOKIE_PREFIX = "_shibsession_";
 
     private static final int SIXTY_SECONDS = 60 * 1000;
@@ -244,9 +246,15 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         // WARNING: Do not assume this works w/o acceptance testing in a Production environment.
         // The call is made to trust these headers only because we assume the Apache Shibboleth Service Provider module
         // rejects any conflicting / forged headers.
-        final String remoteUser = request.getHeader(REMOTE_USER);
-        if (StringUtils.hasText(remoteUser)) {
-            logger.info("Remote  User from HttpServletRequest '{}'", remoteUser);
+        final String shibbolethSession = request.getHeader(SHIBBOLETH_SESSION_HEADER);
+        if (StringUtils.hasText(shibbolethSession)) {
+            final String remoteUser = request.getHeader(REMOTE_USER);
+            if (StringUtils.isEmpty(remoteUser)) {
+                logger.error("Invalid Remote User specified as Empty");
+                throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
+            }
+
+            logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
             credential.setRemotePrincipal(Boolean.TRUE);
 
             for (final String headerName : Collections.list(request.getHeaderNames())) {
@@ -266,9 +274,6 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             credential.setUsername(username);
 
             return credential;
-        } else if (remoteUser != null && StringUtils.isEmpty(remoteUser)) {
-            logger.error("Invalid Remote User specified as Empty");
-            throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
         }
 
         return null;
