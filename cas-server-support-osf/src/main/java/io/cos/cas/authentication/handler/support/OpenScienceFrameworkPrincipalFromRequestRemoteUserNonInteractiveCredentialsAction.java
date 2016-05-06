@@ -266,6 +266,9 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             credential.setUsername(username);
 
             return credential;
+        } else if (remoteUser != null && StringUtils.isEmpty(remoteUser)) {
+            logger.error("Invalid Remote User specified as Empty");
+            throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
         }
 
         return null;
