@@ -37,7 +37,7 @@
           p:cookieMaxAge="-1"
           p:rememberMeMaxAge="${tgt.rememberMeDuration:1209600}"
           p:cookieName="TGC"
-          p:cookiePath="/cas"/>
+          p:cookiePath="/"/>
 
     <bean id="cookieCipherExecutor" class="org.jasig.cas.util.DefaultCipherExecutor"
           c:secretKeyEncryption="${tgc.encryption.key}"
