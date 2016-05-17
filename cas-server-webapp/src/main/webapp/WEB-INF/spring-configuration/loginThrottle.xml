@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+
+    <bean id="loginThrottle"
+          class="org.jasig.cas.web.support.InMemoryThrottledSubmissionByIpAddressHandlerInterceptorAdapter"
+          p:failureRangeInSeconds="60"
+          p:failureThreshold="3" />
+
+    <bean id="loginThrottleJobDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"
+          p:targetObject-ref="loginThrottle"
+          p:targetMethod="decrementCounts"/>
+
+    <bean id="loginThrottleTrigger"
+          class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"
+          p:jobDetail-ref="loginThrottleJobDetail"
+          p:startDelay="30"
+          p:repeatInterval="30"/>
+</beans>
