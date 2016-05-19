@@ -64,6 +64,10 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.thetransactioncompany</groupId>
+      <artifactId>cors-filter</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.w3c</groupId>
       <artifactId>dom</artifactId>
     </dependency>
