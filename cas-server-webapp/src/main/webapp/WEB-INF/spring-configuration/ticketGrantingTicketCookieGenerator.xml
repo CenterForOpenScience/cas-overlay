@@ -31,9 +31,11 @@
         You can change the name if you want to make it harder for people to guess.
     </description>
 
-    <bean id="ticketGrantingTicketCookieGenerator" class="org.jasig.cas.web.support.CookieRetrievingCookieGenerator"
+    <bean id="ticketGrantingTicketCookieGenerator"
+          class="io.cos.cas.web.support.OpenScienceFrameworkCookieRetrievingCookieGenerator"
           c:casCookieValueManager-ref="cookieValueManager"
           p:cookieSecure="${tgc.cookie.secure:true}"
+          p:cookieHttpOnly="${tgc.cookie.httponly:true}"
           p:cookieMaxAge="-1"
           p:rememberMeMaxAge="${tgt.rememberMeDuration:1209600}"
           p:cookieName="TGC"
