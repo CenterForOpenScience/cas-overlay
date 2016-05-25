@@ -27,7 +27,7 @@
     <bean id="loginThrottle"
           class="org.jasig.cas.web.support.InMemoryThrottledSubmissionByIpAddressAndUsernameHandlerInterceptorAdapter"
           p:failureRangeInSeconds="${cas.throttle.failureRangeInSeconds:1}"
-          p:failureThreshold="${cas.throttle.failureThreshold:2}"
+          p:failureThreshold="${cas.throttle.failureThreshold:1000}"
           p:usernameParameter="username"
     />
 
