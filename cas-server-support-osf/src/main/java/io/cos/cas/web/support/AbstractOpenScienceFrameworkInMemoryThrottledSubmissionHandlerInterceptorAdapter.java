@@ -75,11 +75,11 @@ public abstract class AbstractOpenScienceFrameworkInMemoryThrottledSubmissionHan
 
         for (final Map.Entry<String, ConcurrentLinkedQueue<Date>> entry : this.throttlerMap.entrySet()) {
             if (entry != null && entry.getValue() != null && !entry.getValue().isEmpty()) {
-                logger.info("Login Throttle Map Entry and Queue Size: <{}, {}>", entry.getKey(), entry.getValue().size());
+                logger.trace("Login Throttle Map Entry and Queue Size: <{}, {}>", entry.getKey(), entry.getValue().size());
                 entry.getValue().poll();
             }
         }
-        logger.info("Done decrementing throttler count for all user.");
+        logger.debug("Done decrementing throttler count for all user.");
     }
 
     /**
