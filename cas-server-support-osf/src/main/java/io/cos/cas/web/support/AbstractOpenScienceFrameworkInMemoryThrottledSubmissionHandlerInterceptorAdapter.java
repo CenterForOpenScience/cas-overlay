@@ -62,6 +62,12 @@ public abstract class AbstractOpenScienceFrameworkInMemoryThrottledSubmissionHan
         this.throttlerMap.put(requestSignature, dateQueue);
     }
 
+    @Override
+    protected void recordThrottle(final HttpServletRequest request) {
+        logger.warn("Authentication attempt from {} exceeds the failure threshold {}",
+                constructKey(request), getFailureThreshold());
+    }
+
     /**
      * This method is called by an external job which runs periodically to release the throttle.
      */
