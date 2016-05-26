@@ -146,7 +146,6 @@
       <property name="interceptors">
           <array value-type="org.springframework.web.servlet.HandlerInterceptor">
               <ref bean="localeChangeInterceptor" />
-              <ref bean="loginThrottle" />
           </array>
       </property>
   </bean>
