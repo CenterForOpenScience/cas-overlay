@@ -26,16 +26,16 @@
     }
 </style>
 <div class="question" id="login">
-    <form id="fm1" method="GET" action="${callbackUrl}">
+    <form id="fm1" method="GET" action="<c:url value="${callbackUrl}" />">
         <h2><spring:message code="screen.oauth.confirm.header" /></h2>
         <p>
-           <spring:message code="screen.oauth.confirm.message" arguments="${serviceName}" />
+           <spring:message code="screen.oauth.confirm.message" arguments="${fn:escapeXml(serviceName)}" />
         </p>
         <p>
             <ul style="padding-left: 15px;">
                 <c:forEach items="${scopeMap}" var="scope">
-                    <li class="scope scope-${scope.key}">
-                        <h3>${scope.value.description}</h3>
+                    <li class="scope scope-${fn:escapeXml(scope.key)}">
+                        <h3>${fn:escapeXml(scope.value.description)}</h3>
                     </li>
                 </c:forEach>
             </ul>

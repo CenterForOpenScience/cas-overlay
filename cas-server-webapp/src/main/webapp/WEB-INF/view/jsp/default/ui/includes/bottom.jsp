@@ -24,7 +24,7 @@
         <hr>
         <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
         <spring:eval var="osfInstitutionLoginUrl" expression="@casProperties.getProperty('osf.institutionLogin.url')" />
-        <a href="${osfInstitutionLoginUrl}${not empty param.service ? '&redirect_url=' : ''}${param.service}">Login through your Institution</a>&nbsp;&nbsp;
+        <a href="${osfInstitutionLoginUrl}${not empty param.service ? '&redirect_url=' : ''}${fn:escapeXml(param.service)}">Login through your Institution</a>&nbsp;&nbsp;
         <a href="${osfUrl}">Back to OSF</a>
     </div>
 </div> <!-- END #content -->
@@ -37,7 +37,7 @@
     </div> --%>
     <div class="copyright">
         <div class="row">
-            <p>Copyright &copy; 2011-2016 <a href="http://centerforopenscience.org">Center for Open Science</a> |
+            <p>Copyright &copy; 2011-2016 <a href="https://cos.io">Center for Open Science</a> |
                 <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/TERMS_OF_USE.md">Terms of Use</a> |
                 <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/PRIVACY_POLICY.md">Privacy Policy</a>
             </p>
