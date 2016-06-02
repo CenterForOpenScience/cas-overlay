@@ -93,11 +93,6 @@
 
         <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
-        <section class="row">
-            <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')" />
-            <a id="forgot-password" href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
-        </section>
-
         <section class="row btn-row">
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
