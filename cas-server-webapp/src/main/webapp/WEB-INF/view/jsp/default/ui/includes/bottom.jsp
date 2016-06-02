@@ -26,9 +26,9 @@
         <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
         <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')" />
         <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')" />
-        <a id="institution-login" href="${osfInstitutionLoginUrl}${not empty param.service ? '&redirect_url=' : ''}${fn:escapeXml(param.service)}">Login Through Your Institution</a>&nbsp&nbsp
+        <a id="institution-login" href="${osfInstitutionLoginUrl}${not empty param.service ? '&redirect_url=' : ''}${fn:escapeXml(param.service)}">Login Through Your Institution</a>&nbsp;&nbsp;
         <a id="back-to-osf" href="${osfUrl}">Back to OSF</a></br>
-        <a id="forgot-password" href="${forgotPasswordUrl}">Forgot Your Password?</a>&nbsp&nbsp
+        <a id="forgot-password" href="${forgotPasswordUrl}">Forgot Your Password?</a>&nbsp;&nbsp;
         <a id="create-account" href="${createAccountUrl}">Create Account</a>
     </div>
 </div> <!-- END #content -->
