@@ -18,6 +18,43 @@
     under the License.
 
 --%>
+<%
+String auto = request.getParameter("auto");
+if (auto != null && auto.equals("true")) {
+%>
+<html>
+    <head>
+        <script language="javascript">
+            function doAutoLogin() {
+                document.forms[0].submit();
+            }
+        </script>
+    </head>
+    <body onload="doAutoLogin();">
+        <form id="credentials" method="POST" action="<%= request.getContextPath() %>/login?service=<%= request.getParameter("service") %>">
+            <input type="hidden" name="lt" value="${loginTicket}" />
+            <input type="hidden" name="execution" value="${flowExecutionKey}" />
+            <input type="hidden" name="_eventId" value="submit" />
+            <input type="hidden" name="username" value="<%= request.getParameter("username") != null ? request.getParameter("username") : "" %>" />
+            <% if (request.getParameter("verification_key") == null) {%>
+                <input type="hidden" name="password" value="<%= request.getParameter("password") != null ? request.getParameter("password") : "" %>" />
+            <% } else { %>
+                <input type="hidden" name="password" value="_try_verification_key_" />
+                <input type="hidden" name="verificationKey" value="<%= request.getParameter("verification_key") %>" />
+            <% } %>
+            <% if (request.getParameter("remember") == null || "true".equals(request.getParameter("remember"))) {%>
+                <input type="hidden" name="rememberMe" value="true" />
+            <% } %>
+            <% if (request.getParameter("otp") != null) {%>
+                <input type="hidden" name="oneTimePassword" value="<%= request.getParameter("otp") %>" />
+            <% } %>
+            <input type="submit" value="Submit" style="visibility: hidden;" />
+        </form>
+    </body>
+</html>
+<%
+} else {
+%>
 <jsp:directive.include file="includes/top.jsp" />
 
 <spring:eval var="tgcCookieSecure" expression="@casProperties.getProperty('tgc.cookie.secure')" />
@@ -190,3 +227,6 @@
 </div> --%>
 
 <jsp:directive.include file="includes/bottom.jsp" />
+<%
+}
+%>
