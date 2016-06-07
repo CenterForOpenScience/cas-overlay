@@ -101,7 +101,6 @@
             <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.login" />" tabindex="4" type="submit" />
             <%-- <input class="btn-reset" name="reset" accesskey="c" value="<spring:message code="screen.welcome.button.clear" />" tabindex="5" type="reset" /> --%>
         </section>
-
         <section class="row check">
             <%-- <input id="warn" name="warn" value="true" tabindex="3" accesskey="<spring:message code="screen.welcome.label.warn.accesskey" />" type="checkbox" />
             <label for="warn"><spring:message code="screen.welcome.label.warn" /></label>
@@ -109,8 +108,10 @@
             <input id="publicWorkstation" name="publicWorkstation" value="false" tabindex="4" type="checkbox" />
             <label for="publicWorkstation"><spring:message code="screen.welcome.label.publicstation" /></label>
             <br/> --%>
-            <input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked tabindex="5"  />
+            <input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked tabindex="5" />
             <label for="rememberMe"><spring:message code="screen.rememberme.checkbox.title" /></label>
+            <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')" />
+            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
         </section>
 
     </form:form>
