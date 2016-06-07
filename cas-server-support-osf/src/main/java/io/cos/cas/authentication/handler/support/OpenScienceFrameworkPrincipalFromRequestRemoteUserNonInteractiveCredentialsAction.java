@@ -275,6 +275,17 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
             return credential;
         }
+        // Construct credential if presented with (username, verification_key)
+        // This is used when:
+        //      1. User creates an account
+        //      2. User resets the password through forgot_password
+        //      3. User sets password when added as an unregistered contributor
+        //      4. Other situations
+        else if (request.getParameter("verification_key") != null) {
+            credential.setUsername(request.getParameter("username"));
+            credential.setVerificationKey(request.getParameter("verification_key"));
+            return credential;
+        }
 
         return null;
     }
