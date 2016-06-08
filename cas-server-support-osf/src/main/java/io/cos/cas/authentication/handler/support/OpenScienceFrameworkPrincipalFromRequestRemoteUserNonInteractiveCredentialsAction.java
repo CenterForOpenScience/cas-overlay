@@ -279,9 +279,10 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         // This is used when:
         //      1. User creates an account
         //      2. User resets the password through forgot_password
-        //      3. User sets password when added as an unregistered contributor
-        //      4. Other situations
-        else if (request.getParameter("verification_key") != null) {
+        //      3. User sets password when added as an unregistered contribution
+        // Note: Two-factor sign in works and remain unchanged
+        // TODO: double check institution
+        else if (request.getParameter("username") != null && request.getParameter("verification_key") != null) {
             credential.setUsername(request.getParameter("username"));
             credential.setVerificationKey(request.getParameter("verification_key"));
             return credential;
