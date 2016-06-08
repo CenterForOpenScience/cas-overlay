@@ -1,0 +1,17 @@
+.DS_Store
+.git
+.classpath
+.project
+.env
+.idea
+.settings
+.idea
+.ipynb_checkpoints
+**/target
+**/*.log
+**/*.log.*
+**/*.iml
+**/*-checkpoint.ipynb
+**/overlays
+serialization*/*
+etc/cas-local.properties
