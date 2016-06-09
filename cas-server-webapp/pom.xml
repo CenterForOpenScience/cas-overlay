@@ -166,7 +166,7 @@
               <value>file:${project.parent.basedir}/etc/institutions-auth.xsl</value>
             </systemProperty>
           </systemProperties>
-          <jettyXml>${project.parent.basedir}/etc/jetty/jetty.xml,${project.parent.basedir}/etc/jetty/jetty-http.xml,${project.parent.basedir}/etc/jetty/jetty-ssl.xml,${project.parent.basedir}/etc/jetty/jetty-https.xml</jettyXml>
+          <jettyXml>${project.parent.basedir}/etc/jetty/jetty.xml,${project.parent.basedir}/etc/jetty/jetty-http.xml</jettyXml>
           <contextXml>${project.parent.basedir}/etc/jetty/jetty-context.xml</contextXml>
           <scanIntervalSeconds>10</scanIntervalSeconds>
           <webApp>

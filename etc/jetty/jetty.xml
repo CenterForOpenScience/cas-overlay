@@ -5,8 +5,6 @@
 <!-- Configure the Http Configuration                              -->
 <!-- ============================================================= -->
 <Configure id="httpConfig" class="org.eclipse.jetty.server.HttpConfiguration">
-  <Set name="secureScheme">https</Set>
-  <Set name="securePort"><Property name="jetty.secure.port" default="8443" /></Set>
   <Set name="outputBufferSize">32768</Set>
   <Set name="requestHeaderSize">8192</Set>
   <Set name="responseHeaderSize">8192</Set>
@@ -15,9 +13,8 @@
   <Set name="headerCacheSize">512</Set>
   <Set name="sendServerVersion">false</Set>
 
-  <!-- Uncomment to enable handling of X-Forwarded- style headers
+  <!-- enable handling of x-forwarded style headers -->
   <Call name="addCustomizer">
     <Arg><New class="org.eclipse.jetty.server.ForwardedRequestCustomizer"/></Arg>
   </Call>
-  -->
 </Configure>
