@@ -154,10 +154,6 @@
               <value>file:${project.parent.basedir}/etc/services</value>
             </systemProperty>
             <systemProperty>
-              <name>http.client.truststore.file</name>
-              <value>file:${project.parent.basedir}/etc/jetty/truststore.jks</value>
-            </systemProperty>
-            <systemProperty>
               <name>log4j.config.location</name>
               <value>file:${project.parent.basedir}/etc/log4j2.xml</value>
             </systemProperty>
