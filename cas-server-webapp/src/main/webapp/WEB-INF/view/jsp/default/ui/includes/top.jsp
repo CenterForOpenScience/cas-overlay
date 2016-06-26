@@ -48,7 +48,8 @@
     <div id="container">
         </br>
         <header>
-            <a id="logo" href="http://www.osf.io" title="<spring:message code="logo.title" />">Open Science Framework | Sign In</a>
+            <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
+            <a id="logo" href="${osfUrl}" title="<spring:message code="logo.title" />">Open Science Framework | Sign In</a>
             </br>
             <div align="center" class="center">
                 <span id="title">Open Science Framework</span>
