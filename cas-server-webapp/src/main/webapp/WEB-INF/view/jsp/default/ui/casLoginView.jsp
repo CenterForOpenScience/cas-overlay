@@ -18,43 +18,6 @@
     under the License.
 
 --%>
-<%
-String auto = request.getParameter("auto");
-if (auto != null && auto.equals("true")) {
-%>
-<html>
-    <head>
-        <script language="javascript">
-            function doAutoLogin() {
-                document.forms[0].submit();
-            }
-        </script>
-    </head>
-    <body onload="doAutoLogin();">
-        <form id="credentials" method="POST" action="<%= request.getContextPath() %>/login?service=<%= request.getParameter("service") %>">
-            <input type="hidden" name="lt" value="${loginTicket}" />
-            <input type="hidden" name="execution" value="${flowExecutionKey}" />
-            <input type="hidden" name="_eventId" value="submit" />
-            <input type="hidden" name="username" value="<%= request.getParameter("username") != null ? request.getParameter("username") : "" %>" />
-            <% if (request.getParameter("verification_key") == null) {%>
-                <input type="hidden" name="password" value="<%= request.getParameter("password") != null ? request.getParameter("password") : "" %>" />
-            <% } else { %>
-                <input type="hidden" name="password" value="_try_verification_key_" />
-                <input type="hidden" name="verificationKey" value="<%= request.getParameter("verification_key") %>" />
-            <% } %>
-            <% if (request.getParameter("remember") == null || "true".equals(request.getParameter("remember"))) {%>
-                <input type="hidden" name="rememberMe" value="true" />
-            <% } %>
-            <% if (request.getParameter("otp") != null) {%>
-                <input type="hidden" name="oneTimePassword" value="<%= request.getParameter("otp") %>" />
-            <% } %>
-            <input type="submit" value="Submit" style="visibility: hidden;" />
-        </form>
-    </body>
-</html>
-<%
-} else {
-%>
 <jsp:directive.include file="includes/top.jsp" />
 
 <spring:eval var="tgcCookieSecure" expression="@casProperties.getProperty('tgc.cookie.secure')" />
@@ -130,11 +93,6 @@ if (auto != null && auto.equals("true")) {
 
         <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
-        <section class="row">
-            <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')" />
-            <a id="forgot-password" href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
-        </section>
-
         <section class="row btn-row">
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
@@ -143,7 +101,6 @@ if (auto != null && auto.equals("true")) {
             <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.login" />" tabindex="4" type="submit" />
             <%-- <input class="btn-reset" name="reset" accesskey="c" value="<spring:message code="screen.welcome.button.clear" />" tabindex="5" type="reset" /> --%>
         </section>
-
         <section class="row check">
             <%-- <input id="warn" name="warn" value="true" tabindex="3" accesskey="<spring:message code="screen.welcome.label.warn.accesskey" />" type="checkbox" />
             <label for="warn"><spring:message code="screen.welcome.label.warn" /></label>
@@ -151,8 +108,10 @@ if (auto != null && auto.equals("true")) {
             <input id="publicWorkstation" name="publicWorkstation" value="false" tabindex="4" type="checkbox" />
             <label for="publicWorkstation"><spring:message code="screen.welcome.label.publicstation" /></label>
             <br/> --%>
-            <input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked tabindex="5"  />
+            <input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked tabindex="5" />
             <label for="rememberMe"><spring:message code="screen.rememberme.checkbox.title" /></label>
+            <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')" />
+            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
         </section>
 
     </form:form>
@@ -232,6 +191,3 @@ if (auto != null && auto.equals("true")) {
 </div> --%>
 
 <jsp:directive.include file="includes/bottom.jsp" />
-<%
-}
-%>

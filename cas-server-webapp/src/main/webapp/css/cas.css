@@ -140,6 +140,11 @@ header h1 {
   padding: 10px 0;
 }
 
+#login .need-help {
+    float: right;
+    text-align: right;
+}
+
 #login label {
   display: block;
   margin-bottom: 2px;
