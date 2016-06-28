@@ -22,13 +22,18 @@
 
     <div class="row" style="text-align: center;">
         <hr>
-        <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
         <spring:eval var="osfInstitutionLoginUrl" expression="@casProperties.getProperty('osf.institutionLogin.url')" />
-        <a href="${osfInstitutionLoginUrl}${not empty param.service ? '&redirect_url=' : ''}${fn:escapeXml(param.service)}">Login through your Institution</a>&nbsp;&nbsp;
-        <a href="${osfUrl}">Back to OSF</a>
+        <a id="institution-login" href="${osfInstitutionLoginUrl}${not empty param.service ? '&redirect_url=' : ''}${fn:escapeXml(param.service)}">Login Through Your Institution</a>&nbsp;&nbsp;
+        <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
+        <a id="back-to-osf" href="${osfUrl}">Back to OSF</a></br>
     </div>
 </div> <!-- END #content -->
 
+<div class="row" style="text-align: center;">
+    </br>
+    <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')" />
+    <a id="create-account" href="${createAccountUrl}">Create Account</a>
+</div>
 
 <footer>
     <%-- <div id="copyright">
