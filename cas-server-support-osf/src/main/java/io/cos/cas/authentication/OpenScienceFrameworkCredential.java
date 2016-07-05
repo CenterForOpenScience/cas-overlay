@@ -53,6 +53,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /** Indicates a Remote Principal. */
     private Boolean remotePrincipal = Boolean.FALSE;
 
+    /** Unique ID for Remote Principal. */
+    private String remotePrincipalId = "";
+
     /** The Authentication Headers. */
     private Map<String, String> authenticationHeaders = new HashMap<>();
 
@@ -89,6 +92,18 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         this.setRememberMe(rememberMe);
         this.setVerificationKey(verificationKey);
         this.setOneTimePassword(oneTimePassword);
+    }
+
+    /**
+     * @return Returns the remote identity provider
+     */
+    public String getRemotePrincipalId() { return this.remotePrincipalId; }
+
+    /**
+     * @param remotePrincipalId The remote identity provider to set
+     */
+    public void setRemotePrincipalId(final String remotePrincipalId) {
+        this.remotePrincipalId = remotePrincipalId;
     }
 
     /**
@@ -185,6 +200,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         if (!this.remotePrincipal.equals(other.remotePrincipal)) {
             return false;
         }
+        if (!this.remotePrincipalId.equals(other.remotePrincipalId)) {
+            return false;
+        }
         return true;
     }
 
@@ -195,6 +213,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
                 .append(verificationKey)
                 .append(oneTimePassword)
                 .append(remotePrincipal)
+                .append(remotePrincipalId)
                 .toHashCode();
     }
 }
