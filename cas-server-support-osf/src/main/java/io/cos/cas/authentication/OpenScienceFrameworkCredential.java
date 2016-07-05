@@ -95,11 +95,6 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
-     * @return Returns the remote identity provider
-     */
-    public String getRemotePrincipalId() { return this.remotePrincipalId; }
-
-    /**
      * @param remotePrincipalId The remote identity provider to set
      */
     public void setRemotePrincipalId(final String remotePrincipalId) {
@@ -141,6 +136,12 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         return this.remotePrincipal;
     }
 
+    // TODO: combine remotePrincipalId and remotePrincipal into one
+    /**
+     * @return Returns the remote identity provider
+     */
+    public String getRemotePrincipalId() { return this.remotePrincipalId; }
+
     /**
      * @param remotePrincipal The Remote Principal.
      */
@@ -160,7 +161,8 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      */
     @Override
     public String getId() {
-        return this.getUsername();
+        String prefix = this.isRemotePrincipal() ? this.remotePrincipalId : "osf";
+        return prefix + "@@" + this.getUsername();
     }
 
     @Override
