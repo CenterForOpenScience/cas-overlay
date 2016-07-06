@@ -25,7 +25,8 @@
 
     <action-state id="terminateSession">
         <evaluate expression="terminateSessionAction.terminate(flowRequestContext)" />
-        <transition to="doLogout" />
+        <transition on="success" to="doLogout" />
+        <transition on="finish" to="finishLogout" />
     </action-state>
 
     <action-state id="doLogout">
