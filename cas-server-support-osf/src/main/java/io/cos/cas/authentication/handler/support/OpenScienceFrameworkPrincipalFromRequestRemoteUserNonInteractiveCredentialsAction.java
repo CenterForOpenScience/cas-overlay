@@ -255,7 +255,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
-            credential.setRemotePrincipal(Boolean.TRUE);
+            credential.setRemotePrincipal("remote");
 
             for (final String headerName : Collections.list(request.getHeaderNames())) {
                 if (headerName.startsWith(ATTRIBUTE_PREFIX)) {

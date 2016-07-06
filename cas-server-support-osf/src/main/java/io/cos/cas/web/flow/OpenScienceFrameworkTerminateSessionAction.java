@@ -95,13 +95,14 @@ public class OpenScienceFrameworkTerminateSessionAction {
             if (auth == null) {
                 logger.info("auth == null");
             }
+            logger.info("authentication: " + auth.getAttributes().toString());
 
             Principal principal = auth.getPrincipal();
             if (principal == null) {
                 logger.info("principal == null");
                 return this.eventFactorySupport.error(this);
             }
-            logger.info("principal" + principal.toString());
+            logger.info("principal: " + principal.getAttributes().toString());
 
             List<CredentialMetaData>  meta = auth.getCredentials();
             if (meta == null || meta.isEmpty() || meta.size() != 1)  {
