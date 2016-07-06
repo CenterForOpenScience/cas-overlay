@@ -255,7 +255,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
-            credential.setRemotePrincipal("remote");
+            credential.setRemotePrincipal(Boolean.TRUE);
 
             for (final String headerName : Collections.list(request.getHeaderNames())) {
                 if (headerName.startsWith(ATTRIBUTE_PREFIX)) {
@@ -270,8 +270,9 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             // Notify the OSF of the remote principal authentication.
-            final String username = notifyRemotePrincipalAuthenticated(credential);
-            credential.setUsername(username);
+            final String[] remoteUserInfo = notifyRemotePrincipalAuthenticated(credential);
+            credential.setUsername(remoteUserInfo[0]);
+            credential.setInstitutionId(remoteUserInfo[1]);
 
             return credential;
         }
@@ -298,15 +299,16 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @return the username from the idp and setup on the OSF
      * @throws AccountException a account exception
      */
-    private String notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
+    private String[] notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
             throws AccountException {
         try {
             final JSONObject normalized = this.normalizeRemotePrincipal(credential);
+            final String institutionId = normalized.getJSONObject("provider").getString("id");
             final String username = normalized.getJSONObject("provider").getJSONObject("user").getString("username");
             final String payload = normalized.toString();
 
-            logger.info("Notify Remote Principal Authenticated : {}", username);
-            logger.debug("Notify Remote Principal Authenticated [{}] Normalized Payload '{}'", username, payload);
+            logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
+            logger.debug("Notify Remote Principal Authenticated [{}, {}] Normalized Payload '{}'", username, institutionId, payload);
 
             // Build a JWT and wrap it with JWE for secure transport to the OSF API.
             final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -349,7 +351,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             // return the username for the credential build.
-            return username;
+            return new String[] {username, institutionId};
         } catch (final JOSEException | IOException | ParserConfigurationException | TransformerException e) {
             logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
             logger.trace("Notify Remote Principal Authenticated Exception: {}", e);

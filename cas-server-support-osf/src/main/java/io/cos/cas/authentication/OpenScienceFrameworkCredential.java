@@ -35,8 +35,11 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /** Unique ID for serialization. */
     private static final long serialVersionUID = -3006234230814410939L;
 
-    /** Authentication attribute name for Remote Principal ID. */
-    public static final String REMOTE_PRINCIPAL_ID = "remotePrincipalId";
+    /** Authentication attribute name for Institution ID. */
+    public static final String INSTITUTION_ID = "institutionId";
+
+    /** Authentication attribute name for Remote Principal. */
+    public static final String REMOTE_PRINCIPAL = "remotePrincipal";
 
     /** Remote Principal appended to username in string representation. */
     private static final String REMOTE_PRINCIPAL_SUFFIX = "+rp";
@@ -53,15 +56,17 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /** The One Time Password. */
     private String oneTimePassword;
 
-    /** Unique Id for Remote Principal. */
-    private String remotePrincipal = "osf";
+    /** Indicates a Remote Principal. */
+    private Boolean remotePrincipal = Boolean.FALSE;
+
+    /** The Institution Id. */
+    private String institutionId = "osf";
 
     /** The Authentication Headers. */
     private Map<String, String> authenticationHeaders = new HashMap<>();
 
     /** Default constructor. */
-    public OpenScienceFrameworkCredential() {
-    }
+    public OpenScienceFrameworkCredential() {}
 
     /**
      * Creates a new instance with the given username and password.
@@ -123,22 +128,29 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
-     * @return Returns `true` if authenticated through Remote Principal.
+     * @return Returns the Remote Principal.
      */
     public final Boolean isRemotePrincipal() {
-        return !this.remotePrincipal.equals("osf");
+        return this.remotePrincipal;
     }
-
-    /**
-     * @return Returns the Remote Principal
-     */
-    public String getRemotePrincipal() { return this.remotePrincipal; }
 
     /**
      * @param remotePrincipal The Remote Principal.
      */
-    public final void setRemotePrincipal(final String remotePrincipal) {
+    public final void setRemotePrincipal(final Boolean remotePrincipal) {
         this.remotePrincipal = remotePrincipal;
+    }
+
+    /**
+     * @return Returns Institution Id
+     */
+    public String getInstitutionId() { return this.institutionId; }
+
+    /**
+     * @param institutionId The Institution Id
+     */
+    public final void setInstitutionId(final String institutionId) {
+        this.institutionId = institutionId;
     }
 
     /**
@@ -193,6 +205,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         if (!this.remotePrincipal.equals(other.remotePrincipal)) {
             return false;
         }
+        if (!this.institutionId.equals(other.institutionId)) {
+            return false;
+        }
         return true;
     }
 
@@ -203,6 +218,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
                 .append(verificationKey)
                 .append(oneTimePassword)
                 .append(remotePrincipal)
+                .append(institutionId)
                 .toHashCode();
     }
 }

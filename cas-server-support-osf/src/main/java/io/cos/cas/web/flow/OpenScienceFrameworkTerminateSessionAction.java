@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.jasig.cas.authentication.CredentialMetaData;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
@@ -76,7 +77,8 @@ public class OpenScienceFrameworkTerminateSessionAction {
     public Event terminate(final RequestContext context) {
         // in login's webflow : we can get the value from context as it has already been stored
         String tgtId = WebUtils.getTicketGrantingTicketId(context);
-        String remotePrincipalId = "osf";
+        String institutionId = "osf";
+        Boolean remotePrincipal = Boolean.FALSE;
         // for logout, we need to get the cookie's value
         if (tgtId == null) {
             final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
@@ -92,28 +94,11 @@ public class OpenScienceFrameworkTerminateSessionAction {
             }
 
             Authentication auth = TGT.getAuthentication();
-            if (auth == null) {
-                logger.info("auth == null");
+            if (auth != null) {
+                logger.info("authentication: " + auth.getAttributes().toString());
+                institutionId = (String) auth.getAttributes().get("instutionId");
+                remotePrincipal = (Boolean) auth.getAttributes().get("remotePrincipal");
             }
-            logger.info("authentication: " + auth.getAttributes().toString());
-
-            Principal principal = auth.getPrincipal();
-            if (principal == null) {
-                logger.info("principal == null");
-                return this.eventFactorySupport.error(this);
-            }
-            logger.info("principal: " + principal.getAttributes().toString());
-
-            List<CredentialMetaData>  meta = auth.getCredentials();
-            if (meta == null || meta.isEmpty() || meta.size() != 1)  {
-                logger.info("meta == empty || null || invalid");
-            }
-            String credentialId = meta.get(0).getId();
-            logger.info("credentialId: " + credentialId);
-            if (credentialId.substring(3, 5).equals("@@")) {
-                remotePrincipalId = credentialId.substring(0, 3);
-            }
-            logger.info("redirect: " + context.toString());
 
             WebUtils.putLogoutRequests(context, this.centralAuthenticationService.destroyTicketGrantingTicket(tgtId));
         }
@@ -121,16 +106,20 @@ public class OpenScienceFrameworkTerminateSessionAction {
         this.ticketGrantingTicketCookieGenerator.removeCookie(response);
         this.warnCookieGenerator.removeCookie(response);
 
-        if (remotePrincipalId.equals("osf")) {
-            return this.eventFactorySupport.success(this);
+        if (remotePrincipal == true) {
+            String institutionSloUrl = this.getInstitutionSloUrl(institutionId);
+            if (institutionSloUrl != null) {
+                context.getFlowScope().put("logoutRedirectUrl", institutionSloUrl);
+                return new Event(this, "finish");
+            }
         }
-        else if (remotePrincipalId.equals("nyu")) {
-            String auth_slo_url = "https://shibbolethqa.es.its.nyu.edu/idp/profile/Logout";
-            context.getFlowScope().put("logoutRedirectUrl", auth_slo_url);
-            return new Event(this, "finish");
-        }
-        else {
-            return this.eventFactorySupport.no(this);
-        }
+
+        return this.eventFactorySupport.success(this);
+    }
+
+    // TODO: move this to somewhere else
+    // TODO: talk to mongo database
+    private final String getInstitutionSloUrl(String insitutuionId) {
+        return "https://shibbolethqa.es.its.nyu.edu/idp/profile/Logout";
     }
 }

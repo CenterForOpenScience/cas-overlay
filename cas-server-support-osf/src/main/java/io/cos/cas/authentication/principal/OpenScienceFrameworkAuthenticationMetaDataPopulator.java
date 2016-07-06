@@ -37,7 +37,8 @@ public final class OpenScienceFrameworkAuthenticationMetaDataPopulator implement
     @Override
     public void populateAttributes(final AuthenticationBuilder builder, final Credential credential) {
         final OpenScienceFrameworkCredential c = (OpenScienceFrameworkCredential) credential;
-        builder.addAttribute(OpenScienceFrameworkCredential.REMOTE_PRINCIPAL_ID, c.getRemotePrincipal());
+        builder.addAttribute(OpenScienceFrameworkCredential.REMOTE_PRINCIPAL, c.isRemotePrincipal());
+        builder.addAttribute(OpenScienceFrameworkCredential.INSTITUTION_ID, c.getInstitutionId());
     }
 
     @Override
