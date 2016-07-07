@@ -21,20 +21,28 @@ package io.cos.cas.web.flow;
 
 import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkLogoutHandler;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.jasig.cas.web.support.WebUtils;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.webflow.action.EventFactorySupport;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-import org.jasig.cas.ticket.TicketGrantingTicket;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
+
+
+/**
+ * The Open Science Framework Terminate Session Action.
+ *
+ * @author Longze Chen
+ * @since 4.1.0
+ */
 public class OpenScienceFrameworkTerminateSessionAction {
 
     /** Webflow event helper component. */
@@ -52,7 +60,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
     @NotNull
     private final CookieRetrievingCookieGenerator warnCookieGenerator;
 
-
+    /** The logger instance. */
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
@@ -73,25 +81,27 @@ public class OpenScienceFrameworkTerminateSessionAction {
     public Event terminate(final RequestContext context) {
         // in login's webflow : we can get the value from context as it has already been stored
         String tgtId = WebUtils.getTicketGrantingTicketId(context);
+
         String institutionId = "osf";
         Boolean remotePrincipal = Boolean.FALSE;
+
         // for logout, we need to get the cookie's value
         if (tgtId == null) {
             final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
             tgtId = this.ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
         }
+        // for institution logout, we need to get the TGT which contains the institutionId
         if (tgtId != null) {
             TicketGrantingTicket TGT = null;
             try {
                 TGT  = centralAuthenticationService.getTicket(tgtId, TicketGrantingTicket.class);
             }
             catch (final Exception e) {
-                logger.info("TGT error: " + e.toString());
+                // ignore
             }
             if (TGT != null) {
                 Authentication auth = TGT.getAuthentication();
                 if (auth != null) {
-                    logger.info("authentication: " + auth.getAttributes().toString());
                     institutionId = (String) auth.getAttributes().get("institutionId");
                     remotePrincipal = (Boolean) auth.getAttributes().get("remotePrincipal");
                 }
@@ -103,14 +113,16 @@ public class OpenScienceFrameworkTerminateSessionAction {
         this.ticketGrantingTicketCookieGenerator.removeCookie(response);
         this.warnCookieGenerator.removeCookie(response);
 
+        // if users logged in through their institutions, redirect to institution logout endpoint
         if (remotePrincipal == true) {
             String institutionLogoutUrl = OpenScienceFrameworkLogoutHandler.FindInstitutionLogoutUrlById(institutionId);
-            if (institutionLogoutUrl != null) {
+            if (institutionLogoutUrl == null) {
+                logger.warn("Institution {} does not have logout url, use default logout redirection instead".format(institutionId));
+            }
+            else {
                 context.getFlowScope().put("logoutRedirectUrl", institutionLogoutUrl);
-                logger.info("institutionLogoutUrl == " + institutionLogoutUrl);
                 return new Event(this, "finish");
             }
-            logger.info("institutionLogoutUrl == null");
         }
 
         return this.eventFactorySupport.success(this);
