@@ -19,17 +19,13 @@
 
 package io.cos.cas.web.flow;
 
+import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkLogoutHandler;
 
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import org.jasig.cas.authentication.CredentialMetaData;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
-import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.jasig.cas.web.support.WebUtils;
 import org.slf4j.Logger;
@@ -92,12 +88,13 @@ public class OpenScienceFrameworkTerminateSessionAction {
             catch (final Exception e) {
                 logger.info("TGT error: " + e.toString());
             }
-
-            Authentication auth = TGT.getAuthentication();
-            if (auth != null) {
-                logger.info("authentication: " + auth.getAttributes().toString());
-                institutionId = (String) auth.getAttributes().get("instutionId");
-                remotePrincipal = (Boolean) auth.getAttributes().get("remotePrincipal");
+            if (TGT != null) {
+                Authentication auth = TGT.getAuthentication();
+                if (auth != null) {
+                    logger.info("authentication: " + auth.getAttributes().toString());
+                    institutionId = (String) auth.getAttributes().get("institutionId");
+                    remotePrincipal = (Boolean) auth.getAttributes().get("remotePrincipal");
+                }
             }
 
             WebUtils.putLogoutRequests(context, this.centralAuthenticationService.destroyTicketGrantingTicket(tgtId));
@@ -107,19 +104,15 @@ public class OpenScienceFrameworkTerminateSessionAction {
         this.warnCookieGenerator.removeCookie(response);
 
         if (remotePrincipal == true) {
-            String institutionSloUrl = this.getInstitutionSloUrl(institutionId);
-            if (institutionSloUrl != null) {
-                context.getFlowScope().put("logoutRedirectUrl", institutionSloUrl);
+            String institutionLogoutUrl = OpenScienceFrameworkLogoutHandler.FindInstitutionLogoutUrlById(institutionId);
+            if (institutionLogoutUrl != null) {
+                context.getFlowScope().put("logoutRedirectUrl", institutionLogoutUrl);
+                logger.info("institutionLogoutUrl == " + institutionLogoutUrl);
                 return new Event(this, "finish");
             }
+            logger.info("institutionLogoutUrl == null");
         }
 
         return this.eventFactorySupport.success(this);
-    }
-
-    // TODO: move this to somewhere else
-    // TODO: talk to mongo database
-    private final String getInstitutionSloUrl(String insitutuionId) {
-        return "https://shibbolethqa.es.its.nyu.edu/idp/profile/Logout";
     }
 }
