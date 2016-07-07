@@ -13,4 +13,5 @@
 **/overlays
 serialization*/*
 etc/cas-local.properties
+etc/institutions-auth-local.xsl
 .DS_Store
