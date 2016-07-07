@@ -32,14 +32,14 @@ import java.util.Map;
  */
 public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCredential {
 
-    /** Unique ID for serialization. */
-    private static final long serialVersionUID = -3006234230814410939L;
-
     /** Authentication attribute name for Institution ID. */
     public static final String INSTITUTION_ID = "institutionId";
 
     /** Authentication attribute name for Remote Principal. */
     public static final String REMOTE_PRINCIPAL = "remotePrincipal";
+
+    /** Unique ID for serialization. */
+    private static final long serialVersionUID = -3006234230814410939L;
 
     /** Remote Principal appended to username in string representation. */
     private static final String REMOTE_PRINCIPAL_SUFFIX = "+rp";
@@ -60,7 +60,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     private Boolean remotePrincipal = Boolean.FALSE;
 
     /** The Institution Id. */
-    private String institutionId = "osf";
+    private String institutionId = "";
 
     /** The Authentication Headers. */
     private Map<String, String> authenticationHeaders = new HashMap<>();
@@ -144,7 +144,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /**
      * @return Returns Institution Id
      */
-    public String getInstitutionId() { return this.institutionId; }
+    public final String getInstitutionId() {
+        return this.institutionId;
+    }
 
     /**
      * @param institutionId The Institution Id
@@ -172,7 +174,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     public String toString() {
         String representation = super.toString();
 
-        if (this.isRemotePrincipal()) {
+        if (this.remotePrincipal) {
             representation += REMOTE_PRINCIPAL_SUFFIX;
         }
         if (this.verificationKey != null) {

@@ -45,6 +45,10 @@ import javax.validation.constraints.NotNull;
  */
 public class OpenScienceFrameworkTerminateSessionAction {
 
+    /** The logger instance. */
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+
     /** Webflow event helper component. */
     private final EventFactorySupport eventFactorySupport = new EventFactorySupport();
 
@@ -59,10 +63,6 @@ public class OpenScienceFrameworkTerminateSessionAction {
     /** CookieGenerator for Warn Cookie. */
     @NotNull
     private final CookieRetrievingCookieGenerator warnCookieGenerator;
-
-    /** The logger instance. */
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
-
     /**
      * Creates a new instance with the given parameters.
      * @param cas Core business logic object.
@@ -78,6 +78,11 @@ public class OpenScienceFrameworkTerminateSessionAction {
         this.warnCookieGenerator = warnCookieGenerator;
     }
 
+    /**
+     * The Terminate Action.
+     * @param context The Request Context
+     * @return the Event success or finish
+     */
     public Event terminate(final RequestContext context) {
         // in login's webflow : we can get the value from context as it has already been stored
         String tgtId = WebUtils.getTicketGrantingTicketId(context);
@@ -92,15 +97,15 @@ public class OpenScienceFrameworkTerminateSessionAction {
         }
         // for institution logout, we need to get the TGT which contains the institutionId
         if (tgtId != null) {
-            TicketGrantingTicket TGT = null;
+            TicketGrantingTicket tgt = null;
             try {
-                TGT  = centralAuthenticationService.getTicket(tgtId, TicketGrantingTicket.class);
+                tgt  = centralAuthenticationService.getTicket(tgtId, TicketGrantingTicket.class);
             }
             catch (final Exception e) {
                 // ignore
             }
-            if (TGT != null) {
-                Authentication auth = TGT.getAuthentication();
+            if (tgt != null) {
+                final Authentication auth = tgt.getAuthentication();
                 if (auth != null) {
                     institutionId = (String) auth.getAttributes().get("institutionId");
                     remotePrincipal = (Boolean) auth.getAttributes().get("remotePrincipal");
@@ -114,8 +119,8 @@ public class OpenScienceFrameworkTerminateSessionAction {
         this.warnCookieGenerator.removeCookie(response);
 
         // if users logged in through their institutions, redirect to institution logout endpoint
-        if (remotePrincipal == true) {
-            String institutionLogoutUrl = OpenScienceFrameworkLogoutHandler.FindInstitutionLogoutUrlById(institutionId);
+        if (remotePrincipal) {
+            final String institutionLogoutUrl = OpenScienceFrameworkLogoutHandler.findInstitutionLogoutUrlById(institutionId);
             if (institutionLogoutUrl == null) {
                 logger.warn("Institution {} does not have logout url, use default logout redirection instead".format(institutionId));
             }
