@@ -62,9 +62,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.security.auth.login.AccountException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -99,13 +97,14 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     /** Authentication failure result. */
     public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
 
+    /** Shibboleth cookie prefix. */
+    public static final String SHIBBOLETH_COOKIE_PREFIX = "_shibsession_";
+
     private static final String REMOTE_USER = "REMOTE_USER";
 
     private static final String ATTRIBUTE_PREFIX = "AUTH-";
 
     private static final String SHIBBOLETH_SESSION_HEADER = ATTRIBUTE_PREFIX + "Shib-Session-ID";
-
-    private static final String SHIBBOLETH_COOKIE_PREFIX = "_shibsession_";
 
     private static final int SIXTY_SECONDS = 60 * 1000;
 
@@ -228,20 +227,6 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     protected Credential constructCredentialsFromRequest(final RequestContext context) throws AccountException {
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
         final OpenScienceFrameworkCredential credential = (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
-
-        // Clear the shibboleth session cookie, allows the user to logout of our system and login as a different user.
-        // Assumes we would redirect the user to the proper (custom) Shibboleth logout endpoint from OSF.
-        final Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
-            for (final Cookie cookie : cookies) {
-                if (cookie.getName().startsWith(SHIBBOLETH_COOKIE_PREFIX)) {
-                    final Cookie shibbolethCookie = new Cookie(cookie.getName(), null);
-                    shibbolethCookie.setMaxAge(0);
-                    response.addCookie(shibbolethCookie);
-                }
-            }
-        }
 
         // WARNING: Do not assume this works w/o acceptance testing in a Production environment.
         // The call is made to trust these headers only because we assume the Apache Shibboleth Service Provider module

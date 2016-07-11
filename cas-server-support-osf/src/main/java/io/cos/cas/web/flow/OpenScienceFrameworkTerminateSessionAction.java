@@ -21,6 +21,7 @@ package io.cos.cas.web.flow;
 
 import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkLogoutHandler;
 
+import io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
@@ -32,6 +33,7 @@ import org.springframework.webflow.action.EventFactorySupport;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
@@ -102,7 +104,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
                 tgt  = centralAuthenticationService.getTicket(tgtId, TicketGrantingTicket.class);
             }
             catch (final Exception e) {
-                // ignore
+                //  ignore
             }
             if (tgt != null) {
                 final Authentication auth = tgt.getAuthentication();
@@ -118,11 +120,25 @@ public class OpenScienceFrameworkTerminateSessionAction {
         this.ticketGrantingTicketCookieGenerator.removeCookie(response);
         this.warnCookieGenerator.removeCookie(response);
 
+        final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
+        final Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (final Cookie cookie : cookies) {
+                if (cookie.getName().startsWith(
+                        OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction.SHIBBOLETH_COOKIE_PREFIX)) {
+                    logger.info("Remove shibboleth session cookie: {}", cookie.getName());
+                    final Cookie shibbolethCookie = new Cookie(cookie.getName(), null);
+                    shibbolethCookie.setMaxAge(0);
+                    response.addCookie(shibbolethCookie);
+                }
+            }
+        }
+
         // if users logged in through their institutions, redirect to institution logout endpoint
         if (remotePrincipal) {
             final String institutionLogoutUrl = OpenScienceFrameworkLogoutHandler.findInstitutionLogoutUrlById(institutionId);
             if (institutionLogoutUrl == null) {
-                logger.warn("Institution {} does not have logout url, use default logout redirection instead".format(institutionId));
+                logger.warn("Institution {} does not have logout url, use default logout redirection instead", institutionId);
             }
             else {
                 context.getFlowScope().put("logoutRedirectUrl", institutionLogoutUrl);
