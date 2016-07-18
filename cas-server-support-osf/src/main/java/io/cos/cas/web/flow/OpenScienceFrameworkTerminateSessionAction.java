@@ -50,7 +50,6 @@ public class OpenScienceFrameworkTerminateSessionAction {
     /** The logger instance. */
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-
     /** Webflow event helper component. */
     private final EventFactorySupport eventFactorySupport = new EventFactorySupport();
 
