@@ -114,7 +114,6 @@ public class OpenScienceFrameworkTerminateSessionAction {
                     }
                     if (auth.getAttributes().containsKey("remotePrincipal")) {
                         remotePrincipal = (Boolean) auth.getAttributes().get("remotePrincipal");
-                        remotePrincipal = remotePrincipal == null ? Boolean.FALSE : remotePrincipal;
                     }
                 }
             }
@@ -124,20 +123,6 @@ public class OpenScienceFrameworkTerminateSessionAction {
         final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
         this.ticketGrantingTicketCookieGenerator.removeCookie(response);
         this.warnCookieGenerator.removeCookie(response);
-
-        final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
-        final Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (final Cookie cookie : cookies) {
-                if (cookie.getName().startsWith(
-                        OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction.SHIBBOLETH_COOKIE_PREFIX)) {
-                    logger.info("Remove shibboleth session cookie: {}", cookie.getName());
-                    final Cookie shibbolethCookie = new Cookie(cookie.getName(), null);
-                    shibbolethCookie.setMaxAge(0);
-                    response.addCookie(shibbolethCookie);
-                }
-            }
-        }
 
         // if users logged in through their institutions, redirect to institution logout endpoint
         if (remotePrincipal && institutionId != null) {
