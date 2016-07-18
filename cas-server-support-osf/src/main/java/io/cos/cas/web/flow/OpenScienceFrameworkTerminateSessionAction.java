@@ -89,7 +89,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
         // in login's webflow : we can get the value from context as it has already been stored
         String tgtId = WebUtils.getTicketGrantingTicketId(context);
 
-        String institutionId = "osf";
+        String institutionId = null;
         Boolean remotePrincipal = Boolean.FALSE;
 
         // for logout, we need to get the cookie's value
@@ -109,8 +109,13 @@ public class OpenScienceFrameworkTerminateSessionAction {
             if (tgt != null) {
                 final Authentication auth = tgt.getAuthentication();
                 if (auth != null) {
-                    institutionId = (String) auth.getAttributes().get("institutionId");
-                    remotePrincipal = (Boolean) auth.getAttributes().get("remotePrincipal");
+                    if (auth.getAttributes().containsKey("institutionId")) {
+                        institutionId = (String) auth.getAttributes().get("institutionId");
+                    }
+                    if (auth.getAttributes().containsKey("remotePrincipal")) {
+                        remotePrincipal = (Boolean) auth.getAttributes().get("remotePrincipal");
+                        remotePrincipal = remotePrincipal == null ? Boolean.FALSE : remotePrincipal;
+                    }
                 }
             }
 
@@ -135,7 +140,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
         }
 
         // if users logged in through their institutions, redirect to institution logout endpoint
-        if (remotePrincipal) {
+        if (remotePrincipal && institutionId != null) {
             final String institutionLogoutUrl = OpenScienceFrameworkLogoutHandler.findInstitutionLogoutUrlById(institutionId);
             if (institutionLogoutUrl == null) {
                 logger.warn("Institution {} does not have logout url, use default logout redirection instead", institutionId);
