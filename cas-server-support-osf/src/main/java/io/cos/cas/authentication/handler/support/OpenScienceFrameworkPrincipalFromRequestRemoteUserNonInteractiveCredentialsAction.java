@@ -62,9 +62,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.security.auth.login.AccountException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -83,6 +81,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
 /**
  * Implementation of the NonInteractiveCredentialsAction that looks for a remote
  * user that is set in the <code>HttpServletRequest</code> and attempts to
@@ -95,6 +94,37 @@ import java.util.Map;
  */
 public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction
             extends AbstractAction {
+    /**
+     * Principal Authentication Result.
+     */
+    public static class PrincipalAuthenticationResult {
+        private String username;
+        private String institutionId;
+
+        /**
+         * Creates a new instance with the given parameters.
+         * @param username the username
+         * @param institutionId the institution id
+         */
+        public PrincipalAuthenticationResult(final String username, final String institutionId) {
+            this.username = username;
+            this.institutionId = institutionId;
+        }
+
+        /**
+         * @return the username.
+         */
+        public String getUsername() {
+            return username;
+        }
+
+        /**
+         * @return the institutionId.
+         */
+        public String getInstitutionId() {
+            return institutionId;
+        }
+    }
 
     /** Authentication failure result. */
     public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
@@ -104,8 +134,6 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     private static final String ATTRIBUTE_PREFIX = "AUTH-";
 
     private static final String SHIBBOLETH_SESSION_HEADER = ATTRIBUTE_PREFIX + "Shib-Session-ID";
-
-    private static final String SHIBBOLETH_COOKIE_PREFIX = "_shibsession_";
 
     private static final int SIXTY_SECONDS = 60 * 1000;
 
@@ -229,20 +257,6 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
         final OpenScienceFrameworkCredential credential = (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
 
-        // Clear the shibboleth session cookie, allows the user to logout of our system and login as a different user.
-        // Assumes we would redirect the user to the proper (custom) Shibboleth logout endpoint from OSF.
-        final Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
-            for (final Cookie cookie : cookies) {
-                if (cookie.getName().startsWith(SHIBBOLETH_COOKIE_PREFIX)) {
-                    final Cookie shibbolethCookie = new Cookie(cookie.getName(), null);
-                    shibbolethCookie.setMaxAge(0);
-                    response.addCookie(shibbolethCookie);
-                }
-            }
-        }
-
         // WARNING: Do not assume this works w/o acceptance testing in a Production environment.
         // The call is made to trust these headers only because we assume the Apache Shibboleth Service Provider module
         // rejects any conflicting / forged headers.
@@ -270,18 +284,18 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             // Notify the OSF of the remote principal authentication.
-            final String username = notifyRemotePrincipalAuthenticated(credential);
-            credential.setUsername(username);
+            final PrincipalAuthenticationResult remoteUserInfo = notifyRemotePrincipalAuthenticated(credential);
+            credential.setUsername(remoteUserInfo.getUsername());
+            credential.setInstitutionId(remoteUserInfo.getInstitutionId());
 
             return credential;
-        }
-        // Construct credential if presented with (username, verification_key)
-        // This is used when:
-        //      1. User creates an account
-        //      2. User resets the password through forgot_password
-        //      3. User sets password when added as an unregistered contribution
-        // Note: Two-factor sign in works and remain unchanged
-        else if (request.getParameter("username") != null && request.getParameter("verification_key") != null) {
+        } else if (request.getParameter("username") != null && request.getParameter("verification_key") != null) {
+            // Construct credential if presented with (username, verification_key)
+            // This is used when:
+            //      1. User creates an account
+            //      2. User resets the password through forgot_password
+            //      3. User sets password when added as an unregistered contribution
+            // Note: Two-factor sign in works and remain unchanged
             credential.setUsername(request.getParameter("username"));
             credential.setVerificationKey(request.getParameter("verification_key"));
             return credential;
@@ -298,15 +312,17 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @return the username from the idp and setup on the OSF
      * @throws AccountException a account exception
      */
-    private String notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
+    private PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
             throws AccountException {
         try {
             final JSONObject normalized = this.normalizeRemotePrincipal(credential);
-            final String username = normalized.getJSONObject("provider").getJSONObject("user").getString("username");
+            final JSONObject provider = normalized.getJSONObject("provider");
+            final String institutionId = provider.getString("id");
+            final String username = provider.getJSONObject("user").getString("username");
             final String payload = normalized.toString();
 
-            logger.info("Notify Remote Principal Authenticated : {}", username);
-            logger.debug("Notify Remote Principal Authenticated [{}] Normalized Payload '{}'", username, payload);
+            logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
+            logger.debug("Notify Remote Principal Authenticated [{}, {}] Normalized Payload '{}'", username, institutionId, payload);
 
             // Build a JWT and wrap it with JWE for secure transport to the OSF API.
             final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -349,7 +365,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             // return the username for the credential build.
-            return username;
+            return new PrincipalAuthenticationResult(username, institutionId);
         } catch (final JOSEException | IOException | ParserConfigurationException | TransformerException e) {
             logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
             logger.trace("Notify Remote Principal Authenticated Exception: {}", e);
