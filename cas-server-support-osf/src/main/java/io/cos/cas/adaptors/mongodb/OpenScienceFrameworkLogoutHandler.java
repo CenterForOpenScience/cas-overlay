@@ -37,7 +37,7 @@ import javax.validation.constraints.NotNull;
 public class OpenScienceFrameworkLogoutHandler {
 
     @NotNull
-    private static MongoOperations MONGO_TEMPLATE;
+    private  MongoOperations mongoTemplate;
 
     @Document(collection="node")
     private static class OpenScienceFrameworkInstitution {
@@ -87,7 +87,7 @@ public class OpenScienceFrameworkLogoutHandler {
     }
 
     public void setMongoTemplate(final MongoOperations mongoTemplate) {
-        MONGO_TEMPLATE = mongoTemplate;
+        this.mongoTemplate = mongoTemplate;
     }
 
     /**
@@ -95,11 +95,11 @@ public class OpenScienceFrameworkLogoutHandler {
      * @param institutionId The Institution Id
      * @return OpenScienceFrameworkInstitution
      */
-    public static OpenScienceFrameworkInstitution findInstitutionById(final String institutionId) {
+    public OpenScienceFrameworkInstitution findInstitutionById(final String institutionId) {
         if (institutionId == null) {
             return null;
         }
-        final OpenScienceFrameworkInstitution institution = MONGO_TEMPLATE.findOne(
+        final OpenScienceFrameworkInstitution institution = this.mongoTemplate.findOne(
             new Query(Criteria.where("institution_id").is(institutionId).and("is_deleted").is(Boolean.FALSE)),
             OpenScienceFrameworkInstitution.class
         );
@@ -111,8 +111,8 @@ public class OpenScienceFrameworkLogoutHandler {
      * @param institutionId The Institution Id
      * @return String
      */
-    public static String findInstitutionLogoutUrlById(final String institutionId) {
-        final OpenScienceFrameworkInstitution institution = findInstitutionById(institutionId);
+    public String findInstitutionLogoutUrlById(final String institutionId) {
+        final OpenScienceFrameworkInstitution institution = this.findInstitutionById(institutionId);
         return institution != null ? institution.getInstitutionLogoutUrl() : null;
     }
 }
