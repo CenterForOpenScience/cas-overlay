@@ -32,6 +32,12 @@ import java.util.Map;
  */
 public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCredential {
 
+    /** Authentication attribute name for Institution ID. */
+    public static final String INSTITUTION_ID = "institutionId";
+
+    /** Authentication attribute name for Remote Principal. */
+    public static final String REMOTE_PRINCIPAL = "remotePrincipal";
+
     /** Unique ID for serialization. */
     private static final long serialVersionUID = -3006234230814410939L;
 
@@ -53,12 +59,14 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /** Indicates a Remote Principal. */
     private Boolean remotePrincipal = Boolean.FALSE;
 
+    /** The Institution Id. */
+    private String institutionId;
+
     /** The Authentication Headers. */
     private Map<String, String> authenticationHeaders = new HashMap<>();
 
     /** Default constructor. */
-    public OpenScienceFrameworkCredential() {
-    }
+    public OpenScienceFrameworkCredential() {}
 
     /**
      * Creates a new instance with the given username and password.
@@ -134,6 +142,20 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
+     * @return Returns Institution Id
+     */
+    public final String getInstitutionId() {
+        return this.institutionId;
+    }
+
+    /**
+     * @param institutionId The Institution Id
+     */
+    public final void setInstitutionId(final String institutionId) {
+        this.institutionId = institutionId;
+    }
+
+    /**
      * @return Returns the Authentication Headers.
      */
     public final Map<String, String> getAuthenticationHeaders() {
@@ -185,6 +207,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         if (!this.remotePrincipal.equals(other.remotePrincipal)) {
             return false;
         }
+        if (!this.institutionId.equals(other.institutionId)) {
+            return false;
+        }
         return true;
     }
 
@@ -195,6 +220,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
                 .append(verificationKey)
                 .append(oneTimePassword)
                 .append(remotePrincipal)
+                .append(institutionId)
                 .toHashCode();
     }
 }

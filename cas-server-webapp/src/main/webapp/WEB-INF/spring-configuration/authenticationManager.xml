@@ -37,6 +37,7 @@
                 <bean class="org.jasig.cas.authentication.SuccessfulHandlerMetaDataPopulator" />
                 <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator" />
                 <bean class="org.jasig.cas.support.oauth.authentication.principal.OAuthAuthenticationMetaDataPopulator" />
+                <bean class="io.cos.cas.authentication.principal.OpenScienceFrameworkAuthenticationMetaDataPopulator" />
             </list>
         </property>
     </bean>
