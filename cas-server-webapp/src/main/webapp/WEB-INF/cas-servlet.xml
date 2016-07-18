@@ -341,10 +341,12 @@
   <bean id="ticketGrantingTicketCheckAction" class="io.cos.cas.web.flow.OpenScienceFrameworkTicketGrantingTicketCheckAction"
         c:centralAuthenticationService-ref="centralAuthenticationService" />
 
-  <bean id="terminateSessionAction" class="org.jasig.cas.web.flow.TerminateSessionAction"
+  <!--<bean id="terminateSessionAction" class="org.jasig.cas.web.flow.TerminateSessionAction"-->
+  <bean id="terminateSessionAction" class="io.cos.cas.web.flow.OpenScienceFrameworkTerminateSessionAction"
         c:cas-ref="centralAuthenticationService"
         c:tgtCookieGenerator-ref="ticketGrantingTicketCookieGenerator"
-        c:warnCookieGenerator-ref="warnCookieGenerator"/>
+        c:warnCookieGenerator-ref="warnCookieGenerator"
+        c:logoutHandler-ref="openScienceFrameworkLogoutHandler"/>
 
   <bean id="acceptableUsagePolicyFormAction" class="org.jasig.cas.web.flow.AcceptableUsagePolicyFormAction"/>
 
