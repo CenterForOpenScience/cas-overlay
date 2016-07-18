@@ -129,9 +129,6 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     /** Authentication failure result. */
     public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
 
-    /** Shibboleth cookie prefix. */
-    public static final String SHIBBOLETH_COOKIE_PREFIX = "_shibsession_";
-
     private static final String REMOTE_USER = "REMOTE_USER";
 
     private static final String ATTRIBUTE_PREFIX = "AUTH-";

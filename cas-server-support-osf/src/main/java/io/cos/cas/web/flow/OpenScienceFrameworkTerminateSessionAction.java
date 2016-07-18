@@ -135,6 +135,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
                 logger.warn("Institution {} does not have logout url, use default logout redirection instead", institutionId);
             } else {
                 context.getFlowScope().put("logoutRedirectUrl", institutionLogoutUrl);
+                // we have to overwrite and return `finish` event to prevent `logoutRedirectUrl` being overwritten
                 return new Event(this, "finish");
             }
         }

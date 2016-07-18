@@ -60,7 +60,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     private Boolean remotePrincipal = Boolean.FALSE;
 
     /** The Institution Id. */
-    private String institutionId = "";
+    private String institutionId;
 
     /** The Authentication Headers. */
     private Map<String, String> authenticationHeaders = new HashMap<>();

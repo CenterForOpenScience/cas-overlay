@@ -37,7 +37,7 @@ import javax.validation.constraints.NotNull;
 public class OpenScienceFrameworkLogoutHandler {
 
     @NotNull
-    private  MongoOperations mongoTemplate;
+    private MongoOperations mongoTemplate;
 
     @Document(collection="node")
     private static class OpenScienceFrameworkInstitution {
