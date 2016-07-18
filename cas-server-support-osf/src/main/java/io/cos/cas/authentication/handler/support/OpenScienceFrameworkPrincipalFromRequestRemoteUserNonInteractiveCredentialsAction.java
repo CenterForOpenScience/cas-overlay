@@ -81,6 +81,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
 /**
  * Implementation of the NonInteractiveCredentialsAction that looks for a remote
  * user that is set in the <code>HttpServletRequest</code> and attempts to
@@ -93,6 +94,37 @@ import java.util.Map;
  */
 public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction
             extends AbstractAction {
+    /**
+     * Principal Authentication Result.
+     */
+    public static class PrincipalAuthenticationResult {
+        private String username;
+        private String institutionId;
+
+        /**
+         * Creates a new instance with the given parameters.
+         * @param username the username
+         * @param institutionId the institution id
+         */
+        public PrincipalAuthenticationResult(final String username, final String institutionId) {
+            this.username = username;
+            this.institutionId = institutionId;
+        }
+
+        /**
+         * @return the username.
+         */
+        public String getUsername() {
+            return username;
+        }
+
+        /**
+         * @return the institutionId.
+         */
+        public String getInstitutionId() {
+            return institutionId;
+        }
+    }
 
     /** Authentication failure result. */
     public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
@@ -255,9 +287,9 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             // Notify the OSF of the remote principal authentication.
-            final String[] remoteUserInfo = notifyRemotePrincipalAuthenticated(credential);
-            credential.setUsername(remoteUserInfo[0]);
-            credential.setInstitutionId(remoteUserInfo[1]);
+            final PrincipalAuthenticationResult remoteUserInfo = notifyRemotePrincipalAuthenticated(credential);
+            credential.setUsername(remoteUserInfo.getUsername());
+            credential.setInstitutionId(remoteUserInfo.getInstitutionId());
 
             return credential;
         }
@@ -284,7 +316,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @return the username from the idp and setup on the OSF
      * @throws AccountException a account exception
      */
-    private String[] notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
+    private PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
             throws AccountException {
         try {
             final JSONObject normalized = this.normalizeRemotePrincipal(credential);
@@ -337,7 +369,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             // return the username for the credential build.
-            return new String[] {username, institutionId};
+            return new PrincipalAuthenticationResult(username, institutionId);
         } catch (final JOSEException | IOException | ParserConfigurationException | TransformerException e) {
             logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
             logger.trace("Notify Remote Principal Authenticated Exception: {}", e);
