@@ -88,6 +88,7 @@
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="authenticationFailure" to="handleAuthenticationFailure" />
         <transition on="error" to="viewLoginForm" />
+        <transition on="institution" to="viewInstitutionLoginForm" />
     </action-state>
 
     <view-state id="viewLoginForm" view="casLoginView" model="credential">
@@ -106,6 +107,9 @@
             -->
         </on-entry>
         <transition on="submit" bind="true" validate="true" to="realSubmit"/>
+    </view-state>
+
+    <view-state id="viewInstitutionLoginForm" view="casInstitutionLoginView" model="credential">
     </view-state>
 
     <!-- One Time Password -->

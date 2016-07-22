@@ -167,10 +167,20 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * Checks if is renew present.
      *
      * @param context the context
-     * @return true, if  renew present
+     * @return true, if renew present
      */
     protected boolean isRenewPresent(final RequestContext context) {
         return StringUtils.hasText(context.getRequestParameters().get("renew"));
+    }
+
+    /**
+     * Check if is institution login.
+     *
+     * @param context the context
+     * @return true, if institution presents
+     */
+    protected boolean isInstitution(final RequestContext context) {
+        return StringUtils.hasText(context.getRequestParameters().get("institution"));
     }
 
     @Override
@@ -189,6 +199,9 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         }
 
         if (credential == null) {
+            if (this.isInstitution(context) == true) {
+                return new Event(this, "institution");
+            }
             return error();
         }
 
