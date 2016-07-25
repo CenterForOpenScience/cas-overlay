@@ -34,7 +34,7 @@ import javax.validation.constraints.NotNull;
  * @author Longze Chen
  * @since 4.1.0
  */
-public class OpenScienceFrameworkLogoutHandler {
+public class OpenScienceFrameworkInstitutionAuthenticationHandler {
 
     @NotNull
     private MongoOperations mongoTemplate;

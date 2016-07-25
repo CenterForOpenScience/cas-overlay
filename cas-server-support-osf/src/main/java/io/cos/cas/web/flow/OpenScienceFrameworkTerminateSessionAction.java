@@ -19,7 +19,7 @@
 
 package io.cos.cas.web.flow;
 
-import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkLogoutHandler;
+import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionAuthenticationHandler;
 
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
@@ -65,24 +65,24 @@ public class OpenScienceFrameworkTerminateSessionAction {
 
     /** Logout handler. */
     @NotNull
-    private final OpenScienceFrameworkLogoutHandler logoutHandler;
+    private final OpenScienceFrameworkInstitutionAuthenticationHandler institutionHandler;
 
     /**
      * Creates a new instance with the given parameters.
      * @param cas Core business logic object.
      * @param tgtCookieGenerator TGT cookie generator.
      * @param warnCookieGenerator Warn cookie generator.
-     * @param logoutHandler The Logout Handler.
+     * @param institutionHandler The institution handler.
      */
     public OpenScienceFrameworkTerminateSessionAction(
             final CentralAuthenticationService cas,
             final CookieRetrievingCookieGenerator tgtCookieGenerator,
             final CookieRetrievingCookieGenerator warnCookieGenerator,
-            final OpenScienceFrameworkLogoutHandler logoutHandler) {
+            final OpenScienceFrameworkInstitutionAuthenticationHandler institutionHandler) {
         this.centralAuthenticationService = cas;
         this.ticketGrantingTicketCookieGenerator = tgtCookieGenerator;
         this.warnCookieGenerator = warnCookieGenerator;
-        this.logoutHandler = logoutHandler;
+        this.institutionHandler = institutionHandler;
     }
 
     /**
@@ -130,7 +130,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
 
         // if users logged in through their institutions, redirect to institution logout endpoint
         if (remotePrincipal && institutionId != null) {
-            final String institutionLogoutUrl = this.logoutHandler.findInstitutionLogoutUrlById(institutionId);
+            final String institutionLogoutUrl = this.institutionHandler.findInstitutionLogoutUrlById(institutionId);
             if (institutionLogoutUrl == null) {
                 logger.warn("Institution {} does not have logout url, use default logout redirection instead", institutionId);
             } else {

@@ -199,10 +199,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         }
 
         if (credential == null) {
-            if (this.isInstitution(context) == true) {
-                return new Event(this, "institution");
-            }
-            return error();
+            return this.isInstitution(context) ? new Event(this, "institution") : error();
         }
 
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
