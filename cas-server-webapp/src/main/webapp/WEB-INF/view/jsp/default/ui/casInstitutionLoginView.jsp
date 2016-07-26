@@ -19,9 +19,29 @@
 
 --%>
 <jsp:directive.include file="includes/top.jsp" />
-<div id="msg" class="success">
-    <h2><spring:message code="screen.institution.login.heading" /></h2>
-    <p><spring:message code="screen.institution.login.message"  /></p>
+<div>
+    <h1><spring:message code="screen.institution.login.heading" /></h1>
 </div>
+<div>
+    <label for="institution"><spring:message code="screen.institution.login.message" /></label>
+    <form:select id="institution-form-select" name="institution" path="institutions" items="${institutions}" />
+</div>
+<div>
+    <input type="button" name="signin" value="<spring:message code="screen.welcome.button.login" />" onclick="institutionLogin()">
+    <input type="hidden" id="target" value="${target}" />
+</div>
+<script>
+    function institutionLogin () {
+        var form = document.getElementById("institution-form-select");
+        var login_url = form.options[form.selectedIndex].value;
+        if(login_url == null || login_url == "") {
+            return;
+        }
+        var target = document.getElementById("target").value;
+        if (target != null && target != "") {
+            login_url = login_url + "&target=" + target;
+        }
+        window.location = login_url;
+    }
+</script>
 <jsp:directive.include file="includes/bottom.jsp" />
-

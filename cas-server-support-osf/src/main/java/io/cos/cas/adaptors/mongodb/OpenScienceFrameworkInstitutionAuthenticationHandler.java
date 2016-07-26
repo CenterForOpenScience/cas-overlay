@@ -28,8 +28,12 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import javax.validation.constraints.NotNull;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * The Open Science Framework Logout Handler.
+ * The Open Science Framework Institution Authentication Handler.
  *
  * @author Longze Chen
  * @since 4.1.0
@@ -174,11 +178,11 @@ public class OpenScienceFrameworkInstitutionAuthenticationHandler {
     }
 
     /**
-     * Find the Institution by Id.
+     * Find the Institution by Id. Return the instance of the Institution in question or null.
      * @param institutionId The Institution Id
-     * @return OpenScienceFrameworkInstitution
+     * @return OpenScienceFrameworkInstitution or null
      */
-    public OpenScienceFrameworkInstitution findInstitutionById(final String institutionId) {
+    private OpenScienceFrameworkInstitution findInstitutionById(final String institutionId) {
         if (institutionId == null) {
             return null;
         }
@@ -186,17 +190,32 @@ public class OpenScienceFrameworkInstitutionAuthenticationHandler {
             new Query(Criteria.where("institution_id").is(institutionId).and("is_deleted").is(Boolean.FALSE)),
             OpenScienceFrameworkInstitution.class
         );
-        final String institutionToString = institution.toString();
         return institution;
     }
 
     /**
-     * Find the Institution Logout Url by Id.
+     * Find the Institution Logout Url by Id. Return the Logout Url or null.
      * @param institutionId The Institution Id
      * @return String
      */
     public String findInstitutionLogoutUrlById(final String institutionId) {
         final OpenScienceFrameworkInstitution institution = this.findInstitutionById(institutionId);
         return institution != null ? institution.getLogoutUrl() : null;
+    }
+
+    /**
+     * Return a Map of Institution Name and Login URL.
+     * @return Map&lt;String, String&gt;
+     */
+    public Map<String, String> getInstitutionLogin() {
+        final List<OpenScienceFrameworkInstitution> institutionList = this.mongoTemplate.find(
+            new Query(Criteria.where("institution_id").ne(null).and("institution_auth_url").ne(null).and("is_deleted").is(Boolean.FALSE)),
+            OpenScienceFrameworkInstitution.class
+        );
+        final Map<String, String> institutionLogin = new HashMap<>();
+        for (final OpenScienceFrameworkInstitution institution: institutionList) {
+            institutionLogin.put(institution.getLoginUrl(), institution.getName());
+        }
+        return institutionLogin;
     }
 }
