@@ -65,7 +65,7 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
      */
     public Event getInstitutions(final RequestContext context) {
         final Map<String, String> institutions = this.institutionHandler.getInstitutionLogin();
-        institutions.put("", " -- select an option -- ");
+        institutions.put("", " -- select an institution -- ");
         final Map<String, String> sortedInstitutions = sortByValue(institutions);
         logger.info(String.format("Institutions loaded: %s", sortedInstitutions.toString()));
         context.getFlowScope().put("institutions", sortedInstitutions);
@@ -83,6 +83,7 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
             }
         }
         context.getFlowScope().put("target", target);
+        context.getFlowScope().put("institution", Boolean.TRUE);
         return new Event(this, "success");
     }
 

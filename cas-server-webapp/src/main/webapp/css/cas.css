@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary, time, mark, audio, video { margin: 0; padding: 0; border: 0; outline: 0; font-size: 100%; vertical-align: baseline; background: transparent; }
 nav ul { list-style: none; }
 blockquote, q { quotes: none; }
@@ -35,22 +36,41 @@ h2 {
  padding-bottom: 10px;
 }
 
+#logo {
+  display: block;
+  width: 110px;
+  height: 110px;
+  margin: 0 auto;
+  background: url(../images/osf-logo.png) no-repeat;
+  background-size: 100%;
+  text-indent: -999em;
+  border-right: 1px solid rgba(255,255,255,0.25);
+}
+
 #title {
   line-height: 1;
   font-size: 34px;
 }
-.center {
- padding-top: 10px;
+
+#description {
+  font-size: 15px;
 }
 
-#container { width: 100%; }
+.center {
+  text-align: center;
+  padding-top: 10px;
+}
+
+#container {
+  width: 100%;
+}
 
 @media only screen and (max-width: 960px) { 
   #container { width: 100%; }
 }
 
 body {
-  background: url(../images/bg-tile.gif); /* Old browsers */
+  background: #ffffff;
 }
 
 a:link, a:visited {
@@ -68,17 +88,6 @@ p {
 header {
   overflow: hidden;
   padding: 20px 0;
-}
-
-#logo {
-  display: block;
-  width: 110px;
-  height: 110px;
-  margin: 0 auto;
-  background: url(../images/osf-logo.png) no-repeat;
-  background-size: 100%;
-  text-indent: -999em;
-  border-right: 1px solid rgba(255,255,255,0.25);
 }
 
 header h1 {
@@ -246,4 +255,53 @@ footer a:link, footer a:visited {
   #login { float: none; width: 100%; }
   #sidebar { margin-top: 20px; }
   #sidebar .sidebar-content { padding: 0; }
+}
+
+#institution-login {
+  text-align: Left;
+}
+
+#institution-login .heading {
+  font-size: 20px;
+  font-weight: lighter;
+  padding-bottom: 20px;
+  padding-top: 10px;
+}
+
+#institution-login .select {
+  padding-bottom: 10px;
+}
+
+#institution-login .select label {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+#institution-login .select select, option {
+  font-size: 25px;
+  padding-top: 10px;
+  width: 100%;
+}
+
+#institution-login .btn-submit input[type=button] {
+  outline: none;
+  -webkit-appearance: none;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border: 1px;
+  background: #5cb85c;
+  color: white;
+  font-weight: bold;
+  width: 100%;
+  padding: 8px 2px 8px 2px;
+  border-radius: 3px;
+}
+
+#institution-login .btn-submit:hover input[type=button] {
+  background: #419641;
+}
+
+#institution-login .btn-submit:active input[type=button] {
+  border: double;
+  padding: 5px 0 5px 0;
 }

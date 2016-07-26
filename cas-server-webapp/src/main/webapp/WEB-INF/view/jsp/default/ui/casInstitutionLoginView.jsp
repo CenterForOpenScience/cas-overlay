@@ -19,29 +19,33 @@
 
 --%>
 <jsp:directive.include file="includes/top.jsp" />
-<div>
-    <h1><spring:message code="screen.institution.login.heading" /></h1>
-</div>
-<div>
-    <label for="institution"><spring:message code="screen.institution.login.message" /></label>
-    <form:select id="institution-form-select" name="institution" path="institutions" items="${institutions}" />
-</div>
-<div>
-    <input type="button" name="signin" value="<spring:message code="screen.welcome.button.login" />" onclick="institutionLogin()">
-    <input type="hidden" id="target" value="${target}" />
-</div>
-<script>
-    function institutionLogin () {
-        var form = document.getElementById("institution-form-select");
-        var login_url = form.options[form.selectedIndex].value;
-        if(login_url == null || login_url == "") {
-            return;
+<div id="institution-login">
+    <div class="heading">
+        <span><spring:message code="screen.institution.login.heading" /></span>
+    </div>
+    <div class="select">
+        <label for="select-institution"><spring:message code="screen.institution.login.message.c" /></label>
+    </div>
+    <div class="select">
+            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" />
+    </div>
+    <div class="btn-submit">
+        <input type="button" name="submit" value="<spring:message code="screen.welcome.button.login" />" onclick="institutionLogin()">
+        <input type="hidden" id="target" value="${target}" />
+    </div>
+    <script>
+        function institutionLogin () {
+            var form = document.getElementById("institution-form-select");
+            var login_url = form.options[form.selectedIndex].value;
+            if(login_url == null || login_url == "") {
+                return;
+            }
+            var target = document.getElementById("target").value;
+            if (target != null && target != "") {
+                login_url = login_url + "&target=" + target;
+            }
+            window.location = login_url;
         }
-        var target = document.getElementById("target").value;
-        if (target != null && target != "") {
-            login_url = login_url + "&target=" + target;
-        }
-        window.location = login_url;
-    }
-</script>
+    </script>
+</div>
 <jsp:directive.include file="includes/bottom.jsp" />
