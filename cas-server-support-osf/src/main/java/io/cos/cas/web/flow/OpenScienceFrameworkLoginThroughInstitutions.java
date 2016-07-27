@@ -83,7 +83,7 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
             }
         }
         context.getFlowScope().put("target", target);
-        context.getFlowScope().put("institution", Boolean.TRUE);
+        context.getFlowScope().put("campaign", "INSTITUTION");
         return new Event(this, "success");
     }
 

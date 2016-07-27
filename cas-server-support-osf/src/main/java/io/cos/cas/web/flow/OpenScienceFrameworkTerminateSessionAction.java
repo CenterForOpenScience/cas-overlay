@@ -63,7 +63,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
     @NotNull
     private final CookieRetrievingCookieGenerator warnCookieGenerator;
 
-    /** Logout handler. */
+    /** Institution authentication handler for logout. */
     @NotNull
     private final OpenScienceFrameworkInstitutionAuthenticationHandler institutionHandler;
 
@@ -86,9 +86,9 @@ public class OpenScienceFrameworkTerminateSessionAction {
     }
 
     /**
-     * The Terminate Action.
-     * @param context The Request Context
-     * @return the Event success or finish
+     * The terminate session action. Return `success` or `finish` event.
+     * @param context The request context
+     * @return Event
      */
     public Event terminate(final RequestContext context) {
         // in login's webflow : we can get the value from context as it has already been stored
@@ -132,7 +132,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
         if (remotePrincipal && institutionId != null) {
             final String institutionLogoutUrl = this.institutionHandler.findInstitutionLogoutUrlById(institutionId);
             if (institutionLogoutUrl == null) {
-                logger.warn("Institution {} does not have logout url, use default logout redirection instead", institutionId);
+                logger.warn("Institution {} does not have an dedicated logout url, use default logout redirection instead", institutionId);
             } else {
                 context.getFlowScope().put("logoutRedirectUrl", institutionLogoutUrl);
                 // we have to overwrite and return `finish` event to prevent `logoutRedirectUrl` being overwritten

@@ -178,8 +178,8 @@ public class OpenScienceFrameworkInstitutionAuthenticationHandler {
     }
 
     /**
-     * Find the Institution by Id. Return the instance of the Institution in question or null.
-     * @param institutionId The Institution Id
+     * Find the institution by id. Return the institution instance or null.
+     * @param institutionId The institution id
      * @return OpenScienceFrameworkInstitution or null
      */
     private OpenScienceFrameworkInstitution findInstitutionById(final String institutionId) {
@@ -194,8 +194,8 @@ public class OpenScienceFrameworkInstitutionAuthenticationHandler {
     }
 
     /**
-     * Find the Institution Logout Url by Id. Return the Logout Url or null.
-     * @param institutionId The Institution Id
+     * Find the institution logout url by id. Return the logout url or null.
+     * @param institutionId The institution id
      * @return String
      */
     public String findInstitutionLogoutUrlById(final String institutionId) {
@@ -204,7 +204,7 @@ public class OpenScienceFrameworkInstitutionAuthenticationHandler {
     }
 
     /**
-     * Return a Map of Institution Name and Login URL.
+     * Return a map of institution name and login url.
      * @return Map&lt;String, String&gt;
      */
     public Map<String, String> getInstitutionLogin() {

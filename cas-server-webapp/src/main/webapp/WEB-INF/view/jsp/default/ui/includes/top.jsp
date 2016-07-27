@@ -52,8 +52,8 @@
                 <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
                 <a id="logo" class="center" href="${osfUrl}" title="<spring:message code="logo.title" />">Open Science Framework | Sign In</a>
                 <div class="center">
-                    <span id="title">Open Science Framework<c:if test="${institution}"> for Institutions</c:if></span>
-                    <c:if test="${institution}">
+                    <span id="title">Open Science Framework<c:if test="${campaign eq 'INSTITUTION'}"> for Institutions</c:if></span>
+                    <c:if test="${campaign eq 'INSTITUTION'}">
                         <div id="description">
                             <br><br><spring:message code="screen.institution.login.message.a" />
                             <br><br><spring:message code="screen.institution.login.message.b" />

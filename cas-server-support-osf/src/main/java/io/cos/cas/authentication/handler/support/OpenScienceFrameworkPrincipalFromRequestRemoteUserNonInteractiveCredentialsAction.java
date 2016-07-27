@@ -103,8 +103,8 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
         /**
          * Creates a new instance with the given parameters.
-         * @param username the username
-         * @param institutionId the institution id
+         * @param username The username
+         * @param institutionId The institution id
          */
         public PrincipalAuthenticationResult(final String username, final String institutionId) {
             this.username = username;
@@ -174,13 +174,14 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     }
 
     /**
-     * Check if is institution login.
+     * Check institution login. Return true if `campaign=institution` is present in request parameters.
      *
-     * @param context the context
-     * @return true, if institution presents
+     * @param context The request context
+     * @return Boolean
      */
     protected boolean isInstitution(final RequestContext context) {
-        return StringUtils.hasText(context.getRequestParameters().get("institution"));
+        final String campaign = context.getRequestParameters().get("campaign");
+        return campaign != null && "institution".equals(campaign);
     }
 
     @Override
