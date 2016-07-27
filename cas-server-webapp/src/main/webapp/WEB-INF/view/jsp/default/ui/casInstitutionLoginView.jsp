@@ -27,7 +27,7 @@
         <label for="select-institution"><spring:message code="screen.institution.login.message.c" /></label>
     </div>
     <div class="select">
-            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" />
+        <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" />
     </div>
     <div class="btn-submit">
         <input type="button" name="submit" value="<spring:message code="screen.welcome.button.login" />" onclick="institutionLogin()">
@@ -45,6 +45,9 @@
                 login_url = login_url + "&target=" + target;
             }
             window.location = login_url;
+        }
+        function selectFocus() {
+            document.getElementById("institution-form-select").focus();
         }
     </script>
 </div>

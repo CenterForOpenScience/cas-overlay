@@ -45,14 +45,23 @@
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,700' rel='stylesheet' type='text/css'>
     </head>
 
-    <body id="cas">
+    <body id="cas" onload="selectFocus()">
         <div id="container">
             <br>
             <header>
-                <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
-                <a id="logo" class="center" href="${osfUrl}" title="<spring:message code="logo.title" />">Open Science Framework | Sign In</a>
                 <div class="center">
-                    <span id="title">Open Science Framework<c:if test="${campaign eq 'INSTITUTION'}"> for Institutions</c:if></span>
+                    <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
+                    <a id="logo" class="center" href="${osfUrl}" title="<spring:message code="logo.title" />">Open Science Framework | Sign In</a>
+                </div>
+                <br>
+                <div class="center">
+                    <span id="title">
+                        <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
+                        <span class="title-abbr">Open&nbsp;Science<br>Framework</span>
+                        <c:if test="${campaign eq 'INSTITUTION'}"><span> for&nbsp;Institutions</span></c:if>
+                    </span>
+                </div>
+                <div class="responsive">
                     <c:if test="${campaign eq 'INSTITUTION'}">
                         <div id="description">
                             <br><br><spring:message code="screen.institution.login.message.a" />
