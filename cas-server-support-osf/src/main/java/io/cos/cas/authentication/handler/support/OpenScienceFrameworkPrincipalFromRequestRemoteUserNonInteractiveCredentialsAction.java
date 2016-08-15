@@ -33,6 +33,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.RemoteUserFailedLoginException;
+import io.cos.cas.web.flow.OpenScienceFrameworkLoginThroughOrcid;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
@@ -189,6 +190,13 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         }
 
         if (credential == null) {
+            final String campaign = context.getRequestParameters().get("campaign");
+            final String code = context.getRequestParameters().get("code");
+
+            if ("orcid".equals(campaign) && code != null) {
+                return new Event(this, "orcid");
+            }
+
             return error();
         }
 

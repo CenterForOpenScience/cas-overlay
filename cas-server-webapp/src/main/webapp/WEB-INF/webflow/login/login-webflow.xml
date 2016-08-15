@@ -88,6 +88,12 @@
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="authenticationFailure" to="handleAuthenticationFailure" />
         <transition on="error" to="viewLoginForm" />
+        <transition on="orcid" to="orcidLogin" />
+    </action-state>
+
+    <action-state id="orcidLogin">
+        <evaluate expression="loginThroughOrcid.exchangeForOAuthAccessToken(flowRequestContext)" />
+        <transition on="success" to="sendTicketGrantingTicket" />
     </action-state>
 
     <view-state id="viewLoginForm" view="casLoginView" model="credential">
