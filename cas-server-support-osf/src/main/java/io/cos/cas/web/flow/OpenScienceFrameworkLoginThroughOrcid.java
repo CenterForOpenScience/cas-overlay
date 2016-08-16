@@ -19,6 +19,7 @@
 
 package io.cos.cas.web.flow;
 
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.RemoteUserFailedLoginException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
@@ -26,12 +27,21 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.message.BasicHeader;
+import org.jasig.cas.CentralAuthenticationService;
+import org.jasig.cas.authentication.AuthenticationException;
+import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.ticket.TicketCreationException;
+import org.jasig.cas.web.support.WebUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.webflow.action.AbstractAction;
+import org.springframework.webflow.core.collection.LocalAttributeMap;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import javax.security.auth.login.AccountException;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -66,6 +76,10 @@ public class OpenScienceFrameworkLoginThroughOrcid {
     /** Redirect URI. */
     private final String redirectUri;
 
+    /** Instance of CentralAuthenticationService. */
+    @NotNull
+    private CentralAuthenticationService centralAuthenticationService;
+
     /**
      * Create a new instance with given parameters.
      *
@@ -75,6 +89,7 @@ public class OpenScienceFrameworkLoginThroughOrcid {
      * @param clientSecret  ORCID OSF Application Client Secret
      * @param oauthScope    ORCID OSF Application OAuth Scope
      * @param redirectUri   ORCID OSF Redirect URI
+     * @param centralAuthenticationService The Central Authentication Service
      */
     public OpenScienceFrameworkLoginThroughOrcid(
             String authorizeUrl,
@@ -82,13 +97,15 @@ public class OpenScienceFrameworkLoginThroughOrcid {
             String clientId,
             String clientSecret,
             String oauthScope,
-            String redirectUri) {
+            String redirectUri,
+            CentralAuthenticationService centralAuthenticationService) {
         this.authorizeUrl = authorizeUrl;
         this.tokenUrl = tokenUrl;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.oauthScope = oauthScope;
         this.redirectUri = redirectUri;
+        this.centralAuthenticationService =centralAuthenticationService;
     }
 
     /**
@@ -133,7 +150,8 @@ public class OpenScienceFrameworkLoginThroughOrcid {
      */
     public Event exchangeForOAuthAccessToken(final RequestContext context) throws AccountException {
 
-        logger.info(String.format("service url: %s", context.getRequestParameters().get("state")));
+        String service_url = context.getRequestParameters().get("state");
+        logger.info(String.format("service url: %s", service_url));
 
         Form postBodyForm = Form.form();
         postBodyForm.add("client_id", this.clientId)
@@ -152,15 +170,30 @@ public class OpenScienceFrameworkLoginThroughOrcid {
             final int statusCode = httpResponse.getStatusLine().getStatusCode();
             InputStream in = httpResponse.getEntity().getContent();
             final String body = IOUtils.toString(in, "UTF-8");
+            final JSONObject bodyJson = new JSONObject(body);
             logger.info(String.format("status code: %d", statusCode));
-            logger.info(String.format("response body: %s", body));
+            logger.info(String.format("response body: %s", body));OpenScienceFrameworkCredential credential =
+                    (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
+            credential.setOauthProvider("ORCID");
+            credential.setOauthId(bodyJson.getString("orcid"));
+            credential.setFullname(bodyJson.getString("name"));
+
+            try {
+                WebUtils.putTicketGrantingTicketInScopes(
+                        context,
+                        this.centralAuthenticationService.createTicketGrantingTicket(credential)
+                );
+                return new Event(this, "success");
+            } catch (final Exception e) {
+                logger.error("Authentication and TicketCreating Exception: {}", e.getMessage());
+                logger.trace("Authentication and TicketCreating Exception: {}", e);
+                throw new RemoteUserFailedLoginException("Fail to create TicketGrantingTicket");
+            }
+
         } catch (final IOException e) {
             logger.error("Post for Access Token Exception: {}", e.getMessage());
             logger.trace("Post for Access Token Exception: {}", e);
             throw new RemoteUserFailedLoginException("Unable to Obtain Access Token from ORCID Token Endpoint");
         }
-
-        // TODO: put credential in flow scope for building osf credential, grant TGT and ST
-        return new Event(this, "success");
     }
 }

@@ -38,6 +38,12 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /** Authentication attribute name for Remote Principal. */
     public static final String REMOTE_PRINCIPAL = "remotePrincipal";
 
+    /** Authentication attribute name for OAuth Provider. */
+    public static final String OAUTH_PROVIDER = "oauthProvider";
+
+    /** Authentication attribute name for OAuth Id. */
+    public static final String OAUTH_ID = "oauthId";
+
     /** Unique ID for serialization. */
     private static final long serialVersionUID = -3006234230814410939L;
 
@@ -61,6 +67,15 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
 
     /** The Institution Id. */
     private String institutionId;
+
+    /** The OAuth Provider. */
+    private String oauthProvider;
+
+    /** The OAuth Id. */
+    private String oauthId;
+
+    /** The User's Full Name */
+    private String fullname;
 
     /** The Authentication Headers. */
     private Map<String, String> authenticationHeaders = new HashMap<>();
@@ -156,6 +171,48 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
+     * @return Returns the OAuth Provider.
+     */
+    public String getOauthProvider() {
+        return oauthProvider;
+    }
+
+    /**
+     * @param oauthProvider The OAuth Provider.
+     */
+    public void setOauthProvider(String oauthProvider) {
+        this.oauthProvider = oauthProvider;
+    }
+
+    /**
+     * @return Returns the OAuth Id.
+     */
+    public String getOauthId() {
+        return oauthId;
+    }
+
+    /**
+     * @param oauthId The OAuth Id.
+     */
+    public void setOauthId(String oauthId) {
+        this.oauthId = oauthId;
+    }
+
+    /**
+     * @return Returns User's Full Name
+     */
+    public String getFullname() {
+        return fullname;
+    }
+
+    /**
+     * @param fullname The User's full name
+     */
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    /**
      * @return Returns the Authentication Headers.
      */
     public final Map<String, String> getAuthenticationHeaders() {
@@ -210,6 +267,12 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         if (!this.institutionId.equals(other.institutionId)) {
             return false;
         }
+        if (!this.oauthProvider.equals(other.oauthProvider)) {
+            return false;
+        }
+        if (!this.oauthId.equals((other.oauthId))) {
+            return false;
+        }
         return true;
     }
 
@@ -221,6 +284,8 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
                 .append(oneTimePassword)
                 .append(remotePrincipal)
                 .append(institutionId)
+                .append(oauthProvider)
+                .append(oauthId)
                 .toHashCode();
     }
 }
