@@ -98,7 +98,7 @@
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
 
-            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.login" />" tabindex="4" type="submit" />
+            <input type="submit" class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.login" />" tabindex="4"  />
             <%-- <input class="btn-reset" name="reset" accesskey="c" value="<spring:message code="screen.welcome.button.clear" />" tabindex="5" type="reset" /> --%>
         </section>
         <section class="row check">
@@ -115,6 +115,14 @@
         </section>
 
     </form:form>
+</div>
+
+<div id="alternative-login">
+    <hr>
+    <div class="btn-submit">
+        <spring:eval var="orcidLoginUrl" expression="@casProperties.getProperty('oauth.orcid.login.url')" />
+        <input type="button" name="login-orcid" value="<spring:message code="screen.welcome.button.login.orcid" />" tabindex="4" onclick="location.href='${orcidLoginUrl}'">
+    </div>
 </div>
 
 <%-- <div id="sidebar">
