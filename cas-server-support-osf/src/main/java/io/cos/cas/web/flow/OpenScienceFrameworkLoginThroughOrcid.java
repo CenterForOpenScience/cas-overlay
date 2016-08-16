@@ -92,27 +92,36 @@ public class OpenScienceFrameworkLoginThroughOrcid {
     }
 
     /**
-     * Build OAuth2 authorization `GET` url for ORCID.
+     * Build OAuth2 authorization url for ORCID. Store `service url` in `state` parameter.
+     * Redirect to ORCID authorization end point.
      *
+     * @param context the Request Context
      * @return
      * @throws AccountException
      */
-    public String getOricdLoginUrl() throws AccountException {
+    public Event generateOAuthAuhtorizationUrl(final RequestContext context) throws AccountException {
+
+        // TODO: add csrf token in state parameter, encrypt it with private key and then encode it
+        String state = (String) context.getFlowScope().get("state");
         StringBuilder url = new StringBuilder();
         url.append(authorizeUrl)
                 .append("?response_type=code")
                 .append("&client_id=")
                 .append(this.clientId)
                 .append("&scope=")
-                .append(oauthScope)
-                .append("&redirect_uri=");
+                .append(oauthScope);
         try {
-            url.append(URLEncoder.encode(this.redirectUri, "UTF-8"));
+            url.append("&redirect_uri=")
+                    .append(URLEncoder.encode(this.redirectUri, "UTF-8"))
+                    .append("&state=")
+                    .append(URLEncoder.encode(state, "UTF-8"));
         } catch (final UnsupportedEncodingException e) {
             logger.error("Unsupported Encoding Exception");
             throw new RemoteUserFailedLoginException("Unable to Build URL for ORCID Authorize Endpoint");
         }
-        return url.toString();
+
+        context.getFlowScope().put("orcidRedirectUrl", url.toString());
+        return new Event(this, "success");
     }
 
     /**
@@ -124,13 +133,14 @@ public class OpenScienceFrameworkLoginThroughOrcid {
      */
     public Event exchangeForOAuthAccessToken(final RequestContext context) throws AccountException {
 
+        logger.info(String.format("service url: %s", context.getRequestParameters().get("state")));
+
         Form postBodyForm = Form.form();
         postBodyForm.add("client_id", this.clientId)
                 .add("client_secret", this.clientSecret)
                 .add("code", context.getRequestParameters().get("code"))
                 .add("grant_type", "authorization_code")
                 .add("redirect_uri", this.redirectUri);
-
         try{
             // TODO: need to check the encoding scheme and choose the correct one
             final HttpResponse httpResponse = Request.Post(this.tokenUrl)

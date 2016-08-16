@@ -120,8 +120,8 @@
 <div id="alternative-login">
     <hr>
     <div class="btn-submit">
-        <spring:eval var="orcidLoginUrl" expression="@casProperties.getProperty('oauth.orcid.login.url')" />
-        <input type="button" name="login-orcid" value="<spring:message code="screen.welcome.button.login.orcid" />" tabindex="4" onclick="location.href='${orcidLoginUrl}'">
+        <spring:eval var="orcidLoginUrl" expression="@casProperties.getProperty('cas.orcid.login.url')" />
+        <input type="button" name="login-orcid" value="<spring:message code="screen.welcome.button.login.orcid" />" tabindex="4" onclick="location.href='${orcidLoginUrl}${not empty param.service ? '&service=' : ''}${fn:escapeXml(param.service)}'">
     </div>
 </div>
 

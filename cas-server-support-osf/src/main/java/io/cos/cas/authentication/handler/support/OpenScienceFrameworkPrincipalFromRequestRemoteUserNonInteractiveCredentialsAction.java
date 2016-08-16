@@ -192,9 +192,19 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         if (credential == null) {
             final String campaign = context.getRequestParameters().get("campaign");
             final String code = context.getRequestParameters().get("code");
+            String service_url = context.getRequestParameters().get("service");
 
-            if ("orcid".equals(campaign) && code != null) {
-                return new Event(this, "orcid");
+            if ("orcid".equals(campaign)) {
+                // Authorization response from ORCID
+                if (code != null) {
+                    return new Event(this, "orcidExchange");
+                // Authorization request to ORCID
+                } else {
+                    if (service_url == null)
+                        service_url = "";
+                    context.getFlowScope().put("state", service_url);
+                    return new Event(this, "orcidAuthorize");
+                }
             }
 
             return error();
