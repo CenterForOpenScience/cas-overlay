@@ -39,8 +39,6 @@ public final class OpenScienceFrameworkAuthenticationMetaDataPopulator implement
         final OpenScienceFrameworkCredential c = (OpenScienceFrameworkCredential) credential;
         builder.addAttribute(OpenScienceFrameworkCredential.REMOTE_PRINCIPAL, c.isRemotePrincipal());
         builder.addAttribute(OpenScienceFrameworkCredential.INSTITUTION_ID, c.getInstitutionId());
-        builder.addAttribute(OpenScienceFrameworkCredential.OAUTH_PROVIDER, c.getOauthProvider());
-        builder.addAttribute(OpenScienceFrameworkCredential.OAUTH_ID, c.getOauthId());
     }
 
     @Override

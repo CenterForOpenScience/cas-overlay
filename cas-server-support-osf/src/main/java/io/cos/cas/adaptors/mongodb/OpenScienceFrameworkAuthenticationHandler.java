@@ -258,30 +258,10 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     protected final HandlerResult authenticateInternal(final OpenScienceFrameworkCredential credential)
             throws GeneralSecurityException, PreventedException {
 
-        final String oauthId = credential.getOauthId();
-        final String oauthProvider = credential.getOauthProvider();
-        final String fullname = credential.getFullname();
-        if (oauthId != null && oauthProvider != null && fullname != null) {
-            final OpenScienceFrameworkUser user = this.mongoTemplate.findOne(new Query(
-                    new Criteria().orOperator(
-                            Criteria.where("oauth_id").is(oauthId),
-                            Criteria.where("oauth_provider").is(oauthProvider)
-                    )
-            ), OpenScienceFrameworkUser.class);
-            final Map<String, Object> attributes = new HashMap<>();
-            final String principalId = (user != null) ? user.id : "oauth";
-            attributes.put("oauthId", oauthId);
-            attributes.put("oauthProvider", oauthProvider);
-            attributes.put("fullname", fullname);
-            return createHandlerResult(credential, this.principalFactory.createPrincipal(principalId, attributes), null);
-        }
-
-
         final String username = credential.getUsername().toLowerCase();
         final String plainTextPassword = credential.getPassword();
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
-
 
         final OpenScienceFrameworkUser user = this.mongoTemplate.findOne(new Query(
             new Criteria().orOperator(

@@ -88,21 +88,7 @@
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="authenticationFailure" to="handleAuthenticationFailure" />
         <transition on="error" to="viewLoginForm" />
-        <transition on="orcidAuthorize" to="orcidGenerateAuthorizationUrl" />
-        <transition on="orcidExchange" to="orcidExchangeForAccessToken" />
     </action-state>
-
-    <action-state id="orcidGenerateAuthorizationUrl">
-        <evaluate expression="loginThroughOrcid.generateOAuthAuhtorizationUrl(flowRequestContext)" />
-        <transition on="success" to="orcidRedirect" />
-    </action-state>
-
-    <action-state id="orcidExchangeForAccessToken">
-        <evaluate expression="loginThroughOrcid.exchangeForOAuthAccessToken(flowRequestContext)" />
-        <transition on="success" to="sendTicketGrantingTicket" />
-    </action-state>
-
-    <end-state id="orcidRedirect" view="externalRedirect:#{flowScope.orcidRedirectUrl}" />
 
     <view-state id="viewLoginForm" view="casLoginView" model="credential">
         <binder>
