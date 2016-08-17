@@ -22,12 +22,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
     <bean id="authenticationManager" class="org.jasig.cas.authentication.PolicyBasedAuthenticationManager">
         <constructor-arg>
             <map>
                 <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" />
+                <entry key-ref="primaryAuthenticationHandler" value-ref="primaryPrincipalResolver" />
                 <entry key-ref="oAuthAuthenticationHandler" value="#{null}" />
                 <entry key-ref="openScienceFrameworkAuthenticationHandler" value="#{null}" />
             </map>
@@ -38,7 +40,11 @@
                 <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator" />
                 <bean class="org.jasig.cas.support.oauth.authentication.principal.OAuthAuthenticationMetaDataPopulator" />
                 <bean class="io.cos.cas.authentication.principal.OpenScienceFrameworkAuthenticationMetaDataPopulator" />
+                <bean class="org.jasig.cas.support.pac4j.authentication.ClientAuthenticationMetaDataPopulator" />
             </list>
+        </property>
+        <property name="authenticationPolicy">
+            <bean class="org.jasig.cas.authentication.AnyAuthenticationPolicy" />
         </property>
     </bean>
 
@@ -53,4 +59,9 @@
           p:requireSecure="${proxyAuth.requireSecure:true}" />
 
     <bean id="proxyPrincipalResolver" class="org.jasig.cas.authentication.principal.BasicPrincipalResolver" />
+
+    <bean id="primaryAuthenticationHandler"
+          class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
+          c:clients-ref="clients"
+          p:typedIdUsed="false" />
 </beans>

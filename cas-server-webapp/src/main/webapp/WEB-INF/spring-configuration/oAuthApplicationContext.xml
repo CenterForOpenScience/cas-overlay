@@ -43,4 +43,20 @@
           c:accessTokenUniqueIdGenerator-ref="accessTokenUniqueIdGenerator"
           c:scopeManager-ref="scopeManager"
           c:personalAccessTokenManager-ref="personalAccessTokenManager" />
+
+    <!-- OAuth2 Client -->
+    <bean id="orcid" class="org.pac4j.oauth.client.OrcidClient">
+        <property name="key" value="${oauth.orcid.client.id}" />
+        <property name="secret" value="${oauth.orcid.client.secret}" />
+        <property name="scope" value="${oauth.orcid.scope}" />
+    </bean>
+
+    <bean id="clients" class="org.pac4j.core.client.Clients">
+        <property name="callbackUrl" value="${oauth.redirect.uri}" />
+        <property name="clients">
+            <list>
+                <ref bean="orcid" />
+            </list>
+        </property>
+    </bean>
 </beans>
