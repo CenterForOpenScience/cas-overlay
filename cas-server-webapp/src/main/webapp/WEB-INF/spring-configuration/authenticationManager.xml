@@ -29,8 +29,8 @@
         <constructor-arg>
             <map>
                 <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" />
-                <entry key-ref="primaryAuthenticationHandler" value-ref="primaryPrincipalResolver" />
                 <entry key-ref="oAuthAuthenticationHandler" value="#{null}" />
+                <entry key-ref="oAuthClientAuthenticationHandler" value="#{null}" />
                 <entry key-ref="openScienceFrameworkAuthenticationHandler" value="#{null}" />
             </map>
         </constructor-arg>
@@ -40,7 +40,7 @@
                 <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator" />
                 <bean class="org.jasig.cas.support.oauth.authentication.principal.OAuthAuthenticationMetaDataPopulator" />
                 <bean class="io.cos.cas.authentication.principal.OpenScienceFrameworkAuthenticationMetaDataPopulator" />
-                <bean class="org.jasig.cas.support.pac4j.authentication.ClientAuthenticationMetaDataPopulator" />
+                <!--<bean class="org.jasig.cas.support.pac4j.authentication.ClientAuthenticationMetaDataPopulator" />-->
             </list>
         </property>
         <property name="authenticationPolicy">
@@ -60,8 +60,6 @@
 
     <bean id="proxyPrincipalResolver" class="org.jasig.cas.authentication.principal.BasicPrincipalResolver" />
 
-    <bean id="primaryAuthenticationHandler"
-          class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
-          c:clients-ref="clients"
-          p:typedIdUsed="false" />
+    <bean id="oAuthClientAuthenticationHandler" class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
+          c:theClients-ref="clients" />
 </beans>
