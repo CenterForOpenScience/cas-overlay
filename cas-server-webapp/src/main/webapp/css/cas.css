@@ -258,7 +258,7 @@ footer a:link, footer a:visited {
   color: grey;
 }
 
-#alternative-login .btn-submit input[type=button]{
+#alternative-login .btn-submit input[type=button] {
   outline: none;
   border-radius: 3px;
   border: 1px;
