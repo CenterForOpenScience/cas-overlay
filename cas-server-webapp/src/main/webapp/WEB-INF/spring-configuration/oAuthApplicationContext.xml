@@ -49,6 +49,7 @@
         <property name="key" value="${oauth.orcid.client.id}" />
         <property name="secret" value="${oauth.orcid.client.secret}" />
         <property name="scope" value="${oauth.orcid.scope}" />
+        <property name="member" value="${oauth.orcid.member}" />
     </bean>
 
     <bean id="clients" class="org.pac4j.core.client.Clients">

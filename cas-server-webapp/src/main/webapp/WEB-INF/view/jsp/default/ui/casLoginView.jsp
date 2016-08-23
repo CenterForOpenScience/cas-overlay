@@ -114,14 +114,18 @@
             <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
         </section>
 
-    </form:form>
-</div>
+        <%-- TODO: Only display OAuth Client options for the OSF service, due to a limitation of our OAuth Provider implementation as it does not support non-existing OSF accounts. --%>
+        <c:if test="${not empty registeredService}">
+            <c:if test="${not empty registeredService.id && registeredService.id == 23897492873423934}">
+                <hr/>
 
-<div id="alternative-login">
-    <hr>
-    <div class="btn-submit">
-        <input type="button" name="login-orcid" value="<spring:message code="screen.welcome.button.login.orcid" />" tabindex="4" onclick="location.href='${OrcidClientUrl}'">
-    </div>
+                <section class="row">
+                    <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo"><spring:message code="screen.welcome.button.login.orcid" /></a>
+                </section>
+            </c:if>
+        </c:if>
+
+    </form:form>
 </div>
 
 <%-- <div id="sidebar">

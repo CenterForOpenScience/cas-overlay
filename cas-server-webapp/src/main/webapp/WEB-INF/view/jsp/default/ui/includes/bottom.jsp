@@ -21,7 +21,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
     <div class="row" style="text-align: center;">
-        <hr>
+        <hr style="margin-bottom: 1em;">
         <spring:eval var="osfInstitutionLoginUrl" expression="@casProperties.getProperty('osf.institutionLogin.url')" />
         <a id="institution-login" href="${osfInstitutionLoginUrl}${not empty param.service ? '&redirect_url=' : ''}${fn:escapeXml(param.service)}">Login&nbsp;Through&nbsp;Your&nbsp;Institution</a>&nbsp;&nbsp;
         <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />

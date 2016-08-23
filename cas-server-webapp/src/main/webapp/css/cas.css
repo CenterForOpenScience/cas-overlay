@@ -26,7 +26,7 @@ mark { background-color: #ff9; color: #000; font-style: italic; font-weight: bol
 del { text-decoration: line-through; }
 abbr[title], dfn[title] { border-bottom: 1px dotted; cursor: help; }
 table { border-collapse: collapse; border-spacing: 0; }
-hr { display: block; height: 1px; border: 0; border-top: 1px solid #cccccc; margin: 1em 0; padding: 0; }
+hr { display: block; height: 1px; border: 0; border-top: 1px solid #cccccc; margin: 0; padding: 0; }
 input, select { vertical-align: middle; }
 body { font-family: 'Open Sans'; font-size: 12px; line-height: 1.4em; background: #eee; }
 
@@ -50,7 +50,8 @@ h2 {
 }
 
 body {
-  background: url(../images/bg-tile.gif); /* Old browsers */
+  /*background: url(../images/bg-tile.gif); !* Old browsers *!*/
+  background: white;
 }
 
 a:link, a:visited {
@@ -248,35 +249,34 @@ footer a:link, footer a:visited {
   #sidebar .sidebar-content { padding: 0; }
 }
 
-#alternative-login {
 
-}
-
-#alternative-login .delimiter {
-  text-align: center;
-  font-size: large;
-  color: grey;
-}
-
-#alternative-login .btn-submit input[type=button]{
+#fm1 .row .btn-oauth,
+#fm1 .row .btn-oauth:hover,
+#fm1 .row .btn-oauth:active {
+  position: relative;
   outline: none;
-  border-radius: 3px;
-  border: 1px;
-  background: #5cb85c;
-  color: white;
-  font-weight: bold;
-  width: 100%;
-  padding: 10px 2px 10px 2px;
   -webkit-appearance: none;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
+  width: 100%;
+  text-decoration: none;
+  font-size: 12px;
+  /*background: white;*/
+  background-image: linear-gradient(to bottom,#fff 0,#e0e0e0 100%);
+  border: 1px solid #ababab;
+  /*font-weight: bold;*/
+  color: black;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  display: inline-block;
+  padding: 10px 0 10px 0;
+  text-align: center;
 }
 
-#alternative-login .btn-submit:hover input[type=button] {
-  background: #419641;
-}
-
-#alternative-login .btn-submit:active input[type=button] {
-  border: double;
-  padding: 7px 0 7px 0;
+.orcid-logo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-right: 1px solid #ababab;
+  padding: 6px;
+  content: url(../images/orcid-logo.png);
 }

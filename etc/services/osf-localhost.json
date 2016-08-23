@@ -7,6 +7,10 @@
   "logo": "",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-    "allowedAttributes" : [ "java.util.ArrayList", ["name", "givenName", "familyName"] ]
+    "allowedAttributes" : [
+      "java.util.ArrayList", [
+        "given-names", "family-name"
+      ]
+    ]
   }
 }
