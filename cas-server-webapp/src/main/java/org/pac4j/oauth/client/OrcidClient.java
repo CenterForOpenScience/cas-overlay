@@ -19,6 +19,7 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.oauth.client.exception.OAuthCredentialsException;
 import org.pac4j.oauth.profile.OAuthAttributesDefinitions;
 import org.pac4j.oauth.profile.XmlHelper;
+import org.pac4j.oauth.profile.orcid.OrcidAttributesDefinition;
 import org.pac4j.oauth.profile.orcid.OrcidProfile;
 import org.scribe.builder.api.OrcidApi20;
 import org.scribe.exceptions.OAuthException;
@@ -47,7 +48,7 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
 
     protected String scope = DEFAULT_SCOPE;
 
-    private static final String STATE_PARAMETER = "#oauth20StateParameter";
+    protected Boolean member = Boolean.TRUE;
 
     public OrcidClient(final String key, final String secret) {
         setKey(key);
@@ -79,18 +80,17 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     @Override
     protected String getProfileUrl(final Token accessToken) {
         if (accessToken instanceof OrcidToken) {
-            return String.format("https://pub.orcid.org/v1.2/%s/orcid-profile",
-                    ((OrcidToken) accessToken).getOrcid());
+            return String.format("https://%s.orcid.org/v1.2/%s/orcid-profile",
+                    (this.getMember() ? "api" : "pub"), ((OrcidToken) accessToken).getOrcid());
         } else {
             throw new OAuthException("Token in getProfileUrl is not an OrcidToken");
         }
     }
 
-
     @Override
     protected void internalInit() {
         super.internalInit();
-        this.service = new ProxyOAuth20ServiceImpl(new OrcidApi20(), new OAuthConfig(this.key,
+        this.service = new ProxyOAuth20ServiceImpl(new OrcidApi20(this.getMember()), new OAuthConfig(this.key,
                 this.secret,
                 this.callbackUrl,
                 SignatureType.Header,
@@ -106,9 +106,18 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
         this.scope = scope;
     }
 
+    public Boolean getMember() {
+        return this.member;
+    }
+
+    public void setMember(final Boolean member) {
+        this.member = member;
+    }
+
     @Override
     protected OrcidProfile extractUserProfile(String body) {
         OrcidProfile profile = new OrcidProfile();
+        profile.setId(XmlHelper.get(body, OrcidAttributesDefinition.ORCID));
         for(final String attribute : OAuthAttributesDefinitions.orcidDefinition.getAllAttributes()) {
             profile.addAttribute(attribute, XmlHelper.get(body, attribute));
         }

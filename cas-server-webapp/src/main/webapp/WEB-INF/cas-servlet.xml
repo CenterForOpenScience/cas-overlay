@@ -376,7 +376,6 @@
         p:centralOAuthService-ref="centralOAuthService" />
 
   <!-- OAuth2 Client Action -->
-
   <bean id="clientAction" class="org.jasig.cas.support.pac4j.web.flow.ClientAction"
         c:theCentralAuthenticationService-ref="centralAuthenticationService"
         c:theClients-ref="clients"/>
