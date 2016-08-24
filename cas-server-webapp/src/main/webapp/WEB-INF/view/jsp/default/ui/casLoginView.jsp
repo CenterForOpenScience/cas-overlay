@@ -120,7 +120,7 @@
                 <hr/>
 
                 <section class="row">
-                    <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo"><spring:message code="screen.welcome.button.login.orcid" /></a>
+                    <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo" src="../images/orcid-logo.png"><spring:message code="screen.welcome.button.login.orcid" /></a>
                 </section>
             </c:if>
         </c:if>

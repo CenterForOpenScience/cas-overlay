@@ -272,12 +272,11 @@ footer a:link, footer a:visited {
   text-align: center;
 }
 
-.orcid-logo,
-.orcid-logo:after /* firefox */ {
+.orcid-logo {
   position: absolute;
   left: 0;
   top: 0;
   border-right: 1px solid #ababab;
   padding: 6px;
-  content: url(../images/orcid-logo.png);
+  /*content: url(../images/orcid-logo.png); - broken in firefox*/
 }
