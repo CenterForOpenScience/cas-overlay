@@ -27,7 +27,7 @@ mark { background-color: #ff9; color: #000; font-style: italic; font-weight: bol
 del { text-decoration: line-through; }
 abbr[title], dfn[title] { border-bottom: 1px dotted; cursor: help; }
 table { border-collapse: collapse; border-spacing: 0; }
-hr { display: block; height: 1px; border: 0; border-top: 1px solid #cccccc; margin: 1em 0; padding: 0; }
+hr { display: block; height: 1px; border: 0; border-top: 1px solid #cccccc; margin: 0; padding: 0; }
 input, select { vertical-align: middle; }
 body { font-family: 'Open Sans'; font-size: 12px; line-height: 1.4em; background: #eee; }
 
@@ -113,7 +113,12 @@ h2 {
 }
 
 body {
+<<<<<<< HEAD
   background: #ffffff;
+=======
+  /*background: url(../images/bg-tile.gif); !* Old browsers *!*/
+  background: white;
+>>>>>>> upstream/develop
 }
 
 a:link, a:visited {
@@ -282,6 +287,7 @@ footer a:link, footer a:visited {
   #sidebar .sidebar-content { padding: 0; }
 }
 
+
 #institution-login {
   text-align: Left;
 }
@@ -340,3 +346,34 @@ footer a:link, footer a:visited {
   padding: 7px 0 7px 0;
 }
 
+
+#fm1 .row .btn-oauth,
+#fm1 .row .btn-oauth:hover,
+#fm1 .row .btn-oauth:active {
+  position: relative;
+  outline: none;
+  -webkit-appearance: none;
+  width: 100%;
+  text-decoration: none;
+  font-size: 12px;
+  /*background: white;*/
+  background-image: linear-gradient(to bottom,#fff 0,#e0e0e0 100%);
+  border: 1px solid #ababab;
+  /*font-weight: bold;*/
+  color: black;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  display: inline-block;
+  padding: 10px 0 10px 0;
+  text-align: center;
+}
+
+.orcid-logo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-right: 1px solid #ababab;
+  padding: 6px;
+  /*content: url(../images/orcid-logo.png); - broken in firefox*/
+}

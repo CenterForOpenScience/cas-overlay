@@ -33,7 +33,7 @@
             </c:otherwise>
         </c:choose>
         <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
-        <a id="back-to-osf" href="${osfUrl}">Back to OSF</a></br>
+        <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
     </div>
 </div> <!-- END #content -->
 
