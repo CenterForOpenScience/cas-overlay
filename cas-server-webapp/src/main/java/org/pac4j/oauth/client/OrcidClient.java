@@ -15,6 +15,7 @@
  */
 package org.pac4j.oauth.client;
 
+import org.apache.http.HttpStatus;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.oauth.client.exception.OAuthCredentialsException;
 import org.pac4j.oauth.profile.OAuthAttributesDefinitions;
@@ -38,45 +39,71 @@ import org.pac4j.core.exception.HttpCommunicationException;
  * <p>It returns a {@link org.pac4j.oauth.profile.orcid.OrcidProfile}.</p>
  * <p>More information at http://support.orcid.org/knowledgebase/articles/175079-tutorial-retrieve-data-from-an-orcid-record-with</p>
  *
- * @see org.pac4j.oauth.profile.orcid.OrcidProfile
  * @author Jens Tinglev
+ * @author Michael Haselton
+ * @author Longze Chen
+ * @see org.pac4j.oauth.profile.orcid.OrcidProfile
  * @since 1.6.0
  */
 public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
 
+    /** The default scope. */
     protected static final String DEFAULT_SCOPE = "/orcid-profile/read-limited";
 
+    /** The scope. */
     protected String scope = DEFAULT_SCOPE;
 
+    /** The member flag. */
     protected Boolean member = Boolean.TRUE;
 
+    /**
+     * Create an instance of `OrcidClient` with given `key` and `secret`.
+     *
+     * @param key the key
+     * @param secret the secret
+     */
     public OrcidClient(final String key, final String secret) {
         setKey(key);
         setSecret(secret);
         setTokenAsHeader(true);
     }
 
+    /**
+     * Create an instance of `OrcidClient`.
+     */
     public OrcidClient() {
         setTokenAsHeader(true);
     }
 
+    /**
+     * @return Returns whether use the `state` parameter for OAuth request.
+     */
     @Override
     protected boolean requiresStateParameter() {
         return false;
     }
 
+    /**
+     * Check whether user has denied permissions.
+     *
+     * @param context the web context
+     * @return if access has been denied by the user
+     */
     @Override
-    protected boolean hasBeenCancelled(WebContext context) {
+    protected boolean hasBeenCancelled(final WebContext context) {
         final String error = context.getRequestParameter(OAuthCredentialsException.ERROR);
         final String errorDescription = context.getRequestParameter(OAuthCredentialsException.ERROR_DESCRIPTION);
         // user has denied permissions
-        if ("access_denied".equals(error) && "User denied access".equals(errorDescription)) {
-            return true;
-        } else {
-            return false;
-        }
+        return ("access_denied".equals(error) && "User denied access".equals(errorDescription));
     }
 
+    /**
+     * Get the oauth url to retrieve user profile.
+     *
+     * @param accessToken the access token
+     * @return profile uri
+     * @throws OAuthException if wrong token type
+     */
     @Override
     protected String getProfileUrl(final Token accessToken) {
         if (accessToken instanceof OrcidToken) {
@@ -87,6 +114,9 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
         }
     }
 
+    /**
+     * The internal initialization.
+     */
     @Override
     protected void internalInit() {
         super.internalInit();
@@ -98,25 +128,43 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
                 null), this.connectTimeout, this.readTimeout, this.proxyHost, this.proxyPort, false, true);
     }
 
+    /**
+     * @return the oauth scope.
+     */
     public String getScope() {
         return this.scope;
     }
 
+    /**
+     * @param scope the oauth scope.
+     */
     public void setScope(final String scope) {
         this.scope = scope;
     }
 
+    /**
+     * @return the member flag.
+     */
     public Boolean getMember() {
         return this.member;
     }
 
+    /**
+     * @param member the member flag.
+     */
     public void setMember(final Boolean member) {
         this.member = member;
     }
 
+    /**
+     * Extract user profile.
+     *
+     * @param body the body
+     * @return the profile
+     */
     @Override
-    protected OrcidProfile extractUserProfile(String body) {
-        OrcidProfile profile = new OrcidProfile();
+    protected OrcidProfile extractUserProfile(final String body) {
+        final OrcidProfile profile = new OrcidProfile();
         profile.setId(XmlHelper.get(body, OrcidAttributesDefinition.ORCID));
         for(final String attribute : OAuthAttributesDefinitions.orcidDefinition.getAllAttributes()) {
             profile.addAttribute(attribute, XmlHelper.get(body, attribute));
@@ -124,6 +172,10 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
         return profile;
     }
 
+    /**
+     * Create a new `OrcidClient`.
+     * @return the new cient
+     */
     @Override
     protected OrcidClient newClient() {
         final OrcidClient newClient = new OrcidClient();
@@ -137,6 +189,7 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
      * @param accessToken the access token
      * @param dataUrl url of the data
      * @return the user data response
+     * @throws HttpCommunicationException if fails to retrieve data
      */
     @Override
     protected String sendRequestForData(final Token accessToken, final String dataUrl) {
@@ -147,10 +200,10 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
         final int code = response.getCode();
         final String body = response.getBody();
         final long t1 = System.currentTimeMillis();
-        logger.debug("Request took : " + (t1 - t0) + " ms for : " + dataUrl);
+        logger.debug(String.format("Request took : {} ms for : {} ", (t1 - t0), dataUrl));
         logger.debug("response code : {} / response body : {}", code, body);
-        if (code != 200) {
-            logger.error("Failed to get data, code : " + code + " / body : " + body);
+        if (code != HttpStatus.SC_OK) {
+            logger.error("Failed to get data, code : {} / body : {}", code, body);
             throw new HttpCommunicationException(code, body);
         }
         return body;

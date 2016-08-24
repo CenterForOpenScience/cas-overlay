@@ -25,43 +25,71 @@ import org.scribe.utils.OAuthEncoder;
  * This class represents the OAuth API implementation for ORCiD using OAuth protocol version 2.
  *
  * @author Jens Tinglev
+ * @author Michael Haselton
+ * @author Longze Chen
  * @since 1.6.0
  */
 public class OrcidApi20 extends DefaultApi20 {
 
+    /** The authorization url. */
     private static final String AUTH_URL = "http://www.orcid.org/oauth/authorize";
+
+    /** The token exchange url. */
     private static final String TOKEN_URL = "https://%s.orcid.org/oauth/token";
+
+    /** The member flag. */
     private final Boolean member;
 
+    /**
+     * The default constructor.
+     */
     public OrcidApi20() {
         this(Boolean.TRUE);
     }
 
+    /**
+     * Create an instance of `OrcidApi20` with the `member` flag.
+     * @param member the member flag
+     */
     public OrcidApi20(final Boolean member) {
         this.member = member;
     }
 
+    /**
+     * @return Return the url for token exchange endpoint.
+     */
     @Override
     public String getAccessTokenEndpoint() {
         return String.format(TOKEN_URL, (this.member ? "api" : "pub"));
     }
 
+    /**
+     * Get the authorization url with `oAuthConfig`.
+     * @param oAuthConfig the oauth configuration
+     * @return the authorization url
+     */
     @Override
-    public String getAuthorizationUrl(OAuthConfig oAuthConfig) {
-        // #show_login skips showing the registration form, which is only
-        // cluttersome.
-        return String.format(AUTH_URL + "?client_id=%s&scope=%s&response_type=%s&redirect_uri=%s#show_login",
-                oAuthConfig.getApiKey(), OAuthEncoder.encode(oAuthConfig.getScope()), "code", OAuthEncoder.encode(oAuthConfig.getCallback()));
+    public String getAuthorizationUrl(final OAuthConfig oAuthConfig) {
+        // #show_login skips showing the registration form, which is only clutter-some.
+        return String.format(
+                AUTH_URL + "?client_id=%s&scope=%s&response_type=%s&redirect_uri=%s#show_login",
+                oAuthConfig.getApiKey(), OAuthEncoder.encode(oAuthConfig.getScope()),
+                "code", OAuthEncoder.encode(oAuthConfig.getCallback()));
     }
 
+    /**
+     * @return Return a new `OrcidJsonExtractor`.
+     */
     @Override
     public AccessTokenExtractor getAccessTokenExtractor() {
         return new OrcidJsonExtractor();
     }
 
+    /**
+     * @return Return the VERB for token exchange.
+     */
     @Override
     public Verb getAccessTokenVerb() {
         return Verb.POST;
     }
-
 }
