@@ -1,6 +1,6 @@
 {
   "@class" : "org.jasig.cas.services.RegexRegisteredService",
-  "id" : 23897492873423934,
+  "id" : 203948234207230,
   "name" : "",
   "description" : "",
   "serviceId" : "^https?://(localhost|127.0.0.1|dev.osf.io):500[0-9]/(?!oauth/callback).*",
