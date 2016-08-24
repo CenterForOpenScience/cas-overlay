@@ -272,7 +272,8 @@ footer a:link, footer a:visited {
   text-align: center;
 }
 
-.orcid-logo {
+.orcid-logo,
+.orcid-logo:after /* firefox */ {
   position: absolute;
   left: 0;
   top: 0;
