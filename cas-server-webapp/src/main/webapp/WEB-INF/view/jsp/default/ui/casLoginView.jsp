@@ -98,7 +98,7 @@
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
 
-            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.login" />" tabindex="4" type="submit" />
+            <input type="submit" class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.login" />" tabindex="4"  />
             <%-- <input class="btn-reset" name="reset" accesskey="c" value="<spring:message code="screen.welcome.button.clear" />" tabindex="5" type="reset" /> --%>
         </section>
         <section class="row check">
@@ -113,6 +113,17 @@
             <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')" />
             <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
         </section>
+
+        <%-- TODO: Only display OAuth Client options for the OSF service, due to a limitation of our OAuth Provider implementation as it does not support non-existing OSF accounts. --%>
+        <c:if test="${not empty registeredService}">
+            <c:if test="${not empty registeredService.id && registeredService.id == 23897492873423934}">
+                <hr/>
+
+                <section class="row">
+                    <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo"><spring:message code="screen.welcome.button.login.orcid" /></a>
+                </section>
+            </c:if>
+        </c:if>
 
     </form:form>
 </div>

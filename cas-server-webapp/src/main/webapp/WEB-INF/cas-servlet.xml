@@ -375,6 +375,11 @@
         p:timeout="${oauth.accessTokenDuration:3600}"
         p:centralOAuthService-ref="centralOAuthService" />
 
+  <!-- OAuth2 Client Action -->
+  <bean id="clientAction" class="org.jasig.cas.support.pac4j.web.flow.ClientAction"
+        c:theCentralAuthenticationService-ref="centralAuthenticationService"
+        c:theClients-ref="clients"/>
+
   <!-- CRaSH -->
   <!--<bean class="org.crsh.spring.SpringWebBootstrap">-->
     <!--<property name="cmdMountPointConfig" value="war:/WEB-INF/crash/commands/"/>-->
