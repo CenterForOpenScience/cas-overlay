@@ -116,7 +116,7 @@
 
         <%-- TODO: Only display OAuth Client options for the OSF service, due to a limitation of our OAuth Provider implementation as it does not support non-existing OSF accounts. --%>
         <c:if test="${not empty registeredService}">
-            <c:if test="${not empty registeredService.id && registeredService.id == 23897492873423934}">
+            <c:if test="${not empty registeredService.id && registeredService.id == 203948234207230}">
                 <hr/>
 
                 <section class="row">
