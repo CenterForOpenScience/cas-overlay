@@ -21,7 +21,11 @@
 <jsp:directive.include file="includes/top.jsp" />
   <div id="msg" class="success">
     <h2><spring:message code="screen.success.header" /></h2>
-    <p><spring:message code="screen.success.success" arguments="${principal.attributes.username}"/></p>
+    <c:set var="displayName" value="${principal.attributes.username}"/>
+    <c:if test="${empty displayName}">
+      <c:set var="displayName" value="${principal.id}"/>
+    </c:if>
+    <p><spring:message code="screen.success.success" arguments="${displayName}"/></p>
     <p><spring:message code="screen.success.security" /></p>
   </div>
 <jsp:directive.include file="includes/bottom.jsp" />
