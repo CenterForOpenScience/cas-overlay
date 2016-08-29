@@ -347,9 +347,7 @@ footer a:link, footer a:visited {
 }
 
 
-#fm1 .row .btn-oauth,
-#fm1 .row .btn-oauth:hover,
-#fm1 .row .btn-oauth:active {
+#fm1 .row .btn-oauth {
   position: relative;
   outline: none;
   -webkit-appearance: none;
@@ -357,7 +355,7 @@ footer a:link, footer a:visited {
   text-decoration: none;
   font-size: 12px;
   /*background: white;*/
-  background-image: linear-gradient(to bottom,#fff 0,#e0e0e0 100%);
+  background-image: linear-gradient(to bottom, #fff 0, #e0e0e0 100%);
   border: 1px solid #ababab;
   /*font-weight: bold;*/
   color: black;
@@ -368,6 +366,19 @@ footer a:link, footer a:visited {
   padding: 10px 0 10px 0;
   text-align: center;
 }
+
+
+#fm1 .row .btn-oauth:hover {
+  -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 128, 255, 0.67);
+  -moz-box-shadow:    0px 0px 5px 0px rgba(0, 128, 255, 0.67);
+  box-shadow:         0px 0px 5px 0px rgba(0, 128, 255, 0.67);
+}
+
+
+#fm1 .row .btn-oauth:active {
+  background-image: linear-gradient(to top, #fff 0, #e0e0e0 100%);
+}
+
 
 .orcid-logo {
   position: absolute;
