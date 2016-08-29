@@ -65,7 +65,7 @@
                     <c:if test="${campaign eq 'INSTITUTION'}">
                         <div id="description">
                             <br><br><spring:message code="screen.institution.login.message.a" />
-                            <br><br><spring:message code="screen.institution.login.message.b" />
+                            <spring:message code="screen.institution.login.message.b" />
                         </div>
                     </c:if>
                 </div>
