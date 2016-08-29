@@ -19,20 +19,31 @@
 
 --%>
 <jsp:directive.include file="includes/top.jsp" />
-<div id="institution-login">
-    <div class="heading">
-        <span><spring:message code="screen.institution.login.heading" /></span>
-    </div>
-    <div class="select">
-        <label for="select-institution"><spring:message code="screen.institution.login.message.c" /></label>
-    </div>
-    <div class="select">
-        <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" />
-    </div>
-    <div class="btn-submit">
-        <input type="button" name="submit" value="<spring:message code="screen.welcome.button.login" />" onclick="institutionLogin()">
-        <input type="hidden" id="target" value="${target}" />
-    </div>
+<div id="inst-login">
+    <section class="row">
+        <div class="heading">
+            <span><spring:message code="screen.institution.login.heading" /></span>
+        </div>
+    </section>
+    <br>
+    <section class="row">
+        <div class="select">
+            <label for="select-institution"><spring:message code="screen.institution.login.message.c" /></label>
+        </div>
+    </section>
+    <section class="row">
+        <div class="select">
+            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" />
+        </div>
+    </section>
+    <br>
+    <section class="row">
+        <div class="btn-submit">
+            <input type="button" name="submit" value="<spring:message code="screen.welcome.button.login" />" onclick="institutionLogin()">
+            <input type="hidden" id="target" value="${target}" />
+        </div>
+    </section>
+    <br>
     <script>
         function institutionLogin () {
             var form = document.getElementById("institution-form-select");
