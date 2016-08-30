@@ -257,6 +257,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
      */
     protected final HandlerResult authenticateInternal(final OpenScienceFrameworkCredential credential)
             throws GeneralSecurityException, PreventedException {
+
         final String username = credential.getUsername().toLowerCase();
         final String plainTextPassword = credential.getPassword();
         final String verificationKey = credential.getVerificationKey();
