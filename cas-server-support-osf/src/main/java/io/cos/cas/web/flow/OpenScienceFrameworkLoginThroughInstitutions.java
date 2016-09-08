@@ -76,9 +76,6 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
                 service = URLEncoder.encode(service, "UTF-8");
                 target = URLEncoder.encode(String.format("/login?service=%s", service), "UTF-8");
             } catch (final UnsupportedEncodingException e) {
-                //  A few bytes of code that will never be executed,
-                //  A String literal that will never be used,
-                //  A protection against the unknown.
                 throw new AssertionError("UTF-8 is unknown");
             }
         }
