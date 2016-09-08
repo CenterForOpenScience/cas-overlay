@@ -113,12 +113,8 @@ h2 {
 }
 
 body {
-<<<<<<< HEAD
-  background: #ffffff;
-=======
   /*background: url(../images/bg-tile.gif); !* Old browsers *!*/
   background: white;
->>>>>>> upstream/develop
 }
 
 a:link, a:visited {
@@ -275,7 +271,6 @@ footer a:link, footer a:visited {
 
 #fm1 .row input[type=text],
 #fm1 .row input[type=password] { width: 100%; padding: 10px; box-sizing: border-box; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; }
-#fm1 .row .btn-submit { outline: none; -webkit-appearance: none; -webkit-border-radius: 0; border: 0; /*background: #2aa4a5;*/ color: white; font-weight: bold; width: 100%; padding: 10px 20px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; }
 #fm1 .row .btn-reset { display: none; }
 
 @media only screen and (max-width: 799px) { 
@@ -307,18 +302,15 @@ footer a:link, footer a:visited {
   text-align: center;
 }
 
-
 #fm1 .row .btn-oauth:hover {
   -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 128, 255, 0.67);
   -moz-box-shadow:    0px 0px 5px 0px rgba(0, 128, 255, 0.67);
   box-shadow:         0px 0px 5px 0px rgba(0, 128, 255, 0.67);
 }
 
-
 #fm1 .row .btn-oauth:active {
   background-image: linear-gradient(to top, #fff 0, #e0e0e0 100%);
 }
-
 
 .orcid-logo {
   position: absolute;
@@ -329,11 +321,9 @@ footer a:link, footer a:visited {
   /*content: url(../images/orcid-logo.png); - broken in firefox*/
 }
 
-
 #inst-login {
   text-align: Left;
 }
-
 
 #inst-login .heading {
   font-size: 20px;
@@ -342,17 +332,14 @@ footer a:link, footer a:visited {
   padding-top: 10px;
 }
 
-
 #inst-login .select {
   padding: 0 0 10px 0;
 }
-
 
 #inst-login .select label {
   font-size: 15px;
   font-weight: bolder;
 }
-
 
 #inst-login .select select {
   -webkit-appearance: menulist-button;
@@ -363,7 +350,6 @@ footer a:link, footer a:visited {
   width: 100%;
 }
 
-
 #inst-login .select option {
   font-size: 15px;
   padding: 2px 0 2px 5px;
@@ -371,8 +357,8 @@ footer a:link, footer a:visited {
   width: 100%;
 }
 
-
-#inst-login .btn-submit input[type=button] {
+#inst-login .btn-submit input[type=button],
+#fm1 .row .btn-submit {
   outline: none;
   border-radius: 3px;
   border: 1px;
@@ -387,14 +373,14 @@ footer a:link, footer a:visited {
   -moz-border-radius: 3px;
 }
 
-
-#inst-login .btn-submit:hover input[type=button] {
+#inst-login .btn-submit:hover input[type=button],
+#fm1 .row .btn-submit:hover {
   -webkit-box-shadow: 0px 0px 7px 0px rgba(0, 191, 255, 0.75);
   -moz-box-shadow:    0px 0px 7px 0px rgba(0, 191, 255, 0.75);
   box-shadow:         0px 0px 7px 0px rgba(0, 191, 255, 0.75);
 }
 
-
-#inst-login .btn-submit:active input[type=button] {
+#inst-login .btn-submit:active input[type=button],
+#fm1 .row .btn-submit:active {
   background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
 }
