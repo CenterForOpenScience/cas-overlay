@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 
 public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkUser.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkDaoImpl.class);
 
     @NotNull
     @PersistenceContext(unitName = "persistenceUnitOsf")

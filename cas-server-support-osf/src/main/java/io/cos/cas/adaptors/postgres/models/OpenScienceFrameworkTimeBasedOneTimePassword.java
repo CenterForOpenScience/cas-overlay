@@ -37,7 +37,7 @@ import javax.xml.bind.DatatypeConverter;
 @Table(name = "osf_models_twofactorusersettings")
 public class OpenScienceFrameworkTimeBasedOneTimePassword {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkUser.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkTimeBasedOneTimePassword.class);
 
     @Id
     @Column(name = "id", nullable = false)
