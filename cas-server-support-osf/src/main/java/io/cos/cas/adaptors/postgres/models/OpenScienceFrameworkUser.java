@@ -113,7 +113,7 @@ public final class OpenScienceFrameworkUser {
     }
 
     public Boolean isClaimed() {
-        return this.claimed;
+        return claimed;
     }
 
     public Boolean isMerged() {
@@ -121,19 +121,20 @@ public final class OpenScienceFrameworkUser {
     }
 
     public Boolean isConfirmed() {
-        return this.dateConfirmed != null;
+        return dateConfirmed != null;
     }
 
     public Boolean isDisabled() {
-        return this.dateDisabled != null;
+        return dateDisabled != null;
     }
 
     public Boolean isActive() {
-        return this.isRegistered() && !this.isMerged() && !this.isDisabled() && this.isConfirmed();
+        return isRegistered() && !isMerged() && !isDisabled() && isConfirmed();
     }
 
     @Override
     public String toString() {
-        return String.format("OpenScienceFrameworkUser [id=%s, username=%s]", this.id, this.username);
+        return String.format("OpenScienceFrameworkUser [id=%s, username=%s]", id, username);
     }
+
 }

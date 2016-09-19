@@ -81,7 +81,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         if (osfCredential.getUsername() == null) {
             throw new AccountNotFoundException("Username is null.");
         }
-        final String transformedUsername = this.principalNameTransformer.transform(osfCredential.getUsername());
+        final String transformedUsername = principalNameTransformer.transform(osfCredential.getUsername());
         if (transformedUsername == null) {
             throw new AccountNotFoundException("Transformed username is null.");
         }
@@ -108,7 +108,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
-        OpenScienceFrameworkUser user = this.openScienceFrameworkDao.findOneUserByUsername(username);
+        OpenScienceFrameworkUser user = openScienceFrameworkDao.findOneUserByUsername(username);
 
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");
@@ -130,7 +130,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         final OpenScienceFrameworkTimeBasedOneTimePassword timeBasedOneTimePassword
-                = this.openScienceFrameworkDao.findOneTimeBasedOneTimePasswordByOwnerId(user.getId());
+                = openScienceFrameworkDao.findOneTimeBasedOneTimePasswordByOwnerId(user.getId());
 
         // if the user has set up two factors authentication
         if (timeBasedOneTimePassword != null

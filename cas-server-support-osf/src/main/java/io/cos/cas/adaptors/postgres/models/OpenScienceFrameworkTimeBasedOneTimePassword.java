@@ -86,11 +86,11 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     }
 
     public Boolean isConfirmed() {
-        return this.confirmed;
+        return confirmed;
     }
 
     public Boolean isDeleted() {
-        return this.deleted;
+        return deleted;
     }
 
     /**
@@ -99,13 +99,13 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
      * @return the encoded secret
      */
     public String getTotpSecretBase32() {
-        final byte[] bytes = DatatypeConverter.parseHexBinary(this.totpSecret);
+        final byte[] bytes = DatatypeConverter.parseHexBinary(totpSecret);
         return new Base32().encodeAsString(bytes);
     }
 
     @Override
     public String toString() {
-        return String.format("TimeBasedOneTimePassword [id=%s]", this.id);
+        return String.format("TimeBasedOneTimePassword [id=%s, owner=%s]", id, owner.getUsername());
     }
 
 }
