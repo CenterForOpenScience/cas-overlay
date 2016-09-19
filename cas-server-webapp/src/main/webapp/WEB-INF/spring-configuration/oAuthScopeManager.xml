@@ -27,29 +27,30 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <!-- TODO: When simpleScopeHandler deactivated, need to change reference here...? -->
     <bean id="scopeManager" class="org.jasig.cas.support.oauth.scope.ScopeManager"
           c:scopeHandler-ref="openScienceFrameworkScopeHandler" />
           <!--c:casScopeHandler-ref="casScopeHandler" />-->
 
-    <bean id="openScienceFrameworkScopeHandler" class="io.cos.cas.adaptors.mongodb.OpenScienceFrameworkScopeHandler"
-          p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
+    <bean id="openScienceFrameworkScopeHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkApiOauth2ScopeHandler"
+          p:openScienceFrameworkDao-ref="openScienceFrameworkDao" />
 
-    <!--<bean id="simpleScopeHandler" class="org.jasig.cas.support.oauth.scope.handler.SimpleScopeHandler">-->
-        <!--<constructor-arg>-->
-            <!--<util:set>-->
-                <!--<bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="user" c:description="View and manage your user account" />-->
-                <!--<bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="user.profile" c:description="View your basic profile info" c:isDefault="true" />-->
-                <!--<bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="nodes.create" c:description="Create new nodes" />-->
-            <!--</util:set>-->
-        <!--</constructor-arg>-->
-    <!--</bean>-->
+    <!--
+        <bean id="simpleScopeHandler" class="org.jasig.cas.support.oauth.scope.handler.SimpleScopeHandler">
+            <constructor-arg>
+                <util:set>
+                    <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="user" c:description="View and manage your user account" />
+                    <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="user.profile" c:description="View your basic profile info" c:isDefault="true" />
+                    <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="nodes.create" c:description="Create new nodes" />
+                </util:set>
+            </constructor-arg>
+        </bean>
 
-    <!--<bean id="casScopeHandler" class="org.jasig.cas.support.oauth.scope.handler.SimpleScopeHandler">-->
-        <!--<constructor-arg>-->
-            <!--<util:set>-->
-                <!--<bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="osf.admin" c:description="Internal use, only! Cannot be requested by external users." c:isDefault="true" />-->
-            <!--</util:set>-->
-        <!--</constructor-arg>-->
-    <!--</bean>-->
+        <bean id="casScopeHandler" class="org.jasig.cas.support.oauth.scope.handler.SimpleScopeHandler">
+            <constructor-arg>
+                <util:set>
+                    <bean class="org.jasig.cas.support.oauth.scope.Scope" c:name="osf.admin" c:description="Internal use, only! Cannot be requested by external users." c:isDefault="true" />
+                </util:set>
+            </constructor-arg>
+        </bean>
+    -->
 </beans>
