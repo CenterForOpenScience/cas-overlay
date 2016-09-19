@@ -63,6 +63,7 @@
 
     <bean id="openScienceFrameworkUser" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser" />
     <bean id="openScienceFrameworkTimeBasedOneTimePassword" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword" />
+    <bean id="openScienceFrameworkInstitution" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution" />
     <bean id="openScienceFrameworkDao" class="io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl" />
 
     <util:list id="packagesToScan">

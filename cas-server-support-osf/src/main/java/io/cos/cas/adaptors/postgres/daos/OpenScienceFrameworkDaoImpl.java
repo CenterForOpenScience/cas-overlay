@@ -1,5 +1,6 @@
 package io.cos.cas.adaptors.postgres.daos;
 
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import org.slf4j.Logger;
@@ -45,6 +46,22 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
                     "select p from OpenScienceFrameworkTimeBasedOneTimePassword p where p.id = :ownerId",
                     OpenScienceFrameworkTimeBasedOneTimePassword.class);
             query.setParameter("ownerId", ownerId);
+            return query.getSingleResult();
+        }
+        catch  (PersistenceException e) {
+            // TODO: more specific exception handling
+            logger.error(e.toString());
+            return null;
+        }
+    }
+
+    @Override
+    public OpenScienceFrameworkInstitution findOneInstitutionByProviderId(String providerId) {
+        try {
+            TypedQuery<OpenScienceFrameworkInstitution> query = entityManager.createQuery(
+                    "select i from OpenScienceFrameworkInstitution i where i.providerId = :providerId",
+                    OpenScienceFrameworkInstitution.class);
+            query.setParameter("providerId", providerId);
             return query.getSingleResult();
         }
         catch  (PersistenceException e) {
