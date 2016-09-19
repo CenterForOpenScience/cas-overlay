@@ -22,7 +22,14 @@ package io.cos.cas.adaptors.postgres.models;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 
 /**
@@ -36,7 +43,8 @@ import java.util.Date;
 @Table(name = "osf_models_osfuser")
 public final class OpenScienceFrameworkUser {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkUser.class);
+    /** The logger instance. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkUser.class);
 
     @Id
     @Column(name = "id", nullable = false)
@@ -67,17 +75,17 @@ public final class OpenScienceFrameworkUser {
     @Column(name = "is_claimed", nullable = false)
     private Boolean claimed;
 
-    // TODO: handle postgres `timestamp with time zone`
+    // to-do: handle postgres `timestamp with time zone`
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_confirmed")
     private Date dateConfirmed;
 
-    // TODO: handle postgres `timestamp with time zone`
+    // to-do: handle postgres `timestamp with time zone`
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_disabled")
     private Date dateDisabled;
 
-    /** Default Constructor */
+    /** Default Constructor. */
     public OpenScienceFrameworkUser() {}
 
     public Integer getId() {
@@ -136,5 +144,4 @@ public final class OpenScienceFrameworkUser {
     public String toString() {
         return String.format("OpenScienceFrameworkUser [id=%s, username=%s]", id, username);
     }
-
 }

@@ -22,10 +22,13 @@ package io.cos.cas.adaptors.postgres.models;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
- * The Open Science Framework Institution
+ * The Open Science Framework Institution.
  *
  * @author Longze Chen
  * @since 4.1.o
@@ -34,7 +37,7 @@ import javax.persistence.*;
 @Table(name = "osf_models_institution")
 public class OpenScienceFrameworkInstitution {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
 
     @Id
     @Column(name = "id", nullable = false)
@@ -52,7 +55,7 @@ public class OpenScienceFrameworkInstitution {
     @Column(name = "logout_url")
     private String logoutUrl;
 
-    /** Default Constructor */
+    /** Default Constructor. */
     public OpenScienceFrameworkInstitution() {}
 
     public Integer getId() {

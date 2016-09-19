@@ -23,7 +23,12 @@ import org.apache.commons.codec.binary.Base32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.xml.bind.DatatypeConverter;
 
 /**
@@ -37,7 +42,7 @@ import javax.xml.bind.DatatypeConverter;
 @Table(name = "osf_models_twofactorusersettings")
 public class OpenScienceFrameworkTimeBasedOneTimePassword {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkTimeBasedOneTimePassword.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkTimeBasedOneTimePassword.class);
 
     @Id
     @Column(name = "id", nullable = false)
@@ -62,7 +67,7 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     @Column(name = "deleted", nullable = false)
     private Boolean deleted;
 
-    /** Default Constructor */
+    /** Default Constructor. */
     public OpenScienceFrameworkTimeBasedOneTimePassword() {}
 
     public Integer getId() {
@@ -107,5 +112,4 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     public String toString() {
         return String.format("TimeBasedOneTimePassword [id=%s, owner=%s]", id, owner.getUsername());
     }
-
 }

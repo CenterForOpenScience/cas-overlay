@@ -22,7 +22,12 @@ package io.cos.cas.adaptors.postgres.models;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 /**
  * The Open Science Framework API OAuth2 Personal Access Token.
@@ -35,7 +40,7 @@ import javax.persistence.*;
 @Table(name = "osf_models_apioauth2personaltoken")
 public class OpenScienceFrameworkApiOauth2PersonalAccessToken {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkApiOauth2PersonalAccessToken.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkApiOauth2PersonalAccessToken.class);
 
     @Id
     @Column(name = "id", nullable = false)
@@ -57,6 +62,8 @@ public class OpenScienceFrameworkApiOauth2PersonalAccessToken {
     @JoinColumn(name = "owner_id")
     private OpenScienceFrameworkUser owner;
 
+    /** Default Constructor.*/
+    public OpenScienceFrameworkApiOauth2PersonalAccessToken() {}
 
     public Integer getId() {
         return id;

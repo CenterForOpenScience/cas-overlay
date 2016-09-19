@@ -62,7 +62,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
     @NotNull
     private final CookieRetrievingCookieGenerator warnCookieGenerator;
 
-    /** Open Science Framework Institution Handler */
+    /** Open Science Framework Institution Handler. */
     @NotNull
     private final OpenScienceFrameworkInstitutionHandler institutionHandler;
 

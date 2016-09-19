@@ -41,15 +41,18 @@ import java.util.HashSet;
 public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler
         implements InitializingBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkPersonalAccessTokenHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkPersonalAccessTokenHandler.class);
 
     @NotNull
     private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
 
-    /** Default Constructor */
+    /** Default Constructor. */
     public OpenScienceFrameworkPersonalAccessTokenHandler() {}
 
-    public void setOpenScienceFrameworkDao(OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
+    /**
+     * @param openScienceFrameworkDao the open science framework data access object.
+     */
+    public void setOpenScienceFrameworkDao(final OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
         this.openScienceFrameworkDao = openScienceFrameworkDao;
     }
 
@@ -68,5 +71,4 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
         final String scopes = token.getScopes() == null ? "" : token.getScopes();
         return new PersonalAccessToken(token.getTokenId(), token.getOwner().getUsername(), new HashSet<>(Arrays.asList(scopes.split(" "))));
     }
-
 }

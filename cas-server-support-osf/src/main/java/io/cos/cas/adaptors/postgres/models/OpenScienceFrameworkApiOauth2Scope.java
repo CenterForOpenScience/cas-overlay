@@ -22,7 +22,10 @@ package io.cos.cas.adaptors.postgres.models;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * The Open Science Framework API Oauth2 Scope.
@@ -35,7 +38,7 @@ import javax.persistence.*;
 @Table(name = "osf_models_apioauth2scope")
 public class OpenScienceFrameworkApiOauth2Scope {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkApiOauth2Scope.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkApiOauth2Scope.class);
 
     @Id
     @Column(name = "id", nullable = false)
@@ -50,7 +53,7 @@ public class OpenScienceFrameworkApiOauth2Scope {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-    /** Default Constructor */
+    /** Default Constructor. */
     public OpenScienceFrameworkApiOauth2Scope() {}
 
 

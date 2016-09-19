@@ -38,15 +38,18 @@ import javax.validation.constraints.NotNull;
  */
 public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler implements InitializingBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkScopeHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkScopeHandler.class);
 
     @NotNull
     private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
 
-    /** Default Constructor */
+    /** Default Constructor. */
     public OpenScienceFrameworkScopeHandler() {}
 
-    public void setOpenScienceFrameworkDao(OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
+    /**
+     * @param openScienceFrameworkDao the open science framework data access object.
+     */
+    public void setOpenScienceFrameworkDao(final OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
         this.openScienceFrameworkDao = openScienceFrameworkDao;
     }
 
@@ -63,5 +66,4 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
 
         return new Scope(scope.getName(), scope.getDescription(), Boolean.FALSE);
     }
-
 }

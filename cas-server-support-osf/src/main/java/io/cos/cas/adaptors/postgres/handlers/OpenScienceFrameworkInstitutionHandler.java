@@ -27,28 +27,36 @@ import org.slf4j.LoggerFactory;
 import javax.validation.constraints.NotNull;
 
 /**
- * The Open Science Framework Institution Handler
+ * The Open Science Framework Institution Handler.
  *
  * @author Longze Chen
  * @since 4.1.0
  */
 public class OpenScienceFrameworkInstitutionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
 
     @NotNull
     private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
 
-    /** Default Constructor */
+    /** Default Constructor. */
     public OpenScienceFrameworkInstitutionHandler() {}
 
+    /**
+     * @param openScienceFrameworkDao the open science framework data access object.
+     */
     public void setOpenScienceFrameworkDao(final OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
         this.openScienceFrameworkDao = openScienceFrameworkDao;
     }
 
-    public String findInstitutionLogoutUrlByProviderId(String providerId) {
-        OpenScienceFrameworkInstitution institution = openScienceFrameworkDao.findOneInstitutionByProviderId(providerId);
+    /**
+     * Find the logout url for given institution identified by provider id.
+     *
+     * @param providerId the provider id
+     * @return String or null
+     */
+    public String findInstitutionLogoutUrlByProviderId(final String providerId) {
+        final OpenScienceFrameworkInstitution institution = openScienceFrameworkDao.findOneInstitutionByProviderId(providerId);
         return institution != null ? institution.getLogoutUrl() : null;
     }
-
 }

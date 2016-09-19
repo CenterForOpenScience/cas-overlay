@@ -60,7 +60,7 @@ import javax.validation.constraints.NotNull;
 public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPostProcessingAuthenticationHandler
         implements InitializingBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkAuthenticationHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkAuthenticationHandler.class);
 
     private static final int TOTP_INTERVAL = 30;
     private static final int TOTP_WINDOW = 1;
@@ -71,8 +71,22 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     @NotNull
     private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
 
-    /** Default Constructor */
+    /** Default Constructor. */
     public OpenScienceFrameworkAuthenticationHandler() {}
+
+    /**
+     * @param principalNameTransformer the principal name transformer.
+     */
+    public void setPrincipalNameTransformer(final PrincipalNameTransformer principalNameTransformer) {
+        this.principalNameTransformer = principalNameTransformer;
+    }
+
+    /**
+     * @param openScienceFrameworkDao the open science framework data access object
+     */
+    public void setOpenScienceFrameworkDao(final OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
+        this.openScienceFrameworkDao = openScienceFrameworkDao;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {}
@@ -111,7 +125,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
-        OpenScienceFrameworkUser user = openScienceFrameworkDao.findOneUserByUsername(username);
+        final OpenScienceFrameworkUser user = openScienceFrameworkDao.findOneUserByUsername(username);
 
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");
@@ -178,14 +192,6 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         attributes.put("givenName", user.getGivenName());
         attributes.put("familyName", user.getFamilyName());
         return createHandlerResult(credential, this.principalFactory.createPrincipal(user.getUsername(), attributes), null);
-    }
-
-    public void setPrincipalNameTransformer(final PrincipalNameTransformer principalNameTransformer) {
-        this.principalNameTransformer = principalNameTransformer;
-    }
-
-    public void setOpenScienceFrameworkDao(final OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
-        this.openScienceFrameworkDao = openScienceFrameworkDao;
     }
 
     /**
