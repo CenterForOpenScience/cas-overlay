@@ -1,8 +1,6 @@
 package io.cos.cas.adaptors.postgres.daos;
 
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
+import io.cos.cas.adaptors.postgres.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,4 +68,38 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             return null;
         }
     }
+
+    @Override
+    public OpenScienceFrameworkApiOauth2Scope findOneScopeByName(String name) {
+        try {
+            TypedQuery<OpenScienceFrameworkApiOauth2Scope> query = entityManager.createQuery(
+                    "select s from OpenScienceFrameworkApiOauth2Scope s where s.name = :name",
+                    OpenScienceFrameworkApiOauth2Scope.class);
+            query.setParameter("name", name);
+            return query.getSingleResult();
+        }
+        catch  (PersistenceException e) {
+            // TODO: more specific exception handling
+            logger.error(e.toString());
+            return null;
+        }
+    }
+
+
+    @Override
+    public OpenScienceFrameworkApiOauth2PersonalAccessToken findOnePersonalAccessTokenByTokenId(String tokenId) {
+        try {
+            TypedQuery<OpenScienceFrameworkApiOauth2PersonalAccessToken> query = entityManager.createQuery(
+                    "select t from OpenScienceFrameworkApiOauth2PersonalAccessToken t where t.tokenId = :tokenId",
+                    OpenScienceFrameworkApiOauth2PersonalAccessToken.class);
+            query.setParameter("tokenId", tokenId);
+            return query.getSingleResult();
+        }
+        catch  (PersistenceException e) {
+            // TODO: more specific exception handling
+            logger.error(e.toString());
+            return null;
+        }
+    }
+
 }

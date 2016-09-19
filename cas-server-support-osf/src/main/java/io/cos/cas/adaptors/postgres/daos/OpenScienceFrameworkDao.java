@@ -1,8 +1,6 @@
 package io.cos.cas.adaptors.postgres.daos;
 
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
+import io.cos.cas.adaptors.postgres.models.*;
 
 public interface OpenScienceFrameworkDao {
 
@@ -12,4 +10,7 @@ public interface OpenScienceFrameworkDao {
 
     OpenScienceFrameworkInstitution findOneInstitutionByProviderId(String providerId);
 
+    OpenScienceFrameworkApiOauth2Scope findOneScopeByName(String name);
+
+    OpenScienceFrameworkApiOauth2PersonalAccessToken findOnePersonalAccessTokenByTokenId(String tokenId);
 }

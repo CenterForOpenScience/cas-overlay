@@ -64,6 +64,8 @@
     <bean id="openScienceFrameworkUser" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser" />
     <bean id="openScienceFrameworkTimeBasedOneTimePassword" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword" />
     <bean id="openScienceFrameworkInstitution" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution" />
+    <bean id="openScienceFrameworkApiOauth2Scope" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope" />
+    <bean id="openScienceFrameworkApiOauth2PersonalAccessToken" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken" />
     <bean id="openScienceFrameworkDao" class="io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl" />
 
     <util:list id="packagesToScan">
