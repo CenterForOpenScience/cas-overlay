@@ -75,8 +75,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     public OpenScienceFrameworkAuthenticationHandler() {}
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-    }
+    public void afterPropertiesSet() throws Exception {}
 
     @Override
     protected final HandlerResult doAuthentication(final Credential credential)

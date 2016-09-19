@@ -38,16 +38,16 @@ import java.util.HashSet;
  * @author Longze Chen
  * @since 4.1.0
  */
-public class OpenScienceFrameworkApiOauth2PersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler
+public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler
         implements InitializingBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkApiOauth2PersonalAccessTokenHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkPersonalAccessTokenHandler.class);
 
     @NotNull
     private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
 
     /** Default Constructor */
-    public OpenScienceFrameworkApiOauth2PersonalAccessTokenHandler() {}
+    public OpenScienceFrameworkPersonalAccessTokenHandler() {}
 
     public void setOpenScienceFrameworkDao(OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
         this.openScienceFrameworkDao = openScienceFrameworkDao;

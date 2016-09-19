@@ -31,7 +31,7 @@
           c:scopeHandler-ref="openScienceFrameworkScopeHandler" />
           <!--c:casScopeHandler-ref="casScopeHandler" />-->
 
-    <bean id="openScienceFrameworkScopeHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkApiOauth2ScopeHandler"
+    <bean id="openScienceFrameworkScopeHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkScopeHandler"
           p:openScienceFrameworkDao-ref="openScienceFrameworkDao" />
 
     <!--

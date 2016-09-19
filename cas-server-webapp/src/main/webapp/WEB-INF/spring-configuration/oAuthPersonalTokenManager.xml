@@ -31,7 +31,7 @@
         c:personalAccessTokenHandler-ref="openScienceFrameworkPersonalAccessTokenHandler" />
 
 
-    <bean id="openScienceFrameworkPersonalAccessTokenHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkApiOauth2PersonalAccessTokenHandler"
+    <bean id="openScienceFrameworkPersonalAccessTokenHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkPersonalAccessTokenHandler"
           p:openScienceFrameworkDao-ref="openScienceFrameworkDao" />
 
     <!--

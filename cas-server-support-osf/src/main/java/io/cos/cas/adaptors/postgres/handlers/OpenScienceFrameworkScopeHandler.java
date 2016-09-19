@@ -36,15 +36,15 @@ import javax.validation.constraints.NotNull;
  * @author Longze Chen
  * @since 4.1.0
  */
-public class OpenScienceFrameworkApiOauth2ScopeHandler extends AbstractScopeHandler implements InitializingBean {
+public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler implements InitializingBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkApiOauth2ScopeHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpenScienceFrameworkScopeHandler.class);
 
     @NotNull
     private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
 
     /** Default Constructor */
-    public OpenScienceFrameworkApiOauth2ScopeHandler() {}
+    public OpenScienceFrameworkScopeHandler() {}
 
     public void setOpenScienceFrameworkDao(OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
         this.openScienceFrameworkDao = openScienceFrameworkDao;
