@@ -48,8 +48,8 @@
         </property>
     </bean>
 
-    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.mongodb.OpenScienceFrameworkAuthenticationHandler"
-          p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
+    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkAuthenticationHandler"
+        p:openScienceFrameworkDao-ref="openScienceFrameworkDao"/>
 
     <bean id="oAuthAuthenticationHandler" class="org.jasig.cas.support.oauth.authentication.handler.support.OAuthCredentialsAuthenticationHandler" />
 
