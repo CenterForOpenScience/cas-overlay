@@ -68,7 +68,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("username", username);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // to-do: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -83,7 +83,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("ownerId", ownerId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // to-do: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -98,7 +98,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("providerId", providerId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // to-do: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -113,7 +113,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("name", name);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // to-do: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -128,7 +128,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("tokenId", tokenId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // to-do: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }

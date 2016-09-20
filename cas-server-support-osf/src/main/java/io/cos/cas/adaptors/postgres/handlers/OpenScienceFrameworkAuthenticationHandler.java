@@ -125,6 +125,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
+        // TODO: handle the case user provide non-username email
         final OpenScienceFrameworkUser user = openScienceFrameworkDao.findOneUserByUsername(username);
 
         if (user == null) {
@@ -154,11 +155,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                 && timeBasedOneTimePassword.getTotpSecret() != null
                 && timeBasedOneTimePassword.isConfirmed()
                 && !timeBasedOneTimePassword.isDeleted()) {
-            // redirect to `casOtpLoginView`
+            // if no one time password is provided in credential, redirect to `casOtpLoginView`
             if (oneTimePassword == null) {
                 throw new OneTimePasswordRequiredException("Time-based One Time Password required");
             }
-
+            // verify one time password
             try {
                 final Long longOneTimePassword = Long.valueOf(oneTimePassword);
                 if (!TotpUtils.checkCode(timeBasedOneTimePassword.getTotpSecretBase32(), longOneTimePassword, TOTP_INTERVAL, TOTP_WINDOW)) {
@@ -169,7 +170,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             }
         }
 
-        // Validate basic information such as username/password and a potential one time password
+        // Validate basic information such as username, password or verification key, and a potential one time password
         // before providing any indication of account status.
         if (!user.isRegistered()) {
             throw new LoginNotAllowedException(username + " is not registered");
@@ -191,6 +192,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         attributes.put("username", user.getUsername());
         attributes.put("givenName", user.getGivenName());
         attributes.put("familyName", user.getFamilyName());
+        // TODO: use user's guid instead, requires guid model
         return createHandlerResult(credential, this.principalFactory.createPrincipal(user.getUsername(), attributes), null);
     }
 

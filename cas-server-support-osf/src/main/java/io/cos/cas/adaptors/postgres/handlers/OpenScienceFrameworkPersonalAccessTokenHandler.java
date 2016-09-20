@@ -63,11 +63,9 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
     @Override
     public PersonalAccessToken getToken(final String tokenId) {
         final OpenScienceFrameworkApiOauth2PersonalAccessToken token = openScienceFrameworkDao.findOnePersonalAccessTokenByTokenId(tokenId);
-
         if (token == null || !token.isActive()) {
             return null;
         }
-
         final String scopes = token.getScopes() == null ? "" : token.getScopes();
         return new PersonalAccessToken(token.getTokenId(), token.getOwner().getUsername(), new HashSet<>(Arrays.asList(scopes.split(" "))));
     }

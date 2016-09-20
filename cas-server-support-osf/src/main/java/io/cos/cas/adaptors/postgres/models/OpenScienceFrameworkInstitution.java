@@ -27,6 +27,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+// TODO: map all institution fields
 /**
  * The Open Science Framework Institution.
  *

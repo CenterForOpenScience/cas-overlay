@@ -33,8 +33,9 @@
         http://www.springframework.org/schema/util
         http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop.xsd">
+        http://www.springframework.org/schema/aop/spring-aop.xsd" >
 
+    <!-- Default Data Source -->
     <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
           p:driverClass="${database.driverClass:org.hsqldb.jdbcDriver}"
           p:jdbcUrl="${database.url:jdbc:hsqldb:mem:cas-ticket-registry}"
@@ -52,20 +53,25 @@
           p:autoCommitOnClose="false"
           p:preferredTestQuery="${database.pool.connectionHealthQuery:select 1}" />
 
+    <!-- OSF Data Source -->
     <bean id="dataSourceOsf" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"
           p:driverClass="${osf.database.driverClass}"
           p:jdbcUrl="${osf.database.url}"
           p:user="${osf.database.user}"
           p:password="${osf.database.password}" />
 
+    <!-- If no persistence unit name is specified for entity manager, use default data source -->
     <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"
           p:defaultPersistenceUnitName="persistenceUnitCas" />
 
+    <!-- OSF Entities -->
     <bean id="openScienceFrameworkUser" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser" />
     <bean id="openScienceFrameworkTimeBasedOneTimePassword" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword" />
     <bean id="openScienceFrameworkInstitution" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution" />
     <bean id="openScienceFrameworkApiOauth2Scope" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope" />
     <bean id="openScienceFrameworkApiOauth2PersonalAccessToken" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken" />
+
+    <!-- OSF DAOS -->
     <bean id="openScienceFrameworkDao" class="io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl" />
 
     <util:list id="packagesToScan">
@@ -107,17 +113,16 @@
             <props>
                 <prop key="hibernate.dialect">${database.hibernate.dialect:org.hibernate.dialect.HSQLDialect}</prop>
                 <prop key="hibernate.hbm2ddl.auto">validate</prop>
-                <prop key="hibernate.default_schema">public</prop>
                 <prop key="hibernate.jdbc.batch_size">${database.hibernate.batchSize:1}</prop>
             </props>
         </property>
     </bean>
 
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager"
-          p:entityManagerFactory-ref="entityManagerFactory" />
+        p:entityManagerFactory-ref="entityManagerFactory" />
 
     <bean id="transactionManagerOsf" class="org.springframework.orm.jpa.JpaTransactionManager"
-          p:entityManagerFactory-ref="entityManagerFactoryOsf" />
+        p:entityManagerFactory-ref="entityManagerFactoryOsf" />
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
 

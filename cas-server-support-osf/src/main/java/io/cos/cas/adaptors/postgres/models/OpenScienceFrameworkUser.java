@@ -75,12 +75,12 @@ public final class OpenScienceFrameworkUser {
     @Column(name = "is_claimed", nullable = false)
     private Boolean claimed;
 
-    // to-do: handle postgres `timestamp with time zone`
+    // TODO: handle postgres `timestamp with time zone`
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_confirmed")
     private Date dateConfirmed;
 
-    // to-do: handle postgres `timestamp with time zone`
+    // TODO: handle postgres `timestamp with time zone`
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_disabled")
     private Date dateDisabled;

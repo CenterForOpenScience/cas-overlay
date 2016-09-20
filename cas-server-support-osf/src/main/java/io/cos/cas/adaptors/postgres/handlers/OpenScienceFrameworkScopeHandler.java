@@ -59,11 +59,9 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
     @Override
     public Scope getScope(final String name) {
         final OpenScienceFrameworkApiOauth2Scope scope = openScienceFrameworkDao.findOneScopeByName(name.toLowerCase());
-
         if (scope == null || !scope.isActive()) {
             return null;
         }
-
         return new Scope(scope.getName(), scope.getDescription(), Boolean.FALSE);
     }
 }

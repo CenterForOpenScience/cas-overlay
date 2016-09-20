@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 
-
 /**
  * The Open Science Framework Terminate Session Action.
  *
@@ -129,7 +128,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
 
         // if logged in through institutions, redirect to institution logout endpoint
         if (remotePrincipal && institutionId != null) {
-            final String institutionLogoutUrl = this.institutionHandler.findInstitutionLogoutUrlByProviderId(institutionId);
+            final String institutionLogoutUrl = institutionHandler.findInstitutionLogoutUrlByProviderId(institutionId);
             if (institutionLogoutUrl == null) {
                 logger.warn("Institution {} does not have a dedicated logout url, use default logout redirection instead", institutionId);
             } else {

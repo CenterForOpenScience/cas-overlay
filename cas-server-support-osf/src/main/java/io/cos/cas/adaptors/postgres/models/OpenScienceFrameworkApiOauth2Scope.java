@@ -75,6 +75,6 @@ public class OpenScienceFrameworkApiOauth2Scope {
 
     @Override
     public String toString() {
-        return String.format("OpenScienceFrameworkScope [id=%s, name=%s]", this.id, this.name);
+        return String.format("OpenScienceFrameworkScope [id=%s, name=%s]", id, name);
     }
 }
