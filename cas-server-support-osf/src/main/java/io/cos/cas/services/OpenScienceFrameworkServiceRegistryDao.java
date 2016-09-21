@@ -18,19 +18,15 @@
  */
 package io.cos.cas.services;
 
+import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-
-import javax.validation.constraints.NotNull;
-import java.math.BigInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+//import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,100 +37,28 @@ import java.util.concurrent.ConcurrentHashMap;
  * Open Science Framework at the Spring Application Context initialization time.
  *
  * @author Michael Haselton
+ * @author Longze Chen
  * @since 4.1.0
  */
 public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDao {
 
-    private static final int HEX_RADIX = 16;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkServiceRegistryDao.class);
 
-    @NotNull
-    private MongoOperations mongoTemplate;
+    // private static final int HEX_RADIX = 16;
 
-    /**
-     * Map of service ID to registered service.
-     */
+    /** Map of service ID to registered service. */
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
-    @Document(collection="apioauth2application")
-    private static class OAuth {
-        @Id
-        private String id;
-        private String name;
-        private String description;
-        @Field("callback_url")
-        private String callbackUrl;
-        @Field("client_id")
-        private String clientId;
-        @Field("client_secret")
-        private String clientSecret;
-        @Field("is_active")
-        private Boolean isActive;
-
-        public String getId() {
-            return this.id;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public void setName(final String name) {
-            this.name = name;
-        }
-
-        public String getDescription() {
-            return this.description;
-        }
-
-        public void setDescription(final String description) {
-            this.description = description;
-        }
-
-        public String getCallbackUrl() {
-            return this.callbackUrl;
-        }
-
-        public void setCallbackUrl(final String callbackUrl) {
-            this.callbackUrl = callbackUrl;
-        }
-
-        public String getClientId() {
-            return this.clientId;
-        }
-
-        public void setClientId(final String clientId) {
-            this.clientId = clientId;
-        }
-
-        public String getClientSecret() {
-            return this.clientSecret;
-        }
-
-        public void setClientSecret(final String clientSecret) {
-            this.clientSecret = clientSecret;
-        }
-
-        public Boolean getIsActive() {
-            return this.isActive;
-        }
-
-        public void setIsActive(final Boolean isActive) {
-            this.isActive = isActive;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("OAuth [id=%s, name=%s]", this.id, this.name);
-        }
-    }
+    /** The Open Science Framework Data Access Model. */
+    private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
 
     /**
      * Instantiates a new Open Science Framework service registry dao.
      *
-     * @param mongoTemplate the mongo template
+     * @param openScienceFrameworkDao the open science framework data access object
      */
-    public OpenScienceFrameworkServiceRegistryDao(final MongoOperations mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+    public OpenScienceFrameworkServiceRegistryDao(final OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
+        this.openScienceFrameworkDao = openScienceFrameworkDao;
     }
 
     @Override
@@ -149,9 +73,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
 
     @Override
     public final synchronized List<RegisteredService> load() {
-        final List<OAuth> oAuthServices = this.mongoTemplate.find(new Query(Criteria
-                .where("isActive").is(Boolean.TRUE)
-        ), OAuth.class);
+        final List<OpenScienceFrameworkApiOauth2Application> oAuthServices = openScienceFrameworkDao.findOauthApplications();
 
         final ReturnAllowedAttributeReleasePolicy attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
         final ArrayList<String> allowedAttributes = new ArrayList<>();
@@ -162,9 +84,11 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
 
         final Map<Long, RegisteredService> temp = new ConcurrentHashMap<>();
-        for (final OAuth oAuthService : oAuthServices) {
+        for (final OpenScienceFrameworkApiOauth2Application oAuthService : oAuthServices) {
             final OAuthRegisteredService service = new OAuthRegisteredService();
-            service.setId(new BigInteger(oAuthService.getId(), HEX_RADIX).longValue());
+            // TODO: add guid model or just use django id?
+            // service.setId(new BigInteger(oAuthService.getId(), HEX_RADIX).longValue());
+            service.setId(oAuthService.getId());
             service.setName(oAuthService.getName());
             service.setDescription(oAuthService.getDescription());
             service.setServiceId(oAuthService.getCallbackUrl());
