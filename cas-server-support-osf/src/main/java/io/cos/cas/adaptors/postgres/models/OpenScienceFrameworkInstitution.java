@@ -27,7 +27,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-// TODO: map all institution fields
 /**
  * The Open Science Framework Institution.
  *
@@ -50,9 +49,6 @@ public class OpenScienceFrameworkInstitution {
     @Column(name = "provider_id")
     private String providerId;
 
-    @Column(name = "login_url")
-    private String loginUrl;
-
     @Column(name = "logout_url")
     private String logoutUrl;
 
@@ -65,14 +61,6 @@ public class OpenScienceFrameworkInstitution {
 
     public String getName() {
         return name;
-    }
-
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public String getLoginUrl() {
-        return loginUrl;
     }
 
     public String getLogoutUrl() {

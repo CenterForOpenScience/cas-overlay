@@ -7,14 +7,16 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import java.util.Date;
 import java.util.UUID;
 
+/**
+ * The OpenScience Framework API OAuth2 Application.
+ *
+ * @author Micael Haselton
+ * @author Longze Chen
+ * @since 4.1.0
+ */
 @Entity
 @Table(name = "osf_models_apioauth2application")
 public class OpenScienceFrameworkApiOauth2Application {
@@ -41,20 +43,8 @@ public class OpenScienceFrameworkApiOauth2Application {
     @Column(name = "callback_url", nullable = false)
     private String callbackUrl;
 
-    @Column(name = "home_url", nullable = false)
-    private String homeUrl;
-
-    // TODO: handle postgres `timestamp with time zone`
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date_created", nullable = false)
-    private Date dateDreated;
-
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
-
-    @OneToOne
-    @JoinColumn(name = "owner_id")
-    private OpenScienceFrameworkUser owner;
 
     public Integer getId() {
         return id;
@@ -68,7 +58,7 @@ public class OpenScienceFrameworkApiOauth2Application {
         return description;
     }
 
-    // convert uuid to string
+    // getter for clientId returns String instead of UUID
     public String getClientId() {
         return clientId.toString();
     }
@@ -81,24 +71,8 @@ public class OpenScienceFrameworkApiOauth2Application {
         return callbackUrl;
     }
 
-    public String getHomeUrl() {
-        return homeUrl;
-    }
-
-    public Date getDateDreated() {
-        return dateDreated;
-    }
-
-    public Boolean isActive() {
-        return isActive;
-    }
-
-    public OpenScienceFrameworkUser getOwner() {
-        return owner;
-    }
-
     @Override
     public String toString() {
-        return String.format("OAuth [id=%s, name=%s]", id, name);
+        return String.format("OpenScienceFrameworkApiOauth2Application [id=%s, name=%s]", id, name);
     }
 }

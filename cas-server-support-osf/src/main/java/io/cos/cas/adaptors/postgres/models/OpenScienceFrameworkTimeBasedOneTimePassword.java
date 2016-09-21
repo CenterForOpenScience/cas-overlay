@@ -58,9 +58,6 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     @Column(name = "totp_secret", nullable = false)
     private String totpSecret;
 
-    @Column(name = "totp_drift", nullable = false)
-    private Integer totpDrift;
-
     @Column(name = "is_confirmed", nullable = false)
     private Boolean confirmed;
 
@@ -78,16 +75,8 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
         return version;
     }
 
-    public OpenScienceFrameworkUser getOwner() {
-        return owner;
-    }
-
     public String getTotpSecret() {
         return totpSecret;
-    }
-
-    public Integer getTotpDrift() {
-        return totpDrift;
     }
 
     public Boolean isConfirmed() {

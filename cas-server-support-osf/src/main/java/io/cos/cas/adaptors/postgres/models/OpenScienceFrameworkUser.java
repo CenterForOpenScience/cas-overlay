@@ -43,7 +43,6 @@ import java.util.Date;
 @Table(name = "osf_models_osfuser")
 public final class OpenScienceFrameworkUser {
 
-    /** The logger instance. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkUser.class);
 
     @Id
@@ -75,12 +74,12 @@ public final class OpenScienceFrameworkUser {
     @Column(name = "is_claimed", nullable = false)
     private Boolean claimed;
 
-    // TODO: handle postgres `timestamp with time zone`
+    // TO-DO: handle postgres `timestamp with time zone`
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_confirmed")
     private Date dateConfirmed;
 
-    // TODO: handle postgres `timestamp with time zone`
+    // TO-DO: handle postgres `timestamp with time zone`
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_disabled")
     private Date dateDisabled;

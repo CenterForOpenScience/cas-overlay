@@ -125,7 +125,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
-        // TODO: handle the case user provide non-username email
+        // TO-DO: handle the case user provide non-username email
         final OpenScienceFrameworkUser user = openScienceFrameworkDao.findOneUserByUsername(username);
 
         if (user == null) {
@@ -192,7 +192,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         attributes.put("username", user.getUsername());
         attributes.put("givenName", user.getGivenName());
         attributes.put("familyName", user.getFamilyName());
-        // TODO: use user's guid instead, requires guid model
+
         return createHandlerResult(credential, this.principalFactory.createPrincipal(user.getUsername(), attributes), null);
     }
 

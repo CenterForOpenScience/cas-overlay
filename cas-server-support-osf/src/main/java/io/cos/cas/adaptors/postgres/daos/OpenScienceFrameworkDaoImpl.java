@@ -69,7 +69,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("username", username);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TODO: more specific exception handling
+            // TO-DO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -84,7 +84,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("ownerId", ownerId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TODO: more specific exception handling
+            // TO-DO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -99,7 +99,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("providerId", providerId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TODO: more specific exception handling
+            // TO-DO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -114,7 +114,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("name", name);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TODO: more specific exception handling
+            // TO-DO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -129,7 +129,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("tokenId", tokenId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TODO: more specific exception handling
+            // TO-DO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -139,12 +139,11 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     public List<OpenScienceFrameworkApiOauth2Application> findOauthApplications() {
         try {
             final TypedQuery query = entityManager.createQuery(
-                    "select a from OpenScienceFrameworkApiOauth2Application a where a.isActive = :isActive",
+                    "select a from OpenScienceFrameworkApiOauth2Application a where a.isActive = true",
                     OpenScienceFrameworkApiOauth2Application.class);
-            query.setParameter("isActive", true);
             return query.getResultList();
         } catch (final PersistenceException e) {
-            // TODO: more specific exception handling
+            // TO-DO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }

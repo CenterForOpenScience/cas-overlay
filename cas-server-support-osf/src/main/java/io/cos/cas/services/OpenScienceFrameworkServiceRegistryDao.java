@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.cos.cas.services;
 
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
@@ -26,7 +27,7 @@ import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import java.math.BigInteger;
+// import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,17 +77,18 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
         final List<OpenScienceFrameworkApiOauth2Application> oAuthServices = openScienceFrameworkDao.findOauthApplications();
 
         final ReturnAllowedAttributeReleasePolicy attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
+        final Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
         final ArrayList<String> allowedAttributes = new ArrayList<>();
-        // e.g. global attribute release
-        // allowedAttributes.add("username");
-        // allowedAttributes.add("givenName");
-        // allowedAttributes.add("familyName");
+        /**
+         * e.g. global attribute release
+         * allowedAttributes.add("username");
+         * allowedAttributes.add("givenName");
+         * allowedAttributes.add("familyName");
+         */
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
-
-        final Map<Long, RegisteredService> temp = new ConcurrentHashMap<>();
         for (final OpenScienceFrameworkApiOauth2Application oAuthService : oAuthServices) {
             final OAuthRegisteredService service = new OAuthRegisteredService();
-            // TODO: add guid model or just use django id?
+            // TO-DO: add guid model or just use django id?
             // service.setId(new BigInteger(oAuthService.getId(), HEX_RADIX).longValue());
             service.setId(oAuthService.getId());
             service.setName(oAuthService.getName());
@@ -96,9 +98,9 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             service.setClientId(oAuthService.getClientId());
             service.setClientSecret(oAuthService.getClientSecret());
             service.setAttributeReleasePolicy(attributeReleasePolicy);
-            temp.put(service.getId(), service);
+            serviceMap.put(service.getId(), service);
         }
-        this.serviceMap = temp;
+        this.serviceMap = serviceMap;
         return new ArrayList<>(this.serviceMap.values());
     }
 

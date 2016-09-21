@@ -79,7 +79,7 @@ public interface OpenScienceFrameworkDao {
     /**
      * Find a list of active oauth applications.
      *
-     * @return List<OpenScienceFrameworkApiOauth2Application> or null
+     * @return OpenScienceFrameworkApiOauth2Application List or null
      */
     List<OpenScienceFrameworkApiOauth2Application> findOauthApplications();
 }
