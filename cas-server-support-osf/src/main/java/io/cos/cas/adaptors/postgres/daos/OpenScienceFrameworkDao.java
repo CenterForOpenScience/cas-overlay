@@ -19,11 +19,14 @@
 
 package io.cos.cas.adaptors.postgres.daos;
 
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
+
+import java.util.List;
 
 /**
  * The Open Science Framework Data Access Object Interface.
@@ -72,4 +75,11 @@ public interface OpenScienceFrameworkDao {
      * @return OpenScienceFrameworkApiOauth2PersonalAccessToken or null
      */
     OpenScienceFrameworkApiOauth2PersonalAccessToken findOnePersonalAccessTokenByTokenId(final String tokenId);
+
+    /**
+     * Find a list of active oauth applications.
+     *
+     * @return List<OpenScienceFrameworkApiOauth2Application> or null
+     */
+    List<OpenScienceFrameworkApiOauth2Application> findOauthApplications();
 }

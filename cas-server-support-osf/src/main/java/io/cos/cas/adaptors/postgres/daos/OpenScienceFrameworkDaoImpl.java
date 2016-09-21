@@ -19,6 +19,7 @@
 
 package io.cos.cas.adaptors.postgres.daos;
 
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
@@ -32,6 +33,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * The Open Science Framework Data Access Object Implementation.
@@ -41,7 +43,6 @@ import javax.validation.constraints.NotNull;
  */
 public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
 
-    /** The logger instance. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkDaoImpl.class);
 
     /** The entity manager for persistenceUnitOsf. */
@@ -127,6 +128,21 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
                     OpenScienceFrameworkApiOauth2PersonalAccessToken.class);
             query.setParameter("tokenId", tokenId);
             return query.getSingleResult();
+        } catch (final PersistenceException e) {
+            // TODO: more specific exception handling
+            LOGGER.error(e.toString());
+            return null;
+        }
+    }
+
+    @Override
+    public List<OpenScienceFrameworkApiOauth2Application> findOauthApplications() {
+        try {
+            final TypedQuery query = entityManager.createQuery(
+                    "select a from OpenScienceFrameworkApiOauth2Application a where a.isActive = :isActive",
+                    OpenScienceFrameworkApiOauth2Application.class);
+            query.setParameter("isActive", true);
+            return query.getResultList();
         } catch (final PersistenceException e) {
             // TODO: more specific exception handling
             LOGGER.error(e.toString());
