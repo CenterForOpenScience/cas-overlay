@@ -30,6 +30,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -74,12 +75,10 @@ public final class OpenScienceFrameworkUser {
     @Column(name = "is_claimed", nullable = false)
     private Boolean claimed;
 
-    // TO-DO: handle postgres `timestamp with time zone`
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_confirmed")
     private Date dateConfirmed;
 
-    // TO-DO: handle postgres `timestamp with time zone`
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_disabled")
     private Date dateDisabled;
