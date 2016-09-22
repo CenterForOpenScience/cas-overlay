@@ -193,7 +193,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         attributes.put("givenName", user.getGivenName());
         attributes.put("familyName", user.getFamilyName());
 
-        return createHandlerResult(credential, this.principalFactory.createPrincipal(user.getUsername(), attributes), null);
+        return createHandlerResult(credential, this.principalFactory.createPrincipal(user.getId().toString(), attributes), null);
     }
 
     /**
