@@ -139,10 +139,18 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         } else if (verificationKey != null && verificationKey.equals(user.getVerificationKey())) {
             // verification key can substitute as a temporary password.
             validPassphrase = Boolean.TRUE;
-        } else if (BCrypt.checkpw(plainTextPassword, user.getPassword())) {
-            //  valid password
-            validPassphrase = Boolean.TRUE;
+        } else {
+            try {
+                String passwordHash = user.getPassword().split("bcrypt\\$")[1];
+                StringBuilder builder = new StringBuilder(passwordHash);
+                builder.setCharAt(2, 'a');
+                passwordHash = builder.toString();
+                validPassphrase = BCrypt.checkpw(plainTextPassword, passwordHash);
+            } catch (Exception e) {
+                logger.error(String.format("Invalid Password:%s", e.toString()));
+            }
         }
+
         if (!validPassphrase) {
             throw new FailedLoginException(username + " invalid verification key or password");
         }
