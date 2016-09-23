@@ -19,7 +19,9 @@
 
 package io.cos.cas.adaptors.postgres.handlers;
 
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -141,11 +143,25 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             validPassphrase = Boolean.TRUE;
         } else {
             try {
-                String passwordHash = user.getPassword().split("bcrypt\\$")[1];
-                StringBuilder builder = new StringBuilder(passwordHash);
+                String passwordHash = user.getPassword();
+                String password = plainTextPassword;
+                StringBuilder builder = null;
+                if (passwordHash.startsWith("bcrypt$")) {
+                    passwordHash = passwordHash.split("bcrypt\\$")[1];
+                } else if(passwordHash.startsWith("bcrypt_sha256$")) {
+                    passwordHash = passwordHash.split("bcrypt_sha256\\$")[1];
+                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                    byte[] hashedPlainTextPassword = digest.digest(plainTextPassword.getBytes(StandardCharsets.UTF_8));
+                    builder = new StringBuilder();
+                    for (byte b : hashedPlainTextPassword) {
+                        builder.append(String.format("%02x", b));
+                    }
+                    password = builder.toString();
+                }
+                builder = new StringBuilder(passwordHash);
                 builder.setCharAt(2, 'a');
                 passwordHash = builder.toString();
-                validPassphrase = BCrypt.checkpw(plainTextPassword, passwordHash);
+                validPassphrase = BCrypt.checkpw(password, passwordHash);
             } catch (Exception e) {
                 logger.error(String.format("Invalid Password:%s", e.toString()));
             }
