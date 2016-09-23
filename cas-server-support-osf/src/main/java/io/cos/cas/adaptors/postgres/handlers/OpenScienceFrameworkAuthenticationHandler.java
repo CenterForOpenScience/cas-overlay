@@ -45,6 +45,7 @@ import org.jasig.cas.authentication.handler.support.AbstractPreAndPostProcessing
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.data.mongodb.repository.query.StringBasedMongoQuery;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import javax.security.auth.login.AccountNotFoundException;
@@ -135,36 +136,15 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         Boolean validPassphrase = Boolean.FALSE;
+
         if (credential.isRemotePrincipal()) {
             // remote principals are already verified by a third party (in our case a third party SAML authentication).
             validPassphrase = Boolean.TRUE;
         } else if (verificationKey != null && verificationKey.equals(user.getVerificationKey())) {
             // verification key can substitute as a temporary password.
             validPassphrase = Boolean.TRUE;
-        } else {
-            try {
-                String passwordHash = user.getPassword();
-                String password = plainTextPassword;
-                StringBuilder builder = null;
-                if (passwordHash.startsWith("bcrypt$")) {
-                    passwordHash = passwordHash.split("bcrypt\\$")[1];
-                } else if(passwordHash.startsWith("bcrypt_sha256$")) {
-                    passwordHash = passwordHash.split("bcrypt_sha256\\$")[1];
-                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                    byte[] hashedPlainTextPassword = digest.digest(plainTextPassword.getBytes(StandardCharsets.UTF_8));
-                    builder = new StringBuilder();
-                    for (byte b : hashedPlainTextPassword) {
-                        builder.append(String.format("%02x", b));
-                    }
-                    password = builder.toString();
-                }
-                builder = new StringBuilder(passwordHash);
-                builder.setCharAt(2, 'a');
-                passwordHash = builder.toString();
-                validPassphrase = BCrypt.checkpw(password, passwordHash);
-            } catch (Exception e) {
-                logger.error(String.format("Invalid Password:%s", e.toString()));
-            }
+        } else if (verifyPassword(plainTextPassword, user.getPassword())) {
+            validPassphrase = Boolean.TRUE;
         }
 
         if (!validPassphrase) {
@@ -227,5 +207,55 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     @Override
     public boolean supports(final Credential credential) {
         return credential instanceof OpenScienceFrameworkCredential;
+    }
+
+    private boolean verifyPassword(String plainTextPassword, String userPasswordHash) {
+
+        String password = plainTextPassword;
+        String passwordHash = userPasswordHash;
+
+        try {
+            if (userPasswordHash.startsWith("bcrypt$")) {
+                //  'django.contrib.auth.hashers.BCryptPasswordHasher'
+                passwordHash = updateBCryptHashIdentifier(userPasswordHash.split("bcrypt\\$")[1]);
+            } else if(userPasswordHash.startsWith("bcrypt_sha256$")) {
+                //  'django.contrib.auth.hashers.BCryptSHA256PasswordHasher'
+                passwordHash = updateBCryptHashIdentifier(userPasswordHash.split("bcrypt_sha256\\$")[1]);
+                password = sha256HashPassword(plainTextPassword);
+            }
+            if (password != null && passwordHash != null) {
+                return BCrypt.checkpw(password, passwordHash);
+            }
+            return false;
+        } catch (Exception e) {
+            logger.error(String.format("Invalid Password: %s", e.toString()));
+            return false;
+        }
+    }
+
+    private String sha256HashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] sha256HashedPassword = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            StringBuilder builder = new StringBuilder();
+            for (byte b : sha256HashedPassword) {
+                builder.append(String.format("%02x", b));
+            }
+            return builder.toString();
+        } catch (Exception e) {
+            logger.error(String.format("Message Digest Error: %s", e.toString()));
+            return null;
+        }
+    }
+
+    private String updateBCryptHashIdentifier(String passwordHash) {
+        try {
+            StringBuilder builder = new StringBuilder(passwordHash);
+            builder.setCharAt(2, 'a');
+            return builder.toString();
+        } catch (Exception e) {
+            logger.error(String.format("Invalid BCrypt Hash Identifier: %s", e.toString()));
+            return null;
+        }
     }
 }
