@@ -262,17 +262,20 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
     /**
      * Update BCrypt Hash Identifier for Compatibility.
-     * Spring's BCrypt is not vulnerable to OpenBSD's `u_int8_t` overflow issue. However, it only recognize `$2a` for
-     * password hash. This will replace `$2b` generate with `$2a`. This is secure.
+     * Spring's BCrypt is not vulnerable to OpenBSD's `u_int8_t` overflow issue. However, it only recognize `$2a$` for
+     * password hash. This will replace `$2b$` or `$2y$` with `$2a`. This is secure. `$2$` is no affected.
      *
      * @param passwordHash the password hash by BCrypt or BCryptSHA256
      * @return the spring compatible hash in String or null
      */
     private String updateBCryptHashIdentifier(final String passwordHash) {
         try {
-            final StringBuilder builder = new StringBuilder(passwordHash);
-            builder.setCharAt(2, 'a');
-            return builder.toString();
+            if (passwordHash.charAt(2) != '$') {
+                final StringBuilder builder = new StringBuilder(passwordHash);
+                builder.setCharAt(2, 'a');
+                return builder.toString();
+            }
+            return passwordHash;
         } catch (final Exception e) {
             // TO-DO: more specific exception handling
             logger.error(String.format("Invalid BCrypt Hash Identifier: %s", e.toString()));
