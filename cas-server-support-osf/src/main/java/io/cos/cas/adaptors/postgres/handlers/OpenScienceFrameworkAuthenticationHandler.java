@@ -45,7 +45,6 @@ import org.jasig.cas.authentication.handler.support.AbstractPreAndPostProcessing
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.data.mongodb.repository.query.StringBasedMongoQuery;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import javax.security.auth.login.AccountNotFoundException;
@@ -209,7 +208,14 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         return credential instanceof OpenScienceFrameworkCredential;
     }
 
-    private boolean verifyPassword(String plainTextPassword, String userPasswordHash) {
+    /**
+     * Verify Password.
+     *
+     * @param plainTextPassword the plain text password provided by user
+     * @param userPasswordHash the password hash stored in database
+     * @return True if verified, False otherwise
+     */
+    private boolean verifyPassword(final String plainTextPassword, final String userPasswordHash) {
 
         String password = plainTextPassword;
         String passwordHash = userPasswordHash;
@@ -217,43 +223,58 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         try {
             if (userPasswordHash.startsWith("bcrypt$")) {
                 //  'django.contrib.auth.hashers.BCryptPasswordHasher'
-                passwordHash = updateBCryptHashIdentifier(userPasswordHash.split("bcrypt\\$")[1]);
+                passwordHash = userPasswordHash.split("bcrypt\\$")[1];
             } else if(userPasswordHash.startsWith("bcrypt_sha256$")) {
                 //  'django.contrib.auth.hashers.BCryptSHA256PasswordHasher'
-                passwordHash = updateBCryptHashIdentifier(userPasswordHash.split("bcrypt_sha256\\$")[1]);
+                passwordHash = userPasswordHash.split("bcrypt_sha256\\$")[1];
                 password = sha256HashPassword(plainTextPassword);
             }
-            if (password != null && passwordHash != null) {
-                return BCrypt.checkpw(password, passwordHash);
-            }
-            return false;
-        } catch (Exception e) {
-            logger.error(String.format("Invalid Password: %s", e.toString()));
+            passwordHash = updateBCryptHashIdentifier(passwordHash);
+            return password != null && passwordHash != null && BCrypt.checkpw(password, passwordHash);
+        } catch (final Exception e) {
+            // TO-DO: more specific exception handling
+            logger.error(String.format("CAS fails to verify password: %s", e.toString()));
             return false;
         }
     }
 
-    private String sha256HashPassword(String password) {
+    /**
+     * SHA256 hash the password, the first step for BCryptSHA256.
+     *
+     * @param password the plain text password provided by user
+     * @return the password hash in String or null
+     */
+    private String sha256HashPassword(final String password) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] sha256HashedPassword = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-            StringBuilder builder = new StringBuilder();
-            for (byte b : sha256HashedPassword) {
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] sha256HashedPassword = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            final StringBuilder builder = new StringBuilder();
+            for (final byte b : sha256HashedPassword) {
                 builder.append(String.format("%02x", b));
             }
             return builder.toString();
-        } catch (Exception e) {
+        } catch (final Exception e) {
+            // TO-DO: more specific exception handling
             logger.error(String.format("Message Digest Error: %s", e.toString()));
             return null;
         }
     }
 
-    private String updateBCryptHashIdentifier(String passwordHash) {
+    /**
+     * Update BCrypt Hash Identifier for Compatibility.
+     * Spring's BCrypt is not vulnerable to OpenBSD's `u_int8_t` overflow issue. However, it only recognize `$2a` for
+     * password hash. This will replace `$2b` generate with `$2a`. This is secure.
+     *
+     * @param passwordHash the password hash by BCrypt or BCryptSHA256
+     * @return the spring compatible hash in String or null
+     */
+    private String updateBCryptHashIdentifier(final String passwordHash) {
         try {
-            StringBuilder builder = new StringBuilder(passwordHash);
+            final StringBuilder builder = new StringBuilder(passwordHash);
             builder.setCharAt(2, 'a');
             return builder.toString();
-        } catch (Exception e) {
+        } catch (final Exception e) {
+            // TO-DO: more specific exception handling
             logger.error(String.format("Invalid BCrypt Hash Identifier: %s", e.toString()));
             return null;
         }
