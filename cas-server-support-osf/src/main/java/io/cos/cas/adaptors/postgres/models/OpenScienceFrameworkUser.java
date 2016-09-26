@@ -19,6 +19,7 @@
 
 package io.cos.cas.adaptors.postgres.models;
 
+import org.hibernate.annotations.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * The Open Science Framework User.
@@ -57,6 +60,10 @@ public final class OpenScienceFrameworkUser {
 
     @Column(name = "verification_key")
     private String verificationKey;
+
+    @Type(type="io.cos.cas.adaptors.postgres.types.StringList")
+    @Column(name = "emails")
+    private ArrayList<String> emails;
 
     @OneToOne
     @JoinColumn(name = "merged_by_id")
@@ -99,6 +106,10 @@ public final class OpenScienceFrameworkUser {
 
     public String getVerificationKey() {
         return verificationKey;
+    }
+
+    public List<String> getEmails() {
+        return emails;
     }
 
     public OpenScienceFrameworkUser getMergedBy() {

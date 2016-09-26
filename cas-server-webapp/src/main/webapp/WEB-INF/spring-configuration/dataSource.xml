@@ -72,6 +72,9 @@
     <bean id="openScienceFrameworkApiOauth2PersonalAccessToken" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken" />
     <bean id="openScienceFrameworkApiOauthApplication" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application" />
 
+    <!-- Custom User Types -->
+    <bean id="openScienceFrameWorkTypesStringList" class="io.cos.cas.adaptors.postgres.types.StringList" />
+
     <!-- OSF DAOS -->
     <bean id="openScienceFrameworkDao" class="io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl" />
 
