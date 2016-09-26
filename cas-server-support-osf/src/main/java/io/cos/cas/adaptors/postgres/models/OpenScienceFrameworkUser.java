@@ -62,7 +62,7 @@ public final class OpenScienceFrameworkUser {
     private String verificationKey;
 
     @Type(type="io.cos.cas.adaptors.postgres.types.StringList")
-    @Column(name = "emails")
+    @Column(name = "emails", columnDefinition = "varchar[]", nullable = false)
     private ArrayList<String> emails;
 
     @OneToOne

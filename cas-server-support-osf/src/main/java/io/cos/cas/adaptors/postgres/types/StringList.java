@@ -5,20 +5,14 @@ import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.sql.*;
+import java.util.*;
 
 public class StringList implements UserType {
 
     @Override
     public int[] sqlTypes() {
-        return new int[] {Types.VARCHAR};
+        return new int[] {Types.ARRAY};
     }
 
     @Override
@@ -28,8 +22,6 @@ public class StringList implements UserType {
 
     @Override
     public boolean equals(Object o1, Object o2) throws HibernateException {
-        // TO-DO: remove deprecated apache method
-        // return ObjectUtils.equals(var1, var2);
         return o1.equals(o2);
     }
 
@@ -45,29 +37,17 @@ public class StringList implements UserType {
     @Override
     public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor sessionImplementor, Object owner)
             throws HibernateException, SQLException {
-        List<String> list = null;
-        String nameVal = resultSet.getString(names[0]);
-        if (nameVal != null ) {
-            nameVal = nameVal.substring(1, nameVal.length()-1);
-            list = new ArrayList<>();
-            StringTokenizer tokenizer = new StringTokenizer(nameVal, ",");
-            while(tokenizer.hasMoreElements()) {
-                String val = (String) tokenizer.nextElement();
-                list.add(val);
-            }
+        Array array = resultSet.getArray(names[0]);
+        List<String> arrayList = new ArrayList<>();
+        if (!resultSet.wasNull() && array != null) {
+            arrayList = new ArrayList<>(Arrays.asList((String[]) array.getArray()));
         }
-        return list;
+        return arrayList;
     }
 
     @Override
     public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index, SessionImplementor sessionImplementor)
-            throws HibernateException, SQLException {
-        if (value == null) {
-            preparedStatement.setNull(index, Types.VARCHAR);
-        } else {
-            preparedStatement.setString(index, serialize((List<String>) value));
-        }
-    }
+            throws HibernateException, SQLException {}
 
     @Override
     public Object deepCopy(Object value) throws HibernateException {
@@ -92,19 +72,5 @@ public class StringList implements UserType {
     @Override
     public Object replace(Object original, Object target, Object owner) throws HibernateException {
         return original;
-    }
-
-    private String serialize(List<String> list) {
-        StringBuilder builder = new StringBuilder();
-        Iterator<String> iter = list.iterator();
-        builder.append("{");
-        while (iter.hasNext()) {
-            builder.append(iter.next());
-            if (iter.hasNext()) {
-                builder.append(",");
-            }
-        }
-        builder.append("}");
-        return builder.toString();
     }
 }

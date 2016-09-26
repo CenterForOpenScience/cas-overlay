@@ -33,6 +33,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,6 +74,28 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             LOGGER.error(e.toString());
             return null;
         }
+    }
+
+    public OpenScienceFrameworkUser findOneUserByEmail(final String email) {
+        List<OpenScienceFrameworkUser> userList = new ArrayList<>();
+        try {
+            final TypedQuery query = entityManager.createQuery(
+                    "select u from OpenScienceFrameworkUser",
+                    OpenScienceFrameworkUser.class);
+            userList = query.getResultList();
+        } catch (final Exception e) {
+            // TO-DO: more specific exception handling
+            LOGGER.error(e.toString());
+            return null;
+        }
+        for (OpenScienceFrameworkUser u : userList) {
+            for (String e: u.getEmails()) {
+                if (email.equals(e)) {
+                    return u;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
