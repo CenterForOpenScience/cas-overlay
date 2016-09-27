@@ -1,3 +1,22 @@
+/*
+ * Licensed to Jasig under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work
+ * for additional information regarding copyright ownership.
+ * Jasig licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License.  You may obtain a
+ * copy of the License at the following location:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.cos.cas.adaptors.postgres.types;
 
 import org.hibernate.HibernateException;
@@ -11,6 +30,12 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Types;
 
+/**
+ * The String Array User Type.
+ *
+ * @author Longze Chen
+ * @since 4.1.0
+ */
 public class StringArrayUserType implements UserType {
 
     @Override
@@ -24,12 +49,12 @@ public class StringArrayUserType implements UserType {
     }
 
     @Override
-    public boolean equals(Object o1, Object o2) throws HibernateException {
+    public boolean equals(final Object o1, final Object o2) throws HibernateException {
         return o1.equals(o2);
     }
 
     @Override
-    public int hashCode(Object o) throws HibernateException {
+    public int hashCode(final Object o) throws HibernateException {
         if (o != null) {
             return o.hashCode();
         } else {
@@ -38,9 +63,13 @@ public class StringArrayUserType implements UserType {
     }
 
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor sessionImplementor, Object owner)
-            throws HibernateException, SQLException {
-        Array array = resultSet.getArray(names[0]);
+    public Object nullSafeGet(
+            final ResultSet resultSet,
+            final String[] names,
+            final SessionImplementor sessionImplementor,
+            final Object owner
+        ) throws HibernateException, SQLException {
+        final Array array = resultSet.getArray(names[0]);
         if (!resultSet.wasNull() && array != null) {
             return array.getArray();
         }
@@ -48,11 +77,15 @@ public class StringArrayUserType implements UserType {
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index, SessionImplementor sessionImplementor)
-            throws HibernateException, SQLException {}
+    public void nullSafeSet(
+            final PreparedStatement preparedStatement,
+            final Object value,
+            final int index,
+            final SessionImplementor sessionImplementor
+        ) throws HibernateException, SQLException {}
 
     @Override
-    public Object deepCopy(Object value) throws HibernateException {
+    public Object deepCopy(final Object value) throws HibernateException {
         return value;
     }
 
@@ -62,17 +95,18 @@ public class StringArrayUserType implements UserType {
     }
 
     @Override
-    public Serializable disassemble(Object value) throws HibernateException {
+    public Serializable disassemble(final Object value) throws HibernateException {
         return (Serializable) value;
     }
 
     @Override
-    public Object assemble(Serializable cached, Object owner) throws HibernateException {
+    public Object assemble(final Serializable cached, final Object owner) throws HibernateException {
         return cached;
     }
 
     @Override
-    public Object replace(Object original, Object target, Object owner) throws HibernateException {
+    public Object replace(final Object original, final Object target, final Object owner)
+            throws HibernateException {
         return original;
     }
 }

@@ -106,10 +106,6 @@ public final class OpenScienceFrameworkUser {
         return verificationKey;
     }
 
-    public String[] getEmails() {
-        return emails;
-    }
-
     public OpenScienceFrameworkUser getMergedBy() {
         return mergedBy;
     }

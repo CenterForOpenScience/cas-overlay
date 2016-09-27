@@ -63,10 +63,10 @@ public interface OpenScienceFrameworkDao {
     /**
      * Find one institution by institution _id which is unique for the institution.
      *
-     * @param _id the institution _id
+     * @param id the institution _id (instId)
      * @return OpenScienceFrameworkInstitution or null
      */
-    OpenScienceFrameworkInstitution findOneInstitutionById(final String _id);
+    OpenScienceFrameworkInstitution findOneInstitutionById(final String id);
 
     /**
      * Find one scope by scope name.

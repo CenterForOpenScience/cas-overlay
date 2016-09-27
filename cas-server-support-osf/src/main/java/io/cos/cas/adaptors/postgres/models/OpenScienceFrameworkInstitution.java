@@ -44,7 +44,7 @@ public class OpenScienceFrameworkInstitution {
     private Integer id;
 
     @Column(name = "_id")
-    private String _id;
+    private String instId;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -69,7 +69,7 @@ public class OpenScienceFrameworkInstitution {
 
     @Override
     public String toString() {
-        return String.format("OpenScienceFrameworkInstitution [_id=%s, name=%s]", _id, name);
+        return String.format("OpenScienceFrameworkInstitution [_id=%s, name=%s]", instId, name);
     }
 
 }

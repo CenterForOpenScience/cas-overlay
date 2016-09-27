@@ -52,11 +52,11 @@ public class OpenScienceFrameworkInstitutionHandler {
     /**
      * Find the logout url for given institution identified by institution _id.
      *
-     * @param _id the institution _id
+     * @param id the institution _id
      * @return String or null
      */
-    public String findInstitutionLogoutUrlById(final String _id) {
-        final OpenScienceFrameworkInstitution institution = openScienceFrameworkDao.findOneInstitutionById(_id);
+    public String findInstitutionLogoutUrlById(final String id) {
+        final OpenScienceFrameworkInstitution institution = openScienceFrameworkDao.findOneInstitutionById(id);
         return institution != null ? institution.getLogoutUrl() : null;
     }
 }

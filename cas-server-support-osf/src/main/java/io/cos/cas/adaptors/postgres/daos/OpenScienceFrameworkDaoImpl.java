@@ -28,7 +28,11 @@ import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -72,6 +76,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         }
     }
 
+    @Override
     public OpenScienceFrameworkUser findOneUserByEmail(final String email) {
         try {
             final Query query= entityManager.createNativeQuery(
@@ -79,7 +84,8 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
                     OpenScienceFrameworkUser.class
             );
             // TO-DO use `query.setParameter("email", email)`
-            // The issue is JPA does not recognize `:email` in query "select u.* from osf_models_osfuser u where u.emails @> '{:email}'\\:\\:varchar[]".
+            // The issue is JPA does not recognize `:email` in query:
+            // "select u.* from osf_models_osfuser u where u.emails @> '{:email}'\\:\\:varchar[]".
             return (OpenScienceFrameworkUser) query.getSingleResult();
         } catch (final Exception e) {
             // TO-DO: more specific exception handling
@@ -104,12 +110,12 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     }
 
     @Override
-    public OpenScienceFrameworkInstitution findOneInstitutionById(final String _id) {
+    public OpenScienceFrameworkInstitution findOneInstitutionById(final String id) {
         try {
             final TypedQuery<OpenScienceFrameworkInstitution> query = entityManager.createQuery(
-                    "select i from OpenScienceFrameworkInstitution i where i._id = :_id",
+                    "select i from OpenScienceFrameworkInstitution i where i._id = :id",
                     OpenScienceFrameworkInstitution.class);
-            query.setParameter("_id", _id);
+            query.setParameter("id", id);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
             // TO-DO: more specific exception handling
