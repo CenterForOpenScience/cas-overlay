@@ -31,9 +31,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * The Open Science Framework User.
@@ -61,7 +59,7 @@ public final class OpenScienceFrameworkUser {
     @Column(name = "verification_key")
     private String verificationKey;
 
-    @Type(type="io.cos.cas.adaptors.postgres.types.StringArray")
+    @Type(type="io.cos.cas.adaptors.postgres.types.StringArrayUserType")
     @Column(name = "emails", columnDefinition = "varchar[]", nullable = false)
     private String[] emails;
 

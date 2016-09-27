@@ -5,10 +5,16 @@ import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
-import java.sql.*;
-import java.util.*;
+import java.sql.Array;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class StringList implements UserType {
+public class StringListUserType implements UserType {
 
     @Override
     public int[] sqlTypes() {
@@ -38,7 +44,6 @@ public class StringList implements UserType {
     public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor sessionImplementor, Object owner)
             throws HibernateException, SQLException {
         Array array = resultSet.getArray(names[0]);
-        List<String> arrayList = new ArrayList<>();
         if (!resultSet.wasNull() && array != null) {
             return new ArrayList<>(Arrays.asList((String[]) array.getArray()));
         }

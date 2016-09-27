@@ -5,10 +5,13 @@ import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
-import java.sql.*;
-import java.util.*;
+import java.sql.Array;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Types;
 
-public class StringArray implements UserType {
+public class StringArrayUserType implements UserType {
 
     @Override
     public int[] sqlTypes() {
@@ -17,7 +20,7 @@ public class StringArray implements UserType {
 
     @Override
     public Class returnedClass() {
-        return List.class;
+        return String[].class;
     }
 
     @Override

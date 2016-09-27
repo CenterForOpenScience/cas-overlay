@@ -73,8 +73,8 @@
     <bean id="openScienceFrameworkApiOauthApplication" class="io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application" />
 
     <!-- Custom User Types -->
-    <bean id="openScienceFrameWorkTypesStringList" class="io.cos.cas.adaptors.postgres.types.StringList" />
-    <bean id="openScienceFrameWorkTypesStringArray" class="io.cos.cas.adaptors.postgres.types.StringArray" />
+    <bean id="openScienceFrameWorkTypesStringList" class="io.cos.cas.adaptors.postgres.types.StringListUserType" />
+    <bean id="openScienceFrameWorkTypesStringArray" class="io.cos.cas.adaptors.postgres.types.StringArrayUserType" />
 
     <!-- OSF DAOS -->
     <bean id="openScienceFrameworkDao" class="io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl" />
