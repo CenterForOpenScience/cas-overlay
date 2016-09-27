@@ -44,7 +44,7 @@ public class OpenScienceFrameworkInstitution {
     private Integer id;
 
     @Column(name = "_id")
-    private String instId;
+    private String objectId;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -55,8 +55,8 @@ public class OpenScienceFrameworkInstitution {
     /** Default Constructor. */
     public OpenScienceFrameworkInstitution() {}
 
-    public Integer getId() {
-        return id;
+    public String getId() {
+        return objectId;
     }
 
     public String getName() {
@@ -69,7 +69,7 @@ public class OpenScienceFrameworkInstitution {
 
     @Override
     public String toString() {
-        return String.format("OpenScienceFrameworkInstitution [_id=%s, name=%s]", instId, name);
+        return String.format("OpenScienceFrameworkInstitution [_id=%s, name=%s]", objectId, name);
     }
 
 }
