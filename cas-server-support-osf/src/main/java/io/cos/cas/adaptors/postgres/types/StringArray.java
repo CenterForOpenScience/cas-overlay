@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.sql.*;
 import java.util.*;
 
-public class StringList implements UserType {
+public class StringArray implements UserType {
 
     @Override
     public int[] sqlTypes() {
@@ -38,9 +38,8 @@ public class StringList implements UserType {
     public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor sessionImplementor, Object owner)
             throws HibernateException, SQLException {
         Array array = resultSet.getArray(names[0]);
-        List<String> arrayList = new ArrayList<>();
         if (!resultSet.wasNull() && array != null) {
-            return new ArrayList<>(Arrays.asList((String[]) array.getArray()));
+            return array.getArray();
         }
         return null;
     }

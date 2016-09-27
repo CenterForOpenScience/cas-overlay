@@ -61,9 +61,9 @@ public final class OpenScienceFrameworkUser {
     @Column(name = "verification_key")
     private String verificationKey;
 
-    @Type(type="io.cos.cas.adaptors.postgres.types.StringList")
+    @Type(type="io.cos.cas.adaptors.postgres.types.StringArray")
     @Column(name = "emails", columnDefinition = "varchar[]", nullable = false)
-    private ArrayList<String> emails;
+    private String[] emails;
 
     @OneToOne
     @JoinColumn(name = "merged_by_id")
@@ -108,7 +108,7 @@ public final class OpenScienceFrameworkUser {
         return verificationKey;
     }
 
-    public List<String> getEmails() {
+    public String[] getEmails() {
         return emails;
     }
 
