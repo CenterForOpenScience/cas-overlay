@@ -28,12 +28,8 @@ import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,25 +73,19 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     }
 
     public OpenScienceFrameworkUser findOneUserByEmail(final String email) {
-        List<OpenScienceFrameworkUser> userList = new ArrayList<>();
         try {
-            final TypedQuery query = entityManager.createQuery(
-                    "select u from OpenScienceFrameworkUser",
-                    OpenScienceFrameworkUser.class);
-            userList = query.getResultList();
+            final Query query= entityManager.createNativeQuery(
+                    "select u.* from osf_models_osfuser u where u.emails @> '{" + email + "}'\\:\\:varchar[]",
+                    OpenScienceFrameworkUser.class
+            );
+            // TO-DO use `query.setParameter("email", email)`
+            // The issue is JPA does not recognize `:email` in query "select u.* from osf_models_osfuser u where u.emails @> '{:email}'\\:\\:varchar[]".
+            return (OpenScienceFrameworkUser) query.getSingleResult();
         } catch (final Exception e) {
             // TO-DO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
-        for (OpenScienceFrameworkUser u : userList) {
-            for (String e: u.getEmails()) {
-                if (email.equals(e)) {
-                    return u;
-                }
-            }
-        }
-        return null;
     }
 
     @Override

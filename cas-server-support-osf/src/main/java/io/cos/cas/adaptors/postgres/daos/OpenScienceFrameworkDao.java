@@ -45,6 +45,14 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkUser findOneUserByUsername(final String username);
 
     /**
+     * Find one user by user's email.
+     *
+     * @param email the user's email
+     * @return OpenScienceFrameworkUser or null
+     */
+    OpenScienceFrameworkUser findOneUserByEmail(final String email);
+
+    /**
      * Find one time based one-time password by owner.
      *
      * @param ownerId the owner id
