@@ -34,8 +34,7 @@ public class OpenScienceFrameworkApiOauth2Application {
     private String description;
 
     @Column(name = "client_id", nullable = false, unique = true)
-    @Type(type="org.hibernate.type.PostgresUUIDType")
-    private UUID clientId;
+    private String clientId;
 
     @Column(name = "client_secret", nullable = false)
     private String clientSecret;
@@ -58,9 +57,8 @@ public class OpenScienceFrameworkApiOauth2Application {
         return description;
     }
 
-    // getter for clientId returns String instead of UUID
     public String getClientId() {
-        return clientId.toString();
+        return clientId;
     }
 
     public String getClientSecret() {
