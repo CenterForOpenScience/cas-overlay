@@ -1,6 +1,5 @@
 package io.cos.cas.adaptors.postgres.models;
 
-import org.hibernate.annotations.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.UUID;
 
 /**
  * The OpenScience Framework API OAuth2 Application.
@@ -26,6 +24,9 @@ public class OpenScienceFrameworkApiOauth2Application {
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
+
+    @Column(name ="_id", nullable = false)
+    private String objectId;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -45,8 +46,8 @@ public class OpenScienceFrameworkApiOauth2Application {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-    public Integer getId() {
-        return id;
+    public String getId() {
+        return objectId;
     }
 
     public String getName() {
@@ -71,6 +72,6 @@ public class OpenScienceFrameworkApiOauth2Application {
 
     @Override
     public String toString() {
-        return String.format("OpenScienceFrameworkApiOauth2Application [id=%s, name=%s]", id, name);
+        return String.format("OpenScienceFrameworkApiOauth2Application [_id=%s, name=%s]", objectId, name);
     }
 }

@@ -27,7 +27,7 @@ import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-// import java.math.BigInteger;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +45,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkServiceRegistryDao.class);
 
-    // private static final int HEX_RADIX = 16;
+    private static final int HEX_RADIX = 16;
 
     /** Map of service ID to registered service. */
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
@@ -88,9 +88,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
         for (final OpenScienceFrameworkApiOauth2Application oAuthService : oAuthServices) {
             final OAuthRegisteredService service = new OAuthRegisteredService();
-            // TO-DO: add guid model or just use django id?
-            // service.setId(new BigInteger(oAuthService.getId(), HEX_RADIX).longValue());
-            service.setId(oAuthService.getId());
+            service.setId(new BigInteger(oAuthService.getId(), HEX_RADIX).longValue());
             service.setName(oAuthService.getName());
             service.setDescription(oAuthService.getDescription());
             service.setServiceId(oAuthService.getCallbackUrl());
