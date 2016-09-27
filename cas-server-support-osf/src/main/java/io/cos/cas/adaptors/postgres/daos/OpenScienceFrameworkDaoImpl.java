@@ -104,12 +104,12 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     }
 
     @Override
-    public OpenScienceFrameworkInstitution findOneInstitutionByProviderId(final String providerId) {
+    public OpenScienceFrameworkInstitution findOneInstitutionById(final String _id) {
         try {
             final TypedQuery<OpenScienceFrameworkInstitution> query = entityManager.createQuery(
-                    "select i from OpenScienceFrameworkInstitution i where i.providerId = :providerId",
+                    "select i from OpenScienceFrameworkInstitution i where i._id = :_id",
                     OpenScienceFrameworkInstitution.class);
-            query.setParameter("providerId", providerId);
+            query.setParameter("_id", _id);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
             // TO-DO: more specific exception handling

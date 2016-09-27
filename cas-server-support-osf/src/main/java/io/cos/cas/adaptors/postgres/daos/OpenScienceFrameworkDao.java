@@ -61,12 +61,12 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkTimeBasedOneTimePassword findOneTimeBasedOneTimePasswordByOwnerId(final Integer ownerId);
 
     /**
-     * Find one institution by provider id which is unique for the institution.
+     * Find one institution by institution _id which is unique for the institution.
      *
-     * @param providerId the provider id
+     * @param _id the institution _id
      * @return OpenScienceFrameworkInstitution or null
      */
-    OpenScienceFrameworkInstitution findOneInstitutionByProviderId(final String providerId);
+    OpenScienceFrameworkInstitution findOneInstitutionById(final String _id);
 
     /**
      * Find one scope by scope name.

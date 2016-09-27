@@ -128,7 +128,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
 
         // if logged in through institutions, redirect to institution logout endpoint
         if (remotePrincipal && institutionId != null) {
-            final String institutionLogoutUrl = institutionHandler.findInstitutionLogoutUrlByProviderId(institutionId);
+            final String institutionLogoutUrl = institutionHandler.findInstitutionLogoutUrlById(institutionId);
             if (institutionLogoutUrl == null) {
                 logger.warn("Institution {} does not have a dedicated logout url, use default logout redirection instead", institutionId);
             } else {
