@@ -66,7 +66,8 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         try {
             final TypedQuery<OpenScienceFrameworkUser> query = entityManager.createQuery(
                     "select u from OpenScienceFrameworkUser u where u.username = :username",
-                    OpenScienceFrameworkUser.class);
+                    OpenScienceFrameworkUser.class
+            );
             query.setParameter("username", username);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
@@ -86,6 +87,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
 
         // check emails
         try {
+            // JPA Hibernate does not support postgres query array operations, use postgres native queries
             // `query.setParameter()` does not work, use string concatenation instead
             final Query query= entityManager.createNativeQuery(
                     "select u.* from osf_models_osfuser u where u.emails @> '{" + email + "}'\\:\\:varchar[]",
@@ -103,7 +105,8 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         try {
             final TypedQuery<OpenScienceFrameworkTimeBasedOneTimePassword> query = entityManager.createQuery(
                     "select p from OpenScienceFrameworkTimeBasedOneTimePassword p where p.id = :ownerId",
-                    OpenScienceFrameworkTimeBasedOneTimePassword.class);
+                    OpenScienceFrameworkTimeBasedOneTimePassword.class
+            );
             query.setParameter("ownerId", ownerId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
@@ -117,7 +120,8 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         try {
             final TypedQuery<OpenScienceFrameworkInstitution> query = entityManager.createQuery(
                     "select i from OpenScienceFrameworkInstitution i where i._id = :id",
-                    OpenScienceFrameworkInstitution.class);
+                    OpenScienceFrameworkInstitution.class
+            );
             query.setParameter("id", id);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
@@ -131,7 +135,8 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         try {
             final TypedQuery<OpenScienceFrameworkApiOauth2Scope> query = entityManager.createQuery(
                     "select s from OpenScienceFrameworkApiOauth2Scope s where s.name = :name",
-                    OpenScienceFrameworkApiOauth2Scope.class);
+                    OpenScienceFrameworkApiOauth2Scope.class
+            );
             query.setParameter("name", name);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
@@ -145,7 +150,8 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         try {
             final TypedQuery<OpenScienceFrameworkApiOauth2PersonalAccessToken> query = entityManager.createQuery(
                     "select t from OpenScienceFrameworkApiOauth2PersonalAccessToken t where t.tokenId = :tokenId",
-                    OpenScienceFrameworkApiOauth2PersonalAccessToken.class);
+                    OpenScienceFrameworkApiOauth2PersonalAccessToken.class
+            );
             query.setParameter("tokenId", tokenId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
@@ -160,7 +166,8 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         try {
             final TypedQuery query = entityManager.createQuery(
                     "select a from OpenScienceFrameworkApiOauth2Application a where a.isActive = true",
-                    OpenScienceFrameworkApiOauth2Application.class);
+                    OpenScienceFrameworkApiOauth2Application.class
+            );
             return query.getResultList();
         } catch (final PersistenceException e) {
             LOGGER.error(e.toString());

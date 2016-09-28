@@ -234,7 +234,8 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             passwordHash = updateBCryptHashIdentifier(passwordHash);
             return password != null && passwordHash != null && BCrypt.checkpw(password, passwordHash);
         } catch (final Exception e) {
-            logger.error("CAS has encountered a problem when verifying the password.");
+            // Do not log stack trace which may contain user's plaintext password
+            logger.error(String.format("CAS has encountered a problem when verifying the password: %s.", e.toString()));
             return false;
         }
     }
@@ -256,7 +257,8 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             }
             return builder.toString();
         } catch (final Exception e) {
-            logger.error("CAS has encountered a problem when sha256-hashing the password.");
+            // Do not log stack trace which may contain user's plaintext password
+            logger.error(String.format("CAS has encountered a problem when sha256-hashing the password: %s.", e.toString()));
             return null;
         }
     }
@@ -280,7 +282,8 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             }
             return passwordHash;
         } catch (final Exception e) {
-            logger.error("CAS has encountered a problem when updating password hash identifier.");
+            // Do not log stack trace which may contain user's plaintext password
+            logger.error(String.format("CAS has encountered a problem when updating password hash identifier: %s.", e.toString()));
             return null;
         }
     }

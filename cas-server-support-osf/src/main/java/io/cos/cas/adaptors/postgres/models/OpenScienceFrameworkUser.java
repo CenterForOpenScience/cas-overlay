@@ -59,6 +59,9 @@ public final class OpenScienceFrameworkUser {
     @Column(name = "verification_key")
     private String verificationKey;
 
+    // JPA Hibernate does not have built-in type support for postgres arrays
+    // Use customized user type, must specify @Type and "columnDefinition" in @Column
+    // Type of return class is flexible, use String[] here.
     @Type(type="io.cos.cas.adaptors.postgres.types.StringArrayUserType")
     @Column(name = "emails", columnDefinition = "varchar[]", nullable = false)
     private String[] emails;
