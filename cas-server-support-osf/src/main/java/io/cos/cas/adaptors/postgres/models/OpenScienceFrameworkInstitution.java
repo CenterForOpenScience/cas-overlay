@@ -43,6 +43,11 @@ public class OpenScienceFrameworkInstitution {
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    /**
+     * The `objectId` serves as a unique and fixed identifier for each institution.
+     * It comes from `node.institution_id` (mongo) to `osf_models_institution._id` (postgres).
+     * Methods such as `getId()`, `findInstitutionById()` and `findInstitutionLogoutUrlById()` refer to this `objectId`.
+     */
     @Column(name = "_id")
     private String objectId;
 
@@ -55,6 +60,10 @@ public class OpenScienceFrameworkInstitution {
     /** Default Constructor. */
     public OpenScienceFrameworkInstitution() {}
 
+    /**
+     * Returns the `objectId` (institution id) instead of `id` (postgres pk).
+     * @return the object id
+     */
     public String getId() {
         return objectId;
     }
@@ -71,5 +80,4 @@ public class OpenScienceFrameworkInstitution {
     public String toString() {
         return String.format("OpenScienceFrameworkInstitution [_id=%s, name=%s]", objectId, name);
     }
-
 }
