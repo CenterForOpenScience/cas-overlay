@@ -103,7 +103,7 @@
         p:packagesToScan-ref="packagesToScan">
         <property name="jpaProperties">
             <props>
-                <prop key="hibernate.dialect">${database.hibernate.dialect:org.hibernate.dialect.HSQLDialect}</prop>
+                <prop key="hibernate.dialect">${database.hibernate.dialect:org.hibernate.dialect.PostgreSQLDialect}</prop>
                 <prop key="hibernate.hbm2ddl.auto">update</prop>
                 <prop key="hibernate.jdbc.batch_size">${database.hibernate.batchSize:1}</prop>
             </props>
@@ -117,7 +117,7 @@
         p:packagesToScan-ref="packagesToScanOsf">
         <property name="jpaProperties">
             <props>
-                <prop key="hibernate.dialect">${osf.database.hibernate.dialect:org.hibernate.dialect.HSQLDialect}</prop>
+                <prop key="hibernate.dialect">${osf.database.hibernate.dialect:org.hibernate.dialect.PostgreSQL82Dialect}</prop>
                 <prop key="hibernate.hbm2ddl.auto">validate</prop>
                 <prop key="hibernate.jdbc.batch_size">${database.hibernate.batchSize:1}</prop>
             </props>
