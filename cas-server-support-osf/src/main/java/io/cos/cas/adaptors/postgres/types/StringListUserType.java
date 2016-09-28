@@ -58,11 +58,7 @@ public class StringListUserType implements UserType {
 
     @Override
     public int hashCode(final Object o) throws HibernateException {
-        if (o != null) {
-            return o.hashCode();
-        } else {
-            return 0;
-        }
+        return o != null ? o.hashCode() : 0;
     }
 
     @Override
@@ -72,6 +68,7 @@ public class StringListUserType implements UserType {
             final SessionImplementor sessionImplementor,
             final Object owner
         ) throws HibernateException, SQLException {
+
         final Array array = resultSet.getArray(names[0]);
         if (!resultSet.wasNull() && array != null) {
             return new ArrayList<>(Arrays.asList((String[]) array.getArray()));
@@ -85,7 +82,9 @@ public class StringListUserType implements UserType {
             final Object value,
             final int index,
             final SessionImplementor sessionImplementor
-        ) throws HibernateException, SQLException {}
+        ) throws HibernateException, SQLException {
+        // no need to implement this method since CAS is postgres readonly.
+    }
 
     @Override
     public Object deepCopy(final Object value) throws HibernateException {
@@ -108,8 +107,7 @@ public class StringListUserType implements UserType {
     }
 
     @Override
-    public Object replace(final Object original, final Object target, final Object owner)
-            throws HibernateException {
+    public Object replace(final Object original, final Object target, final Object owner) throws HibernateException {
         return original;
     }
 }
