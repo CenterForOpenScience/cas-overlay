@@ -37,7 +37,7 @@ import java.util.List;
 public interface OpenScienceFrameworkDao {
 
     /**
-     * Find one user by username.
+     * Find one user by username (primary email).
      *
      * @param username the username
      * @return OpenScienceFrameworkUser or null
@@ -45,7 +45,7 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkUser findOneUserByUsername(final String username);
 
     /**
-     * Find one user by user's email.
+     * Find one user by user's emails, including username.
      *
      * @param email the user's email
      * @return OpenScienceFrameworkUser or null
@@ -53,7 +53,7 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkUser findOneUserByEmail(final String email);
 
     /**
-     * Find one time based one-time password by owner.
+     * Find one "time based one-time password" by owner.
      *
      * @param ownerId the owner id
      * @return OpenScienceFrameworkTimeBasedOneTimePassword or null
@@ -61,7 +61,7 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkTimeBasedOneTimePassword findOneTimeBasedOneTimePasswordByOwnerId(final Integer ownerId);
 
     /**
-     * Find one institution by institution id (objectId and "_id").
+     * Find one institution by institution id, a.k.a `objectId` @"_id".
      *
      * @param id the institution id
      * @return OpenScienceFrameworkInstitution or null

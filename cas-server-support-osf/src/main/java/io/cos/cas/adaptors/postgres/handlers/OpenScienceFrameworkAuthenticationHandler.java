@@ -127,12 +127,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
 
-        // TO-DO: handle the case user provide non-username email
-        OpenScienceFrameworkUser user = openScienceFrameworkDao.findOneUserByUsername(username);
-
-        if (user == null) {
-            user = openScienceFrameworkDao.findOneUserByEmail(username);
-        }
+        final OpenScienceFrameworkUser user = openScienceFrameworkDao.findOneUserByEmail(username);
 
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");

@@ -70,7 +70,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("username", username);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TO-DO: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -78,17 +78,23 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
 
     @Override
     public OpenScienceFrameworkUser findOneUserByEmail(final String email) {
+
+        // check username (primary email) first
+        final OpenScienceFrameworkUser user = findOneUserByUsername(email);
+        if (user != null) {
+            return user;
+        }
+
+        // check emails
         try {
+            // `query.setParameter()` does not work, use string concatenation instead
             final Query query= entityManager.createNativeQuery(
                     "select u.* from osf_models_osfuser u where u.emails @> '{" + email + "}'\\:\\:varchar[]",
                     OpenScienceFrameworkUser.class
             );
-            // TO-DO use `query.setParameter("email", email)`
-            // The issue is JPA does not recognize `:email` in query:
-            // "select u.* from osf_models_osfuser u where u.emails @> '{:email}'\\:\\:varchar[]".
             return (OpenScienceFrameworkUser) query.getSingleResult();
-        } catch (final Exception e) {
-            // TO-DO: more specific exception handling
+        } catch (final PersistenceException e) {
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -103,7 +109,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("ownerId", ownerId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TO-DO: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -118,7 +124,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("id", id);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TO-DO: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -133,7 +139,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("name", name);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TO-DO: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -148,7 +154,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("tokenId", tokenId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            // TO-DO: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
@@ -162,7 +168,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
                     OpenScienceFrameworkApiOauth2Application.class);
             return query.getResultList();
         } catch (final PersistenceException e) {
-            // TO-DO: more specific exception handling
+            // TODO: more specific exception handling
             LOGGER.error(e.toString());
             return null;
         }
