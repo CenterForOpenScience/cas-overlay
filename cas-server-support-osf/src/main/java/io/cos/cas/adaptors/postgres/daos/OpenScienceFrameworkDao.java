@@ -61,7 +61,7 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkTimeBasedOneTimePassword findOneTimeBasedOneTimePasswordByOwnerId(final Integer ownerId);
 
     /**
-     * Find one institution by institution id (objectId and "_id")
+     * Find one institution by institution id (objectId and "_id").
      *
      * @param id the institution id
      * @return OpenScienceFrameworkInstitution or null
