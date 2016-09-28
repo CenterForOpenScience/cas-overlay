@@ -128,7 +128,6 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String oneTimePassword = credential.getOneTimePassword();
 
         final OpenScienceFrameworkUser user = openScienceFrameworkDao.findOneUserByEmail(username);
-
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");
         }
@@ -136,17 +135,17 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         Boolean validPassphrase = Boolean.FALSE;
 
         if (credential.isRemotePrincipal()) {
-            // remote principals are already verified by a third party (in our case a third party SAML authentication).
+            // verified through remote principals
             validPassphrase = Boolean.TRUE;
         } else if (verificationKey != null && verificationKey.equals(user.getVerificationKey())) {
-            // verification key can substitute as a temporary password.
+            // verified by verification key
             validPassphrase = Boolean.TRUE;
         } else if (verifyPassword(plainTextPassword, user.getPassword())) {
+            // verified by password
             validPassphrase = Boolean.TRUE;
         }
-
         if (!validPassphrase) {
-            throw new FailedLoginException(username + " invalid verification key or password");
+            throw new FailedLoginException(username + ": invalid remote authentication, verification key or password");
         }
 
         final OpenScienceFrameworkTimeBasedOneTimePassword timeBasedOneTimePassword
@@ -168,7 +167,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                     throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password");
                 }
             } catch (final Exception e) {
-                throw new OneTimePasswordFailedLoginException(username + " invalid time-based one time password");
+                throw new OneTimePasswordFailedLoginException(username + ": invalid time-based one time password");
             }
         }
 
@@ -195,6 +194,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         attributes.put("givenName", user.getGivenName());
         attributes.put("familyName", user.getFamilyName());
 
+        // CAS returns the user's postgres primary key string to OSF
         return createHandlerResult(credential, this.principalFactory.createPrincipal(user.getId().toString(), attributes), null);
     }
 
@@ -208,37 +208,40 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     }
 
     /**
-     * Verify Password.
+     * Verify Password. `bcrypt$` (backward compatibility) and `bcrypt_sha256$` are the only two valid prefix.
      *
-     * @param plainTextPassword the plain text password provided by user
+     * @param plainTextPassword the plain text password provided by the user
      * @param userPasswordHash the password hash stored in database
      * @return True if verified, False otherwise
      */
     private boolean verifyPassword(final String plainTextPassword, final String userPasswordHash) {
 
-        String password = plainTextPassword;
-        String passwordHash = userPasswordHash;
+        String password, passwordHash;
 
         try {
             if (userPasswordHash.startsWith("bcrypt$")) {
-                //  'django.contrib.auth.hashers.BCryptPasswordHasher'
+                // django.contrib.auth.hashers.BCryptPasswordHasher
                 passwordHash = userPasswordHash.split("bcrypt\\$")[1];
+                password = plainTextPassword;
             } else if(userPasswordHash.startsWith("bcrypt_sha256$")) {
-                //  'django.contrib.auth.hashers.BCryptSHA256PasswordHasher'
+                // django.contrib.auth.hashers.BCryptSHA256PasswordHasher
                 passwordHash = userPasswordHash.split("bcrypt_sha256\\$")[1];
                 password = sha256HashPassword(plainTextPassword);
+            } else {
+                // invalid password hash prefix
+                return false;
             }
             passwordHash = updateBCryptHashIdentifier(passwordHash);
             return password != null && passwordHash != null && BCrypt.checkpw(password, passwordHash);
         } catch (final Exception e) {
-            // TO-DO: more specific exception handling
-            logger.error(String.format("CAS fails to verify password: %s", e.toString()));
+            logger.error("CAS has encountered a problem when verifying the password.");
             return false;
         }
     }
 
     /**
-     * SHA256 hash the password, the first step for BCryptSHA256.
+     * Hash the password using SHA256, the first step for BCryptSHA256.
+     * This is dependent on django.contrib.auth.hashers.BCryptSHA256PasswordHasher.
      *
      * @param password the plain text password provided by user
      * @return the password hash in String or null
@@ -253,19 +256,20 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             }
             return builder.toString();
         } catch (final Exception e) {
-            // TO-DO: more specific exception handling
-            logger.error(String.format("Message Digest Error: %s", e.toString()));
+            logger.error("CAS has encountered a problem when sha256-hashing the password.");
             return null;
         }
     }
 
     /**
      * Update BCrypt Hash Identifier for Compatibility.
-     * Spring's BCrypt is not vulnerable to OpenBSD's `u_int8_t` overflow issue. However, it only recognize `$2a$` for
-     * password hash. This will replace `$2b$` or `$2y$` with `$2a`. This is secure. `$2$` is no affected.
+     *
+     * Spring's BCrypt implements the specification and is not vulnerable to OpenBSD's `u_int8_t` overflow issue. How-
+     * ever, it only recognizes `$2$` or `$2a$` identifier for a password BCrypt hash. The solution is to replace `$2b$`
+     * or `$2y$` with `$2a` in the hash before calling `BCrypt.checkpw()`. This is correct and secure.
      *
      * @param passwordHash the password hash by BCrypt or BCryptSHA256
-     * @return the spring compatible hash in String or null
+     * @return the spring compatible hash string or null
      */
     private String updateBCryptHashIdentifier(final String passwordHash) {
         try {
@@ -276,8 +280,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             }
             return passwordHash;
         } catch (final Exception e) {
-            // TO-DO: more specific exception handling
-            logger.error(String.format("Invalid BCrypt Hash Identifier: %s", e.toString()));
+            logger.error("CAS has encountered a problem when updating password hash identifier.");
             return null;
         }
     }
