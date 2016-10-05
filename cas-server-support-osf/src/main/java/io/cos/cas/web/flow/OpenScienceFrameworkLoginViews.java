@@ -46,14 +46,17 @@ public class OpenScienceFrameworkLoginViews {
      * @return Event
      */
     public Event checkOsfCampaigns(final RequestContext context) {
+
         final String service = context.getRequestParameters().get("service");
         String serviceCampaign = null;
         URL serviceUrl = null;
+
         try {
             serviceUrl = new URL(service);
         } catch (final MalformedURLException e) {
             LOGGER.error(String.format("Malformed Service URL: %s", e.toString()));
         }
+
         if (serviceUrl != null) {
             final String servicePath = serviceUrl.getPath();
             if (servicePath.startsWith("/prereg/")) {
@@ -61,12 +64,18 @@ public class OpenScienceFrameworkLoginViews {
             } else if (servicePath.startsWith("/erpc/")) {
                 serviceCampaign = "ERPC";
             } else if (servicePath.startsWith("/preprints")) {
-                serviceCampaign = "PREPRINTS";
+                serviceCampaign = "OSF-PREPRINTS";
             }
         }
+
         if (serviceCampaign != null) {
             context.getFlowScope().put("serviceCampaign", serviceCampaign);
+            context.getFlowScope().put(
+                    "registerCampaign",
+                    String.format("?campaign=%s", serviceCampaign.toLowerCase())
+            );
         }
+
         return new Event(this, "success");
     }
 }
