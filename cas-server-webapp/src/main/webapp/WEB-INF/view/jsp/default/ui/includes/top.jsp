@@ -59,6 +59,19 @@
                         <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
                         <span class="title-abbr">Open&nbsp;Science<br>Framework</span>
                         <c:if test="${campaign eq 'INSTITUTION'}"><span> for&nbsp;Institutions</span></c:if>
+                        <c:if test="${serviceCampaign eq 'PREREG'}">
+                            <span class="title-full">|&nbsp;Preregistration&nbsp;Challenge</span>
+                            <span class="title-abbr"><br><br>Preregistration<br>Challenge</span>
+                        </c:if>
+                        <c:if test="${serviceCampaign eq 'ERPC'}">
+                            <br><br>
+                            <span class="title-full">Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition</span>
+                            <span class="title-abbr">Election&nbsp;Research<br>Preacceptance<br>Competition</span>
+                        </c:if>
+                        <c:if test="${serviceCampaign eq 'PREPRINTS'}">
+                            <span class="title-full">|&nbsp;Preprints&nbsp;Service</span>
+                            <span class="title-abbr"><br><br>Preprints&nbsp;Service</span>
+                        </c:if>
                     </span>
                 </div>
                 <div class="responsive">

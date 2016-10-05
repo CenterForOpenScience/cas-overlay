@@ -73,7 +73,7 @@ h2 {
   display: none
 }
 
-@media screen and (max-width: 420px) {
+@media screen and (max-width: 900px) {
   .title-abbr {
     display: inline;
   }
