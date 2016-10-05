@@ -96,13 +96,18 @@
         <evaluate expression="principalFromRemoteAction" />
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="authenticationFailure" to="handleAuthenticationFailure" />
-        <transition on="error" to="viewLoginForm" />
+        <transition on="error" to="osfLogin" />
         <transition on="institution" to="institutionLogin" />
     </action-state>
 
     <action-state id="institutionLogin">
         <evaluate expression="loginThroughInstitutions.getInstitutions(flowRequestContext)" />
         <transition on="success" to="viewInstitutionLoginForm" />
+    </action-state>
+
+    <action-state id="osfLogin">
+        <evaluate expression="osfLoginViews.checkOsfCampaigns(flowRequestContext)" />
+        <transition on="success" to="viewLoginForm" />
     </action-state>
 
     <view-state id="viewInstitutionLoginForm" view="casInstitutionLoginView" model="credential">
