@@ -68,7 +68,7 @@
                             <span class="title-full">Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition</span>
                             <span class="title-abbr">Election&nbsp;Research<br>Preacceptance<br>Competition</span>
                         </c:if>
-                        <c:if test="${serviceCampaign eq 'PREPRINTS'}">
+                        <c:if test="${serviceCampaign eq 'OSF-PREPRINTS'}">
                             <span class="title-full">|&nbsp;Preprints&nbsp;Service</span>
                             <span class="title-abbr"><br><br>Preprints&nbsp;Service</span>
                         </c:if>

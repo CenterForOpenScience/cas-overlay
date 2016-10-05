@@ -41,7 +41,14 @@
 <div class="row" style="text-align: center;">
     <br>
     <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')" />
-    <a id="create-account" href="${createAccountUrl}">Create Account</a>
+    <c:choose>
+        <c:when test="${not empty registerCampaign}">
+            <a id="create-account" href="${createAccountUrl}${registerCampaign}">Create Account</a>
+        </c:when>
+        <c:otherwise>
+            <a id="create-account" href="${createAccountUrl}">Create Account</a>
+        </c:otherwise>
+    </c:choose>
 </div>
 
 <footer>
