@@ -81,6 +81,15 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
         }
         context.getFlowScope().put("target", target);
         context.getFlowScope().put("campaign", "INSTITUTION");
+
+        final String serviceCampaign = OpenScienceFrameworkLoginViews.getOsfCampaigns(context);
+        if (serviceCampaign != null) {
+            context.getFlowScope().put(
+                    "registerCampaign",
+                    String.format("?campaign=%s", serviceCampaign.toLowerCase())
+            );
+        }
+
         return new Event(this, "success");
     }
 

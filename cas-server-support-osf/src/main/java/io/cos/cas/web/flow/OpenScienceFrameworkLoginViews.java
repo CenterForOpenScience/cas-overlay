@@ -47,6 +47,21 @@ public class OpenScienceFrameworkLoginViews {
      */
     public Event checkOsfCampaigns(final RequestContext context) {
 
+        final String serviceCampaign = getOsfCampaigns(context);
+
+        if (serviceCampaign != null) {
+            context.getFlowScope().put("serviceCampaign", serviceCampaign);
+            context.getFlowScope().put(
+                    "registerCampaign",
+                    String.format("?campaign=%s", serviceCampaign.toLowerCase())
+            );
+        }
+
+        return new Event(this, "success");
+    }
+
+    static String getOsfCampaigns(final RequestContext context) {
+
         final String service = context.getRequestParameters().get("service");
         String serviceCampaign = null;
         URL serviceUrl = null;
@@ -68,14 +83,6 @@ public class OpenScienceFrameworkLoginViews {
             }
         }
 
-        if (serviceCampaign != null) {
-            context.getFlowScope().put("serviceCampaign", serviceCampaign);
-            context.getFlowScope().put(
-                    "registerCampaign",
-                    String.format("?campaign=%s", serviceCampaign.toLowerCase())
-            );
-        }
-
-        return new Event(this, "success");
+        return serviceCampaign;
     }
 }
