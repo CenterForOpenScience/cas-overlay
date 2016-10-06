@@ -41,25 +41,10 @@ public class OpenScienceFrameworkLoginViews {
     public OpenScienceFrameworkLoginViews() {}
 
     /**
-     * Check the campaign in service url.
+     * Get OSF campaign from service url in request context.
      * @param context The request context
-     * @return Event
+     * @return The campaign name in `String` or null
      */
-    public Event checkOsfCampaigns(final RequestContext context) {
-
-        final String serviceCampaign = getOsfCampaigns(context);
-
-        if (serviceCampaign != null) {
-            context.getFlowScope().put("serviceCampaign", serviceCampaign);
-            context.getFlowScope().put(
-                    "registerCampaign",
-                    String.format("?campaign=%s", serviceCampaign.toLowerCase())
-            );
-        }
-
-        return new Event(this, "success");
-    }
-
     static String getOsfCampaigns(final RequestContext context) {
 
         final String service = context.getRequestParameters().get("service");
@@ -84,5 +69,25 @@ public class OpenScienceFrameworkLoginViews {
         }
 
         return serviceCampaign;
+    }
+
+    /**
+     * Action: check OSF campaign in service url.
+     * @param context The request context
+     * @return Event
+     */
+    public Event checkOsfCampaigns(final RequestContext context) {
+
+        final String serviceCampaign = getOsfCampaigns(context);
+
+        if (serviceCampaign != null) {
+            context.getFlowScope().put("serviceCampaign", serviceCampaign);
+            context.getFlowScope().put(
+                    "registerCampaign",
+                    String.format("?campaign=%s", serviceCampaign.toLowerCase())
+            );
+        }
+
+        return new Event(this, "success");
     }
 }
