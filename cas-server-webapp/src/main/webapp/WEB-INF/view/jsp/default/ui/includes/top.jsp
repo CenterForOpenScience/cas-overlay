@@ -56,21 +56,35 @@
                 <br>
                 <div class="center">
                     <span id="title">
-                        <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
-                        <span class="title-abbr">Open&nbsp;Science<br>Framework</span>
-                        <c:if test="${campaign eq 'INSTITUTION'}"><span> for&nbsp;Institutions</span></c:if>
+                        <c:if test="${empty campaign and empty serviceCampaign}">
+                            <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
+                            <span class="title-long">Open&nbsp;Science&nbsp;Framework</span>
+                            <span class="title-short">Open&nbsp;Science&nbsp;Framework</span>
+                            <span class="title-abbr">OSF</span>
+                        </c:if>
+                        <c:if test="${campaign eq 'INSTITUTION'}">
+                            <span class="title-full">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Login&nbsp;Through&nbsp;Institutions</span>
+                            <span class="title-long">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Institution&nbsp;Login</span>
+                            <span class="title-short">OSF&nbsp;|&nbsp;Institution Login</span>
+                            <span class="title-abbr">OSF&nbsp;|&nbsp;Institution</span>
+                        </c:if>
                         <c:if test="${serviceCampaign eq 'PREREG'}">
-                            <span class="title-full">|&nbsp;Preregistration&nbsp;Challenge</span>
-                            <span class="title-abbr"><br><br>Preregistration<br>Challenge</span>
+                            <span class="title-full">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Preregistration&nbsp;Challenge</span>
+                            <span class="title-long">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Preregistration&nbsp;Challenge</span>
+                            <span class="title-short">Open&nbsp;Science&nbsp;Framework<br><br>Preregistration&nbsp;Challenge</span>
+                            <span class="title-abbr">OSF<br><br>Preregistration<br>Challenge</span>
                         </c:if>
                         <c:if test="${serviceCampaign eq 'ERPC'}">
-                            <br><br>
-                            <span class="title-full">Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition</span>
-                            <span class="title-abbr">Election&nbsp;Research<br>Preacceptance<br>Competition</span>
+                            <span class="title-full">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition</span>
+                            <span class="title-long">Open&nbsp;Science&nbsp;Framework<br><br>Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition</span>
+                            <span class="title-short">Open&nbsp;Science&nbsp;Framework<br><br>Election&nbsp;Research<br>Preacceptance&nbsp;Competition</span>
+                            <span class="title-abbr">OSF<br><br>Election&nbsp;Research<br>Preacceptance<br>Competition</span>
                         </c:if>
                         <c:if test="${serviceCampaign eq 'OSF-PREPRINTS'}">
-                            <span class="title-full">|&nbsp;Preprints&nbsp;Service</span>
-                            <span class="title-abbr"><br><br>Preprints&nbsp;Service</span>
+                            <span class="title-full">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Preprints</span>
+                            <span class="title-long">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Preprints</span>
+                            <span class="title-short">OSF&nbsp;|&nbsp;Preprints</span>
+                            <span class="title-abbr">OSF&nbsp;|&nbsp;Preprints</span>
                         </c:if>
                     </span>
                 </div>
