@@ -26,7 +26,7 @@
         <c:choose>
             <c:when test="${campaign == 'INSTITUTION'}">
                 <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-                <a id="alternative-osf" href="${osfLoginUrl}${not empty param.service ? 'service=' : ''}${fn:escapeXml(param.service)}">Back to Non-institution Login</a>&nbsp;&nbsp;
+                <a id="alternative-osf" href="${osfLoginUrl}${not empty param.service ? 'service=' : ''}${fn:escapeXml(param.service)}">Non-institution Login</a>&nbsp;&nbsp;
             </c:when>
             <c:otherwise>
                 <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')" />

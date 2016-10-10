@@ -56,16 +56,21 @@
                 <br>
                 <div class="center">
                     <span id="title">
-                        <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
-                        <span class="title-abbr">Open&nbsp;Science<br>Framework</span>
-                        <c:if test="${campaign eq 'INSTITUTION'}"><span> for&nbsp;Institutions</span></c:if>
+                        <c:choose>
+                            <c:when test="${campaign eq 'INSTITUTION'}">
+                                <span>OSF Institutions</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
+                                <span class="title-abbr">OSF</span>
+                            </c:otherwise>
+                        </c:choose>
                     </span>
                 </div>
                 <div class="responsive">
                     <c:if test="${campaign eq 'INSTITUTION'}">
                         <div id="description">
-                            <br><br><spring:message code="screen.institution.login.message.a" />
-                            <spring:message code="screen.institution.login.message.b" />
+                            <br><br><spring:message code="screen.institution.login.message" />
                         </div>
                     </c:if>
                 </div>

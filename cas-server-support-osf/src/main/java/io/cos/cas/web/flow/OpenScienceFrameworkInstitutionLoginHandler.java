@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Open Science Framework Institution Login Handler
+ * Open Science Framework Institution Login Handler.
  *
  * @author Longze Chen
  * @since 4.1.0
@@ -90,6 +90,10 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
 
     /**
      * Sort a Map by value. Return the sorted Map.
+     *
+     * References: http://www.programcreek.com/2013/03/java-sort-map-by-value/
+     *             https://www.mkyong.com/java/how-to-sort-a-map-in-java/
+     *
      * @param map The Map to be sorted
      * @param <K> The Type of the Key
      * @param <V> The Type of the Value
