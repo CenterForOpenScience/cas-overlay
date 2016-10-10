@@ -129,16 +129,18 @@ public class OpenScienceFrameworkInstitutionHandler {
 
     /**
      * Return a map of institution name and login url.
+     *
+     * @param target The osf service target after successful institution login
      * @return Map&lt;String, String&gt;
      */
-    public Map<String, String> getInstitutionLogin() {
+    public Map<String, String> getInstitutionLoginUrls(final String target) {
         final List<OpenScienceFrameworkInstitution> institutionList = this.mongoTemplate.find(
             new Query(Criteria.where("institution_id").ne(null).and("institution_auth_url").ne(null).and("is_deleted").is(Boolean.FALSE)),
             OpenScienceFrameworkInstitution.class
         );
         final Map<String, String> institutionLogin = new HashMap<>();
         for (final OpenScienceFrameworkInstitution institution: institutionList) {
-            institutionLogin.put(institution.getLoginUrl(), institution.getName());
+            institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
         }
         return institutionLogin;
     }

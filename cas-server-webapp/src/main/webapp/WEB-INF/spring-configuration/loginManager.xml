@@ -28,7 +28,7 @@
     <bean id="openScienceFrameworkInstitutionHandler" class="io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionHandler"
           p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
 
-    <bean id="loginThroughInstitutions" class = "io.cos.cas.web.flow.OpenScienceFrameworkLoginThroughInstitutions"
+    <bean id="loginThroughInstitutions" class = "io.cos.cas.web.flow.OpenScienceFrameworkInstitutionLoginHandler"
           c:institutionHandler-ref="openScienceFrameworkInstitutionHandler"/>
 
     <bean id="loginHandler" class="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler" />

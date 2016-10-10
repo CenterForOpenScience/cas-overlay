@@ -36,12 +36,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Open Science Framework Login Through Institutions.
+ * Open Science Framework Institution Login Handler
  *
  * @author Longze Chen
  * @since 4.1.0
  */
-public class OpenScienceFrameworkLoginThroughInstitutions {
+public class OpenScienceFrameworkInstitutionLoginHandler {
 
     /** The Logger Instance. */
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -53,7 +53,7 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
      * Creates a new instance with the given parameters.
      * @param institutionHandler The institution handler
      */
-    public OpenScienceFrameworkLoginThroughInstitutions(
+    public OpenScienceFrameworkInstitutionLoginHandler(
             final OpenScienceFrameworkInstitutionHandler institutionHandler) {
         this.institutionHandler = institutionHandler;
     }
@@ -64,11 +64,7 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
      * @return Event
      */
     public Event getInstitutions(final RequestContext context) {
-        final Map<String, String> institutions = this.institutionHandler.getInstitutionLogin();
-        institutions.put("", " -- select an institution -- ");
-        final Map<String, String> sortedInstitutions = sortByValue(institutions);
-        logger.info(String.format("Institutions loaded: %s", sortedInstitutions.toString()));
-        context.getFlowScope().put("institutions", sortedInstitutions);
+
         String target = "";
         String service = context.getRequestParameters().get("service");
         try {
@@ -81,7 +77,13 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
         } catch (final UnsupportedEncodingException e) {
             throw new AssertionError("UTF-8 is unknown");
         }
-        context.getFlowScope().put("target", target);
+
+        final Map<String, String> institutions = this.institutionHandler.getInstitutionLoginUrls(target);
+        institutions.put("", " -- select an institution -- ");
+        final Map<String, String> sortedInstitutions = sortByValue(institutions);
+        logger.info(String.format("Institutions loaded: %s", sortedInstitutions.toString()));
+        context.getFlowScope().put("institutions", sortedInstitutions);
+
         context.getFlowScope().put("campaign", "INSTITUTION");
         return new Event(this, "success");
     }
