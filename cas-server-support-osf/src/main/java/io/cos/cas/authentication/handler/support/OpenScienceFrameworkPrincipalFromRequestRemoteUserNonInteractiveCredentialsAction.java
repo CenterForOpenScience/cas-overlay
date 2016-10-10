@@ -181,7 +181,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      */
     protected boolean isInstitution(final RequestContext context) {
         final String campaign = context.getRequestParameters().get("campaign");
-        return campaign != null && "institution".equals(campaign);
+        return "institution".equals(campaign);
     }
 
     @Override

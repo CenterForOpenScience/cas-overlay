@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Open Science Framework Institution Authentication Handler.
+ * The Open Science Framework Institution Handler.
  *
  * @author Longze Chen
  * @since 4.1.0
  */
-public class OpenScienceFrameworkInstitutionAuthenticationHandler {
+public class OpenScienceFrameworkInstitutionHandler {
 
     @NotNull
     private MongoOperations mongoTemplate;

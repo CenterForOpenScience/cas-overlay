@@ -19,7 +19,7 @@
 
 package io.cos.cas.web.flow;
 
-import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionAuthenticationHandler;
+import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionHandler;
 
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
@@ -65,7 +65,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
 
     /** Institution authentication handler for logout. */
     @NotNull
-    private final OpenScienceFrameworkInstitutionAuthenticationHandler institutionHandler;
+    private final OpenScienceFrameworkInstitutionHandler institutionHandler;
 
     /**
      * Creates a new instance with the given parameters.
@@ -78,7 +78,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
             final CentralAuthenticationService cas,
             final CookieRetrievingCookieGenerator tgtCookieGenerator,
             final CookieRetrievingCookieGenerator warnCookieGenerator,
-            final OpenScienceFrameworkInstitutionAuthenticationHandler institutionHandler) {
+            final OpenScienceFrameworkInstitutionHandler institutionHandler) {
         this.centralAuthenticationService = cas;
         this.ticketGrantingTicketCookieGenerator = tgtCookieGenerator;
         this.warnCookieGenerator = warnCookieGenerator;

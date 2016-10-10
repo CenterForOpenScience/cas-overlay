@@ -19,7 +19,7 @@
 
 package io.cos.cas.web.flow;
 
-import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionAuthenticationHandler;
+import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,14 +47,14 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /** The Institution Authentication Handler. */
-    private final OpenScienceFrameworkInstitutionAuthenticationHandler institutionHandler;
+    private final OpenScienceFrameworkInstitutionHandler institutionHandler;
 
     /**
      * Creates a new instance with the given parameters.
      * @param institutionHandler The institution handler
      */
     public OpenScienceFrameworkLoginThroughInstitutions(
-            final OpenScienceFrameworkInstitutionAuthenticationHandler institutionHandler) {
+            final OpenScienceFrameworkInstitutionHandler institutionHandler) {
         this.institutionHandler = institutionHandler;
     }
 
@@ -71,13 +71,15 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
         context.getFlowScope().put("institutions", sortedInstitutions);
         String target = "";
         String service = context.getRequestParameters().get("service");
-        if (service != null) {
-            try {
+        try {
+            if (service != null) {
                 service = URLEncoder.encode(service, "UTF-8");
                 target = URLEncoder.encode(String.format("/login?service=%s", service), "UTF-8");
-            } catch (final UnsupportedEncodingException e) {
-                throw new AssertionError("UTF-8 is unknown");
+            } else {
+                target = URLEncoder.encode("/login", "UTF-8");
             }
+        } catch (final UnsupportedEncodingException e) {
+            throw new AssertionError("UTF-8 is unknown");
         }
         context.getFlowScope().put("target", target);
         context.getFlowScope().put("campaign", "INSTITUTION");
@@ -85,7 +87,7 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
     }
 
     /**
-     * Sort a Map by value. Return teh sorted Map.
+     * Sort a Map by value. Return the sorted Map.
      * @param map The Map to be sorted
      * @param <K> The Type of the Key
      * @param <V> The Type of the Value
