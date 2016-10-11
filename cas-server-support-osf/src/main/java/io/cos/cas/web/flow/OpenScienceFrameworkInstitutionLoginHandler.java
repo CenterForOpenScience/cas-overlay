@@ -19,7 +19,7 @@
 
 package io.cos.cas.web.flow;
 
-import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionAuthenticationHandler;
+import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,25 +36,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Open Science Framework Login Through Institutions.
+ * Open Science Framework Institution Login Handler.
  *
  * @author Longze Chen
  * @since 4.1.0
  */
-public class OpenScienceFrameworkLoginThroughInstitutions {
+public class OpenScienceFrameworkInstitutionLoginHandler {
 
     /** The Logger Instance. */
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /** The Institution Authentication Handler. */
-    private final OpenScienceFrameworkInstitutionAuthenticationHandler institutionHandler;
+    private final OpenScienceFrameworkInstitutionHandler institutionHandler;
 
     /**
      * Creates a new instance with the given parameters.
      * @param institutionHandler The institution handler
      */
-    public OpenScienceFrameworkLoginThroughInstitutions(
-            final OpenScienceFrameworkInstitutionAuthenticationHandler institutionHandler) {
+    public OpenScienceFrameworkInstitutionLoginHandler(
+            final OpenScienceFrameworkInstitutionHandler institutionHandler) {
         this.institutionHandler = institutionHandler;
     }
 
@@ -64,22 +64,26 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
      * @return Event
      */
     public Event getInstitutions(final RequestContext context) {
-        final Map<String, String> institutions = this.institutionHandler.getInstitutionLogin();
+
+        String target = "";
+        String service = context.getRequestParameters().get("service");
+        try {
+            if (service != null) {
+                service = URLEncoder.encode(service, "UTF-8");
+                target = URLEncoder.encode(String.format("/login?service=%s", service), "UTF-8");
+            } else {
+                target = URLEncoder.encode("/login", "UTF-8");
+            }
+        } catch (final UnsupportedEncodingException e) {
+            throw new AssertionError("UTF-8 is unknown");
+        }
+
+        final Map<String, String> institutions = this.institutionHandler.getInstitutionLoginUrls(target);
         institutions.put("", " -- select an institution -- ");
         final Map<String, String> sortedInstitutions = sortByValue(institutions);
         logger.info(String.format("Institutions loaded: %s", sortedInstitutions.toString()));
         context.getFlowScope().put("institutions", sortedInstitutions);
-        String target = "";
-        String service = context.getRequestParameters().get("service");
-        if (service != null) {
-            try {
-                service = URLEncoder.encode(service, "UTF-8");
-                target = URLEncoder.encode(String.format("/login?service=%s", service), "UTF-8");
-            } catch (final UnsupportedEncodingException e) {
-                throw new AssertionError("UTF-8 is unknown");
-            }
-        }
-        context.getFlowScope().put("target", target);
+
         context.getFlowScope().put("campaign", "INSTITUTION");
 
         final String serviceCampaign = OpenScienceFrameworkLoginViews.getOsfCampaigns(context);
@@ -94,7 +98,11 @@ public class OpenScienceFrameworkLoginThroughInstitutions {
     }
 
     /**
-     * Sort a Map by value. Return teh sorted Map.
+     * Sort a Map by value. Return the sorted Map.
+     *
+     * References: http://www.programcreek.com/2013/03/java-sort-map-by-value/
+     *             https://www.mkyong.com/java/how-to-sort-a-map-in-java/
+     *
      * @param map The Map to be sorted
      * @param <K> The Type of the Key
      * @param <V> The Type of the Value

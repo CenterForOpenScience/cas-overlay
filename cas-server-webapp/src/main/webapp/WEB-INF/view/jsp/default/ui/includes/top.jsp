@@ -56,17 +56,16 @@
                 <br>
                 <div class="center">
                     <span id="title">
-                        <c:if test="${empty campaign and empty serviceCampaign}">
-                            <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
-                            <span class="title-long">Open&nbsp;Science&nbsp;Framework</span>
-                            <span class="title-short">Open&nbsp;Science&nbsp;Framework</span>
-                            <span class="title-abbr">OSF</span>
-                        </c:if>
-                        <c:if test="${campaign eq 'INSTITUTION'}">
-                            <span class="title-full">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Login&nbsp;Through&nbsp;Institutions</span>
-                            <span class="title-long">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Institution&nbsp;Login</span>
-                            <span class="title-short">OSF&nbsp;|&nbsp;Institution Login</span>
-                            <span class="title-abbr">OSF&nbsp;|&nbsp;Institution</span>
+                        <c:if test="${empty serviceCampaign}">
+                            <c:choose>
+                                <c:when test="${campaign eq 'INSTITUTION'}">
+                                    <span>OSF Institutions</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
+                                    <span class="title-abbr">OSF</span>
+                                </c:otherwise>
+                            </c:choose>
                         </c:if>
                         <c:if test="${serviceCampaign eq 'PREREG'}">
                             <span class="title-full">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Preregistration&nbsp;Challenge</span>
@@ -91,8 +90,7 @@
                 <div class="responsive">
                     <c:if test="${campaign eq 'INSTITUTION'}">
                         <div id="description">
-                            <br><br><spring:message code="screen.institution.login.message.a" />
-                            <spring:message code="screen.institution.login.message.b" />
+                            <br><br><spring:message code="screen.institution.login.message" />
                         </div>
                     </c:if>
                 </div>

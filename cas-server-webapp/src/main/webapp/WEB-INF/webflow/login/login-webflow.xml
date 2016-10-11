@@ -96,7 +96,12 @@
         <evaluate expression="principalFromRemoteAction" />
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="authenticationFailure" to="handleAuthenticationFailure" />
-        <transition on="error" to="osfLogin" />
+        <transition on="error" to="beforeLogin" />
+    </action-state>
+
+    <action-state id="beforeLogin">
+        <evaluate expression="loginHandler.beforeLogin(flowRequestContext)" />
+        <transition on="osf" to="osfLogin" />
         <transition on="institution" to="institutionLogin" />
     </action-state>
 

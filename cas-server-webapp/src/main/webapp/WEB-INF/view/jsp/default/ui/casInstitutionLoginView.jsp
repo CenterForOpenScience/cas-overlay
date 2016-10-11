@@ -28,7 +28,7 @@
     <br>
     <section class="row">
         <div class="select">
-            <label for="select-institution"><spring:message code="screen.institution.login.message.c" /></label>
+            <label for="select-institution">Select Your Institution</label>
         </div>
     </section>
     <section class="row">
@@ -40,20 +40,15 @@
     <section class="row">
         <div class="btn-submit">
             <input type="button" name="submit" value="<spring:message code="screen.welcome.button.login" />" onclick="institutionLogin()">
-            <input type="hidden" id="target" value="${target}" />
         </div>
     </section>
     <br>
     <script>
         function institutionLogin () {
-            var form = document.getElementById("institution-form-select");
+            var form = document.getElementById('institution-form-select');
             var login_url = form.options[form.selectedIndex].value;
             if(login_url == null || login_url == "") {
                 return;
-            }
-            var target = document.getElementById("target").value;
-            if (target != null && target != "") {
-                login_url = login_url + "&target=" + target;
             }
             window.location = login_url;
         }

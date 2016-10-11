@@ -173,17 +173,6 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         return StringUtils.hasText(context.getRequestParameters().get("renew"));
     }
 
-    /**
-     * Check institution login. Return true if `campaign=institution` is present in request parameters.
-     *
-     * @param context The request context
-     * @return Boolean
-     */
-    protected boolean isInstitution(final RequestContext context) {
-        final String campaign = context.getRequestParameters().get("campaign");
-        return campaign != null && "institution".equals(campaign);
-    }
-
     @Override
     protected Event doExecute(final RequestContext context) throws Exception {
         final Credential credential;
@@ -200,7 +189,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         }
 
         if (credential == null) {
-            return this.isInstitution(context) ? new Event(this, "institution") : error();
+            return error();
         }
 
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
