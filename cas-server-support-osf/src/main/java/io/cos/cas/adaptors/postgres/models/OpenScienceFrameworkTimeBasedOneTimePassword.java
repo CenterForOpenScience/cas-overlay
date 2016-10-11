@@ -48,9 +48,6 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "_id", nullable = false)
-    private Integer version;
-
     @OneToOne
     @JoinColumn(name = "owner_id")
     private OpenScienceFrameworkUser owner;
@@ -69,10 +66,6 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
 
     public Integer getId() {
         return id;
-    }
-
-    public Integer getVersion() {
-        return version;
     }
 
     public String getTotpSecret() {
