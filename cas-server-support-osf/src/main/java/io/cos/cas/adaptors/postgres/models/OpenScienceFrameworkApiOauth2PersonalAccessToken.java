@@ -37,7 +37,7 @@ import javax.persistence.Table;
  * @since 4.1.0
  */
 @Entity
-@Table(name = "osf_models_apioauth2personaltoken")
+@Table(name = "osf_apioauth2personaltoken")
 public class OpenScienceFrameworkApiOauth2PersonalAccessToken {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkApiOauth2PersonalAccessToken.class);

@@ -90,7 +90,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             // JPA Hibernate does not support postgres query array operations, use postgres native queries
             // `query.setParameter()` does not work, use string concatenation instead
             final Query query= entityManager.createNativeQuery(
-                    "select u.* from osf_models_osfuser u where u.emails @> '{" + email + "}'\\:\\:varchar[]",
+                    "select u.* from osf_osfuser u where u.emails @> '{" + email + "}'\\:\\:varchar[]",
                     OpenScienceFrameworkUser.class
             );
             return (OpenScienceFrameworkUser) query.getSingleResult();

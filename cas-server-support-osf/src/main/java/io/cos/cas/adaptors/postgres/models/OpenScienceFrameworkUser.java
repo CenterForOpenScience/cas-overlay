@@ -41,7 +41,7 @@ import java.util.Date;
  * @since 4.1.0
  */
 @Entity
-@Table(name = "osf_models_osfuser")
+@Table(name = "osf_osfuser")
 public final class OpenScienceFrameworkUser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkUser.class);

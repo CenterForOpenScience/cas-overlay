@@ -34,7 +34,7 @@ import javax.persistence.Table;
  * @since 4.1.o
  */
 @Entity
-@Table(name = "osf_models_institution")
+@Table(name = "osf_institution")
 public class OpenScienceFrameworkInstitution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
@@ -45,7 +45,7 @@ public class OpenScienceFrameworkInstitution {
 
     /**
      * The `objectId` serves as a unique and fixed identifier for each institution.
-     * It comes from `node.institution_id` (mongo) to `osf_models_institution._id` (postgres).
+     * It comes from `node.institution_id` (mongo) to `osf_institution._id` (postgres).
      * Methods such as `getId()`, `findInstitutionById()` and `findInstitutionLogoutUrlById()` refer to this `objectId`.
      */
     @Column(name = "_id")
