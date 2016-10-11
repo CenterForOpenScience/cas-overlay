@@ -39,7 +39,7 @@ import javax.xml.bind.DatatypeConverter;
  * @since 4.1.0
  */
 @Entity
-@Table(name = "addons_twofactorusersettings")
+@Table(name = "twofactor_twofactorusersettings")
 public class OpenScienceFrameworkTimeBasedOneTimePassword {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkTimeBasedOneTimePassword.class);
@@ -47,9 +47,6 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
-
-    @Column(name = "version", nullable = false)
-    private Integer version;
 
     @OneToOne
     @JoinColumn(name = "owner_id")
@@ -69,10 +66,6 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
 
     public Integer getId() {
         return id;
-    }
-
-    public Integer getVersion() {
-        return version;
     }
 
     public String getTotpSecret() {
