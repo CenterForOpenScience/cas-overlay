@@ -48,7 +48,7 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "version", nullable = false)
+    @Column(name = "_id", nullable = false)
     private Integer version;
 
     @OneToOne
