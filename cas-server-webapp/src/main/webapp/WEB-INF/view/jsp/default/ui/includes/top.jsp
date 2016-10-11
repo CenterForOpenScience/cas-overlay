@@ -56,35 +56,34 @@
                 <br>
                 <div class="center">
                     <span id="title">
-                        <c:if test="${empty serviceCampaign}">
-                            <c:choose>
-                                <c:when test="${campaign eq 'INSTITUTION'}">
-                                    <span>OSF Institutions</span>
-                                </c:when>
-                                <c:otherwise>
-                                    <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
-                                    <span class="title-abbr">OSF</span>
-                                </c:otherwise>
-                            </c:choose>
-                        </c:if>
-                        <c:if test="${serviceCampaign eq 'PREREG'}">
-                            <span class="title-full">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Preregistration&nbsp;Challenge</span>
-                            <span class="title-long">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Preregistration&nbsp;Challenge</span>
-                            <span class="title-short">Open&nbsp;Science&nbsp;Framework<br><br>Preregistration&nbsp;Challenge</span>
-                            <span class="title-abbr">OSF<br><br>Preregistration<br>Challenge</span>
-                        </c:if>
-                        <c:if test="${serviceCampaign eq 'ERPC'}">
-                            <span class="title-full">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition</span>
-                            <span class="title-long">Open&nbsp;Science&nbsp;Framework<br><br>Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition</span>
-                            <span class="title-short">Open&nbsp;Science&nbsp;Framework<br><br>Election&nbsp;Research<br>Preacceptance&nbsp;Competition</span>
-                            <span class="title-abbr">OSF<br><br>Election&nbsp;Research<br>Preacceptance<br>Competition</span>
-                        </c:if>
-                        <c:if test="${serviceCampaign eq 'OSF-PREPRINTS'}">
-                            <span class="title-full">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Preprints</span>
-                            <span class="title-long">Open&nbsp;Science&nbsp;Framework&nbsp;|&nbsp;Preprints</span>
-                            <span class="title-short">OSF&nbsp;|&nbsp;Preprints</span>
-                            <span class="title-abbr">OSF&nbsp;|&nbsp;Preprints</span>
-                        </c:if>
+                        <c:choose>
+                            <c:when test="${empty serviceCampaign}">
+                                <c:choose>
+                                    <c:when test="${campaign eq 'INSTITUTION'}">
+                                        <span>OSF Institutions</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
+                                        <span class="title-abbr">OSF</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:when>
+                            <c:otherwise>
+                                <c:choose>
+                                    <c:when test="${serviceCampaign eq 'PREREG'}">
+                                        <span class="title-full">OSF&nbsp;Preregistration&nbsp;Challenge</span>
+                                        <span class="title-abbr">OSF<br><br>Preregistration<br>Challenge</span>
+                                    </c:when>
+                                    <c:when test="${serviceCampaign eq 'ERPC'}">
+                                        <span class="title-full">Open&nbsp;Science&nbsp;Framework<br><br>Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition</span>
+                                        <span class="title-abbr">OSF<br><br>Election&nbsp;Research<br>Preacceptance<br>Competition</span>
+                                    </c:when>
+                                    <c:when test="${serviceCampaign eq 'OSF-PREPRINTS'}">
+                                        <span>OSF Preprints</span>
+                                    </c:when>
+                                </c:choose>
+                            </c:otherwise>
+                        </c:choose>
                     </span>
                 </div>
                 <div class="responsive">
