@@ -27,6 +27,20 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+<%@ page import="com.google.gson.JsonParser"%>
+<%@ page import="com.google.gson.JsonObject" %>
+<%@ page import="com.google.gson.JsonElement" %>
+<%@ page import="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler.OpenScienceFrameworkCampaign" %>
+<c:set var="campaignData" value="${campaign}" />
+<%
+    JsonParser jsonParser = new JsonParser();
+    String campaign = (String) pageContext.getAttribute("campaignData");
+    OpenScienceFrameworkCampaign osfCampaign = OpenScienceFrameworkCampaign.fromJson(campaign);
+//    JsonElement element = jsonParser.parse(campaign);
+//    JsonObject object = element.getAsJsonObject();
+    pageContext.setAttribute("osfCampaign", osfCampaign);
+%>
+
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -57,37 +71,18 @@
                 <div class="center">
                     <span id="title">
                         <c:choose>
-                            <c:when test="${empty serviceCampaign}">
-                                <c:choose>
-                                    <c:when test="${campaign eq 'INSTITUTION'}">
-                                        <span>OSF Institutions</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
-                                        <span class="title-abbr">OSF</span>
-                                    </c:otherwise>
-                                </c:choose>
+                            <c:when test="${osfCampaign.isInstitutionLogin()}">
+                                <span>OSF Institutions</span>
                             </c:when>
                             <c:otherwise>
-                                <c:choose>
-                                    <c:when test="${serviceCampaign eq 'PREREG'}">
-                                        <span class="title-full">OSF&nbsp;Preregistration&nbsp;Challenge</span>
-                                        <span class="title-abbr">OSF<br><br>Preregistration<br>Challenge</span>
-                                    </c:when>
-                                    <c:when test="${serviceCampaign eq 'ERPC'}">
-                                        <span class="title-full">Open&nbsp;Science&nbsp;Framework<br><br>Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition</span>
-                                        <span class="title-abbr">OSF<br><br>Election&nbsp;Research<br>Preacceptance<br>Competition</span>
-                                    </c:when>
-                                    <c:when test="${serviceCampaign eq 'OSF-PREPRINTS'}">
-                                        <span>OSF Preprints</span>
-                                    </c:when>
-                                </c:choose>
+                            <span class="title-full">${osfCampaign.getTitleLong()}</span>
+                            <span class="title-abbr">${osfCampaign.getTitleShort()}</span>
                             </c:otherwise>
                         </c:choose>
                     </span>
                 </div>
                 <div class="responsive">
-                    <c:if test="${campaign eq 'INSTITUTION'}">
+                    <c:if test="${osfCampaign.isInstitutionLogin()}">
                         <div id="description">
                             <br><br><spring:message code="screen.institution.login.message" />
                         </div>
