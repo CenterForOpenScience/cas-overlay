@@ -32,6 +32,4 @@
           c:institutionHandler-ref="openScienceFrameworkInstitutionHandler"/>
 
     <bean id="loginHandler" class="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler" />
-
-    <bean id="osfLoginViews" class = "io.cos.cas.web.flow.OpenScienceFrameworkLoginViews" />
 </beans>
