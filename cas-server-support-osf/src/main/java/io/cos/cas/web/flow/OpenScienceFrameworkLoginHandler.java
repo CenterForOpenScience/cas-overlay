@@ -198,21 +198,21 @@ public class OpenScienceFrameworkLoginHandler {
                         "prereg",
                         "OSF&nbsp;Preregistration&nbsp;Challenge",
                         "OSF<br><br>Preregistration<br>Challenge",
-                        "/register/?campaign=prereg"
+                        "?campaign=prereg"
                 );
             } else if (servicePath.startsWith("/erpc/") || "/erpc".equals(servicePath)) {
                 osfCampaign.setOsfCampaign(
                         "erpc",
                         "Open&nbsp;Science&nbsp;Framework<br><br>Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition",
                         "OSF<br><br>Election&nbsp;Research<br>Preacceptance<br>Competition",
-                        "/register/?campaign=erpc"
+                        "?campaign=erpc"
                 );
             } else if (servicePath.startsWith("/preprints/") || "/preprints".equals(servicePath)) {
                 osfCampaign.setOsfCampaign(
                         "osf-preprints",
                         "OSF&nbsp;Preprints",
                         "OSF&nbsp;Preprints",
-                        "/register/?campaign=osf-preprints"
+                        "?campaign=osf-preprints"
                 );
             }
         }
