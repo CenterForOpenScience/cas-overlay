@@ -36,8 +36,6 @@
     JsonParser jsonParser = new JsonParser();
     String campaign = (String) pageContext.getAttribute("campaignData");
     OpenScienceFrameworkCampaign osfCampaign = OpenScienceFrameworkCampaign.fromJson(campaign);
-//    JsonElement element = jsonParser.parse(campaign);
-//    JsonObject object = element.getAsJsonObject();
     pageContext.setAttribute("osfCampaign", osfCampaign);
 %>
 
@@ -75,8 +73,8 @@
                                 <span>OSF Institutions</span>
                             </c:when>
                             <c:otherwise>
-                            <span class="title-full">${osfCampaign.getTitleLong()}</span>
-                            <span class="title-abbr">${osfCampaign.getTitleShort()}</span>
+                                <span class="title-full">${osfCampaign.getTitleLong()}</span>
+                                <span class="title-abbr">${osfCampaign.getTitleShort()}</span>
                             </c:otherwise>
                         </c:choose>
                     </span>
