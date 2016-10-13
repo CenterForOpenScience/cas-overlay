@@ -21,16 +21,25 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
     <div class="row" style="text-align: center;">
-        <hr style="margin-bottom: 1em;">
-        <spring:eval var="osfInstitutionLoginUrl" expression="@casProperties.getProperty('osf.institutionLogin.url')" />
-        <a id="institution-login" href="${osfInstitutionLoginUrl}${not empty param.service ? '&redirect_url=' : ''}${fn:escapeXml(param.service)}">Login&nbsp;Through&nbsp;Your&nbsp;Institution</a>&nbsp;&nbsp;
+        <hr>
+        <br>
+        <c:choose>
+            <c:when test="${campaign == 'INSTITUTION'}">
+                <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
+                <a id="alternative-osf" href="${osfLoginUrl}${not empty param.service ? 'service=' : ''}${fn:escapeXml(param.service)}">Non-institution Login</a>&nbsp;&nbsp;
+            </c:when>
+            <c:otherwise>
+                <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')" />
+                <a id="aleternative-institution" href="${institutionLoginUrl}${not empty param.service ? '&service=' : ''}${fn:escapeXml(param.service)}">Login through Your Institution</a>&nbsp;&nbsp;
+            </c:otherwise>
+        </c:choose>
         <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
         <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
     </div>
 </div> <!-- END #content -->
 
 <div class="row" style="text-align: center;">
-    </br>
+    <br>
     <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')" />
     <a id="create-account" href="${createAccountUrl}">Create Account</a>
 </div>
@@ -73,4 +82,3 @@
 </c:if>
 </body>
 </html>
-
