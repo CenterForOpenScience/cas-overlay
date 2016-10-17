@@ -346,7 +346,7 @@
 
       <!-- Sentry -->
       <dependency>
-        <groupId>net.kencochrane.raven</groupId>
+        <groupId>com.getsentry.raven</groupId>
         <artifactId>raven-log4j2</artifactId>
         <version>${raven.log4j2.version}</version>
       </dependency>
