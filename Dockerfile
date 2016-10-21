@@ -11,6 +11,10 @@ RUN mkdir -p /code
 WORKDIR /code
 
 COPY ./ /code
+
+ARG GIT_COMMIT=
+ENV GIT_COMMIT ${GIT_COMMIT}
+
 RUN mvn clean install -DskipTests=true
 # Forces all jetty dependancies to install
 RUN mvn jetty:help
