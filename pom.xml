@@ -346,7 +346,7 @@
 
       <!-- Sentry -->
       <dependency>
-        <groupId>net.kencochrane.raven</groupId>
+        <groupId>com.getsentry.raven</groupId>
         <artifactId>raven-log4j2</artifactId>
         <version>${raven.log4j2.version}</version>
       </dependency>
@@ -715,7 +715,7 @@
     <postgresql.version>9.4-1201-jdbc41</postgresql.version>
     <jstl.version>1.2</jstl.version>
     <servlet.api.version>3.0.1</servlet.api.version>
-    <raven.log4j2.version>6.0.0</raven.log4j2.version>
+    <raven.log4j2.version>7.8.0</raven.log4j2.version>
     <checkstyle.version>6.7</checkstyle.version>
     <apache.httpclient.version>4.4.1</apache.httpclient.version>
     <nimbus.jose.version>4.10</nimbus.jose.version>

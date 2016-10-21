@@ -103,8 +103,8 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
         /**
          * Creates a new instance with the given parameters.
-         * @param username the username
-         * @param institutionId the institution id
+         * @param username The username
+         * @param institutionId The institution id
          */
         public PrincipalAuthenticationResult(final String username, final String institutionId) {
             this.username = username;
@@ -167,7 +167,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * Checks if is renew present.
      *
      * @param context the context
-     * @return true, if  renew present
+     * @return true, if renew present
      */
     protected boolean isRenewPresent(final RequestContext context) {
         return StringUtils.hasText(context.getRequestParameters().get("renew"));

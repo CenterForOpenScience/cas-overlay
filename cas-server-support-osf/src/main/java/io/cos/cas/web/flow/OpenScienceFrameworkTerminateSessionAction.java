@@ -19,7 +19,7 @@
 
 package io.cos.cas.web.flow;
 
-import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkLogoutHandler;
+import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionHandler;
 
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
@@ -63,32 +63,32 @@ public class OpenScienceFrameworkTerminateSessionAction {
     @NotNull
     private final CookieRetrievingCookieGenerator warnCookieGenerator;
 
-    /** Logout handler. */
+    /** Institution authentication handler for logout. */
     @NotNull
-    private final OpenScienceFrameworkLogoutHandler logoutHandler;
+    private final OpenScienceFrameworkInstitutionHandler institutionHandler;
 
     /**
      * Creates a new instance with the given parameters.
      * @param cas Core business logic object.
      * @param tgtCookieGenerator TGT cookie generator.
      * @param warnCookieGenerator Warn cookie generator.
-     * @param logoutHandler The Logout Handler.
+     * @param institutionHandler The institution handler.
      */
     public OpenScienceFrameworkTerminateSessionAction(
             final CentralAuthenticationService cas,
             final CookieRetrievingCookieGenerator tgtCookieGenerator,
             final CookieRetrievingCookieGenerator warnCookieGenerator,
-            final OpenScienceFrameworkLogoutHandler logoutHandler) {
+            final OpenScienceFrameworkInstitutionHandler institutionHandler) {
         this.centralAuthenticationService = cas;
         this.ticketGrantingTicketCookieGenerator = tgtCookieGenerator;
         this.warnCookieGenerator = warnCookieGenerator;
-        this.logoutHandler = logoutHandler;
+        this.institutionHandler = institutionHandler;
     }
 
     /**
-     * The Terminate Action.
-     * @param context The Request Context
-     * @return the Event success or finish
+     * The terminate session action. Return `success` or `finish` event.
+     * @param context The request context
+     * @return Event
      */
     public Event terminate(final RequestContext context) {
         // in login's webflow : we can get the value from context as it has already been stored
@@ -130,9 +130,9 @@ public class OpenScienceFrameworkTerminateSessionAction {
 
         // if users logged in through their institutions, redirect to institution logout endpoint
         if (remotePrincipal && institutionId != null) {
-            final String institutionLogoutUrl = this.logoutHandler.findInstitutionLogoutUrlById(institutionId);
+            final String institutionLogoutUrl = this.institutionHandler.findInstitutionLogoutUrlById(institutionId);
             if (institutionLogoutUrl == null) {
-                logger.warn("Institution {} does not have logout url, use default logout redirection instead", institutionId);
+                logger.warn("Institution {} does not have a dedicated logout url, use default logout redirection instead", institutionId);
             } else {
                 context.getFlowScope().put("logoutRedirectUrl", institutionLogoutUrl);
                 // we have to overwrite and return `finish` event to prevent `logoutRedirectUrl` being overwritten
