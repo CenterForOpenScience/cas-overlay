@@ -25,8 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -214,6 +218,27 @@ public class OpenScienceFrameworkLoginHandler {
                         "OSF&nbsp;Preprints",
                         "?campaign=osf-preprints"
                 );
+            } else if ("/login/".equals(servicePath) || "/login".equals(servicePath)) {
+                final String serviceQuery = serviceUrl.getQuery();
+                URL nextUrl = null;
+                if (serviceQuery != null) {
+                    final Map<String, String> queryPairs = parseUrlQuery(serviceQuery);
+                    try {
+                        nextUrl = new URL(queryPairs.get("next"));
+                    } catch (final MalformedURLException e) {
+                        LOGGER.error(String.format("Malformed Service URL: %s", e.toString()));
+                    }
+                    if (nextUrl != null && nextUrl.getPath() != null) {
+                        if (nextUrl.getPath().startsWith("/preprints/") || "/preprints".equals(nextUrl.getPath())) {
+                            osfCampaign.setOsfCampaign(
+                                    "osf-preprints",
+                                    "OSF&nbsp;Preprints",
+                                    "OSF&nbsp;Preprints",
+                                    "?campaign=osf-preprints"
+                            );
+                        }
+                    }
+                }
             }
         }
 
@@ -222,5 +247,29 @@ public class OpenScienceFrameworkLoginHandler {
         }
 
         return osfCampaign;
+    }
+
+    /**
+     * Parse the query string in URL and store the result as key-value pairs in a map.
+     * Support query parameter with empty value. Does not support multiple parameter with the same key.
+     *
+     * @param query the query string
+     * @return a map of query key-value pairs
+     */
+    private Map<String, String> parseUrlQuery(final String query) {
+        final Map<String, String> queryPairs = new HashMap<>();
+        for (final String pair: query.split("&")) {
+            final int index = pair.indexOf('=');
+            try {
+                final String key = index > 0 ? URLDecoder.decode(pair.substring(0, index), "UTF-8") : pair;
+                final String value = index > 0 && pair.length() > index + 1 ? URLDecoder.decode(pair.substring(index + 1), "UTF-8") : "";
+                if (!queryPairs.containsKey(key)) {
+                    queryPairs.put(key, value);
+                }
+            } catch (final UnsupportedEncodingException e){
+                throw new AssertionError("UTF-8 is unknown");
+            }
+        }
+        return queryPairs;
     }
 }
