@@ -69,6 +69,13 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkInstitution findOneInstitutionById(final String id);
 
     /**
+     * Find a list of institutions that support institution login.
+     *
+     * @return a list of institutions
+     */
+    List<OpenScienceFrameworkInstitution> findAllInstitutions();
+
+    /**
      * Find one scope by scope name.
      *
      * @param name the scope name

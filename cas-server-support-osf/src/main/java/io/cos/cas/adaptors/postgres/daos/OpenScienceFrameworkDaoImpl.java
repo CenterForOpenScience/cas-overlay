@@ -131,6 +131,20 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     }
 
     @Override
+    public List<OpenScienceFrameworkInstitution> findAllInstitutions() {
+        try {
+            final TypedQuery query = entityManager.createQuery(
+                    "select i from OpenScienceFrameworkInstitution i where i.loginUrl is not null and i.deleted = false",
+                    OpenScienceFrameworkInstitution.class
+            );
+            return query.getResultList();
+        } catch (final PersistenceException e) {
+            LOGGER.error(e.toString());
+            return null;
+        }
+    }
+
+    @Override
     public OpenScienceFrameworkApiOauth2Scope findOneScopeByName(final String name) {
         try {
             final TypedQuery<OpenScienceFrameworkApiOauth2Scope> query = entityManager.createQuery(
