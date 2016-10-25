@@ -119,7 +119,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     public OpenScienceFrameworkInstitution findOneInstitutionById(final String id) {
         try {
             final TypedQuery<OpenScienceFrameworkInstitution> query = entityManager.createQuery(
-                    "select i from OpenScienceFrameworkInstitution i where i._id = :id",
+                    "select i from OpenScienceFrameworkInstitution i where i.objectId = :id",
                     OpenScienceFrameworkInstitution.class
             );
             query.setParameter("id", id);
