@@ -347,7 +347,7 @@
         c:cas-ref="centralAuthenticationService"
         c:tgtCookieGenerator-ref="ticketGrantingTicketCookieGenerator"
         c:warnCookieGenerator-ref="warnCookieGenerator"
-        c:logoutHandler-ref="openScienceFrameworkLogoutHandler"/>
+        c:institutionHandler-ref="openScienceFrameworkInstitutionHandler"/>
 
   <bean id="acceptableUsagePolicyFormAction" class="org.jasig.cas.web.flow.AcceptableUsagePolicyFormAction"/>
 
