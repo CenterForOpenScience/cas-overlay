@@ -19,24 +19,34 @@
 package io.cos.cas.web.flow;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.RemoteUserFailedLoginException;
+import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.web.flow.AuthenticationExceptionHandler;
+import org.springframework.binding.message.MessageContext;
+import org.springframework.webflow.execution.Event;
+import org.springframework.webflow.execution.RequestContext;
 
 /**
  * The Open Science Framework authentication exception handler.
  *
  * @author Michael Haselton
+ * @author Longze Chen
  * @since 4.1.0
  */
 public class OpenScienceFrameworkAuthenticationExceptionHandler extends AuthenticationExceptionHandler {
 
     /** Default list of errors this class knows how to handle. */
     private static final List<Class<? extends Exception>> DEFAULT_ERROR_LIST = new ArrayList<>();
+
+    /** List of errors that triggers login throttle. */
+    private static final Set<String> THROTTLE_ERROR_LIST = new HashSet<>();
 
     static {
         DEFAULT_ERROR_LIST.add(javax.security.auth.login.AccountLockedException.class);
@@ -55,10 +65,49 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
     }
 
+    static {
+        // Username does not exist
+        THROTTLE_ERROR_LIST.add(javax.security.auth.login.AccountNotFoundException.class.getSimpleName());
+        // Wrong password
+        THROTTLE_ERROR_LIST.add(javax.security.auth.login.FailedLoginException.class.getSimpleName());
+        // Wrong one time password
+        THROTTLE_ERROR_LIST.add(OneTimePasswordFailedLoginException.class.getSimpleName());
+    }
+
     /**
      * The Open Science Framework Authentication Exception Handler.
      */
     public OpenScienceFrameworkAuthenticationExceptionHandler() {
         super.setErrors(DEFAULT_ERROR_LIST);
+    }
+
+    /**
+     * Check if the authentication exception should trigger login throttle.
+     *
+     * @param handleErrorName the simple name of the exception
+     * @return true if trigger, false otherwise
+     */
+    public static Boolean triggerLoginThrottle(final String handleErrorName) {
+        return THROTTLE_ERROR_LIST.contains(handleErrorName);
+    }
+
+    /**
+     * The authentication exception handler event.
+     * 1. handle authentication exception
+     * 2. recognize those failures that should trigger login throttle
+     * 3. update flow scope in context
+     *
+     * @param context the request context
+     * @param e the authentication exception
+     * @param messageContext the message context
+     * @return an Event with the name of the exception
+     */
+    public Event preHandle(final RequestContext context, final AuthenticationException e, final MessageContext messageContext) {
+        final String handleErrorName = super.handle(e, messageContext);
+
+        if ((THROTTLE_ERROR_LIST.contains(handleErrorName))) {
+            context.getFlowScope().put("handleErrorName", handleErrorName);
+        }
+        return new Event(this, handleErrorName);
     }
 }
