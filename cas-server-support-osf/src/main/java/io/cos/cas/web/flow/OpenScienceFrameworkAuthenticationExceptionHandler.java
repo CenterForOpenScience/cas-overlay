@@ -45,8 +45,8 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     /** Default list of errors this class knows how to handle. */
     private static final List<Class<? extends Exception>> DEFAULT_ERROR_LIST = new ArrayList<>();
 
-    /** List of errors that triggers login throttle. */
-    private static final Set<String> THROTTLE_ERROR_LIST = new HashSet<>();
+    /** A set of errors that trigger throttle increase. */
+    private static final Set<String> THROTTLE_INCREASE_SET = new HashSet<>();
 
     static {
         DEFAULT_ERROR_LIST.add(javax.security.auth.login.AccountLockedException.class);
@@ -67,11 +67,11 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
 
     static {
         // Username does not exist
-        THROTTLE_ERROR_LIST.add(javax.security.auth.login.AccountNotFoundException.class.getSimpleName());
+        THROTTLE_INCREASE_SET.add(javax.security.auth.login.AccountNotFoundException.class.getSimpleName());
         // Wrong password
-        THROTTLE_ERROR_LIST.add(javax.security.auth.login.FailedLoginException.class.getSimpleName());
+        THROTTLE_INCREASE_SET.add(javax.security.auth.login.FailedLoginException.class.getSimpleName());
         // Wrong one time password
-        THROTTLE_ERROR_LIST.add(OneTimePasswordFailedLoginException.class.getSimpleName());
+        THROTTLE_INCREASE_SET.add(OneTimePasswordFailedLoginException.class.getSimpleName());
     }
 
     /**
@@ -82,13 +82,13 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     }
 
     /**
-     * Check if the authentication exception should trigger login throttle.
+     * Check if the authentication exception should trigger throttle increase.
      *
      * @param handleErrorName the simple name of the exception
      * @return true if trigger, false otherwise
      */
-    public static Boolean triggerLoginThrottle(final String handleErrorName) {
-        return THROTTLE_ERROR_LIST.contains(handleErrorName);
+    public static Boolean isTriggerThrottleIncrease(final String handleErrorName) {
+        return THROTTLE_INCREASE_SET.contains(handleErrorName);
     }
 
     /**
@@ -105,7 +105,7 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     public Event preHandle(final RequestContext context, final AuthenticationException e, final MessageContext messageContext) {
         final String handleErrorName = super.handle(e, messageContext);
 
-        if ((THROTTLE_ERROR_LIST.contains(handleErrorName))) {
+        if ((THROTTLE_INCREASE_SET.contains(handleErrorName))) {
             context.getFlowScope().put("handleErrorName", handleErrorName);
         }
         return new Event(this, handleErrorName);

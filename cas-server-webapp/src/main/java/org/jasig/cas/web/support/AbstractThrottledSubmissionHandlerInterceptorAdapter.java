@@ -103,7 +103,7 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
         }
         final String handleErrorName = (String) context.getFlowScope().get("handleErrorName");
 
-        if (OpenScienceFrameworkAuthenticationExceptionHandler.triggerLoginThrottle(handleErrorName)) {
+        if (OpenScienceFrameworkAuthenticationExceptionHandler.isTriggerThrottleIncrease(handleErrorName)) {
             recordSubmissionFailure(request);
         }
     }
