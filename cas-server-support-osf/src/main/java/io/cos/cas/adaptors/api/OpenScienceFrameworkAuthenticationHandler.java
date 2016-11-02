@@ -21,10 +21,11 @@ package io.cos.cas.adaptors.api;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 
-import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
-import io.cos.cas.authentication.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-
+import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
+import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
+import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
 
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
@@ -101,20 +102,35 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String plainTextPassword = credential.getPassword();
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
+        final Boolean createAccount = credential.getCreateAccount();
+        final String fullname = credential.getFullname();
+        final String campaign = credential.getCampaign();
 
         final JSONObject user = new JSONObject();
         final JSONObject data = new JSONObject();
         final JSONObject payload = new JSONObject();
+
+        String endpoint;
         user.put("email", username);
         user.put("password", plainTextPassword);
-        user.put("verificationKey", verificationKey);
-        user.put("remoteAuthenticated", credential.isRemotePrincipal());
-        user.put("oneTimePassword", oneTimePassword);
-        data.put("type", "LOGIN");
+
+        if (createAccount) {
+            user.put("fullname", fullname);
+            user.put("campaign", campaign);
+            data.put("type", "REGISTER");
+            endpoint = "register";
+        } else {
+            user.put("verificationKey", verificationKey);
+            user.put("remoteAuthenticated", credential.isRemotePrincipal());
+            user.put("oneTimePassword", oneTimePassword);
+            data.put("type", "LOGIN");
+            endpoint = "login";
+        }
+
         data.put("user", user);
         payload.put("data", data);
 
-        final Map<String, Object> response = osfApiCasEndpoint.apiCasAuthentication("login", username, payload.toString());
+        final Map<String, Object> response = osfApiCasEndpoint.apiCasAuthentication(endpoint, username, payload.toString());
         if (response == null || !response.containsKey("status")) {
             throw new FailedLoginException("I/O Exception: an error has occurred during the api authentication process.");
         }
@@ -124,9 +140,13 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             final String userId = (String) response.get("userId");
             final Map<String, Object> attributes = (Map<String, Object>) response.get("attributes");
             return createHandlerResult(credential, this.principalFactory.createPrincipal(userId, attributes), null);
+        } else if ("REGISTRATION_SUCCESS".equals(status)) {
+            throw new RegistrationSuccessConfirmationRequiredException();
         } else if ("AUTHENTICATION_FAILURE".equals(status)) {
             final String errorDetail = (String) response.get("detail");
-            if ("TWO_FACTOR_AUTHENTICATION_REQUIRED".equals(errorDetail)) {
+            if ("ALREADY_REGISTERED".equals(errorDetail)) {
+                throw new RegistrationFailureUserAlreadyExistsException();
+            } else if ("TWO_FACTOR_AUTHENTICATION_REQUIRED".equals(errorDetail)) {
                 throw new OneTimePasswordRequiredException("Time-based One Time Password required.");
             } else if ("INVALID_ONE_TIME_PASSWORD".equals(errorDetail)) {
                 throw new OneTimePasswordFailedLoginException();

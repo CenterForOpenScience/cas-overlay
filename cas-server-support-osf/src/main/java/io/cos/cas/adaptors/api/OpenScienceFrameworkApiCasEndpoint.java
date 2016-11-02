@@ -37,6 +37,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
         API_AUTHENTICATION_ERROR_LIST.add("INVALID_VERIFICATION_KEY");
         API_AUTHENTICATION_ERROR_LIST.add("INVALID_ONE_TIME_PASSWORD");
         API_AUTHENTICATION_ERROR_LIST.add("TWO_FACTOR_AUTHENTICATION_REQUIRED");
+        API_AUTHENTICATION_ERROR_LIST.add("ALREADY_REGISTERED");
     }
 
     @NotNull
@@ -112,29 +113,33 @@ public class OpenScienceFrameworkApiCasEndpoint {
         );
         try {
             JSONObject responseBody =  new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
-            return verifyResponse(statusCode, responseBody);
+            return verifyResponse(endpoint, statusCode, responseBody);
         }catch (IOException e) {
             return null;
         }
     }
 
-    private Map<String, Object> verifyResponse(final int statusCode, final JSONObject responseBody) {
+    private Map<String, Object> verifyResponse(final String endpoint, final int statusCode, final JSONObject responseBody) {
         final Map<String, Object> response = new HashMap<>();
         final Map<String, Object> attributesMap = new HashMap<>();
         try {
             if (statusCode == HttpStatus.SC_OK) {
                 final String status = responseBody.getString("status");
-                if (!"AUTHENTICATION_SUCCESS".equals(status)) {
-                    throw new IOException(String.format("INVALID_RESPONSE_SC_OK: status = %s.", status));
+                if ("REGISTRATION_SUCCESS".equals(status)) {
+                    response.put("status", status);
+                    return response;
                 }
-                response.put("status", status);
-                response.put("userId", responseBody.getString("userId"));
-                final JSONObject attributes = responseBody.getJSONObject("attributes");
-                attributesMap.put("username", attributes.getString("username"));
-                attributesMap.put("givenName", attributes.getString("givenName"));
-                attributesMap.put("familyName", attributes.getString("familyName"));
-                response.put("attributes", attributesMap);
-                return response;
+                if ("AUTHENTICATION_SUCCESS".equals(status)) {
+                    response.put("status", status);
+                    response.put("userId", responseBody.getString("userId"));
+                    final JSONObject attributes = responseBody.getJSONObject("attributes");
+                    attributesMap.put("username", attributes.getString("username"));
+                    attributesMap.put("givenName", attributes.getString("givenName"));
+                    attributesMap.put("familyName", attributes.getString("familyName"));
+                    response.put("attributes", attributesMap);
+                    return response;
+                }
+                throw new IOException(String.format("INVALID_RESPONSE_SC_OK: status = %s.", status));
             } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
                 final JSONArray errorList = responseBody.getJSONArray("errors");
                 if (errorList.length() != 1) {
@@ -150,7 +155,6 @@ public class OpenScienceFrameworkApiCasEndpoint {
             } else {
                 throw new IOException(String.format("INVALID_RESPONSE_SC_OTHER: status code = %d.", statusCode));
             }
-
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             response.put("status", "UNKNOWN");

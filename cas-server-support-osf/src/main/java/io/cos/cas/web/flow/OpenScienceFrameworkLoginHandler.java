@@ -22,6 +22,7 @@ package io.cos.cas.web.flow;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.comparator.BooleanComparator;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -56,6 +57,7 @@ public class OpenScienceFrameworkLoginHandler {
         private String titleShort;
         private String registerUrl;
         private boolean institutionLogin;
+        private boolean register;
 
         /**
          * Default Constructor.
@@ -66,7 +68,9 @@ public class OpenScienceFrameworkLoginHandler {
             titleLong = "Open&nbsp;Science&nbsp;Framework";
             titleShort = "OSF";
             registerUrl = "";
-            institutionLogin = false;
+            institutionLogin = Boolean.FALSE;
+            register = Boolean.FALSE;
+
         }
 
         /**
@@ -104,6 +108,10 @@ public class OpenScienceFrameworkLoginHandler {
             this.institutionLogin = institutionLogin;
         }
 
+        private void setRegister(final boolean register) {
+            this.register = register;
+        }
+
         /**
          * Check OSF campaign information.
          *
@@ -111,6 +119,15 @@ public class OpenScienceFrameworkLoginHandler {
          */
         private boolean isOsfCampaign() {
             return !"OSF".equals(name);
+        }
+
+        /**
+         * Check if show sign up page instead of login page.
+         *
+         * @return true if register, false otherwise.
+         */
+        public boolean isRegister() {
+            return register;
         }
 
         /**
@@ -157,9 +174,15 @@ public class OpenScienceFrameworkLoginHandler {
 
         if (osfCampaign.isInstitutionLogin()) {
             return new Event(this, "institutionLogin");
-        } else if (osfCampaign.isOsfCampaign()) {
-            return new Event(this, "osfCampaignLogin");
+        } else if (osfCampaign.isRegister()) {
+            if (osfCampaign.isOsfCampaign()) {
+                return new Event(this, "osfCampaignRegister");
+            }
+            return new Event(this, "osfDefaultRegister");
         } else {
+            if (osfCampaign.isOsfCampaign()) {
+                return new Event(this, "osfCampaignLogin");
+            }
             return new Event(this, "osfDefaultLogin");
         }
     }
@@ -174,6 +197,18 @@ public class OpenScienceFrameworkLoginHandler {
     private boolean isInstitutionLogin(final RequestContext context) {
         final String campaign = context.getRequestParameters().get("campaign");
         return "institution".equals(campaign);
+    }
+
+    /**
+     * Check if show sign up page instead of login page.
+     * Return true if `register=true` is present in request parameters.
+     *
+     * @param context The request context
+     * @return Boolean
+     */
+    private boolean isRegister(final RequestContext context) {
+        final String register = context.getRequestParameters().get("register");
+        return "true".equals(register);
     }
 
     /**
@@ -243,7 +278,11 @@ public class OpenScienceFrameworkLoginHandler {
         }
 
         if (isInstitutionLogin(context)) {
-            osfCampaign.setInstitutionLogin(true);
+            osfCampaign.setInstitutionLogin(Boolean.TRUE);
+        }
+
+        if (isRegister(context)) {
+            osfCampaign.setRegister(Boolean.TRUE);
         }
 
         return osfCampaign;
