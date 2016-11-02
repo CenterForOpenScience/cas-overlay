@@ -101,11 +101,12 @@
 
     <action-state id="beforeLogin">
         <evaluate expression="loginHandler.beforeLogin(flowRequestContext)" />
-        <transition on="osf" to="viewLoginForm" />
-        <transition on="institution" to="institutionLogin" />
+        <transition on="osfDefaultLogin" to="viewLoginForm" />
+        <transition on="osfCampaignLogin" to="viewLoginForm" />
+        <transition on="institutionLogin" to="osfInstitutionLogin" />
     </action-state>
 
-    <action-state id="institutionLogin">
+    <action-state id="osfInstitutionLogin">
         <evaluate expression="loginThroughInstitutions.getInstitutions(flowRequestContext)" />
         <transition on="success" to="viewInstitutionLoginForm" />
     </action-state>
