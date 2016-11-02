@@ -103,6 +103,8 @@
         <evaluate expression="loginHandler.beforeLogin(flowRequestContext)" />
         <transition on="osfDefaultLogin" to="viewLoginForm" />
         <transition on="osfCampaignLogin" to="viewLoginForm" />
+        <transition on="osfDefaultRegister" to="viewRegisterForm" />
+        <transition on="osfCampaignRegister" to="viewRegisterForm" />
         <transition on="institutionLogin" to="osfInstitutionLogin" />
     </action-state>
 
@@ -111,7 +113,23 @@
         <transition on="success" to="viewInstitutionLoginForm" />
     </action-state>
 
-    <view-state id="viewInstitutionLoginForm" view="casInstitutionLoginView" model="credential">
+    <view-state id="viewInstitutionLoginForm" view="casInstitutionLoginView">
+    </view-state>
+
+    <view-state id="viewRegisterForm" view="casRegisterView" model="credential">
+        <binder>
+            <binding property="fullname" required="true" />
+            <binding property="username" required="true" />
+            <binding property="usernameConfirm" required="true" />
+            <binding property="password" required="true" />
+            <binding property="passwordConfirm" required="true" />
+            <binding property="campaign" required="true" />
+            <binding property="createAccount" required="true" />
+        </binder>
+        <on-entry>
+            <set name="viewScope.commandName" value="'credential'"/>
+        </on-entry>
+        <transition on="submit" bind="true" validate="true" to="realSubmit"/>
     </view-state>
 
     <view-state id="viewLoginForm" view="casLoginView" model="credential">
@@ -200,6 +218,9 @@
         <!-- One Time Password -->
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
         <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
+        <transition on="RegistrationFailureUserAlreadyExistsException" to="viewRegisterForm"/>
+        <transition on="RegistrationSuccessConfirmationRequiredException" to="viewRegisterForm"/>
+
         <transition on="UNKNOWN" to="generateLoginTicket"/>
     </action-state>
 

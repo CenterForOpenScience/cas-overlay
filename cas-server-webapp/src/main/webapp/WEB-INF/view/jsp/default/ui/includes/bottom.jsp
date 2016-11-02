@@ -40,8 +40,16 @@
 
 <div class="row" style="text-align: center;">
     <br>
-    <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')" />
-    <a id="create-account" href="${createAccountUrl}${osfCampaign.getRegisterUrl()}">Create Account</a>
+    <c:choose>
+        <c:when test="${osfCampaign.isRegister()}">
+            <spring:eval var="alreadyHaveAnAccountUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
+            <a id="already-have-an-account" href="${alreadyHaveAnAccountUrl}${not empty param.service ? 'service=' : ''}${fn:escapeXml(param.service)}">Already have an account?</a>
+        </c:when>
+        <c:otherwise>
+            <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('cas.osf.createAccount.url')" />
+            <a id="create-account" href="${createAccountUrl}${not empty param.service ? '&service=' : ''}${fn:escapeXml(param.service)}">Create Account</a>
+        </c:otherwise>
+    </c:choose>
 </div>
 
 <footer>
