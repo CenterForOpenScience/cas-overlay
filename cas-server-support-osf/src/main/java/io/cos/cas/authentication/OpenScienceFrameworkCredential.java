@@ -62,6 +62,12 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /** The Institution Id. */
     private String institutionId;
 
+    private String fullname;
+    private String usernameConfirm;
+    private String passwordConfirm;
+    private String campaign;
+    private Boolean createAccount = Boolean.FALSE;
+
     /** The Authentication Headers. */
     private Map<String, String> authenticationHeaders = new HashMap<>();
 
@@ -76,8 +82,12 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      * @param rememberMe remember me.
      * @param verificationKey verification key.
      */
-    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe,
-                                          final String verificationKey) {
+    public OpenScienceFrameworkCredential(
+            final String username,
+            final String password,
+            final Boolean rememberMe,
+            final String verificationKey
+    ) {
         this(username, password, rememberMe, verificationKey, null);
     }
 
@@ -90,13 +100,38 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      * @param verificationKey verification key.
      * @param oneTimePassword one time password.
      */
-    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe,
-                                          final String verificationKey, final String oneTimePassword) {
+    public OpenScienceFrameworkCredential(
+            final String username,
+            final String password,
+            final Boolean rememberMe,
+            final String verificationKey,
+            final String oneTimePassword
+    ) {
         this.setUsername(username);
         this.setPassword(password);
         this.setRememberMe(rememberMe);
         this.setVerificationKey(verificationKey);
         this.setOneTimePassword(oneTimePassword);
+    }
+
+    public OpenScienceFrameworkCredential(
+            final String fullname,
+            final String username,
+            final String usernameConfirm,
+            final String password,
+            final String passwordConfirm,
+            final String campaign,
+            final Boolean createAccount
+    ) {
+        if (username.equals(usernameConfirm) && password.equals(passwordConfirm) && createAccount) {
+            this.setFullname(fullname);
+            this.setUsername(username);
+            this.setUsernameConfirm(usernameConfirm);
+            this.setPassword(password);
+            this.setPasswordConfirm(passwordConfirm);
+            this.setCampaign(campaign);
+            this.setCreateAccount(Boolean.TRUE);
+        }
     }
 
     /**
@@ -160,6 +195,46 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
      */
     public final Map<String, String> getAuthenticationHeaders() {
         return authenticationHeaders;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname =fullname;
+    }
+
+    public void setUsernameConfirm(String usernameConfirm) {
+        this.usernameConfirm = usernameConfirm;
+    }
+
+    public void setPasswordConfirm(String passwordConfirm) {
+        this.passwordConfirm = passwordConfirm;
+    }
+
+    public void setCampaign(String campaign) {
+        this.campaign = campaign;
+    }
+
+    public void setCreateAccount(Boolean createAccount) {
+        this.createAccount = createAccount;
+    }
+
+    public Boolean getCreateAccount() {
+        return createAccount;
+    }
+
+    public String getCampaign() {
+        return campaign;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public String getUsernameConfirm() {
+        return usernameConfirm;
+    }
+
+    public String getPasswordConfirm() {
+        return passwordConfirm;
     }
 
     /**

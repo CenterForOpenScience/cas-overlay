@@ -21,10 +21,12 @@ package io.cos.cas.web.flow;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.cos.cas.authentication.LoginNotAllowedException;
-import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
-import io.cos.cas.authentication.OneTimePasswordRequiredException;
-import io.cos.cas.authentication.RemoteUserFailedLoginException;
+import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
+import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
+import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
+import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
 import org.jasig.cas.web.flow.AuthenticationExceptionHandler;
 
 /**
@@ -53,6 +55,9 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         // One Time Password Exceptions
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
+        // Account Creation Exceptions
+        DEFAULT_ERROR_LIST.add(RegistrationFailureUserAlreadyExistsException.class);
+        DEFAULT_ERROR_LIST.add(RegistrationSuccessConfirmationRequiredException.class);
     }
 
     /**
