@@ -48,8 +48,11 @@
         </property>
     </bean>
 
-    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.mongodb.OpenScienceFrameworkAuthenticationHandler"
-          p:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
+    <bean id="openScienceFrameworkApiCasEndpoint" class="io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint"
+          c:osfApiCasEndpointUrl="${osf.api.cas.endpoint.url}" />
+
+    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.api.OpenScienceFrameworkAuthenticationHandler"
+          p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
 
     <bean id="oAuthAuthenticationHandler" class="org.jasig.cas.support.oauth.authentication.handler.support.OAuthCredentialsAuthenticationHandler" />
 
