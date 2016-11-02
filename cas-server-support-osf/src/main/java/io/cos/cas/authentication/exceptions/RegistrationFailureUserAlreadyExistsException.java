@@ -16,33 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.cos.cas.authentication;
+package io.cos.cas.authentication.exceptions;
 
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account which requires a Time-based One Time Password.
+ * Describes an error condition where registration failed due to user already registered.
  *
- * @author Michael Haselton
+ * @author Longze Chen
  * @since 4.1.0
  */
-public class OneTimePasswordRequiredException extends AccountException {
-
-    private static final long serialVersionUID = -735616010527704206L;
+public class RegistrationFailureUserAlreadyExistsException extends AccountException {
 
     /**
-     * Instantiates a new invalid login location exception.
+     * Default Constructor.
      */
-    public OneTimePasswordRequiredException() {
+    public RegistrationFailureUserAlreadyExistsException() {
         super();
     }
 
     /**
-     * Instantiates a new invalid login location exception.
-     *
+     * Create a instance of RegistrationFailureUserAlreadyExistsException with a given message.
      * @param message the message
      */
-    public OneTimePasswordRequiredException(final String message) {
+    public RegistrationFailureUserAlreadyExistsException(final String message) {
         super(message);
     }
 }

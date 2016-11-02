@@ -16,33 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.cos.cas.authentication;
+package io.cos.cas.authentication.exceptions;
 
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account which is merged.
+ * Describes an error condition where registration is successful with pending confirmation.
  *
- * @author Michael Haselton
+ * @author Longze Chen
  * @since 4.1.0
  */
-public class RemoteUserFailedLoginException extends AccountException {
-
-    private static final long serialVersionUID = 3472948140572518658L;
+public class RegistrationSuccessConfirmationRequiredException extends AccountException {
 
     /**
-     * Instantiates a new remote user login failure exception.
+     * Default Constructor.
      */
-    public RemoteUserFailedLoginException() {
+    public RegistrationSuccessConfirmationRequiredException() {
         super();
     }
 
     /**
-     * Instantiates a new remote user login failure exception.
-     *
+     * Create a instance of RegistrationSuccessConfirmationRequiredException with a given message.
      * @param message the message
      */
-    public RemoteUserFailedLoginException(final String message) {
+    public RegistrationSuccessConfirmationRequiredException(final String message) {
         super(message);
     }
 }
