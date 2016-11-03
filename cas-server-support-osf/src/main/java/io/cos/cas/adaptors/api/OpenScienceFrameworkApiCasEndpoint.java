@@ -20,8 +20,17 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
+/**
+ * The Open Science Framework API CAS Endpoint.
+ *
+ * @author Longze Chen
+ * @since 4.1.0
+ */
 public class OpenScienceFrameworkApiCasEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkApiCasEndpoint.class);
@@ -31,21 +40,38 @@ public class OpenScienceFrameworkApiCasEndpoint {
     private static final Set<String> API_AUTHENTICATION_ERROR_LIST = new HashSet<>();
 
     static {
+        // register, user already registered
+        API_AUTHENTICATION_ERROR_LIST.add("ALREADY_REGISTERED");
+        // login, initial verification failed
         API_AUTHENTICATION_ERROR_LIST.add("MISSING_CREDENTIALS");
         API_AUTHENTICATION_ERROR_LIST.add("ACCOUNT_NOT_FOUND");
         API_AUTHENTICATION_ERROR_LIST.add("INVALID_PASSWORD");
         API_AUTHENTICATION_ERROR_LIST.add("INVALID_VERIFICATION_KEY");
-        API_AUTHENTICATION_ERROR_LIST.add("INVALID_ONE_TIME_PASSWORD");
         API_AUTHENTICATION_ERROR_LIST.add("TWO_FACTOR_AUTHENTICATION_REQUIRED");
-        API_AUTHENTICATION_ERROR_LIST.add("ALREADY_REGISTERED");
+        // login, two factor verification failed
+        API_AUTHENTICATION_ERROR_LIST.add("INVALID_ONE_TIME_PASSWORD");
+        // login, invalid user status
+        API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_REGISTERED");
+        API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_CLAIMED");
+        API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_ACTIVE");
+        API_AUTHENTICATION_ERROR_LIST.add("USER_MERGED");
+        API_AUTHENTICATION_ERROR_LIST.add("USER_DISABLED");
     }
 
     @NotNull
     private String osfApiCasEndpointUrl;
 
+    /**
+     * Default Constructor.
+     */
     public OpenScienceFrameworkApiCasEndpoint() {}
 
-    public OpenScienceFrameworkApiCasEndpoint(String osfApiCasEndpointUrl) {
+    /**
+     * Instantiates an instance of Open Science Framework API CAS Endpoint and set endpoint url.
+     *
+     * @param osfApiCasEndpointUrl the OSF API CAS endpoint UL
+     */
+    public OpenScienceFrameworkApiCasEndpoint(final String osfApiCasEndpointUrl) {
         this.osfApiCasEndpointUrl = osfApiCasEndpointUrl;
     }
 
@@ -90,6 +116,16 @@ public class OpenScienceFrameworkApiCasEndpoint {
     }
 */
 
+    /**
+     * Make authentication requests to API CAS endpoint with `endpoint`, `email` and `payload`.
+     * Parse response and return a map object containing authentication status and exception messages.
+     * `payload` is encrypted before the request is sent and decrypted after the response is received.
+     *
+     * @param endpoint the api cas endpoint
+     * @param email the email or username
+     * @param payload the plaintext payload
+     * @return a Map object
+     */
     public Map<String, Object> apiCasAuthentication(final String endpoint, final String email, final String payload) {
 
         final String url = osfApiCasEndpointUrl + endpoint + '/';
@@ -100,7 +136,8 @@ public class OpenScienceFrameworkApiCasEndpoint {
                 .bodyString(payload, ContentType.APPLICATION_JSON)
                 .execute()
                 .returnResponse();
-        } catch (IOException e) {
+        } catch (final IOException e) {
+            LOGGER.error(e.getMessage());
             return null;
         }
 
@@ -112,14 +149,23 @@ public class OpenScienceFrameworkApiCasEndpoint {
                 statusCode
         );
         try {
-            JSONObject responseBody =  new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
-            return verifyResponse(endpoint, statusCode, responseBody);
-        }catch (IOException e) {
+            final JSONObject responseBody =  new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
+            return verifyResponse(statusCode, responseBody);
+        }catch (final IOException e) {
+            LOGGER.error(e.getMessage());
             return null;
         }
     }
 
-    private Map<String, Object> verifyResponse(final String endpoint, final int statusCode, final JSONObject responseBody) {
+    /**
+     * Parse and verify authentication response in JSON format.
+     * Return a map object containing authentication status and exception messages.
+     *
+     * @param statusCode the response status code
+     * @param responseBody the response body in JSON forat
+     * @return a Map object
+     */
+    private Map<String, Object> verifyResponse(final int statusCode, final JSONObject responseBody) {
         final Map<String, Object> response = new HashMap<>();
         final Map<String, Object> attributesMap = new HashMap<>();
         try {
@@ -143,19 +189,20 @@ public class OpenScienceFrameworkApiCasEndpoint {
             } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
                 final JSONArray errorList = responseBody.getJSONArray("errors");
                 if (errorList.length() != 1) {
-                    throw new IOException(String.format("INVALID_RESPONSE_SC_FORBIDDEN: errorList.length() = %d.", errorList.length()));
+                    throw new IOException("INVALID_RESPONSE_SC_FORBIDDEN: multiple errors.");
                 }
                 final JSONObject error = errorList.getJSONObject(0);
                 final String errorDetail = error.getString("detail");
-                if (!API_AUTHENTICATION_ERROR_LIST.contains(errorDetail))
+                if (!API_AUTHENTICATION_ERROR_LIST.contains(errorDetail)) {
                     throw new IOException(String.format("INVALID_RESPONSE_SC_FORBIDDEN: status = %s.", errorDetail));
+                }
                 response.put("status", "AUTHENTICATION_FAILURE");
                 response.put("detail", errorDetail);
                 return response;
             } else {
                 throw new IOException(String.format("INVALID_RESPONSE_SC_OTHER: status code = %d.", statusCode));
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.error(e.getMessage());
             response.put("status", "UNKNOWN");
             return response;

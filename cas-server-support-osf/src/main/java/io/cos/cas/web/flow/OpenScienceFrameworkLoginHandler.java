@@ -16,13 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package io.cos.cas.web.flow;
 
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.comparator.BooleanComparator;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -68,8 +66,8 @@ public class OpenScienceFrameworkLoginHandler {
             titleLong = "Open&nbsp;Science&nbsp;Framework";
             titleShort = "OSF";
             registerUrl = "";
-            institutionLogin = Boolean.FALSE;
-            register = Boolean.FALSE;
+            institutionLogin = false;
+            register = false;
 
         }
 
@@ -278,11 +276,11 @@ public class OpenScienceFrameworkLoginHandler {
         }
 
         if (isInstitutionLogin(context)) {
-            osfCampaign.setInstitutionLogin(Boolean.TRUE);
+            osfCampaign.setInstitutionLogin(true);
         }
 
         if (isRegister(context)) {
-            osfCampaign.setRegister(Boolean.TRUE);
+            osfCampaign.setRegister(true);
         }
 
         return osfCampaign;

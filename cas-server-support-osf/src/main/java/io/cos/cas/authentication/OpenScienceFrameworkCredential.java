@@ -114,6 +114,17 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         this.setOneTimePassword(oneTimePassword);
     }
 
+    /**
+     * Create a ne instance with given parameters during account creation.
+     *
+     * @param fullname user's full name
+     * @param username user's email
+     * @param usernameConfirm confirm email
+     * @param password user's password
+     * @param passwordConfirm confirm password
+     * @param campaign campaign information
+     * @param createAccount register flag, must be 'true'
+     */
     public OpenScienceFrameworkCredential(
             final String fullname,
             final String username,
@@ -121,16 +132,16 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
             final String password,
             final String passwordConfirm,
             final String campaign,
-            final Boolean createAccount
+            final String createAccount
     ) {
-        if (username.equals(usernameConfirm) && password.equals(passwordConfirm) && createAccount) {
-            this.setFullname(fullname);
+        if (username.equals(usernameConfirm) && password.equals(passwordConfirm) && "true".equals(createAccount)) {
+            this.fullname = fullname;
+            this.usernameConfirm = usernameConfirm;
+            this.passwordConfirm = passwordConfirm;
             this.setUsername(username);
-            this.setUsernameConfirm(usernameConfirm);
             this.setPassword(password);
-            this.setPasswordConfirm(passwordConfirm);
             this.setCampaign(campaign);
-            this.setCreateAccount(Boolean.TRUE);
+            this.createAccount = Boolean.TRUE;
         }
     }
 
@@ -197,23 +208,23 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         return authenticationHeaders;
     }
 
-    public void setFullname(String fullname) {
+    public void setFullname(final String fullname) {
         this.fullname =fullname;
     }
 
-    public void setUsernameConfirm(String usernameConfirm) {
+    public void setUsernameConfirm(final String usernameConfirm) {
         this.usernameConfirm = usernameConfirm;
     }
 
-    public void setPasswordConfirm(String passwordConfirm) {
+    public void setPasswordConfirm(final String passwordConfirm) {
         this.passwordConfirm = passwordConfirm;
     }
 
-    public void setCampaign(String campaign) {
+    public void setCampaign(final String campaign) {
         this.campaign = campaign;
     }
 
-    public void setCreateAccount(Boolean createAccount) {
+    public void setCreateAccount(final Boolean createAccount) {
         this.createAccount = createAccount;
     }
 

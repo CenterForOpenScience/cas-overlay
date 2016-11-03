@@ -22,11 +22,13 @@ import java.security.GeneralSecurityException;
 import java.util.Map;
 
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
+import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
 import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
 
+import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.PreventedException;
@@ -51,17 +53,16 @@ import javax.validation.constraints.NotNull;
 public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPostProcessingAuthenticationHandler
         implements InitializingBean {
 
-    private static final int TOTP_INTERVAL = 30;
-    private static final int TOTP_WINDOW = 1;
-
+    /** The Principle Name Transformer instance. */
     @NotNull
     private PrincipalNameTransformer principalNameTransformer = new NoOpPrincipalNameTransformer();
 
+    /** The Open Science Framework API CAS Endpoint instance. */
     @NotNull
     private OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint;
 
     /**
-     * Instantiates a new Open Science Framework accounts service factory.
+     * Default Constructor.
      */
     public OpenScienceFrameworkAuthenticationHandler() {}
 
@@ -85,13 +86,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     }
 
     /**
-     * Authenticates a Open Science Framework credential.
+     * Authenticates or Register a Open Science Framework credential.
      *
      * @param credential the credential object bearing the username, password, etc...
-     *
-     * @return HandlerResult resolved from credential on authentication success or null if no principal could be resolved
-     * from the credential.
-     *
+     * @return HandlerResult resolved from credential on authentication success, or
+     *         null if no principal could be resolved from the credential.
      * @throws GeneralSecurityException On authentication failure.
      * @throws PreventedException On the indeterminate case when authentication is prevented.
      */
@@ -110,7 +109,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final JSONObject data = new JSONObject();
         final JSONObject payload = new JSONObject();
 
-        String endpoint;
+        final String endpoint;
         user.put("email", username);
         user.put("password", plainTextPassword);
 
@@ -137,12 +136,15 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         final String status = (String) response.get("status");
         if ("AUTHENTICATION_SUCCESS".equals(status)) {
+            // authentication success, create principle with user id and attributes
             final String userId = (String) response.get("userId");
             final Map<String, Object> attributes = (Map<String, Object>) response.get("attributes");
             return createHandlerResult(credential, this.principalFactory.createPrincipal(userId, attributes), null);
         } else if ("REGISTRATION_SUCCESS".equals(status)) {
+            // registration success, requires confirmation
             throw new RegistrationSuccessConfirmationRequiredException();
         } else if ("AUTHENTICATION_FAILURE".equals(status)) {
+            // authentication or registration failure
             final String errorDetail = (String) response.get("detail");
             if ("ALREADY_REGISTERED".equals(errorDetail)) {
                 throw new RegistrationFailureUserAlreadyExistsException();
@@ -154,10 +156,22 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                 throw new AccountNotFoundException();
             } else if ("INVALID_PASSWORD".equals(errorDetail) || "INVALID_VERIFICATION_KEY".equals(errorDetail)) {
                 throw new FailedLoginException();
+            } else if ("USER_NOT_REGISTERED".equals(errorDetail)) {
+                throw new LoginNotAllowedException(username + "is not registered");
+            } else if ("USER_NOT_CLAIMED".equals(errorDetail)) {
+                throw new LoginNotAllowedException(username + "is not claimed");
+            } else if ("USER_NOT_ACTIVE".equals(errorDetail)) {
+                throw new LoginNotAllowedException(username + "is not active");
+            } else if ("USER_MERGED".equals(errorDetail)) {
+                throw new LoginNotAllowedException("Cannot log in to a merged user " + username);
+            } else if ("USER_DISABLED".equals(errorDetail)) {
+                throw new AccountDisabledException(username + "account is disabled");
             } else {
+                // unknown authentication exception
                 throw new FailedLoginException("I/O Exception: an error has occurred during the api authentication process.");
             }
         } else {
+            // unknown authentication status
             throw new FailedLoginException("I/O Exception: an error has occurred during the api authentication process.");
         }
     }
