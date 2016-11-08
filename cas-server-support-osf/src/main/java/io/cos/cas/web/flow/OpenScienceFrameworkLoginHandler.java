@@ -26,11 +26,7 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URLEncoder;
 
 
 /**
@@ -44,83 +40,48 @@ public class OpenScienceFrameworkLoginHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkLoginHandler.class);
 
     /**
-     * Open Science Framework Campaign.
+     * Open Science Framework Login Context.
      *
      * @author Longze chen
      * @since  4.1.0
      */
-    public static final class OpenScienceFrameworkCampaign {
-
-        private String name;
-        private String titleLong;
-        private String titleShort;
-        private String registerUrl;
+    public static final class OpenScienceFrameworkLoginContext {
+        private String serviceUrl;
         private boolean institutionLogin;
 
         /**
-         * Default Constructor.
-         * Create an instance of OpenScienceFrameworkCampaign with CAS default login setting.
-         */
-        private OpenScienceFrameworkCampaign() {
-            name = "OSF";
-            titleLong = "Open&nbsp;Science&nbsp;Framework";
-            titleShort = "OSF";
-            registerUrl = "";
-            institutionLogin = false;
-        }
-
-        /**
-         * Set campaign information.
+         * Construct an instance of `OpenScienceFrameworkLoginContext` with given settings.
          *
-         * @param name Campaign name
-         * @param titleLong Full campaign title to display
-         * @param titleShort Short campaign title to display on small/mobile screens
-         * @param registerUrl Campaign register URL for "Create Account"
+         * @param serviceUrl the service url
+         * @param institutionLogin login through institutions
          */
-        private void setOsfCampaign(
-                final String name,
-                final String titleLong,
-                final String titleShort,
-                final String registerUrl) {
-            this.name = name;
-            this.titleLong = titleLong;
-            this.titleShort = titleShort;
-            this.registerUrl = registerUrl;
-        }
-
-        public String getTitleLong() {
-            return titleLong;
-        }
-
-        public String getTitleShort() {
-            return titleShort;
-        }
-
-        public String getRegisterUrl() {
-            return registerUrl;
-        }
-
-        private void setInstitutionLogin(final boolean institutionLogin) {
+        private OpenScienceFrameworkLoginContext(final String serviceUrl, final boolean institutionLogin) {
+            this.serviceUrl = serviceUrl;
             this.institutionLogin = institutionLogin;
         }
 
-        /**
-         * Check OSF campaign information.
-         *
-         * @return true if OSF campaign login, false otherwise.
-         */
-        private boolean isOsfCampaign() {
-            return !"OSF".equals(name);
+        public String getServiceUrl() {
+            return serviceUrl;
         }
 
         /**
-         * Check OSF institution information.
+         * Check if login through institutions.
          *
-         * @return true if institution login, false otherwise.
+         * @return true if institution login, false otherwise
          */
         public boolean isInstitutionLogin() {
             return institutionLogin;
         }
+
+        /**
+         * Check if service url exists.
+         *
+         * @return true if service url exists, false otherwise
+         */
+        public boolean isServiceUrl() {
+            return serviceUrl != null;
+        }
+
 
         /**
          * Convert class instance to a JSON string, which will be passed to the flow context.
@@ -138,9 +99,9 @@ public class OpenScienceFrameworkLoginHandler {
          * @param jsonString The json String
          * @return an instance of OpenScienceFrameworkCampaign
          */
-        public static OpenScienceFrameworkCampaign fromJson(final String jsonString) {
+        public static OpenScienceFrameworkLoginContext fromJson(final String jsonString) {
             final Gson gson = new Gson();
-            return gson.fromJson(jsonString, OpenScienceFrameworkCampaign.class);
+            return gson.fromJson(jsonString, OpenScienceFrameworkLoginContext.class);
         }
     }
 
@@ -152,13 +113,14 @@ public class OpenScienceFrameworkLoginHandler {
      */
     public Event beforeLogin(final RequestContext context) {
 
-        final OpenScienceFrameworkCampaign osfCampaign = getOsfCampaigns(context);
-        context.getFlowScope().put("campaign", osfCampaign.toJson());
+        final String serviceUrl = getEncodedServiceUrl(context);
+        final boolean institutionLogin = isInstitutionLogin(context);
 
-        if (osfCampaign.isInstitutionLogin()) {
+        final OpenScienceFrameworkLoginContext osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin);
+        context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
+
+        if (osfLoginContext.isInstitutionLogin()) {
             return new Event(this, "institutionLogin");
-        } else if (osfCampaign.isOsfCampaign()) {
-            return new Event(this, "osfCampaignLogin");
         } else {
             return new Event(this, "osfDefaultLogin");
         }
@@ -177,99 +139,22 @@ public class OpenScienceFrameworkLoginHandler {
     }
 
     /**
-     * Check login request for osf, osf campaign and institution login. Return an object containing necessary
-     * information which will be passed to the flow context and the front end page.
+     * Encode the decoded service url if service url exists.
      *
      * @param context The request context
-     * @return an instance of OpenScienceFrameworkCampaign
+     * @return the encoded service url
+     * @throws AssertionError
      */
-    private OpenScienceFrameworkCampaign getOsfCampaigns(final RequestContext context) {
+    private String getEncodedServiceUrl(final RequestContext context) {
 
-        final String service = context.getRequestParameters().get("service");
-        final OpenScienceFrameworkCampaign osfCampaign = new OpenScienceFrameworkCampaign();
-        URL serviceUrl = null;
-
+        final String serviceUrl = context.getRequestParameters().get("service");
+        if (serviceUrl == null) {
+            return null;
+        }
         try {
-            serviceUrl = new URL(service);
-        } catch (final MalformedURLException e) {
-            LOGGER.error(String.format("Malformed Service URL: %s", e.toString()));
+            return URLEncoder.encode(serviceUrl, "UTF-8");
+        } catch (final UnsupportedEncodingException e) {
+            throw new AssertionError("UTF-8 is unknown");
         }
-
-        if (serviceUrl != null) {
-            final String servicePath = serviceUrl.getPath();
-            if (servicePath.startsWith("/prereg/") || "/prereg".equals(servicePath)) {
-                osfCampaign.setOsfCampaign(
-                        "prereg",
-                        "OSF&nbsp;Preregistration&nbsp;Challenge",
-                        "OSF<br><br>Preregistration<br>Challenge",
-                        "?campaign=prereg"
-                );
-            } else if (servicePath.startsWith("/erpc/") || "/erpc".equals(servicePath)) {
-                osfCampaign.setOsfCampaign(
-                        "erpc",
-                        "Open&nbsp;Science&nbsp;Framework<br><br>Election&nbsp;Research&nbsp;Preacceptance&nbsp;Competition",
-                        "OSF<br><br>Election&nbsp;Research<br>Preacceptance<br>Competition",
-                        "?campaign=erpc"
-                );
-            } else if (servicePath.startsWith("/preprints/") || "/preprints".equals(servicePath)) {
-                osfCampaign.setOsfCampaign(
-                        "osf-preprints",
-                        "OSF&nbsp;Preprints",
-                        "OSF&nbsp;Preprints",
-                        "?campaign=osf-preprints"
-                );
-            } else if ("/login/".equals(servicePath) || "/login".equals(servicePath)) {
-                final String serviceQuery = serviceUrl.getQuery();
-                URL nextUrl = null;
-                if (serviceQuery != null) {
-                    final Map<String, String> queryPairs = parseUrlQuery(serviceQuery);
-                    try {
-                        nextUrl = new URL(queryPairs.get("next"));
-                    } catch (final MalformedURLException e) {
-                        LOGGER.error(String.format("Malformed Service URL: %s", e.toString()));
-                    }
-                    if (nextUrl != null && nextUrl.getPath() != null) {
-                        if (nextUrl.getPath().startsWith("/preprints/") || "/preprints".equals(nextUrl.getPath())) {
-                            osfCampaign.setOsfCampaign(
-                                    "osf-preprints",
-                                    "OSF&nbsp;Preprints",
-                                    "OSF&nbsp;Preprints",
-                                    "?campaign=osf-preprints"
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        if (isInstitutionLogin(context)) {
-            osfCampaign.setInstitutionLogin(true);
-        }
-
-        return osfCampaign;
-    }
-
-    /**
-     * Parse the query string in URL and store the result as key-value pairs in a map.
-     * Support query parameter with empty value. Does not support multiple parameter with the same key.
-     *
-     * @param query the query string
-     * @return a map of query key-value pairs
-     */
-    private Map<String, String> parseUrlQuery(final String query) {
-        final Map<String, String> queryPairs = new HashMap<>();
-        for (final String pair: query.split("&")) {
-            final int index = pair.indexOf('=');
-            try {
-                final String key = index > 0 ? URLDecoder.decode(pair.substring(0, index), "UTF-8") : pair;
-                final String value = index > 0 && pair.length() > index + 1 ? URLDecoder.decode(pair.substring(index + 1), "UTF-8") : "";
-                if (!queryPairs.containsKey(key)) {
-                    queryPairs.put(key, value);
-                }
-            } catch (final UnsupportedEncodingException e){
-                throw new AssertionError("UTF-8 is unknown");
-            }
-        }
-        return queryPairs;
     }
 }
