@@ -24,13 +24,27 @@
         <hr>
         <br>
         <c:choose>
-            <c:when test="${osfCampaign.isInstitutionLogin()}">
+            <c:when test="${osfLoginContext.isInstitutionLogin()}">
                 <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-                <a id="alternative-osf" href="${osfLoginUrl}${not empty param.service ? 'service=' : ''}${fn:escapeXml(param.service)}">Non-institution Login</a>&nbsp;&nbsp;
+                <c:choose>
+                    <c:when test="${osfLoginContext.isServiceUrl()}">
+                        <a id="alternative-osf" href="${osfLoginUrl}service=${osfLoginContext.getServiceUrl()}">Non-institution Login</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </c:when>
+                    <c:otherwise>
+                        <a id="alternative-osf" href="${osfLoginUrl}">Non-institution Login</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </c:otherwise>
+                </c:choose>
             </c:when>
             <c:otherwise>
                 <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')" />
-                <a id="alternative-institution" href="${institutionLoginUrl}${not empty param.service ? '&service=' : ''}${fn:escapeXml(param.service)}">Login through Your Institution</a>&nbsp;&nbsp;
+                <c:choose>
+                    <c:when test="${osfLoginContext.isServiceUrl()}">
+                        <a id="alternative-institution" href="${institutionLoginUrl}&service=${osfLoginContext.getServiceUrl()}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </c:when>
+                    <c:otherwise>
+                        <a id="alternative-institution" href="${institutionLoginUrl}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </c:otherwise>
+                </c:choose>
             </c:otherwise>
         </c:choose>
         <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />

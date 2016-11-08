@@ -28,15 +28,12 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%@ page import="com.google.gson.JsonParser"%>
-<%@ page import="com.google.gson.JsonObject" %>
-<%@ page import="com.google.gson.JsonElement" %>
-<%@ page import="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler.OpenScienceFrameworkCampaign" %>
-<c:set var="campaignData" value="${campaign}" />
+<%@ page import="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext" %>
+<c:set var="pageLoginContext" value="${jsonLoginContext}" />
 <%
-    JsonParser jsonParser = new JsonParser();
-    String campaign = (String) pageContext.getAttribute("campaignData");
-    OpenScienceFrameworkCampaign osfCampaign = OpenScienceFrameworkCampaign.fromJson(campaign);
-    pageContext.setAttribute("osfCampaign", osfCampaign);
+    String loginContext = (String) pageContext.getAttribute("pageLoginContext");
+    OpenScienceFrameworkLoginContext osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(loginContext);
+    pageContext.setAttribute("osfLoginContext", osfLoginContext);
 %>
 
 <html lang="en">
@@ -69,7 +66,7 @@
                 <div class="center">
                     <span id="title">
                         <c:choose>
-                            <c:when test="${osfCampaign.isInstitutionLogin()}">
+                            <c:when test="${osfLoginContext.isInstitutionLogin()}">
                                 <span>OSF Institutions</span>
                             </c:when>
                             <c:otherwise>
@@ -80,7 +77,7 @@
                     </span>
                 </div>
                 <div class="responsive">
-                    <c:if test="${osfCampaign.isInstitutionLogin()}">
+                    <c:if test="${osfLoginContext.isInstitutionLogin()}">
                         <div id="description">
                             <br><br><spring:message code="screen.institution.login.message" />
                         </div>
