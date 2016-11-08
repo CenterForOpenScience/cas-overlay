@@ -29,23 +29,20 @@
 </c:if>
 
 <c:if test="${not empty registeredService}">
-    <%-- <c:set var="registeredServiceLogo" value="images/webapp.png"/> --%>
-    <c:if test="${not empty registeredService.logo}">
-        <c:set var="registeredServiceLogo" value="${registeredService.logo}"/>
-    </c:if>
-
     <c:if test="${not empty registeredService.logo || not empty registeredService.name}">
-        <div id="serviceui" class="serviceinfo">
+        <div id="service-ui" class="service-info">
             <table>
                 <tr>
-                    <c:if test="${not empty registeredService.logo}">
-                        <td><img src="${registeredServiceLogo}"></td>
+                    <c:if test="${not empty registeredService.logo && empty registeredService.name}">
+                        <td><img class="service-logo-full" src="${registeredService.logo}"> </td>
                     </c:if>
-                    <c:if test="${not empty registeredService.name}">
-                        <td id="servicedesc">
-                            <h1>${fn:escapeXml(registeredService.name)}</h1>
-                            <p>${fn:escapeXml(registeredService.description)}</p>
-                        </td>
+                    <c:if test="${empty registeredService.logo && not empty registeredService.name}">
+                        <td><span class="service-name">${registeredService.name}</span></td>
+                    </c:if>
+                    <c:if test="${not empty registeredService.logo && not empty registeredService.name}">
+                        <td><img class="service-logo-darkred" src="${registeredService.logo}"> </td>
+                        <td>&nbsp;&nbsp;&nbsp;</td>
+                        <td><span class="service-name">${registeredService.name}</span></td>
                     </c:if>
                 </tr>
             </table>

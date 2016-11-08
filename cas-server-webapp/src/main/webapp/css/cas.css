@@ -92,7 +92,7 @@ h2 {
   overflow: hidden;
   background: #f7f7f7;
   padding: 20px;
-  width: 288px;
+  width: 300px;
   margin: 0 auto;
 
   -webkit-border-bottom-right-radius: 0;
@@ -383,4 +383,26 @@ footer a:link, footer a:visited {
 #inst-login .btn-submit:active input[type=button],
 #fm1 .row .btn-submit:active {
   background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
+}
+
+#service-ui .service-logo-darkred {
+  width: 75px;
+  background: darkred;
+  text-align: center;
+  vertical-align: middle;
+}
+
+#service-ui .service-logo-full {
+  width: 300px;
+}
+
+#service-ui tr {
+  line-height: 28px;
+}
+
+#service-ui .service-name {
+  font-size: 24px;
+  font-weight: lighter;
+  text-align: center;
+  vertical-align: middle;
 }

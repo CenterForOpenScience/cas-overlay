@@ -73,8 +73,8 @@
                                 <span>OSF Institutions</span>
                             </c:when>
                             <c:otherwise>
-                                <span class="title-full">${osfCampaign.getTitleLong()}</span>
-                                <span class="title-abbr">${osfCampaign.getTitleShort()}</span>
+                                <span class="title-full">${registeredService.properties.title.getValue()}</span>
+                                <span class="title-abbr">${registeredService.properties.titleAbbr.getValue()}</span>
                             </c:otherwise>
                         </c:choose>
                     </span>

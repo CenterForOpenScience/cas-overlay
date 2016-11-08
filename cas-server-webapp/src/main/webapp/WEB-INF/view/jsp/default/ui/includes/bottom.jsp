@@ -41,7 +41,7 @@
 <div class="row" style="text-align: center;">
     <br>
     <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')" />
-    <a id="create-account" href="${createAccountUrl}${osfCampaign.getRegisterUrl()}">Create Account</a>
+    <a id="create-account" href="${createAccountUrl}${registeredService.properties.registerUrl.getValue()}">Create Account</a>
 </div>
 
 <footer>
