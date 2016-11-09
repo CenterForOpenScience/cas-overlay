@@ -35,7 +35,7 @@
       "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
       "values" : [
         "java.util.HashSet", [
-          "?campaign=osf-preprints"
+          "?campaign=engrxiv-preprints"
         ]
       ]
     }
