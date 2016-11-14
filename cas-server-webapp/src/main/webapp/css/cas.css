@@ -73,7 +73,7 @@ h2 {
   display: none;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 450px) {
   .title-abbr {
     display: inline;
   }
@@ -385,15 +385,32 @@ footer a:link, footer a:visited {
   background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
 }
 
-#service-ui .service-logo-darkred {
+#service-logo {
   width: 75px;
   background: darkred;
   text-align: center;
   vertical-align: middle;
 }
 
+#service-logo.service-logo-SocArXiv {
+  background: #e14b5a;
+}
+
+#service-logo.service-logo-engrXiv {
+  background: #222F38;
+}
+
+#service-logo.service-logo-PsyArXiv {
+  background: #a9a9a9;
+  padding: 0 10px 0 10px;
+}
+
 #service-ui .service-logo-full {
-  width: 300px;
+  width: 270px;
+}
+
+#service-ui table {
+  margin: 0 auto 0 auto;
 }
 
 #service-ui tr {
