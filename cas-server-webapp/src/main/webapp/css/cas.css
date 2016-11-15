@@ -73,9 +73,15 @@ h2 {
   display: none;
 }
 
+.title-full {
+  display: inline;
+  white-space: nowrap;
+}
+
 @media screen and (max-width: 450px) {
   .title-abbr {
     display: inline;
+    white-space: nowrap;
   }
   .title-full {
     display: none;
@@ -422,4 +428,5 @@ footer a:link, footer a:visited {
   font-weight: lighter;
   text-align: center;
   vertical-align: middle;
+  white-space: nowrap;
 }
