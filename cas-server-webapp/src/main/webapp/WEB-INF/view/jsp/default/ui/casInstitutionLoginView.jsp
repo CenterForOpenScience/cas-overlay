@@ -52,9 +52,6 @@
             }
             window.location = login_url;
         }
-        function selectFocus() {
-            document.getElementById("institution-form-select").focus();
-        }
     </script>
 </div>
 <jsp:directive.include file="includes/bottom.jsp" />
