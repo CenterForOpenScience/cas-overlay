@@ -27,7 +27,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%@ page import="com.google.gson.JsonParser"%>
 <%@ page import="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext" %>
 <c:set var="pageLoginContext" value="${jsonLoginContext}" />
 <%
@@ -40,7 +39,6 @@
     <head>
         <meta charset="UTF-8" />
 
-        <%-- <title>CAS &#8211; Central Authentication Service</title> --%>
         <title>Open Science Framework | Sign In </title>
 
         <spring:theme code="standard.custom.css.file" var="customCssFile" />
@@ -77,12 +75,18 @@
                     </span>
                 </div>
                 <div class="responsive">
-                    <c:if test="${osfLoginContext.isInstitutionLogin()}">
-                        <div id="description">
-                            <br><br><spring:message code="screen.institution.login.message" />
-                        </div>
-                    </c:if>
+                    <div id="description">
+                        <br><br>
+                        <c:choose>
+                            <c:when test="${osfLoginContext.isInstitutionLogin()}">
+                                    <spring:message code="screen.institution.login.message" />
+                            </c:when>
+                            <c:otherwise>
+                                    <spring:message code="screen.osf.login.message" />
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
                 </div>
             </header>
-            </br>
+            <br>
             <div id="content">
