@@ -18,6 +18,7 @@
     under the License.
 
 --%>
+
 <jsp:directive.include file="includes/top.jsp" />
 
 <spring:eval var="tgcCookieSecure" expression="@casProperties.getProperty('tgc.cookie.secure')" />

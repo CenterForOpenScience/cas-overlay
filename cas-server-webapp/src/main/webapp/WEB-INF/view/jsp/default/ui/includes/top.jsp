@@ -18,6 +18,7 @@
     under the License.
 
 --%>
+
 <!DOCTYPE html>
 
 <%@ page pageEncoding="UTF-8" %>
@@ -67,9 +68,13 @@
                             <c:when test="${osfLoginContext.isInstitutionLogin()}">
                                 <span>OSF Institutions</span>
                             </c:when>
-                            <c:otherwise>
+                            <c:when test="${not empty registeredService}">
                                 <span class="title-full">${registeredService.properties.title.getValue()}</span>
                                 <span class="title-abbr">${registeredService.properties.titleAbbr.getValue()}</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="title-full">Open Science Framework</span>
+                                <span class="title-abbr">OSF CAS</span>
                             </c:otherwise>
                         </c:choose>
                     </span>
@@ -81,8 +86,11 @@
                             <c:when test="${osfLoginContext.isInstitutionLogin()}">
                                     <spring:message code="screen.institution.login.message" />
                             </c:when>
-                            <c:otherwise>
+                            <c:when test="${not empty registeredService}">
                                     <spring:message code="screen.osf.login.message" />
+                            </c:when>
+                            <c:otherwise>
+                                <spring:message code="screen.cas.login.message" />
                             </c:otherwise>
                         </c:choose>
                     </div>
