@@ -18,6 +18,7 @@
     under the License.
 
 --%>
+
 <jsp:directive.include file="includes/top.jsp" />
 <div id="inst-login">
     <section class="row">
@@ -51,9 +52,6 @@
                 return;
             }
             window.location = login_url;
-        }
-        function selectFocus() {
-            document.getElementById("institution-form-select").focus();
         }
     </script>
 </div>
