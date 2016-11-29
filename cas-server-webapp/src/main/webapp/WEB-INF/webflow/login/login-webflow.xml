@@ -204,24 +204,34 @@
 
     <action-state id="handleAuthenticationFailure">
         <evaluate expression="authenticationExceptionHandler.preHandle(flowRequestContext, currentEvent.attributes.error, messageContext)"/>
-        <transition on="AccountDisabledException" to="casAccountDisabledView"/>
         <transition on="AccountLockedException" to="casAccountLockedView"/>
         <transition on="AccountPasswordMustChangeException" to="casMustChangePassView"/>
         <transition on="CredentialExpiredException" to="casExpiredPassView"/>
         <transition on="InvalidLoginLocationException" to="casBadWorkstationView"/>
         <transition on="InvalidLoginTimeException" to="casBadHoursView"/>
-        <transition on="FailedLoginException" to="generateLoginTicket"/>
+        <transition on="UNKNOWN" to="generateLoginTicket"/>
+
+        <!-- OSF Login: account not found or invalid passphrase -->
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
-        <!-- Open Science Framework -->
-        <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
-        <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
-        <!-- One Time Password -->
+        <transition on="FailedLoginException" to="generateLoginTicket"/>
+
+        <!-- OSF Login: invalid user status -->
+        <transition on="AccountDisabledException" to="casLoginNotAllowedView"/>
+        <transition on="UserAlreadyMergedException" to="casLoginNotAllowedView" />
+        <transition on="UserNotActiveException" to="casLoginNotAllowedView" />
+        <transition on="UserNotClaimedException" to="casLoginNotAllowedView" />
+        <transition on="UserNotConfirmedException" to="casLoginNotAllowedView" />
+
+        <!-- OSF Login: two factor authentication required or failed -->
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
         <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
+
+        <!-- OSF Remote Login: remote login exception -->
+        <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
+
+        <!-- OSF Registration: user already exists or confirmation required -->
         <transition on="RegistrationFailureUserAlreadyExistsException" to="viewRegisterForm"/>
         <transition on="RegistrationSuccessConfirmationRequiredException" to="viewRegisterForm"/>
-
-        <transition on="UNKNOWN" to="generateLoginTicket"/>
     </action-state>
 
     <action-state id="sendTicketGrantingTicket">

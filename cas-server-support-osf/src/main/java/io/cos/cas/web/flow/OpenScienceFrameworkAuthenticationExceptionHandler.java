@@ -23,14 +23,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
-import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
 import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
+import io.cos.cas.authentication.exceptions.UserAlreadyMergedException;
+import io.cos.cas.authentication.exceptions.UserNotActiveException;
+import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 
+import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.web.flow.AuthenticationExceptionHandler;
 import org.springframework.binding.message.MessageContext;
@@ -54,22 +56,34 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
 
     static {
         DEFAULT_ERROR_LIST.add(javax.security.auth.login.AccountLockedException.class);
-        DEFAULT_ERROR_LIST.add(javax.security.auth.login.FailedLoginException.class);
         DEFAULT_ERROR_LIST.add(javax.security.auth.login.CredentialExpiredException.class);
-        DEFAULT_ERROR_LIST.add(javax.security.auth.login.AccountNotFoundException.class);
-        DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.AccountDisabledException.class);
         DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.InvalidLoginLocationException.class);
         DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.AccountPasswordMustChangeException.class);
         DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.InvalidLoginTimeException.class);
+
         // Open Science Framework Exceptions
-        DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
-        DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
-        // One Time Password Exceptions
-        DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
-        DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
+
         // Account Creation Exceptions
         DEFAULT_ERROR_LIST.add(RegistrationFailureUserAlreadyExistsException.class);
         DEFAULT_ERROR_LIST.add(RegistrationSuccessConfirmationRequiredException.class);
+
+        // Login Exceptions: Account not found, invalid password or verification key
+        DEFAULT_ERROR_LIST.add(javax.security.auth.login.AccountNotFoundException.class);
+        DEFAULT_ERROR_LIST.add(javax.security.auth.login.FailedLoginException.class);
+
+        // Login Exceptions: Remote login failure
+        DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
+
+        // Login Exceptions: Two factor required or failed
+        DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
+        DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
+
+        // Login Exceptions: Invalid user status
+        DEFAULT_ERROR_LIST.add(UserAlreadyMergedException.class);
+        DEFAULT_ERROR_LIST.add(UserNotActiveException.class);
+        DEFAULT_ERROR_LIST.add(UserNotClaimedException.class);
+        DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
+        DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.AccountDisabledException.class);
     }
 
     static {
@@ -115,6 +129,9 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         if ((THROTTLE_INCREASE_SET.contains(handleErrorName))) {
             context.getFlowScope().put("handleErrorName", handleErrorName);
         }
+
+        context.getFlowScope().put("authenticationException", handleErrorName);
+
         return new Event(this, handleErrorName);
     }
 }

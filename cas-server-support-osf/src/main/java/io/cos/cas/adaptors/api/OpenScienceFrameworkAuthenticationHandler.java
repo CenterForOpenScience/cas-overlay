@@ -22,11 +22,14 @@ import java.security.GeneralSecurityException;
 import java.util.Map;
 
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
 import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
+import io.cos.cas.authentication.exceptions.UserAlreadyMergedException;
+import io.cos.cas.authentication.exceptions.UserNotActiveException;
+import io.cos.cas.authentication.exceptions.UserNotClaimedException;
+import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
@@ -157,13 +160,13 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             } else if ("INVALID_PASSWORD".equals(errorDetail) || "INVALID_VERIFICATION_KEY".equals(errorDetail)) {
                 throw new FailedLoginException();
             } else if ("USER_NOT_REGISTERED".equals(errorDetail)) {
-                throw new LoginNotAllowedException(username + "is not registered");
+                throw new UserNotConfirmedException(username + " is registered but not confirmed");
             } else if ("USER_NOT_CLAIMED".equals(errorDetail)) {
-                throw new LoginNotAllowedException(username + "is not claimed");
+                throw new UserNotClaimedException(username + " is not claimed");
             } else if ("USER_NOT_ACTIVE".equals(errorDetail)) {
-                throw new LoginNotAllowedException(username + "is not active");
+                throw new UserNotActiveException(username + " is not active");
             } else if ("USER_MERGED".equals(errorDetail)) {
-                throw new LoginNotAllowedException("Cannot log in to a merged user " + username);
+                throw new UserAlreadyMergedException("Cannot log in to a merged user " + username);
             } else if ("USER_DISABLED".equals(errorDetail)) {
                 throw new AccountDisabledException(username + "account is disabled");
             } else {
