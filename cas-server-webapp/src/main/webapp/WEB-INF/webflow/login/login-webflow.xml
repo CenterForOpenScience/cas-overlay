@@ -102,9 +102,7 @@
     <action-state id="beforeLogin">
         <evaluate expression="loginHandler.beforeLogin(flowRequestContext)" />
         <transition on="osfDefaultLogin" to="viewLoginForm" />
-        <transition on="osfCampaignLogin" to="viewLoginForm" />
         <transition on="osfDefaultRegister" to="viewRegisterForm" />
-        <transition on="osfCampaignRegister" to="viewRegisterForm" />
         <transition on="institutionLogin" to="osfInstitutionLogin" />
     </action-state>
 
