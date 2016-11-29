@@ -19,9 +19,22 @@
 
 --%>
 <jsp:directive.include file="includes/top.jsp" />
-  <div id="msg" class="errors">
-    <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')" />
-    <h2><spring:message code="screen.loginnotallowed.heading" /></h2>
-    <p><spring:message code="screen.loginnotallowed.message" arguments="${osfResendConfirmationUrl}" /></p>
-  </div>
+<c:set var="exception" value="${authenticationException}" />
+    <div id="msg" class="errors">
+        <c:if test="${not empty exception}">
+            <h1>${exception}</h1>
+        </c:if>
+        <%--
+        <h2><spring:message code="screen.loginnotallowed.usernotregistered.heading" /></h2>
+        <p><spring:message code="screen.loginnotallowed.usernotregistered.message" /></p>
+        <h2><spring:message code="screen.loginnotallowed.usernotclaimed.heading" /></h2>
+        <p><spring:message code="screen.loginnotallowed.usernotclaimed.message" /></p>
+        <h2><spring:message code="screen.loginnotallowed.usernotactive.heading" /></h2>
+        <p><spring:message code="screen.loginnotallowed.usernotactive.message" /></p>
+        <h2><spring:message code="screen.accountdisabled.userdisabled.heading" /></h2>
+        <p><spring:message code="screen.accountdisabled.userdisabled.message" /></p>
+        <h2><spring:message code="screen.accountdisabled.usermerged.heading" /></h2>
+        <p><spring:message code="screen.accountdisabled.usermerged.message" /></p>
+        --%>
+    </div>
 <jsp:directive.include file="includes/bottom.jsp" />
