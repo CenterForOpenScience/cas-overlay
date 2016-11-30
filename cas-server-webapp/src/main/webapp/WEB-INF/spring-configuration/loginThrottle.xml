@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Licensed to Apereo under one or more contributor license
+    agreements. See the NOTICE file distributed with this work
+    for additional information regarding copyright ownership.
+    Apereo licenses this file to you under the Apache License,
+    Version 2.0 (the "License"); you may not use this file
+    except in compliance with the License.  You may obtain a
+    copy of the License at the following location:
+      http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!-- Uses a memory map to prevent successive failed login attempts for a particular username from the same IP address. -->
+    <bean id="loginThrottle"
+          class="org.jasig.cas.web.support.InMemoryThrottledSubmissionByIpAddressAndUsernameHandlerInterceptorAdapter"
+          p:failureRangeInSeconds="${cas.throttle.failureRangeInSeconds}"
+          p:failureThreshold="${cas.throttle.failureThreshold}"
+          p:usernameParameter="username"
+    />
+
+    <!-- A scheduled task that periodically cleans up state to allow the throttle to relax. -->
+    <bean id="loginThrottleJobDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"
+          p:targetObject-ref="loginThrottle"
+          p:targetMethod="decrementCounts"
+    />
+
+    <!-- A scheduler that drives the above configured triggers. -->
+    <bean id="loginThrottleTrigger"
+          class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"
+          p:jobDetail-ref="loginThrottleJobDetail"
+          p:startDelay="${cas.throttle.startDelay}"
+          p:repeatInterval="${cas.throttle.repeatInterval}"
+    />
+</beans>

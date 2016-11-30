@@ -331,6 +331,7 @@ footer a:link, footer a:visited {
   text-align: Left;
 }
 
+#login .heading,
 #inst-login .heading {
   font-size: 20px;
   font-weight: lighter;
