@@ -26,8 +26,9 @@
                 <p>This should not happen.</p>
             </c:when>
             <c:when test="${osfLoginContext.getHandleErrorName() == 'UserNotConfirmedException'}">
+                <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')" />
                 <h2><spring:message code="screen.loginnotallowed.usernotconfirmed.heading" /></h2>
-                <p><spring:message code="screen.loginnotallowed.usernotconfirmed.message" /></p>
+                <p><spring:message code="screen.loginnotallowed.usernotconfirmed.message" arguments="${osfResendConfirmationUrl}" /></p>
             </c:when>
             <c:when test="${osfLoginContext.getHandleErrorName() == 'AccountDisabledException'}">
                 <h2><spring:message code="screen.loginnotallowed.userdisabled.heading" /></h2>
@@ -37,7 +38,7 @@
                 <h2><spring:message code="screen.loginnotallowed.usernotclaimed.heading" /></h2>
                 <p><spring:message code="screen.loginnotallowed.usernotclaimed.message" /></p>
             </c:when>
-            <c:when test="${osfLoginContext.getHandleErrorName() == 'UserMergedException'}">
+            <c:when test="${osfLoginContext.getHandleErrorName() == 'UserAlreadyMergedException'}">
                 <h2><spring:message code="screen.loginnotallowed.usermerged.heading" /></h2>
                 <p><spring:message code="screen.loginnotallowed.usermerged.message" /></p>
             </c:when>
