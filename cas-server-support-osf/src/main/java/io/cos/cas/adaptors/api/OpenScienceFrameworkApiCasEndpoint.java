@@ -51,7 +51,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
         // login, two factor verification failed
         API_AUTHENTICATION_ERROR_LIST.add("INVALID_ONE_TIME_PASSWORD");
         // login, invalid user status
-        API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_REGISTERED");
+        API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_CONFIRMED");
         API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_CLAIMED");
         API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_ACTIVE");
         API_AUTHENTICATION_ERROR_LIST.add("USER_MERGED");

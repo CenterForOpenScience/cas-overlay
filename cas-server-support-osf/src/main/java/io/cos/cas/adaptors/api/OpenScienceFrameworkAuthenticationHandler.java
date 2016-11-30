@@ -159,7 +159,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                 throw new AccountNotFoundException();
             } else if ("INVALID_PASSWORD".equals(errorDetail) || "INVALID_VERIFICATION_KEY".equals(errorDetail)) {
                 throw new FailedLoginException();
-            } else if ("USER_NOT_REGISTERED".equals(errorDetail)) {
+            } else if ("USER_NOT_CONFIRMED".equals(errorDetail)) {
                 throw new UserNotConfirmedException(username + " is registered but not confirmed");
             } else if ("USER_NOT_CLAIMED".equals(errorDetail)) {
                 throw new UserNotClaimedException(username + " is not claimed");
