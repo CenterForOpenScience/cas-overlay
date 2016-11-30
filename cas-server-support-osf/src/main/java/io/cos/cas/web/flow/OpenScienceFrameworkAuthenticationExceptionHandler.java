@@ -31,13 +31,20 @@ import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequi
 import io.cos.cas.authentication.exceptions.UserAlreadyMergedException;
 import io.cos.cas.authentication.exceptions.UserNotActiveException;
 import io.cos.cas.authentication.exceptions.UserNotClaimedException;
+import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 
 import org.jasig.cas.authentication.AccountDisabledException;
+import org.jasig.cas.authentication.AccountPasswordMustChangeException;
 import org.jasig.cas.authentication.AuthenticationException;
+import org.jasig.cas.authentication.InvalidLoginLocationException;
+import org.jasig.cas.authentication.InvalidLoginTimeException;
 import org.jasig.cas.web.flow.AuthenticationExceptionHandler;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
+
+import javax.security.auth.login.AccountLockedException;
+import javax.security.auth.login.CredentialExpiredException;
 
 /**
  * The Open Science Framework authentication exception handler.
@@ -55,11 +62,11 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     private static final Set<String> THROTTLE_INCREASE_SET = new HashSet<>();
 
     static {
-        DEFAULT_ERROR_LIST.add(javax.security.auth.login.AccountLockedException.class);
-        DEFAULT_ERROR_LIST.add(javax.security.auth.login.CredentialExpiredException.class);
-        DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.InvalidLoginLocationException.class);
-        DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.AccountPasswordMustChangeException.class);
-        DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.InvalidLoginTimeException.class);
+        DEFAULT_ERROR_LIST.add(AccountLockedException.class);
+        DEFAULT_ERROR_LIST.add(CredentialExpiredException.class);
+        DEFAULT_ERROR_LIST.add(InvalidLoginLocationException.class);
+        DEFAULT_ERROR_LIST.add(AccountPasswordMustChangeException.class);
+        DEFAULT_ERROR_LIST.add(InvalidLoginTimeException.class);
 
         // Open Science Framework Exceptions
 
@@ -82,8 +89,8 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         DEFAULT_ERROR_LIST.add(UserAlreadyMergedException.class);
         DEFAULT_ERROR_LIST.add(UserNotActiveException.class);
         DEFAULT_ERROR_LIST.add(UserNotClaimedException.class);
+        DEFAULT_ERROR_LIST.add(UserNotConfirmedException.class);
         DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
-        DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.AccountDisabledException.class);
     }
 
     static {
@@ -126,11 +133,14 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     public Event preHandle(final RequestContext context, final AuthenticationException e, final MessageContext messageContext) {
         final String handleErrorName = super.handle(e, messageContext);
 
-        if ((THROTTLE_INCREASE_SET.contains(handleErrorName))) {
-            context.getFlowScope().put("handleErrorName", handleErrorName);
+        final String loginContext = (String) context.getFlowScope().get("jsonLoginContext");
+        final OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext osfLoginContext
+                = OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext.fromJson(loginContext);
+        if (osfLoginContext != null) {
+            osfLoginContext.setHandleErrorName(handleErrorName);
+            context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
         }
 
-        context.getFlowScope().put("authenticationException", handleErrorName);
 
         return new Event(this, handleErrorName);
     }

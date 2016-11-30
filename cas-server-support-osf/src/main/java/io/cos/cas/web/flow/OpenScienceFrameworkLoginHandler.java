@@ -49,18 +49,24 @@ public class OpenScienceFrameworkLoginHandler {
         private String serviceUrl;
         private boolean institutionLogin;
         private boolean register;
+        private String handleErrorName;
 
         /**
          * Construct an instance of `OpenScienceFrameworkLoginContext` with given settings.
          *
          * @param serviceUrl the service url
          * @param institutionLogin login through institutions
-         * @param register show register page intead of login
+         * @param register show register page instead of login
          */
-        private OpenScienceFrameworkLoginContext(final String serviceUrl, final boolean institutionLogin, final boolean register) {
+        private OpenScienceFrameworkLoginContext(
+                final String serviceUrl,
+                final boolean institutionLogin,
+                final boolean register
+        ) {
             this.serviceUrl = serviceUrl;
             this.institutionLogin = institutionLogin;
             this.register = register;
+            this.handleErrorName = null;
         }
 
         public String getServiceUrl() {
@@ -94,13 +100,30 @@ public class OpenScienceFrameworkLoginHandler {
             return register;
         }
 
+        /**
+         * Check if an authentication exception has occurred.
+         *
+         * @return the name of the exception
+         */
+        public String getHandleErrorName() {
+            return handleErrorName;
+        }
+
+        /**
+         * Set the handleErrorName if an authentication exception occurs.
+         *
+         * @param handleErrorName the name of the exception
+         */
+        public void setHandleErrorName(final String handleErrorName) {
+            this.handleErrorName =handleErrorName;
+        }
 
         /**
          * Convert class instance to a JSON string, which will be passed to the flow context.
          *
          * @return JSON string
          */
-        private String toJson() {
+        public String toJson() {
             final Gson gson = new Gson();
             return gson.toJson(this);
         }
@@ -129,7 +152,8 @@ public class OpenScienceFrameworkLoginHandler {
         final boolean institutionLogin = isInstitutionLogin(context);
         final boolean register = isRegister(context);
 
-        final OpenScienceFrameworkLoginContext osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin, register);
+        final OpenScienceFrameworkLoginContext osfLoginContext
+                = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin, register);
         context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
 
         if (osfLoginContext.isInstitutionLogin()) {
@@ -171,9 +195,9 @@ public class OpenScienceFrameworkLoginHandler {
      *
      * @param context The request context
      * @return the encoded service url
-     * @throws AssertionError
+     * @throws AssertionError if fails to encode the URL
      */
-    private String getEncodedServiceUrl(final RequestContext context) {
+    private String getEncodedServiceUrl(final RequestContext context) throws AssertionError {
 
         final String serviceUrl = context.getRequestParameters().get("service");
         if (serviceUrl == null) {
