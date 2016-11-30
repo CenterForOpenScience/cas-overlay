@@ -19,6 +19,7 @@
 package org.jasig.cas.web.support;
 
 import io.cos.cas.web.flow.OpenScienceFrameworkAuthenticationExceptionHandler;
+import io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -101,8 +102,23 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
         if (context == null || context.getCurrentEvent() == null) {
             return;
         }
-        final String handleErrorName = (String) context.getFlowScope().get("handleErrorName");
 
+        final String loginContext;
+        try {
+            loginContext = (String) context.getFlowScope().get("jsonLoginContext");
+        } catch (final IllegalStateException e) {
+            logger.warn(e.getMessage());
+            return;
+        }
+        final OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext osfLoginContext
+                = OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext.fromJson(loginContext);
+
+        if (osfLoginContext == null || osfLoginContext.getHandleErrorName() == null) {
+            logger.warn("Fail to retrieve login context and exceptions.");
+            return;
+        }
+
+        final String handleErrorName = osfLoginContext.getHandleErrorName();
         if (OpenScienceFrameworkAuthenticationExceptionHandler.isTriggerThrottleIncrease(handleErrorName)) {
             recordSubmissionFailure(request);
         }
