@@ -83,6 +83,9 @@
                     <div id="description">
                         <br><br>
                         <c:choose>
+                            <c:when test="${osfLoginContext.isUserStatusException()}">
+                                <spring:message code="screen.osf.login.error.message" />
+                            </c:when>
                             <c:when test="${osfLoginContext.isInstitutionLogin()}">
                                     <spring:message code="screen.institution.login.message" />
                             </c:when>

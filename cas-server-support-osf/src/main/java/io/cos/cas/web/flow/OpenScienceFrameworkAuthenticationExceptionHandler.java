@@ -44,7 +44,9 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import javax.security.auth.login.AccountLockedException;
+import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.CredentialExpiredException;
+import javax.security.auth.login.FailedLoginException;
 
 /**
  * The Open Science Framework authentication exception handler.
@@ -61,6 +63,9 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     /** A set of errors that trigger throttle increase. */
     private static final Set<String> THROTTLE_INCREASE_SET = new HashSet<>();
 
+    /** A set of errors that is caused by invalid user status. */
+    private static final Set<String> INVALID_USER_STATUS_SET = new HashSet<>();
+
     static {
         DEFAULT_ERROR_LIST.add(AccountLockedException.class);
         DEFAULT_ERROR_LIST.add(CredentialExpiredException.class);
@@ -75,8 +80,8 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         DEFAULT_ERROR_LIST.add(RegistrationSuccessConfirmationRequiredException.class);
 
         // Login Exceptions: Account not found, invalid password or verification key
-        DEFAULT_ERROR_LIST.add(javax.security.auth.login.AccountNotFoundException.class);
-        DEFAULT_ERROR_LIST.add(javax.security.auth.login.FailedLoginException.class);
+        DEFAULT_ERROR_LIST.add(AccountNotFoundException.class);
+        DEFAULT_ERROR_LIST.add(FailedLoginException.class);
 
         // Login Exceptions: Remote login failure
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
@@ -94,10 +99,18 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     }
 
     static {
+        INVALID_USER_STATUS_SET.add(UserAlreadyMergedException.class.getSimpleName());
+        INVALID_USER_STATUS_SET.add(UserNotActiveException.class.getSimpleName());
+        INVALID_USER_STATUS_SET.add(UserNotClaimedException.class.getSimpleName());
+        INVALID_USER_STATUS_SET.add(UserNotConfirmedException.class.getSimpleName());
+        INVALID_USER_STATUS_SET.add(AccountDisabledException.class.getSimpleName());
+    }
+
+    static {
         // Username does not exist
-        THROTTLE_INCREASE_SET.add(javax.security.auth.login.AccountNotFoundException.class.getSimpleName());
+        THROTTLE_INCREASE_SET.add(AccountNotFoundException.class.getSimpleName());
         // Wrong password
-        THROTTLE_INCREASE_SET.add(javax.security.auth.login.FailedLoginException.class.getSimpleName());
+        THROTTLE_INCREASE_SET.add(FailedLoginException.class.getSimpleName());
         // Wrong one time password
         THROTTLE_INCREASE_SET.add(OneTimePasswordFailedLoginException.class.getSimpleName());
     }
@@ -117,6 +130,16 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
      */
     public static Boolean isTriggerThrottleIncrease(final String handleErrorName) {
         return THROTTLE_INCREASE_SET.contains(handleErrorName);
+    }
+
+    /**
+     * Check if the authentication exception is caused by invalid user status.
+     *
+     * @param handleErrorName the simple name of the exception
+     * @return true if user status invalid, false otherwise
+     */
+    public static Boolean isInvalidUserStatus(final String handleErrorName) {
+        return INVALID_USER_STATUS_SET.contains(handleErrorName);
     }
 
     /**

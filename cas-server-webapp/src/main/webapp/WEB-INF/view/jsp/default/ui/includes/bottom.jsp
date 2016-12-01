@@ -25,8 +25,13 @@
         <hr>
         <br>
         <c:choose>
-            <c:when test="${osfLoginContext.isInstitutionLogin()}">
-                <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
+            <c:when test="${osfLoginContext.isInstitutionLogin() or osfLoginContext.isUserStatusException()}">
+                <spring:eval var="defaultLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
+                <a id="alternative-osf" href="${defaultLoginUrl}${osfLoginContext.isServiceUrl() ? 'service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">
+                    ${osfLoginContext.isInstitutionLogin() ? 'Non-institution&nbsp;Login' : 'Login&nbsp;with&nbsp;a&nbsp;Different&nbsp;Account'}
+                </a>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <%--
                 <c:choose>
                     <c:when test="${osfLoginContext.isServiceUrl()}">
                         <a id="alternative-osf" href="${osfLoginUrl}service=${osfLoginContext.getServiceUrl()}">Non-institution Login</a>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -35,9 +40,15 @@
                         <a id="alternative-osf" href="${osfLoginUrl}">Non-institution Login</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </c:otherwise>
                 </c:choose>
+                --%>
             </c:when>
             <c:otherwise>
                 <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')" />
+                <a id="alternative-institution" href="${institutionLoginUrl}${osfLoginContext.isServiceUrl() ? '&service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">
+                    Login&nbsp;through&nbsp;Your&nbsp;Institution
+                </a>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <%--
                 <c:choose>
                     <c:when test="${osfLoginContext.isServiceUrl()}">
                         <a id="alternative-institution" href="${institutionLoginUrl}&service=${osfLoginContext.getServiceUrl()}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -46,23 +57,27 @@
                         <a id="alternative-institution" href="${institutionLoginUrl}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </c:otherwise>
                 </c:choose>
+                --%>
             </c:otherwise>
         </c:choose>
-        <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
-        <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
+        <spring:eval var="osfHomeUrl" expression="@casProperties.getProperty('osf.url')" />
+        <a id="back-to-osf" href="${osfHomeUrl}">Back&nbsp;to&nbsp;OSF</a><br>
     </div>
-</div> <!-- END #content -->
+</div>
+<!-- END #content -->
 
 <div class="row" style="text-align: center;">
     <br>
     <c:choose>
         <c:when test="${osfLoginContext.isRegister()}">
             <spring:eval var="alreadyHaveAnAccountUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-            <a id="already-have-an-account" href="${alreadyHaveAnAccountUrl}${not empty param.service ? 'service=' : ''}${fn:escapeXml(param.service)}">Already have an account?</a>
+            <a id="already-have-an-account" href="${alreadyHaveAnAccountUrl}${osfLoginContext.isServiceUrl() ? 'service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">
+                Already&nbsp;have&nbsp;an&nbsp;account?
+            </a>
         </c:when>
         <c:otherwise>
             <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('cas.osf.createAccount.url')" />
-            <a id="create-account" href="${createAccountUrl}${not empty param.service ? '&service=' : ''}${fn:escapeXml(param.service)}">Create Account</a>
+            <a id="create-account" href="${createAccountUrl}${osfLoginContext.isServiceUrl() ? '&service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">Create&nbsp;Account</a>
         </c:otherwise>
     </c:choose>
 </div>
