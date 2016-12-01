@@ -21,10 +21,6 @@
 <jsp:directive.include file="includes/top.jsp" />
     <div id="msg" class="errors">
         <c:choose>
-            <c:when test="${empty osfLoginContext.getHandleErrorName()}">
-                <h2>Unknown Exception 1</h2>
-                <p>This should not happen.</p>
-            </c:when>
             <c:when test="${osfLoginContext.getHandleErrorName() == 'UserNotConfirmedException'}">
                 <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')" />
                 <h2><spring:message code="screen.loginnotallowed.usernotconfirmed.heading" /></h2>
@@ -47,8 +43,8 @@
                 <p><spring:message code="screen.loginnotallowed.usernotactive.message" /></p>
             </c:when>
             <c:otherwise>
-                <h2>Unknown Exception 2</h2>
-                <p>This should not happen.</p>
+                <h2><spring:message code="screen.loginnotallowed.unknown.heading" /></h2>
+                <p><spring:message code="screen.loginnotallowed.unknown.message" /></p>
             </c:otherwise>
         </c:choose>
     </div>

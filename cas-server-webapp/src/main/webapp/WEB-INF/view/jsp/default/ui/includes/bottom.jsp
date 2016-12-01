@@ -31,16 +31,6 @@
                     ${osfLoginContext.isInstitutionLogin() ? 'Non-institution&nbsp;Login' : 'Login&nbsp;with&nbsp;a&nbsp;Different&nbsp;Account'}
                 </a>
                 &nbsp;&nbsp;&nbsp;&nbsp;
-                <%--
-                <c:choose>
-                    <c:when test="${osfLoginContext.isServiceUrl()}">
-                        <a id="alternative-osf" href="${osfLoginUrl}service=${osfLoginContext.getServiceUrl()}">Non-institution Login</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    </c:when>
-                    <c:otherwise>
-                        <a id="alternative-osf" href="${osfLoginUrl}">Non-institution Login</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    </c:otherwise>
-                </c:choose>
-                --%>
             </c:when>
             <c:otherwise>
                 <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')" />
@@ -48,16 +38,6 @@
                     Login&nbsp;through&nbsp;Your&nbsp;Institution
                 </a>
                 &nbsp;&nbsp;&nbsp;&nbsp;
-                <%--
-                <c:choose>
-                    <c:when test="${osfLoginContext.isServiceUrl()}">
-                        <a id="alternative-institution" href="${institutionLoginUrl}&service=${osfLoginContext.getServiceUrl()}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    </c:when>
-                    <c:otherwise>
-                        <a id="alternative-institution" href="${institutionLoginUrl}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    </c:otherwise>
-                </c:choose>
-                --%>
             </c:otherwise>
         </c:choose>
         <spring:eval var="osfHomeUrl" expression="@casProperties.getProperty('osf.url')" />
@@ -101,15 +81,16 @@
 
 <script>
     function selectFocus() {
-        var username = document.getElementById("username")
-        if (username) {
-            username.focus();
-        }
+        var fullname = document.getElementById("fullname");
+        var username = document.getElementById("username");
         var institutionSelect = document.getElementById("institution-form-select")
-        if (institutionSelect) {
+        if (fullname) {
+            fullname.focus();
+        } else if (username) {
+            username.focus();
+        } else if (institutionSelect) {
             institutionSelect.focus();
         }
-
     }
 </script>
 
