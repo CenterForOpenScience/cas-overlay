@@ -43,6 +43,6 @@
     </form>
 </div>
 
-<c:set var="oauthAuthorization" value="true"/>
+<c:set var="alternativeBottomLogout" value="true"/>
 
 <jsp:directive.include file="../../default/ui/includes/bottom.jsp" />
