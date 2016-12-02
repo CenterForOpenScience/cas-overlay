@@ -19,12 +19,7 @@
 
 --%>
 <jsp:directive.include file="../../default/ui/includes/top.jsp" />
-<style>
-    #login .btn-reset {
-        background: #ddd;
-        font-weight: bold;
-    }
-</style>
+
 <div class="question" id="login">
     <form id="fm1" method="GET" action="<c:url value="${callbackUrl}" />">
         <h2><spring:message code="screen.oauth.confirm.header" /></h2>
@@ -41,9 +36,11 @@
             </ul>
         </p>
         <section class="row btn-row">
-            <input class="btn-submit" style="width: inherit;" name="action" accesskey="a" value="<spring:message code="screen.oauth.confirm.allow" />" type="submit" />
-            <input class="btn-reset" style="display: inline-block;" name="action" accesskey="d" value="<spring:message code="screen.oauth.confirm.deny" />" type="submit" />
+            <input class="btn-oauth-submit" name="action" accesskey="a" value="<spring:message code="screen.oauth.confirm.allow" />" type="submit" />
+            &nbsp;
+            <input class="btn-oauth-reset" style="display: inline-block;" name="action" accesskey="d" value="<spring:message code="screen.oauth.confirm.deny" />" type="submit" />
         </section>
     </form>
 </div>
+
 <jsp:directive.include file="../../default/ui/includes/bottom.jsp" />
