@@ -22,10 +22,10 @@
 
 <div class="question" id="login">
     <form id="fm1" method="GET" action="<c:url value="${callbackUrl}" />">
-        <h2><spring:message code="screen.oauth.confirm.header" /></h2>
-        <p>
+        <div class="oauth-confirm-header"><spring:message code="screen.oauth.confirm.header" /></div><br><br>
+        <div>
            <spring:message code="screen.oauth.confirm.message" arguments="${fn:escapeXml(serviceName)}" />
-        </p>
+        </div>
         <p>
             <ul style="padding-left: 15px;">
                 <c:forEach items="${scopeMap}" var="scope">
@@ -42,5 +42,7 @@
         </section>
     </form>
 </div>
+
+<c:set var="confirmAuthorization" value="true"/>
 
 <jsp:directive.include file="../../default/ui/includes/bottom.jsp" />

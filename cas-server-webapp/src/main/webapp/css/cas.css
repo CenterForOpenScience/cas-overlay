@@ -434,3 +434,9 @@ footer a:link, footer a:visited {
   vertical-align: middle;
   white-space: nowrap;
 }
+
+#fm1 .oauth-confirm-header {
+  font-size: 24px;
+  font-weight: lighter;
+  white-space: nowrap;
+}
