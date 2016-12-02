@@ -4,10 +4,31 @@
   "name" : "",
   "description" : "",
   "serviceId" : "^https?://(localhost|127.0.0.1|accounts.dev.osf.io)(|:8080|:8443)/.*",
-  "evaluationOrder": "100",
+  "evaluationOrder": "2000",
   "logo": "",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
     "allowedAttributes" : [ "java.util.ArrayList", [ "givenName", "familyName" ] ]
+  },
+  "properties" : {
+    "@class": "java.util.HashMap",
+    "title": {
+      "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+      "values": [
+        "java.util.HashSet",
+        [
+          "Open Science Framework"
+        ]
+      ]
+    },
+    "titleAbbr": {
+      "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+      "values": [
+        "java.util.HashSet",
+        [
+          "OSF"
+        ]
+      ]
+    }
   }
 }

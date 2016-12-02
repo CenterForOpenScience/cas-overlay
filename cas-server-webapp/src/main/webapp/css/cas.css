@@ -200,9 +200,8 @@ header h1 {
   padding: 5px;
 }
 
-#login .btn-submit {
-  /*background: #2aa4a5;*/
-  background: #5cb85c;
+#login .btn-oauth-submit {
+  background-image: linear-gradient(to bottom, #5cb85c 0, #419641 100%);
   border: 0;
   padding: 10px 20px;
   font-weight: bold;
@@ -212,26 +211,31 @@ header h1 {
   border-radius: 4px;
 }
 
-#login .btn-reset {
-  background: #eee;
-  padding: 10px 20px;
+#login .btn-oauth-reset {
+  background-image: linear-gradient(to bottom, #d4d4d4 0, #c4c4c4 100%);
   border: 0;
+  padding: 10px 20px;
+  font-weight: bold;
+  color: black;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
 }
 
-#login .btn-submit:hover, #login .btn-reset:hover {
+#login .btn-oauth-submit:hover {
   cursor: pointer;
 }
 
-#login .btn-submit:hover {
-  /*background: #30bfbf;*/
-  background: #419641;
+#login .btn-oauth-submit:active {
+  background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
 }
 
-#login .btn-reset:hover {
-  background: #d4d4d4;
+#login .btn-oauth-reset:hover {
+   cursor: pointer;
+ }
+
+#login .btn-oauth-reset:active {
+  background-image: linear-gradient(to top, #d4d4d4 0, #c4c4c4 100%);
 }
 
 #sidebar {
@@ -428,5 +432,11 @@ footer a:link, footer a:visited {
   font-weight: lighter;
   text-align: center;
   vertical-align: middle;
+  white-space: nowrap;
+}
+
+#fm1 .oauth-confirm-header {
+  font-size: 24px;
+  font-weight: lighter;
   white-space: nowrap;
 }
