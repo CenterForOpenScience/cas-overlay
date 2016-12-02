@@ -21,7 +21,7 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-    <c:if test="${empty confirmAuthorization}">
+    <c:if test="${empty oauthAuthorization}">
         <div class="row" style="text-align: center;">
             <hr>
             <br>
@@ -53,9 +53,10 @@
             <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
         </div>
     </c:if>
+
 </div> <!-- END #content -->
 
-<c:if test="${empty confirmAuthorization}">
+<c:if test="${empty oauthAuthorization}">
     <div class="row" style="text-align: center;">
         <br>
         <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')" />

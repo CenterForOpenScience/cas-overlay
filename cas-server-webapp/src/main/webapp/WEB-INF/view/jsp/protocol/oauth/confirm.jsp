@@ -43,6 +43,6 @@
     </form>
 </div>
 
-<c:set var="confirmAuthorization" value="true"/>
+<c:set var="oauthAuthorization" value="true"/>
 
 <jsp:directive.include file="../../default/ui/includes/bottom.jsp" />
