@@ -70,12 +70,18 @@ h2 {
 }
 
 .title-abbr {
-  display: none
+  display: none;
 }
 
-@media screen and (max-width: 420px) {
+.title-full {
+  display: inline;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 450px) {
   .title-abbr {
     display: inline;
+    white-space: nowrap;
   }
   .title-full {
     display: none;
@@ -92,7 +98,7 @@ h2 {
   overflow: hidden;
   background: #f7f7f7;
   padding: 20px;
-  width: 288px;
+  width: 300px;
   margin: 0 auto;
 
   -webkit-border-bottom-right-radius: 0;
@@ -194,9 +200,8 @@ header h1 {
   padding: 5px;
 }
 
-#login .btn-submit {
-  /*background: #2aa4a5;*/
-  background: #5cb85c;
+#login .btn-oauth-submit {
+  background-image: linear-gradient(to bottom, #5cb85c 0, #419641 100%);
   border: 0;
   padding: 10px 20px;
   font-weight: bold;
@@ -206,26 +211,31 @@ header h1 {
   border-radius: 4px;
 }
 
-#login .btn-reset {
-  background: #eee;
-  padding: 10px 20px;
+#login .btn-oauth-reset {
+  background-image: linear-gradient(to bottom, #d4d4d4 0, #c4c4c4 100%);
   border: 0;
+  padding: 10px 20px;
+  font-weight: bold;
+  color: black;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
 }
 
-#login .btn-submit:hover, #login .btn-reset:hover {
+#login .btn-oauth-submit:hover {
   cursor: pointer;
 }
 
-#login .btn-submit:hover {
-  /*background: #30bfbf;*/
-  background: #419641;
+#login .btn-oauth-submit:active {
+  background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
 }
 
-#login .btn-reset:hover {
-  background: #d4d4d4;
+#login .btn-oauth-reset:hover {
+   cursor: pointer;
+ }
+
+#login .btn-oauth-reset:active {
+  background-image: linear-gradient(to top, #d4d4d4 0, #c4c4c4 100%);
 }
 
 #sidebar {
@@ -383,4 +393,50 @@ footer a:link, footer a:visited {
 #inst-login .btn-submit:active input[type=button],
 #fm1 .row .btn-submit:active {
   background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
+}
+
+#service-logo {
+  width: 75px;
+  background: darkred;
+  text-align: center;
+  vertical-align: middle;
+}
+
+#service-logo.service-logo-SocArXiv {
+  background: #e14b5a;
+}
+
+#service-logo.service-logo-engrXiv {
+  background: #222F38;
+}
+
+#service-logo.service-logo-PsyArXiv {
+  background: #a9a9a9;
+  padding: 0 10px 0 10px;
+}
+
+#service-ui .service-logo-full {
+  width: 270px;
+}
+
+#service-ui table {
+  margin: 0 auto 0 auto;
+}
+
+#service-ui tr {
+  line-height: 28px;
+}
+
+#service-ui .service-name {
+  font-size: 24px;
+  font-weight: lighter;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+#fm1 .oauth-confirm-header {
+  font-size: 24px;
+  font-weight: lighter;
+  white-space: nowrap;
 }

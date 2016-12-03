@@ -19,9 +19,14 @@
 
 package io.cos.cas.web.flow;
 
-
+import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 
 /**
@@ -32,6 +37,74 @@ import org.springframework.webflow.execution.RequestContext;
  */
 public class OpenScienceFrameworkLoginHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkLoginHandler.class);
+
+    /**
+     * Open Science Framework Login Context.
+     *
+     * @author Longze chen
+     * @since  4.1.0
+     */
+    public static final class OpenScienceFrameworkLoginContext {
+        private String serviceUrl;
+        private boolean institutionLogin;
+
+        /**
+         * Construct an instance of `OpenScienceFrameworkLoginContext` with given settings.
+         *
+         * @param serviceUrl the service url
+         * @param institutionLogin login through institutions
+         */
+        private OpenScienceFrameworkLoginContext(final String serviceUrl, final boolean institutionLogin) {
+            this.serviceUrl = serviceUrl;
+            this.institutionLogin = institutionLogin;
+        }
+
+        public String getServiceUrl() {
+            return serviceUrl;
+        }
+
+        /**
+         * Check if login through institutions.
+         *
+         * @return true if institution login, false otherwise
+         */
+        public boolean isInstitutionLogin() {
+            return institutionLogin;
+        }
+
+        /**
+         * Check if service url exists.
+         *
+         * @return true if service url exists, false otherwise
+         */
+        public boolean isServiceUrl() {
+            return serviceUrl != null;
+        }
+
+
+        /**
+         * Convert class instance to a JSON string, which will be passed to the flow context.
+         *
+         * @return JSON string
+         */
+        private String toJson() {
+            final Gson gson = new Gson();
+            return gson.toJson(this);
+        }
+
+        /**
+         * Convert JSON string to a class instance.
+         *
+         * @param jsonString The json String
+         * @return an instance of OpenScienceFrameworkCampaign
+         */
+        public static OpenScienceFrameworkLoginContext fromJson(final String jsonString) {
+            final Gson gson = new Gson();
+            return gson.fromJson(jsonString, OpenScienceFrameworkLoginContext.class);
+        }
+    }
+
     /**
      * Decision making action that handles OSF login: osf, institution, campaign.
      *
@@ -40,17 +113,48 @@ public class OpenScienceFrameworkLoginHandler {
      */
     public Event beforeLogin(final RequestContext context) {
 
-        return isInstitution(context) ? new Event(this, "institution") : new Event(this, "osf");
+        final String serviceUrl = getEncodedServiceUrl(context);
+        final boolean institutionLogin = isInstitutionLogin(context);
+
+        final OpenScienceFrameworkLoginContext osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin);
+        context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
+
+        if (osfLoginContext.isInstitutionLogin()) {
+            return new Event(this, "institutionLogin");
+        } else {
+            return new Event(this, "osfDefaultLogin");
+        }
     }
 
     /**
-     * Check institution login. Return true if `campaign=institution` is present in request parameters.
+     * Check institution login.
+     * Return true if `campaign=institution` is present in request parameters.
      *
      * @param context The request context
      * @return Boolean
      */
-    private boolean isInstitution(final RequestContext context) {
+    private boolean isInstitutionLogin(final RequestContext context) {
         final String campaign = context.getRequestParameters().get("campaign");
         return "institution".equals(campaign);
+    }
+
+    /**
+     * Encode the decoded service url if service url exists.
+     *
+     * @param context The request context
+     * @return the encoded service url
+     * @throws AssertionError
+     */
+    private String getEncodedServiceUrl(final RequestContext context) {
+
+        final String serviceUrl = context.getRequestParameters().get("service");
+        if (serviceUrl == null) {
+            return null;
+        }
+        try {
+            return URLEncoder.encode(serviceUrl, "UTF-8");
+        } catch (final UnsupportedEncodingException e) {
+            throw new AssertionError("UTF-8 is unknown");
+        }
     }
 }

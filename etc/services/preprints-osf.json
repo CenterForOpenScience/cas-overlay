@@ -1,11 +1,11 @@
 {
   "@class" : "org.jasig.cas.services.RegexRegisteredService",
-  "id" : 203948234207230,
+  "id" : 203948234207240,
   "name" : "",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127.0.0.1|dev.osf.io):500[0-9]/(?!(oauth/callback|erpc|prereg|(login/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)(localhost|127.0.0.1|dev.osf.io)(%3A|:)500[0-9](%2F|/)preprints(%2F|/)))).*",
-  "evaluationOrder": "2000",
-  "logo": "",
+  "serviceId" : "^https?://(localhost|127.0.0.1|dev.osf.io):500[0-9]/login/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)(localhost|127.0.0.1|dev.osf.io)(%3A|:)500[0-9](%2F|/)preprints(%2F|/)(?!(socarxiv|engrxiv|psyarxiv)).*",
+  "evaluationOrder": "1500",
+  "logo": "http://localhost:8080/images/preprints-osf-logo-black.png",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
     "allowedAttributes" : [
@@ -36,7 +36,7 @@
       "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
       "values" : [
         "java.util.HashSet", [
-          ""
+          "?campaign=osf-preprints"
         ]
       ]
     }

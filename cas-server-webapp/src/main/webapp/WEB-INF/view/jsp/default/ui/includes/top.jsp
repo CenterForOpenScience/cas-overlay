@@ -18,6 +18,7 @@
     under the License.
 
 --%>
+
 <!DOCTYPE html>
 
 <%@ page pageEncoding="UTF-8" %>
@@ -27,11 +28,18 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+<%@ page import="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext" %>
+<c:set var="pageLoginContext" value="${jsonLoginContext}" />
+<%
+    String loginContext = (String) pageContext.getAttribute("pageLoginContext");
+    OpenScienceFrameworkLoginContext osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(loginContext);
+    pageContext.setAttribute("osfLoginContext", osfLoginContext);
+%>
+
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
 
-        <%-- <title>CAS &#8211; Central Authentication Service</title> --%>
         <title>Open Science Framework | Sign In </title>
 
         <spring:theme code="standard.custom.css.file" var="customCssFile" />
@@ -57,23 +65,36 @@
                 <div class="center">
                     <span id="title">
                         <c:choose>
-                            <c:when test="${campaign eq 'INSTITUTION'}">
+                            <c:when test="${osfLoginContext.isInstitutionLogin()}">
                                 <span>OSF Institutions</span>
                             </c:when>
+                            <c:when test="${not empty registeredService}">
+                                <span class="title-full">${registeredService.properties.title.getValue()}</span>
+                                <span class="title-abbr">${registeredService.properties.titleAbbr.getValue()}</span>
+                            </c:when>
                             <c:otherwise>
-                                <span class="title-full">Open&nbsp;Science&nbsp;Framework</span>
-                                <span class="title-abbr">OSF</span>
+                                <span class="title-full">Open Science Framework</span>
+                                <span class="title-abbr">OSF CAS</span>
                             </c:otherwise>
                         </c:choose>
                     </span>
                 </div>
                 <div class="responsive">
-                    <c:if test="${campaign eq 'INSTITUTION'}">
-                        <div id="description">
-                            <br><br><spring:message code="screen.institution.login.message" />
-                        </div>
-                    </c:if>
+                    <div id="description">
+                        <br><br>
+                        <c:choose>
+                            <c:when test="${osfLoginContext.isInstitutionLogin()}">
+                                    <spring:message code="screen.institution.login.message" />
+                            </c:when>
+                            <c:when test="${not empty registeredService}">
+                                    <spring:message code="screen.osf.login.message" />
+                            </c:when>
+                            <c:otherwise>
+                                <spring:message code="screen.cas.login.message" />
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
                 </div>
             </header>
-            </br>
+            <br>
             <div id="content">

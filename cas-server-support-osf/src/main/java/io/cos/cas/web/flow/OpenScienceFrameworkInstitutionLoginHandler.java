@@ -83,14 +83,11 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
         final Map<String, String> sortedInstitutions = sortByValue(institutions);
         logger.info(String.format("Institutions loaded: %s", sortedInstitutions.toString()));
         context.getFlowScope().put("institutions", sortedInstitutions);
-
-        context.getFlowScope().put("campaign", "INSTITUTION");
         return new Event(this, "success");
     }
 
     /**
      * Sort a Map by value. Return the sorted Map.
-     *
      * References: http://www.programcreek.com/2013/03/java-sort-map-by-value/
      *             https://www.mkyong.com/java/how-to-sort-a-map-in-java/
      *
