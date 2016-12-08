@@ -18,31 +18,64 @@
     under the License.
 
 --%>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-    <div class="row" style="text-align: center;">
-        <hr>
-        <br>
-        <c:choose>
-            <c:when test="${campaign == 'INSTITUTION'}">
-                <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-                <a id="alternative-osf" href="${osfLoginUrl}${not empty param.service ? 'service=' : ''}${fn:escapeXml(param.service)}">Non-institution Login</a>&nbsp;&nbsp;
-            </c:when>
-            <c:otherwise>
-                <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')" />
-                <a id="aleternative-institution" href="${institutionLoginUrl}${not empty param.service ? '&service=' : ''}${fn:escapeXml(param.service)}">Login through Your Institution</a>&nbsp;&nbsp;
-            </c:otherwise>
-        </c:choose>
-        <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
-        <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
-    </div>
+    <c:if test= "${empty alternativeBottomNone}">
+        <div class="row" style="text-align: center;">
+            <hr><br>
+            <c:choose>
+                <c:when test="${not empty alternativeBottomLogout}">
+                    <spring:eval var="casLogoutUrl" expression="@casProperties.getProperty('cas.logout.url')" />
+                    <a id="alternative-osf" href="${casLogoutUrl}">Sign Out</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                </c:when>
+                <c:when test="${not empty alternativeBottomLogin}">
+                    <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
+                    <a id="alternative-osf" href="${osfLoginUrl}">Sign In</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                </c:when>
+                <c:otherwise>
+                    <c:choose>
+                        <c:when test="${osfLoginContext.isInstitutionLogin()}">
+                            <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
+                            <c:choose>
+                                <c:when test="${osfLoginContext.isServiceUrl()}">
+                                    <a id="alternative-osf" href="${osfLoginUrl}service=${osfLoginContext.getServiceUrl()}">Non-institution Login</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                </c:when>
+                                <c:otherwise>
+                                    <a id="alternative-osf" href="${osfLoginUrl}">Non-institution Login</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                </c:otherwise>
+                            </c:choose>
+                        </c:when>
+                        <c:otherwise>
+                            <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')" />
+                            <c:choose>
+                                <c:when test="${osfLoginContext.isServiceUrl()}">
+                                    <a id="alternative-institution" href="${institutionLoginUrl}&service=${osfLoginContext.getServiceUrl()}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                </c:when>
+                                <c:otherwise>
+                                    <a id="alternative-institution" href="${institutionLoginUrl}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                </c:otherwise>
+                            </c:choose>
+                        </c:otherwise>
+                    </c:choose>
+                </c:otherwise>
+            </c:choose>
+            <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
+            <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
+        </div>
+    </c:if>
+
 </div> <!-- END #content -->
 
-<div class="row" style="text-align: center;">
-    <br>
-    <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')" />
-    <a id="create-account" href="${createAccountUrl}">Create Account</a>
-</div>
+<c:if test= "${empty alternativeBottomNone}">
+    <c:if test="${empty alternativeBottomLogout}">
+        <div class="row" style="text-align: center;">
+            <br>
+            <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')" />
+            <a id="create-account" href="${createAccountUrl}${registeredService.properties.registerUrl.getValue()}">Create Account</a>
+        </div>
+    </c:if>
+</c:if>
 
 <footer>
     <%-- <div id="copyright">
@@ -60,6 +93,21 @@
 </footer>
 
 </div> <!-- END #container -->
+
+<script>
+    function selectFocus() {
+        var username = document.getElementById("username")
+        if (username) {
+            username.focus();
+        }
+        var institutionSelect = document.getElementById("institution-form-select")
+        if (institutionSelect) {
+            institutionSelect.focus();
+        }
+
+    }
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>
 <spring:theme code="cas.javascript.file" var="casJavascriptFile" text="" />
 <script type="text/javascript" src="<c:url value="${casJavascriptFile}" />"></script>

@@ -18,6 +18,7 @@
     under the License.
 
 --%>
+
 <jsp:directive.include file="includes/top.jsp" />
 
 <spring:eval var="tgcCookieSecure" expression="@casProperties.getProperty('tgc.cookie.secure')" />
@@ -29,23 +30,20 @@
 </c:if>
 
 <c:if test="${not empty registeredService}">
-    <%-- <c:set var="registeredServiceLogo" value="images/webapp.png"/> --%>
-    <c:if test="${not empty registeredService.logo}">
-        <c:set var="registeredServiceLogo" value="${registeredService.logo}"/>
-    </c:if>
-
     <c:if test="${not empty registeredService.logo || not empty registeredService.name}">
-        <div id="serviceui" class="serviceinfo">
+        <div id="service-ui" class="service-info">
             <table>
                 <tr>
-                    <c:if test="${not empty registeredService.logo}">
-                        <td><img src="${registeredServiceLogo}"></td>
+                    <c:if test="${not empty registeredService.logo && empty registeredService.name}">
+                        <td><img class="service-logo-full" src="${registeredService.logo}"> </td>
                     </c:if>
-                    <c:if test="${not empty registeredService.name}">
-                        <td id="servicedesc">
-                            <h1>${fn:escapeXml(registeredService.name)}</h1>
-                            <p>${fn:escapeXml(registeredService.description)}</p>
-                        </td>
+                    <c:if test="${empty registeredService.logo && not empty registeredService.name}">
+                        <td><span class="service-name">${registeredService.name}</span></td>
+                    </c:if>
+                    <c:if test="${not empty registeredService.logo && not empty registeredService.name}">
+                        <td><img id="service-logo" class="service-logo-${registeredService.name}" src="${registeredService.logo}"> </td>
+                        <td>&nbsp;&nbsp;&nbsp;</td>
+                        <td><span class="service-name">${registeredService.name} Preprints</span></td>
                     </c:if>
                 </tr>
             </table>
@@ -116,7 +114,9 @@
 
         <%-- TODO: Only display OAuth Client options for the OSF service, due to a limitation of our OAuth Provider implementation as it does not support non-existing OSF accounts. --%>
         <c:if test="${not empty registeredService}">
-            <c:if test="${not empty registeredService.id && registeredService.id == 203948234207230}">
+            <c:if test="${not empty registeredService.id &&
+             registeredService.id == 203948234207230 || registeredService.id == 203948234207231 || registeredService.id == 203948234207232 ||
+             registeredService.id == 203948234207240 || registeredService.id == 203948234207241 || registeredService.id == 203948234207242 || registeredService.id == 203948234207243}">
                 <hr/>
 
                 <section class="row">
