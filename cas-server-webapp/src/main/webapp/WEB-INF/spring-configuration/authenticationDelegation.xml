@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to Apereo under one or more contributor license
+agreements. See the NOTICE file distributed with this work
+for additional information regarding copyright ownership.
+Apereo licenses this file to you under the Apache License,
+Version 2.0 (the "License"); you may not use this file
+except in compliance with the License.  You may obtain a
+copy of the License at the following location:
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+
+-->
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <description>
+    </description>
+
+    <!-- OAuth2 Clients -->
+    <!-- ORCiD -->
+    <bean id="orcid" class="org.pac4j.oauth.client.OrcidClient">
+        <property name="key" value="${oauth.orcid.client.id}" />
+        <property name="secret" value="${oauth.orcid.client.secret}" />
+        <property name="scope" value="${oauth.orcid.scope}" />
+        <property name="member" value="${oauth.orcid.member}" />
+    </bean>
+
+    <!-- CAS Clients -->
+    <!-- Oklahoma State University -->
+    <bean id="okstate" class="org.pac4j.cas.client.CasClient">
+        <property name="casLoginUrl" value="${cas.okstate.login.url}" />
+        <property name="name" value="${cas.okstate.client.name}" />
+    </bean>
+
+    <!-- General Configuration for All Clients -->
+    <bean id="clients" class="org.pac4j.core.client.Clients">
+        <property name="callbackUrl" value="${delegation.redirect.uri}" />
+        <property name="clients">
+            <list>
+                <ref bean="orcid" />
+                <ref bean="okstate" />
+            </list>
+        </property>
+    </bean>
+</beans>
