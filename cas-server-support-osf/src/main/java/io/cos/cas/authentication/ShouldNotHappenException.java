@@ -21,19 +21,22 @@ package io.cos.cas.authentication;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an registered but not confirmed account.
+ * Describes an error condition where authentication occurs from an account that:
+ * 1. unclaimed user which is created as an contributor
+ * 2. merged user which is merged into antoher account
+ * 3. other undefined user status (inactive and unknown)
  *
- * @author Michael Haselton
+ * @author Longze Chen
  * @since 4.1.0
  */
-public class LoginNotAllowedException extends AccountException {
+public class ShouldNotHappenException extends AccountException {
 
-    private static final long serialVersionUID = 3376259469680697722L;
+    private static final long serialVersionUID = 3376259469680697723L;
 
     /**
      * Instantiates a new invalid login location exception.
      */
-    public LoginNotAllowedException() {
+    public ShouldNotHappenException() {
         super();
     }
 
@@ -42,7 +45,7 @@ public class LoginNotAllowedException extends AccountException {
      *
      * @param message the message
      */
-    public LoginNotAllowedException(final String message) {
+    public ShouldNotHappenException(final String message) {
         super(message);
     }
 }
