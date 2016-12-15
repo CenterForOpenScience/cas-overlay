@@ -27,6 +27,7 @@ import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
+import io.cos.cas.authentication.ShouldNotHappenException;
 import org.bson.types.ObjectId;
 import org.apache.commons.codec.binary.Base32;
 
@@ -88,7 +89,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         @Field("is_registered")
         private Boolean isRegistered;
         @Field("merged_by")
-        private Boolean mergedBy;
+        private String mergedBy;
         @Field("date_disabled")
         private Date dateDisabled;
         @Field("date_confirmed")
@@ -275,6 +276,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         Boolean validPassphrase = Boolean.FALSE;
+        final String userStatus = verifyUserStatus(user);
 
         if (credential.isRemotePrincipal()) {
             // remote principal's are already verified by a third party (in our case a third party SAML authentication).
@@ -315,17 +317,16 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         // Validate basic information such as username/password and a potential One-Time Password before
         // providing any indication of account status.
-        final String userStatus = verifyUserStatus(user);
         if ("USER_NOT_CONFIRMED".equals(userStatus)) {
             throw new LoginNotAllowedException(username + " is not registered");
-        } else if ("USER_NOT_CLAIMED".equals(userStatus)) {
-            throw new LoginNotAllowedException(username + " is not claimed");
-        } else if ("USER_MERGED".equals(userStatus)) {
-            throw new LoginNotAllowedException("Cannot log in to a merged user " + username);
         } else if ("USER_DISABLED".equals(userStatus)) {
             throw new AccountDisabledException(username + " is disabled");
-        } else if ("USER_NOT_ACTIVE".equals(userStatus)) {
-            throw new LoginNotAllowedException(username + " is not active");
+        } else if ("USER_NOT_CLAIMED".equals(userStatus)) {
+            throw new ShouldNotHappenException(username + " is not claimed");
+        } else if ("USER_MERGED".equals(userStatus)) {
+            throw new ShouldNotHappenException("Cannot log in to a merged user " + username);
+        } else if ("UNKNOWN".equals(userStatus)) {
+            throw new ShouldNotHappenException(username + " is not active: unknown status");
         }
 
         // Only active user can sign in
@@ -356,46 +357,47 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     /**
      * Verify User Status.
      *
+     * "USER_ACTIVE": authentication succeed
+     * "USER_NOT_CONFIRMED": inform the user that the account is not confirmed and provide a resend confirmation link
+     * "USER_DISABLED": inform the user that the account is disable and that they can contact OSF support
+     * "USER_MERGED", "USER_NOT_CLAIMED" and "UNKNOWN": these is not suppose to happen, ask user to contact OSF support
+     *
      * @param user the OSF user
-     * @return the user status:
-     *  {
-     *      "USER_ACTIVE",
-     *      "USER_NOT_CLAIMED",
-     *      "USER_NOT_CONFIRMED",
-     *      "USER_MERGED",
-     *      "USER_DISABLED",
-     *      "USER_NOT_ACTIVE",
-     *  }
+     * @return the user status
      */
     private String verifyUserStatus(final OpenScienceFrameworkUser user) {
         // An active user must be registered, claimed, not disabled, not merged and has a not null/None password.
-        // Only active user can passes the verification.
+        // Only active user can pass the verification.
         if (user.isActive()) {
             return "USER_ACTIVE";
-        }
-        // If the user instance is not claimed, it is also not registered and not confirmed.
-        // It can be either a unclaimed contributor or a new user pending confirmation.
-        if (!user.isClaimed && !user.isRegistered) {
-            // If the user instance has a null/None password, it must be an unclaimed contributor.
-            if (user.password == null) {
-                return "USER_NOT_CLAIMED";
-            } else {
-                // If the user instance has a password, it must be a unconfirmed user who registered for a new account.
-                return "USER_NOT_CONFIRMED";
+        } else {
+            // If the user instance is not claimed, it is not registered and not claimed.
+            // It can be either a unclaimed contributor or a new user pending confirmation.
+            if (!user.isClaimed && !user.isRegistered && !user.isConfirmed()) {
+                // If the user instance has a null/None password, it must be an unclaimed contributor.
+                if (user.password == null) {
+                    return "USER_NOT_CLAIMED";
+                } else {
+                    // If the user instance has a password, it must be a unconfirmed user who registered for a new account.
+                    return "USER_NOT_CONFIRMED";
+                }
             }
-        }
-        // If the user instance is merged by another user, it is registered, confirmed and claimed.
-        // However, its username and password fields are both null/None.
-        if (user.isMerged() && user.isRegistered && user.isClaimed) {
-            return "USER_MERGED";
-        }
-        // If the user instance is disabled, it is also not registered. However, it still has the username and password.
-        // When the user tries to login, an account disabled message will be displayed.
-        if (user.isDisabled() && !user.isRegistered && !user.isClaimed) {
-            return "USER_DISABLED";
-        }
+            // If the user instance is merged by another user, it is registered, confirmed and claimed.
+            // `.merged_by` field being not null is a sufficient condition
+            // However, its username and password fields are both null/None.
+            if (user.isMerged()) {
+                return "USER_MERGED";
+            }
+            // If the user instance is disabled, it is also not registered but claimed.
+            // `.date_disabled` field being not null is a sufficient condition.
+            // However, it still has the username and password.
+            // When the user tries to login, an account disabled message will be displayed.
+            if (user.isDisabled()) {
+                return "USER_DISABLED";
+            }
 
-        // Other status combinations are considered not active
-        return "USER_NOT_ACTIVE";
+            // Other status combinations are considered UNKNOWN
+            return "UNKNOWN";
+        }
     }
 }
