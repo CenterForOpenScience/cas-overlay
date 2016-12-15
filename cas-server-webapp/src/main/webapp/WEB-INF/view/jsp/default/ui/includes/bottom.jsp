@@ -31,7 +31,7 @@
                 </c:when>
                 <c:when test="${not empty alternativeBottomLogin}">
                     <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-                    <a id="alternative-osf" href="${osfLoginUrl}">Sign In</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a id="alternative-osf" href="${osfLoginUrl}service=${osfLoginContext.getServiceUrl()}">Sign In</a>&nbsp;&nbsp;&nbsp;&nbsp;
                 </c:when>
                 <c:otherwise>
                     <c:choose>
