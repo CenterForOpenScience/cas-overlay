@@ -24,6 +24,7 @@ import org.jasig.cas.authentication.DefaultHandlerResult;
 import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.PreventedException;
 import org.jasig.cas.support.pac4j.authentication.principal.ClientCredential;
+import org.jasig.cas.support.pac4j.web.flow.ClientAction;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.profile.UserProfile;
 
@@ -62,23 +63,34 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
 
         final String clientName = credentials.getCredentials().getClientName();
         final String id;
-        // Customize profile names for different CAS Clients using the pre-configured client names
-        if (clientName != null && clientName.startsWith("CasClient")) {
-            id = clientName + "Profile#" + profile.getId();
-        } else if (typedIdUsed) {
-            id = profile.getTypedId();
-        } else {
-            id = profile.getId();
+
+        if (clientName != null) {
+            // customize profile names
+            if (ClientAction.INSTITUTION_CLIENTS.contains(clientName)) {
+                // institution clients are independent of authentication delegation protocol
+                // institution id and client name are identical
+                id = clientName + '#' + profile.getId();
+            } else if (clientName.startsWith("CasClient")) {
+                // non-institution cas clients: e.g. there can be many CAS clients
+                id = clientName + "Profile#" + profile.getId();
+                // currently there is no client of this type
+                // this also requires OSF side implementation to generalize what we did for ORCiD
+                throw new FailedLoginException("Client not supported.");
+            } else {
+                // non-institution unique clients: e.g. there can only be one ORCiD clients
+                id = isTypedIdUsed() ? profile.getTypedId() : profile.getId();
+            }
+            if (StringUtils.isNotBlank(id)) {
+                credentials.setUserProfile(profile);
+                credentials.setTypedIdUsed(typedIdUsed);
+                return new DefaultHandlerResult(
+                        this,
+                        new BasicCredentialMetaData(credentials),
+                        this.principalFactory.createPrincipal(id, profile.getAttributes()));
+            }
+            throw new FailedLoginException("No identifier found for this user profile: " + profile);
         }
-        if (StringUtils.isNotBlank(id)) {
-            credentials.setUserProfile(profile);
-            credentials.setTypedIdUsed(typedIdUsed);
-            return new DefaultHandlerResult(
-                    this,
-                    new BasicCredentialMetaData(credentials),
-                    this.principalFactory.createPrincipal(id, profile.getAttributes()));
-        }
-        throw new FailedLoginException("No identifier found for this user profile: " + profile);
+        throw new FailedLoginException("No client name found for this user profile: " + profile);
     }
 
     public boolean isTypedIdUsed() {
