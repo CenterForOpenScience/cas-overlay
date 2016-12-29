@@ -43,10 +43,13 @@ import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.principal.DefaultPrincipalFactory;
+import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.PrincipalFactory;
 import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketException;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.web.support.WebUtils;
 import org.json.JSONObject;
 import org.json.XML;
@@ -90,6 +93,7 @@ import java.util.Map;
  * could not find any credentials.
  *
  * @author Michael Haselton
+ * @author Longze Chen
  * @since 4.1.1
  */
 public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction
@@ -136,6 +140,10 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     private static final String SHIBBOLETH_SESSION_HEADER = ATTRIBUTE_PREFIX + "Shib-Session-ID";
 
     private static final int SIXTY_SECONDS = 60 * 1000;
+
+    private static final String PROTOCOL_SAML = "SHIBBOLETH";
+
+    private static final String PROTOCOL_CAS = "CAS";
 
     /** The logger instance. */
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -284,10 +292,34 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
 
             // Notify the OSF of the remote principal authentication.
-            final PrincipalAuthenticationResult remoteUserInfo = notifyRemotePrincipalAuthenticated(credential);
+            final PrincipalAuthenticationResult remoteUserInfo = notifyRemotePrincipalAuthenticated(credential, null, PROTOCOL_SAML);
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
 
+            return credential;
+        } else if (context.getFlowScope().get("authenticationDelegationProtocol") == "CAS") {
+            TicketGrantingTicket ticketGrantingTicket;
+            Principal principal;
+            try {
+                final String ticketGrantingTicketId = (String) context.getFlowScope().get("ticketGrantingTicketId");
+                ticketGrantingTicket = centralAuthenticationService.getTicket(
+                        ticketGrantingTicketId,
+                        TicketGrantingTicket.class
+                );
+            } catch (final InvalidTicketException e) {
+                logger.error("Invalid Ticket Granting Ticket");
+                throw new RemoteUserFailedLoginException("Invalid Ticket Granting Ticket");
+            }
+            credential.setRemotePrincipal(Boolean.TRUE);
+            try {
+                principal = ticketGrantingTicket.getAuthentication().getPrincipal();
+            } catch (final NullPointerException e) {
+                logger.error("Cannot Retrieve Authentication Principal");
+                throw new RemoteUserFailedLoginException("Cannot Retrieve Authentication Principal");
+            }
+            final PrincipalAuthenticationResult remoteUserInfo = notifyRemotePrincipalAuthenticated(credential, principal, PROTOCOL_CAS);
+            credential.setUsername(remoteUserInfo.getUsername());
+            credential.setInstitutionId(ticketGrantingTicket.getAuthentication().getPrincipal().getId());
             return credential;
         } else if (request.getParameter("username") != null && request.getParameter("verification_key") != null) {
             // Construct credential if presented with (username, verification_key)
@@ -309,17 +341,30 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * to create a verified user account and/or assign institutional affiliation to the user's account.
      *
      * @param credential the credential object bearing the authentication headers from the idp
+     * @param principal the principal constructed from external CAS authentication, or null if protocol is SAML
+     * @param protocol the protocol implementation used by remote authentication: Shibboleth (SAML), CAS (CAS)
      * @return the username from the idp and setup on the OSF
      * @throws AccountException a account exception
      */
-    private PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(final OpenScienceFrameworkCredential credential)
-            throws AccountException {
+    private PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
+        final OpenScienceFrameworkCredential credential,
+        final Principal principal,
+        final String protocol
+    ) throws AccountException {
         try {
-            final JSONObject normalized = this.normalizeRemotePrincipal(credential);
-            final JSONObject provider = normalized.getJSONObject("provider");
+            final JSONObject normalizedPayload;
+            if (PROTOCOL_SAML.equals(protocol)) {
+                normalizedPayload = this.normalizeRemotePrincipal(credential);
+            } else if (PROTOCOL_CAS.equals(protocol)) {
+                normalizedPayload = this.constructPayloadFromRemotePrincipal(principal);
+            } else {
+                throw new AssertionError(String.format("Unsupported Remote Authentication Protocol: %s", protocol));
+            }
+
+            final JSONObject provider = normalizedPayload.getJSONObject("provider");
             final String institutionId = provider.getString("id");
             final String username = provider.getJSONObject("user").getString("username");
-            final String payload = normalized.toString();
+            final String payload = normalizedPayload.toString();
 
             logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
             logger.debug("Notify Remote Principal Authenticated [{}, {}] Normalized Payload '{}'", username, institutionId, payload);
@@ -406,6 +451,32 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
         // convert transformed xml to json
         return XML.toJSONObject(writer.getBuffer().toString());
+    }
+
+    /**
+     * Construct normalized payload from remote principal authenticated by external CAS.
+     *
+     * @param principal the principal created by external CAS authentication
+     * @return the json object to serialize for authorization with the OSF API
+     */
+    private JSONObject constructPayloadFromRemotePrincipal(final Principal principal) {
+        final Map<String, Object> attributes = principal.getAttributes();
+        final JSONObject payload = new JSONObject();
+        final JSONObject provider = new JSONObject();
+        final String identityProvider = "";
+        final String institutionId = principal.getId().split("#")[0];
+        final JSONObject user = new JSONObject();
+        user.put("username", attributes.get("username"));
+        user.put("familyName", attributes.get("familyName"));
+        user.put("givenName", attributes.get("givenName"));
+        user.put("middleNames", "");
+        user.put("fullname", "");
+        user.put("suffix", "");
+        provider.put("idp", identityProvider);
+        provider.put("id", institutionId);
+        provider.put("user", user);
+        payload.put("provider", provider);
+        return payload;
     }
 
     public void setInstitutionsAuthUrl(final String institutionsAuthUrl) {
