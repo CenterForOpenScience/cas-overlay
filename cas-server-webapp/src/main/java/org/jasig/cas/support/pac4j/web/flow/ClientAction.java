@@ -68,8 +68,7 @@ public final class ClientAction extends AbstractAction {
 
     /** The set INSTITUTION_CLIENTS contains all clients whose authentication considered as institution login. */
     public static final Set<String> INSTITUTION_CLIENTS = ImmutableSet.of(
-            "okstate",
-            "fakecas"
+            "okstate"
     );
 
     /** Constant for the service parameter. */
