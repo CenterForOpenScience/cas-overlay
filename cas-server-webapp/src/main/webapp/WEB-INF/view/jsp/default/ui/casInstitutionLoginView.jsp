@@ -53,6 +53,16 @@
             }
             window.location = login_url;
         }
+
+        function addAuthenticationDelegatedInstitutions () {
+            var institutionSelect = document.getElementById('institution-form-select');
+            var objOption1 = document.createElement("option");
+            objOption1.text = "Oklahoma State University [Test]";
+            objOption1.value = "${okstateuUrl}";
+            institutionSelect.options.add(objOption1);
+        }
+
+        addAuthenticationDelegatedInstitutions();
     </script>
 </div>
 <jsp:directive.include file="includes/bottom.jsp" />
