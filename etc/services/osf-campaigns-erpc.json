@@ -32,6 +32,14 @@
         ]
       ]
     },
+    "campaign": {
+      "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+      "values" : [
+        "java.util.HashSet", [
+          "erpc"
+        ]
+      ]
+    },
     "registerUrl": {
       "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
       "values" : [

@@ -50,10 +50,23 @@
         </property>
     </bean>
 
-    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkAuthenticationHandler"
-        p:openScienceFrameworkDao-ref="openScienceFrameworkDao"/>
+    <!-- OSF Authentication: Use Postgres Adaptors -->
+    <!--
+        <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkAuthenticationHandler"
+            p:openScienceFrameworkDao-ref="openScienceFrameworkDao"
+        />
+     -->
 
-    <bean id="oAuthAuthenticationHandler" class="org.jasig.cas.support.oauth.authentication.handler.support.OAuthCredentialsAuthenticationHandler" />
+    <!-- OSF Authentication: Use OSF API Adaptors -->
+    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.api.OpenScienceFrameworkAuthenticationHandler"
+        p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
+    <bean id="openScienceFrameworkApiCasEndpoint" class="io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint"
+        c:osfApiCasEndpointUrl="${osf.api.cas.endpoint.url}" />
+
+
+    <!-- OAuth Authorization -->
+    <bean id="oAuthAuthenticationHandler"
+        class="org.jasig.cas.support.oauth.authentication.handler.support.OAuthCredentialsAuthenticationHandler" />
 
     <!-- Required for proxy ticket mechanism. -->
     <bean id="proxyAuthenticationHandler" class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
@@ -62,6 +75,8 @@
 
     <bean id="proxyPrincipalResolver" class="org.jasig.cas.authentication.principal.BasicPrincipalResolver" />
 
-    <bean id="oAuthClientAuthenticationHandler" class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
+    <!-- Authentication Delegation -->
+    <bean id="oAuthClientAuthenticationHandler"
+        class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
         c:theClients-ref="clients" />
 </beans>

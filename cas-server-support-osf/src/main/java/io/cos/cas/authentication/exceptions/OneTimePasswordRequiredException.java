@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.cos.cas.authentication;
+package io.cos.cas.authentication.exceptions;
 
 import javax.security.auth.login.AccountException;
 
