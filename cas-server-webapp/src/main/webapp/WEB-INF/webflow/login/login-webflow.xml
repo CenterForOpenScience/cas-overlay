@@ -121,7 +121,7 @@
             <binding property="usernameConfirm" required="true" />
             <binding property="password" required="true" />
             <binding property="passwordConfirm" required="true" />
-            <binding property="campaign" required="true" />
+            <binding property="campaign" required="false" />
             <binding property="createAccount" required="true" />
         </binder>
         <on-entry>

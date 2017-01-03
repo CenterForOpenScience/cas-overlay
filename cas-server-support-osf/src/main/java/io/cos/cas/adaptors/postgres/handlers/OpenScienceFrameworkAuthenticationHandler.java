@@ -28,9 +28,9 @@ import java.util.Map;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
-import io.cos.cas.authentication.LoginNotAllowedException;
-import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
-import io.cos.cas.authentication.OneTimePasswordRequiredException;
+import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 
 import io.cos.cas.authentication.oath.TotpUtils;

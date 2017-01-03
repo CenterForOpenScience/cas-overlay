@@ -76,8 +76,6 @@
                     <div class="row" style="text-align: center;">
                         <br>
                         <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('cas.osf.createAccount.url')" />
-                        <a id="create-account" href="${createAccountUrl}${registeredService.properties.registerUrl.getValue()}">Create Account</a>
-                        <br>
                         <a id="create-account" href="${createAccountUrl}${osfLoginContext.isServiceUrl() ? '&service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">Create&nbsp;Account</a>
                     </div>
                 </c:if>
