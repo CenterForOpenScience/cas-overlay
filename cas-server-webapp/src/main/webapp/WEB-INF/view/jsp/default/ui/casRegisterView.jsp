@@ -93,7 +93,7 @@
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="createAccount" value="true" />
-            <input type="hidden" name="campaign" value="osf" />
+            <input type="hidden" name="campaign" value="${osfLoginContext.getCampaign()}" />
             <input type="hidden" name="_eventId" value="submit" />
 
 
