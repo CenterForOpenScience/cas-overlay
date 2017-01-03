@@ -140,9 +140,9 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String status = (String) response.get("status");
         if ("AUTHENTICATION_SUCCESS".equals(status)) {
             // authentication success, create principle with user id and attributes
-            final String userId = (String) response.get("userId");
+            final Integer userId = (Integer) response.get("userId");
             final Map<String, Object> attributes = (Map<String, Object>) response.get("attributes");
-            return createHandlerResult(credential, this.principalFactory.createPrincipal(userId, attributes), null);
+            return createHandlerResult(credential, this.principalFactory.createPrincipal(userId.toString(), attributes), null);
         } else if ("REGISTRATION_SUCCESS".equals(status)) {
             // registration success, requires confirmation
             throw new RegistrationSuccessConfirmationRequiredException();
