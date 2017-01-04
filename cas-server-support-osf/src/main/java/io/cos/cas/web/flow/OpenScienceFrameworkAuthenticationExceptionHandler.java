@@ -139,7 +139,7 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
      * @return true if user status invalid, false otherwise
      */
     public static Boolean isInvalidUserStatus(final String handleErrorName) {
-        return INVALID_USER_STATUS_SET.contains(handleErrorName);
+        return handleErrorName != null && INVALID_USER_STATUS_SET.contains(handleErrorName);
     }
 
     /**

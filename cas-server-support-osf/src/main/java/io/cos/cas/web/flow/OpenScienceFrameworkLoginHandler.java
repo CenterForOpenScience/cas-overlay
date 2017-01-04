@@ -81,7 +81,7 @@ public class OpenScienceFrameworkLoginHandler {
             return campaign;
         }
 
-        public void setCampaign(String campaign) {
+        public void setCampaign(final String campaign) {
             this.campaign = campaign;
         }
 
@@ -90,7 +90,7 @@ public class OpenScienceFrameworkLoginHandler {
         }
 
         public void setHandleErrorName(final String handleErrorName) {
-            this.handleErrorName =handleErrorName;
+            this.handleErrorName = handleErrorName;
         }
 
         /**
@@ -126,8 +126,6 @@ public class OpenScienceFrameworkLoginHandler {
          * @return true if user status invalid, false otherwise
          */
         public Boolean isUserStatusException() {
-            if (handleErrorName == null)
-                return false;
             return OpenScienceFrameworkAuthenticationExceptionHandler.isInvalidUserStatus(handleErrorName);
         }
 
@@ -232,8 +230,8 @@ public class OpenScienceFrameworkLoginHandler {
      * @return The campaign name
      */
     private String getCampaignFromService(final RequestContext context) {
-        RegexRegisteredService registeredService = (RegexRegisteredService) context.getFlowScope().get("registeredService");
-        RegisteredServiceProperty campaign = registeredService.getProperties().get("campaign");
+        final RegexRegisteredService registeredService = (RegexRegisteredService) context.getFlowScope().get("registeredService");
+        final RegisteredServiceProperty campaign = registeredService.getProperties().get("campaign");
         return campaign == null ? null : campaign.getValue();
     }
 }
