@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary, time, mark, audio, video { margin: 0; padding: 0; border: 0; outline: 0; font-size: 100%; vertical-align: baseline; background: transparent; }
 nav ul { list-style: none; }
 blockquote, q { quotes: none; }
@@ -35,18 +36,86 @@ h2 {
  padding-bottom: 10px;
 }
 
+#logo {
+  display: block;
+  width: 110px;
+  height: 110px;
+  margin: 0 auto;
+  background: url(../images/osf-logo.png) no-repeat;
+  background-size: 100%;
+  text-indent: -999em;
+  border-right: 1px solid rgba(255,255,255,0.25);
+}
+
 #title {
   line-height: 1;
   font-size: 34px;
 }
-.center {
- padding-top: 10px;
+
+#description {
+  font-size: 15px;
 }
 
-#container { width: 100%; }
+#container {
+  width: 90%;
+  margin: 0 auto;
+}
 
-@media only screen and (max-width: 960px) { 
-  #container { width: 100%; }
+#container .responsive {
+  text-align: center;
+}
+
+.center {
+  text-align: center;
+}
+
+.title-abbr {
+  display: none;
+}
+
+.title-full {
+  display: inline;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 450px) {
+  .title-abbr {
+    display: inline;
+    white-space: nowrap;
+  }
+  .title-full {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  #container .responsive {
+    text-align: left;
+  }
+}
+
+#content {
+  overflow: hidden;
+  background: #f7f7f7;
+  padding: 20px;
+  width: 300px;
+  margin: 0 auto;
+
+  -webkit-border-bottom-right-radius: 0;
+  -webkit-border-bottom-left-radius: 0;
+  -moz-border-radius-bottomright: 0;
+  -moz-border-radius-bottomleft: 0;
+  -webkit-box-shadow: 0 0 8px 0 rgba(0,0,0,0.15);
+
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  box-shadow: 0 0 8px 0 rgba(0,0,0,0.15);
+}
+
+@media screen and (max-width: 420px) {
+  #content {
+    width: 90%;
+  }
 }
 
 body {
@@ -71,37 +140,8 @@ header {
   padding: 20px 0;
 }
 
-#logo {
-  display: block;
-  width: 110px;
-  height: 110px;
-  margin: 0 auto;
-  background: url(../images/osf-logo.png) no-repeat;
-  background-size: 100%;
-  text-indent: -999em;
-  border-right: 1px solid rgba(255,255,255,0.25);
-}
-
 header h1 {
   display: none;
-}
-
-#content {
-  overflow: hidden;
-  background: #f7f7f7;
-  padding: 20px;
-  width: 274px;
-  margin: 0 auto;
-
-  -webkit-border-bottom-right-radius: 0px;
-  -webkit-border-bottom-left-radius: 0px;
-  -moz-border-radius-bottomright: 0px;
-  -moz-border-radius-bottomleft: 0px;
-  border-bottom-right-radius: 0px;
-  border-bottom-left-radius: 0px;
-
-  -webkit-box-shadow: 0 0 8px 0 rgba(0,0,0,0.15);
-  box-shadow: 0 0 8px 0 rgba(0,0,0,0.15);
 }
 
 /*
@@ -160,9 +200,8 @@ header h1 {
   padding: 5px;
 }
 
-#login .btn-submit {
-  /*background: #2aa4a5;*/
-  background: #5cb85c;
+#login .btn-oauth-submit {
+  background-image: linear-gradient(to bottom, #5cb85c 0, #419641 100%);
   border: 0;
   padding: 10px 20px;
   font-weight: bold;
@@ -172,26 +211,31 @@ header h1 {
   border-radius: 4px;
 }
 
-#login .btn-reset {
-  background: #eee;
-  padding: 10px 20px;
+#login .btn-oauth-reset {
+  background-image: linear-gradient(to bottom, #d4d4d4 0, #c4c4c4 100%);
   border: 0;
+  padding: 10px 20px;
+  font-weight: bold;
+  color: black;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
 }
 
-#login .btn-submit:hover, #login .btn-reset:hover {
+#login .btn-oauth-submit:hover {
   cursor: pointer;
 }
 
-#login .btn-submit:hover {
-  /*background: #30bfbf;*/
-  background: #419641;
+#login .btn-oauth-submit:active {
+  background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
 }
 
-#login .btn-reset:hover {
-  background: #d4d4d4;
+#login .btn-oauth-reset:hover {
+   cursor: pointer;
+ }
+
+#login .btn-oauth-reset:active {
+  background-image: linear-gradient(to top, #d4d4d4 0, #c4c4c4 100%);
 }
 
 #sidebar {
@@ -237,7 +281,6 @@ footer a:link, footer a:visited {
 
 #fm1 .row input[type=text],
 #fm1 .row input[type=password] { width: 100%; padding: 10px; box-sizing: border-box; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; }
-#fm1 .row .btn-submit { outline: none; -webkit-appearance: none; -webkit-border-radius: 0; border: 0; /*background: #2aa4a5;*/ color: white; font-weight: bold; width: 100%; padding: 10px 20px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; }
 #fm1 .row .btn-reset { display: none; }
 
 @media only screen and (max-width: 799px) { 
@@ -249,10 +292,7 @@ footer a:link, footer a:visited {
   #sidebar .sidebar-content { padding: 0; }
 }
 
-
-#fm1 .row .btn-oauth,
-#fm1 .row .btn-oauth:hover,
-#fm1 .row .btn-oauth:active {
+#fm1 .row .btn-oauth {
   position: relative;
   outline: none;
   -webkit-appearance: none;
@@ -260,7 +300,7 @@ footer a:link, footer a:visited {
   text-decoration: none;
   font-size: 12px;
   /*background: white;*/
-  background-image: linear-gradient(to bottom,#fff 0,#e0e0e0 100%);
+  background-image: linear-gradient(to bottom, #fff 0, #e0e0e0 100%);
   border: 1px solid #ababab;
   /*font-weight: bold;*/
   color: black;
@@ -272,6 +312,16 @@ footer a:link, footer a:visited {
   text-align: center;
 }
 
+#fm1 .row .btn-oauth:hover {
+  -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 128, 255, 0.67);
+  -moz-box-shadow:    0px 0px 5px 0px rgba(0, 128, 255, 0.67);
+  box-shadow:         0px 0px 5px 0px rgba(0, 128, 255, 0.67);
+}
+
+#fm1 .row .btn-oauth:active {
+  background-image: linear-gradient(to top, #fff 0, #e0e0e0 100%);
+}
+
 .orcid-logo {
   position: absolute;
   left: 0;
@@ -279,4 +329,114 @@ footer a:link, footer a:visited {
   border-right: 1px solid #ababab;
   padding: 6px;
   /*content: url(../images/orcid-logo.png); - broken in firefox*/
+}
+
+#inst-login {
+  text-align: Left;
+}
+
+#inst-login .heading {
+  font-size: 20px;
+  font-weight: lighter;
+  padding-bottom: 20px;
+  padding-top: 10px;
+}
+
+#inst-login .select {
+  padding: 0 0 10px 0;
+}
+
+#inst-login .select label {
+  font-size: 15px;
+  font-weight: bolder;
+}
+
+#inst-login .select select {
+  -webkit-appearance: menulist-button;
+  -moz-appearance: menulist;
+  font-size: 15px;
+  padding: 5px 0 5px 2px;
+  height: 36px;
+  width: 100%;
+}
+
+#inst-login .select option {
+  font-size: 15px;
+  padding: 2px 0 2px 5px;
+  height: 20px;
+  width: 100%;
+}
+
+#inst-login .btn-submit input[type=button],
+#fm1 .row .btn-submit {
+  outline: none;
+  border-radius: 3px;
+  border: 1px;
+  background-image: linear-gradient(to bottom, #5cb85c 0, #419641 100%);
+  color: white;
+  font-weight: bold;
+  width: 100%;
+  padding: 10px 2px 10px 2px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+}
+
+#inst-login .btn-submit:hover input[type=button],
+#fm1 .row .btn-submit:hover {
+  -webkit-box-shadow: 0px 0px 7px 0px rgba(0, 191, 255, 0.75);
+  -moz-box-shadow:    0px 0px 7px 0px rgba(0, 191, 255, 0.75);
+  box-shadow:         0px 0px 7px 0px rgba(0, 191, 255, 0.75);
+}
+
+#inst-login .btn-submit:active input[type=button],
+#fm1 .row .btn-submit:active {
+  background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
+}
+
+#service-logo {
+  width: 75px;
+  background: darkred;
+  text-align: center;
+  vertical-align: middle;
+}
+
+#service-logo.service-logo-SocArXiv {
+  background: #e14b5a;
+}
+
+#service-logo.service-logo-engrXiv {
+  background: #222F38;
+}
+
+#service-logo.service-logo-PsyArXiv {
+  background: #a9a9a9;
+  padding: 0 10px 0 10px;
+}
+
+#service-ui .service-logo-full {
+  width: 270px;
+}
+
+#service-ui table {
+  margin: 0 auto 0 auto;
+}
+
+#service-ui tr {
+  line-height: 28px;
+}
+
+#service-ui .service-name {
+  font-size: 24px;
+  font-weight: lighter;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+#fm1 .oauth-confirm-header {
+  font-size: 24px;
+  font-weight: lighter;
+  white-space: nowrap;
 }

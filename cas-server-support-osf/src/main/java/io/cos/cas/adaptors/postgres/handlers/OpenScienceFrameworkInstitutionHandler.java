@@ -25,6 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Open Science Framework Institution Handler.
@@ -58,5 +61,20 @@ public class OpenScienceFrameworkInstitutionHandler {
     public String findInstitutionLogoutUrlById(final String id) {
         final OpenScienceFrameworkInstitution institution = openScienceFrameworkDao.findOneInstitutionById(id);
         return institution != null ? institution.getLogoutUrl() : null;
+    }
+
+    /**
+     * Return a map of institution name and login url.
+     *
+     * @param target The osf service target after successful institution login
+     * @return Map&lt;String, String&gt;
+     */
+    public Map<String, String> getInstitutionLoginUrls(final String target) {
+        final List<OpenScienceFrameworkInstitution> institutionList = openScienceFrameworkDao.findAllInstitutions();
+        final Map<String, String> institutionLogin = new HashMap<>();
+        for (final OpenScienceFrameworkInstitution institution: institutionList) {
+            institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
+        }
+        return institutionLogin;
     }
 }

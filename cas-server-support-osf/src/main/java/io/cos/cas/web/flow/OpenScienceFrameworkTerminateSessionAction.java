@@ -61,6 +61,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
     @NotNull
     private final CookieRetrievingCookieGenerator warnCookieGenerator;
 
+
     /** Open Science Framework Institution Handler. */
     @NotNull
     private final OpenScienceFrameworkInstitutionHandler institutionHandler;
@@ -84,9 +85,9 @@ public class OpenScienceFrameworkTerminateSessionAction {
     }
 
     /**
-     * The Terminate Action.
-     * @param context The Request Context
-     * @return the Event success or finish
+     * The terminate session action. Return `success` or `finish` event.
+     * @param context The request context
+     * @return Event
      */
     public Event terminate(final RequestContext context) {
         // in login's webflow : we can get the value from context as it has already been stored

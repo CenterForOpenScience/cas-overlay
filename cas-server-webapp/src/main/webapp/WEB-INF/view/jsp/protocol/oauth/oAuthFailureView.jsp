@@ -19,9 +19,13 @@
 
 --%>
 <jsp:directive.include file="../../default/ui/includes/top.jsp" />
+
 <div id="msg" class="errors">
     <h2><spring:message code="screen.oauth.error.header" /></h2>
-    <p><spring:message code="${rootCauseException.message}" /></p>
     <p><spring:message code="${rootCauseException.code}" /></p>
+    <p><spring:message code="${rootCauseException.message}" /></p>
 </div>
+
+<c:set var="alternativeBottomLogout" value="true"/>
+
 <jsp:directive.include file="../../default/ui/includes/bottom.jsp" />

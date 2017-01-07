@@ -119,11 +119,25 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     public OpenScienceFrameworkInstitution findOneInstitutionById(final String id) {
         try {
             final TypedQuery<OpenScienceFrameworkInstitution> query = entityManager.createQuery(
-                    "select i from OpenScienceFrameworkInstitution i where i._id = :id",
+                    "select i from OpenScienceFrameworkInstitution i where i.objectId = :id",
                     OpenScienceFrameworkInstitution.class
             );
             query.setParameter("id", id);
             return query.getSingleResult();
+        } catch (final PersistenceException e) {
+            LOGGER.error(e.toString());
+            return null;
+        }
+    }
+
+    @Override
+    public List<OpenScienceFrameworkInstitution> findAllInstitutions() {
+        try {
+            final TypedQuery query = entityManager.createQuery(
+                    "select i from OpenScienceFrameworkInstitution i where i.loginUrl is not null and i.deleted = false",
+                    OpenScienceFrameworkInstitution.class
+            );
+            return query.getResultList();
         } catch (final PersistenceException e) {
             LOGGER.error(e.toString());
             return null;

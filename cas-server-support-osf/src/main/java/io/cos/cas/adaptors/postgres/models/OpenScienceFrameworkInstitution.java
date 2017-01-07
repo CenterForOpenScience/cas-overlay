@@ -54,8 +54,14 @@ public class OpenScienceFrameworkInstitution {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "login_url")
+    private String loginUrl;
+
     @Column(name = "logout_url")
     private String logoutUrl;
+
+    @Column(name = "is_deleted")
+    private Boolean deleted;
 
     /** Default Constructor. */
     public OpenScienceFrameworkInstitution() {}
@@ -70,6 +76,10 @@ public class OpenScienceFrameworkInstitution {
 
     public String getName() {
         return name;
+    }
+
+    public String getLoginUrl() {
+        return loginUrl;
     }
 
     public String getLogoutUrl() {
