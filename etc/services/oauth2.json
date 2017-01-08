@@ -3,7 +3,7 @@
   "id" : 983450982340993434,
   "name" : "",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127.0.0.1|accounts.dev.osf.io):(8443|8080)?/oauth2/callbackAuthorize",
+  "serviceId" : "^https?://(localhost|127.0.0.1|accounts.dev.osf.io|test-accounts.osf.io)(|:8080|:8443)?/oauth2/callbackAuthorize",
   "evaluationOrder": "1000",
   "properties" : {
     "@class": "java.util.HashMap",
