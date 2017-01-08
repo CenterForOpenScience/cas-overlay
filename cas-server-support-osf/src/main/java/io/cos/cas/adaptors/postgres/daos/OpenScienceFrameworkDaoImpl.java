@@ -104,7 +104,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     public OpenScienceFrameworkTimeBasedOneTimePassword findOneTimeBasedOneTimePasswordByOwnerId(final Integer ownerId) {
         try {
             final TypedQuery<OpenScienceFrameworkTimeBasedOneTimePassword> query = entityManager.createQuery(
-                    "select p from OpenScienceFrameworkTimeBasedOneTimePassword p where p.id = :ownerId",
+                    "select p from OpenScienceFrameworkTimeBasedOneTimePassword p where p.owner.id = :ownerId",
                     OpenScienceFrameworkTimeBasedOneTimePassword.class
             );
             query.setParameter("ownerId", ownerId);
