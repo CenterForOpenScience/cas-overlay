@@ -22,6 +22,7 @@ import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas10TicketValidator;
 import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
+import org.jasig.cas.client.validation.Cas30ServiceTicketValidator;
 import org.jasig.cas.client.validation.ProxyList;
 import org.jasig.cas.client.validation.Saml11TicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
@@ -75,14 +76,15 @@ import org.slf4j.LoggerFactory;
  *
  * @see org.pac4j.cas.profile.CasProfile
  * @author Jerome Leleu
- * @since 1.4.0
+ * @author Longze Chen
+ * @since 1.7.0
  */
 public class CasClient extends BaseClient<CasCredentials, CasProfile> {
 
     protected static final Logger logger = LoggerFactory.getLogger(CasClient.class);
 
     public enum CasProtocol {
-        CAS10, CAS20, CAS20_PROXY, SAML
+        CAS10, CAS20, CAS30, CAS20_PROXY, SAML
     };
 
     protected static final String SERVICE_PARAMETER = "service";
@@ -99,7 +101,7 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
 
     protected long timeTolerance=1000L;
 
-    protected CasProtocol casProtocol = CasProtocol.CAS20;
+    protected CasProtocol casProtocol = CasProtocol.CAS30;
 
     protected boolean renew = false;
 
@@ -181,6 +183,14 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
             Saml11TicketValidator saml11TicketValidator=new Saml11TicketValidator(this.casPrefixUrl);
             saml11TicketValidator.setTolerance(getTimeTolerance());
             this.ticketValidator = saml11TicketValidator;
+        } else if (this.casProtocol == CasProtocol.CAS30) {
+            this.ticketValidator = new Cas30ServiceTicketValidator(this.casPrefixUrl);
+            if (this.casProxyReceptor != null) {
+                final Cas30ServiceTicketValidator cas30ServiceTicketValidator = (Cas30ServiceTicketValidator) this.ticketValidator;
+                cas30ServiceTicketValidator.setProxyCallbackUrl(this.casProxyReceptor.getCallbackUrl());
+                cas30ServiceTicketValidator.setProxyGrantingTicketStorage(this.casProxyReceptor
+                        .getProxyGrantingTicketStorage());
+            }
         }
         addAuthorizationGenerator(new DefaultCasAuthorizationGenerator<CasProfile>());
     }
