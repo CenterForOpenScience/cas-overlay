@@ -466,11 +466,14 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         final String identityProvider = "";
         final String institutionId = principal.getId().split("#")[0];
         final JSONObject user = new JSONObject();
-        user.put("username", attributes.get("username"));
-        user.put("familyName", attributes.get("familyName"));
-        user.put("givenName", attributes.get("givenName"));
+        // please normalize the process
+        user.put("fullname", attributes.get("uid"));
+        user.put("username", attributes.get("mail"));
+        final String familyName = attributes.containsKey("sn") ? (String) attributes.get("sn") : "";
+        final String givenName = attributes.containsKey("givenName") ? (String) attributes.get("givenname") : "";
+        user.put("familyName", familyName);
+        user.put("givenName", givenName);
         user.put("middleNames", "");
-        user.put("fullname", "");
         user.put("suffix", "");
         provider.put("idp", identityProvider);
         provider.put("id", institutionId);
