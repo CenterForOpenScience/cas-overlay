@@ -58,7 +58,7 @@
             var institutionSelect = document.getElementById('institution-form-select');
             var objOption1 = document.createElement("option");
             objOption1.text = "Oklahoma State University [Test]";
-            objOption1.value = "${okstateuUrl}";
+            objOption1.value = "${okstateUrl}";
             institutionSelect.options.add(objOption1);
         }
 
