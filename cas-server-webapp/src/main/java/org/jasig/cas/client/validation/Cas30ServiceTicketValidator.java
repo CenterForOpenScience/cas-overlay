@@ -27,7 +27,12 @@ package org.jasig.cas.client.validation;
  */
 public class Cas30ServiceTicketValidator extends Cas20ServiceTicketValidator {
 
-    public Cas30ServiceTicketValidator(String casServerUrlPrefix) {
+    /**
+     * Instantiate an Service Ticket Validator using CAS 3.0 protocol.
+     *
+     * @param casServerUrlPrefix the CAS server URL prefix
+     */
+    public Cas30ServiceTicketValidator(final String casServerUrlPrefix) {
         super(casServerUrlPrefix);
     }
 

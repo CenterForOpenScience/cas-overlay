@@ -16,7 +16,6 @@
 package org.pac4j.cas.client;
 
 import org.jasig.cas.client.authentication.AttributePrincipal;
-import org.jasig.cas.client.session.SingleSignOutHttpSessionListener;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas10TicketValidator;
@@ -29,7 +28,6 @@ import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
 import org.pac4j.cas.authorization.DefaultCasAuthorizationGenerator;
 import org.pac4j.cas.credentials.CasCredentials;
-import org.pac4j.cas.logout.CasSingleSignOutHandler;
 import org.pac4j.cas.logout.LogoutHandler;
 import org.pac4j.cas.logout.NoLogoutHandler;
 import org.pac4j.cas.profile.CasProfile;
@@ -58,6 +56,7 @@ import org.slf4j.LoggerFactory;
  * <li>CAS 2.0 : service &amp; proxy tickets. In this case, it's possible to define if any proxy is accepted by using the
  * {@link #setAcceptAnyProxy(boolean)} method or the list of accepted proxies by using the {@link #setAllowedProxyChains(ProxyList)} method.
  * </li>
+ * <li>CAS 3.0 : service tickets only with attributes release</li>
  * <li>SAML.</li>
  * </ul>
  * <p>For the CAS round-trip :</p>
@@ -74,51 +73,69 @@ import org.slf4j.LoggerFactory;
  * <p>It returns a {@link org.pac4j.cas.profile.CasProfile} or a {@link org.pac4j.cas.profile.CasProxyProfile} if the
  * <code>casProxyReceptor</code> is defined (this CAS client acts as a proxy).</p>
  *
- * @see org.pac4j.cas.profile.CasProfile
  * @author Jerome Leleu
  * @author Longze Chen
+ * @see org.pac4j.cas.profile.CasProfile
  * @since 1.7.0
  */
 public class CasClient extends BaseClient<CasCredentials, CasProfile> {
 
-    protected static final Logger logger = LoggerFactory.getLogger(CasClient.class);
-
-    public enum CasProtocol {
-        CAS10, CAS20, CAS30, CAS20_PROXY, SAML
-    };
-
-    protected static final String SERVICE_PARAMETER = "service";
-
+    /** The Service Ticket Parameter. */
     public static final String SERVICE_TICKET_PARAMETER = "ticket";
 
+    /** The Service Parameter. */
+    protected static final String SERVICE_PARAMETER = "service";
+
+    /** The Logger Instance. */
+    protected static final Logger LOGGER = LoggerFactory.getLogger(CasClient.class);
+
+    /** The Supported CAS Protocols. */
+    public enum CasProtocol {
+        /** CAS Protocol 1.0. */
+        CAS10,
+        /** CAS Protocol 2.0. */
+        CAS20,
+        /** CAS Protocol 2.0. Proxy */
+        CAS20_PROXY,
+        /** CAS Protocol 3.0. */
+        CAS30,
+        /** CAS Protocol with SAML. */
+        SAML,
+    };
+
+    /** The Logout Handler. */
     protected LogoutHandler logoutHandler = new NoLogoutHandler();
 
+    /** The Ticket Validator. */
     protected TicketValidator ticketValidator;
 
+    /** The CAS Login URL. */
     protected String casLoginUrl;
 
+    /** The CAS Prefix URL. */
     protected String casPrefixUrl;
 
+    /** The Time Torlerance. */
     protected long timeTolerance=1000L;
 
-    protected CasProtocol casProtocol = CasProtocol.CAS30;
+    /** Use CAS20 if no CAS protocol is specified. */
+    protected CasProtocol casProtocol = CasProtocol.CAS20;
 
-    protected boolean renew = false;
+    /** The `renew` Flag. Default `false`. */
+    protected boolean renew;
 
-    protected boolean gateway = false;
+    /** The `gateway` Flag. Default `false`. */
+    protected boolean gateway;
 
-    protected boolean acceptAnyProxy = false;
+    /** The `acceptAnyProxy` Flag. Default `false`. */
+    protected boolean acceptAnyProxy;
 
+    /** The List of Allowed Proxy. */
     protected ProxyList allowedProxyChains = new ProxyList();
 
+    /** The CAS Proxy Receptor. */
     protected CasProxyReceptor casProxyReceptor;
 
-    /**
-     * Get the redirection url.
-     *
-     * @param context
-     * @return the redirection url
-     */
     @Override
     protected RedirectAction retrieveRedirectAction(final WebContext context) {
         final String contextualCasLoginUrl = prependHostToUrlIfNotPresent(this.casLoginUrl, context);
@@ -126,7 +143,7 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
 
         final String redirectionUrl = CommonUtils.constructRedirectUrl(contextualCasLoginUrl, SERVICE_PARAMETER,
                 contextualCallbackUrl, this.renew, this.gateway);
-        logger.debug("redirectionUrl : {}", redirectionUrl);
+        LOGGER.debug("redirectionUrl : {}", redirectionUrl);
         return RedirectAction.redirect(redirectionUrl);
     }
 
@@ -152,7 +169,7 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
             throw new TechnicalException("casLoginUrl and casPrefixUrl cannot be both blank");
         }
         if (this.casPrefixUrl != null && !this.casPrefixUrl.endsWith("/")) {
-            this.casPrefixUrl += "/";
+            this.casPrefixUrl += '/';
         }
         if (CommonHelper.isBlank(this.casPrefixUrl)) {
             this.casPrefixUrl = this.casLoginUrl.replaceFirst("/login", "/");
@@ -180,7 +197,7 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
                         .getProxyGrantingTicketStorage());
             }
         } else if (this.casProtocol == CasProtocol.SAML) {
-            Saml11TicketValidator saml11TicketValidator=new Saml11TicketValidator(this.casPrefixUrl);
+            final Saml11TicketValidator saml11TicketValidator=new Saml11TicketValidator(this.casPrefixUrl);
             saml11TicketValidator.setTolerance(getTimeTolerance());
             this.ticketValidator = saml11TicketValidator;
         } else if (this.casProtocol == CasProtocol.CAS30) {
@@ -195,13 +212,6 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
         addAuthorizationGenerator(new DefaultCasAuthorizationGenerator<CasProfile>());
     }
 
-    /**
-     * Get the credentials from the web context.
-     *
-     * @param context
-     * @return the credentials
-     * @throws RequiresHttpAction
-     */
     @Override
     protected CasCredentials retrieveCredentials(final WebContext context) throws RequiresHttpAction {
         // like the SingleSignOutFilter from CAS client :
@@ -209,30 +219,24 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
             final String ticket = context.getRequestParameter(SERVICE_TICKET_PARAMETER);
             this.logoutHandler.recordSession(context, ticket);
             final CasCredentials casCredentials = new CasCredentials(ticket, getName());
-            logger.debug("casCredentials : {}", casCredentials);
+            LOGGER.debug("casCredentials : {}", casCredentials);
             return casCredentials;
         } else if (this.logoutHandler.isLogoutRequest(context)) {
             this.logoutHandler.destroySession(context);
             final String message = "logout request : no credential returned";
-            logger.debug(message);
+            LOGGER.debug(message);
             throw RequiresHttpAction.ok(message, context);
         }
         if (this.gateway) {
-            logger.info("No credential found in this gateway round-trip");
+            LOGGER.info("No credential found in this gateway round-trip");
             return null;
         } else {
             final String message = "No ticket or logout request";
-            logger.error(message);
+            LOGGER.error(message);
             throw new CredentialsException(message);
         }
     }
 
-    /**
-     * Get the user profile from the credentials.
-     *
-     * @param credentials
-     * @return the user profile
-     */
     @Override
     protected CasProfile retrieveUserProfile(final CasCredentials credentials, final WebContext context) {
         final String ticket = credentials.getServiceTicket();
@@ -240,7 +244,7 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
             final String contextualCallbackUrl = getContextualCallbackUrl(context);
             final Assertion assertion = this.ticketValidator.validate(ticket, contextualCallbackUrl);
             final AttributePrincipal principal = assertion.getPrincipal();
-            logger.debug("principal : {}", principal);
+            LOGGER.debug("principal : {}", principal);
             final CasProfile casProfile;
             if (this.casProxyReceptor != null) {
                 casProfile = new CasProxyProfile();
@@ -252,10 +256,10 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
             if (this.casProxyReceptor != null) {
                 ((CasProxyProfile) casProfile).setPrincipal(principal);
             }
-            logger.debug("casProfile : {}", casProfile);
+            LOGGER.debug("casProfile : {}", casProfile);
             return casProfile;
         } catch (final TicketValidationException e) {
-            logger.error("cannot validate CAS ticket : {} / {}", ticket, e);
+            LOGGER.error("cannot validate CAS ticket : {} / {}", ticket, e);
             throw new TechnicalException(e);
         }
     }
@@ -336,7 +340,7 @@ public class CasClient extends BaseClient<CasCredentials, CasProfile> {
         return timeTolerance;
     }
 
-    public void setTimeTolerance(long timeTolerance) {
+    public void setTimeTolerance(final long timeTolerance) {
         this.timeTolerance = timeTolerance;
     }
 
