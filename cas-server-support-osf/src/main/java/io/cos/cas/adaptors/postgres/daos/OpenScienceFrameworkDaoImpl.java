@@ -22,6 +22,7 @@ package io.cos.cas.adaptors.postgres.daos;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
@@ -183,6 +184,26 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
                     OpenScienceFrameworkApiOauth2Application.class
             );
             return query.getResultList();
+        } catch (final PersistenceException e) {
+            LOGGER.error(e.toString());
+            return null;
+        }
+    }
+
+    @Override
+    public OpenScienceFrameworkGuid findGuidByUser(final OpenScienceFrameworkUser user) {
+        try {
+            final TypedQuery<OpenScienceFrameworkGuid> query = entityManager.createQuery(
+                    "select g from OpenScienceFrameworkGUID g where"
+                    + " g.objectId = :userId"
+                    + " and g.djangoContentType.appLabel = :appLable"
+                    + " and g.djangoContentType.model = :model",
+                    OpenScienceFrameworkGuid.class
+            );
+            query.setParameter("userId", user.getId());
+            query.setParameter("appLable", "osf");
+            query.setParameter("model", "osfuser");
+            return query.getSingleResult();
         } catch (final PersistenceException e) {
             LOGGER.error(e.toString());
             return null;
