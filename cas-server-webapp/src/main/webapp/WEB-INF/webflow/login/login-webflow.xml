@@ -34,6 +34,7 @@
         <evaluate expression="clientAction" />
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="error" to="ticketGrantingTicketCheck" />
+        <transition on="remote" to="remoteAuthenticate" />
         <transition on="stop" to="stopWebflow" />
     </action-state>
     <view-state id="stopWebflow" />

@@ -43,7 +43,7 @@ import org.pac4j.core.exception.HttpCommunicationException;
  * @author Michael Haselton
  * @author Longze Chen
  * @see org.pac4j.oauth.profile.orcid.OrcidProfile
- * @since 1.6.0
+ * @since 1.7.0
  */
 public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
 
