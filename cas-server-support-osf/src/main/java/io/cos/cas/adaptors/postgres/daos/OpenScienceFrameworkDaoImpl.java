@@ -194,7 +194,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     public OpenScienceFrameworkGuid findGuidByUser(final OpenScienceFrameworkUser user) {
         try {
             final TypedQuery<OpenScienceFrameworkGuid> query = entityManager.createQuery(
-                    "select g from OpenScienceFrameworkGUID g where"
+                    "select g from OpenScienceFrameworkGuid g where"
                     + " g.objectId = :userId"
                     + " and g.djangoContentType.appLabel = :appLable"
                     + " and g.djangoContentType.model = :model",
