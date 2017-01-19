@@ -21,6 +21,7 @@ package io.cos.cas.adaptors.postgres.handlers;
 
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.personal.handler.support.AbstractPersonalAccessTokenHandler;
 import org.slf4j.Logger;
@@ -62,11 +63,20 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
 
     @Override
     public PersonalAccessToken getToken(final String tokenId) {
-        final OpenScienceFrameworkApiOauth2PersonalAccessToken token = openScienceFrameworkDao.findOnePersonalAccessTokenByTokenId(tokenId);
+        final OpenScienceFrameworkApiOauth2PersonalAccessToken token
+            = openScienceFrameworkDao.findOnePersonalAccessTokenByTokenId(tokenId);
         if (token == null || !token.isActive()) {
             return null;
         }
         final String scopes = token.getScopes() == null ? "" : token.getScopes();
-        return new PersonalAccessToken(token.getTokenId(), token.getOwner().getUsername(), new HashSet<>(Arrays.asList(scopes.split(" "))));
+        final OpenScienceFrameworkGuid guid = openScienceFrameworkDao.findGuidByUser(token.getOwner());
+        if (guid == null) {
+            return null;
+        }
+        return new PersonalAccessToken(
+            token.getTokenId(),
+            guid.getGuid(),
+            new HashSet<>(Arrays.asList(scopes.split(" ")))
+        );
     }
 }

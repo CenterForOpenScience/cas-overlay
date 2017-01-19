@@ -25,6 +25,7 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
@@ -194,8 +195,10 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         attributes.put("givenName", user.getGivenName());
         attributes.put("familyName", user.getFamilyName());
 
-        // CAS returns the user's postgres primary key string to OSF
-        return createHandlerResult(credential, this.principalFactory.createPrincipal(user.getId().toString(), attributes), null);
+        // CAS returns the user's GUID to OSF
+        // Note: GUID is recommended. Do not use user's pimary key or username.
+        final OpenScienceFrameworkGuid guid = openScienceFrameworkDao.findGuidByUser(user);
+        return createHandlerResult(credential, this.principalFactory.createPrincipal(guid.getGuid(), attributes), null);
     }
 
     /**
