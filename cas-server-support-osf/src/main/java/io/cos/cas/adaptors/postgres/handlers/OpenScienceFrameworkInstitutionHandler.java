@@ -64,17 +64,41 @@ public class OpenScienceFrameworkInstitutionHandler {
     }
 
     /**
-     * Return a map of institution name and login url.
+     * Return a map of institution login url and institution name.
+     *  1.  The "name" is the value instead of the key.
+     *  2.  For institutions authenticated through "cas-pac4j", the institution id replaces the login url,
+     *      whose actual login url is generated during flow "client action".
      *
-     * @param target The osf service target after successful institution login
-     * @return Map&lt;String, String&gt;
+     * @param target The osf service target after successful institution login (only for "saml-shib" institutions)
+     * @return Map.
+     *      For "saml-shib", full login url as key and full institution display name as value;
+     *      For "cas-pac4j", institution id as key and full institution display name as value;
      */
     public Map<String, String> getInstitutionLoginUrls(final String target) {
         final List<OpenScienceFrameworkInstitution> institutionList = openScienceFrameworkDao.findAllInstitutions();
         final Map<String, String> institutionLogin = new HashMap<>();
         for (final OpenScienceFrameworkInstitution institution: institutionList) {
-            institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
+            if (institution.verifyDelegationProtocol()) {
+                if ("saml-shib".equals(institution.getDelegationProtocol())) {
+                    institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
+                } else if ("cas-pac4j".equals(institution.getDelegationProtocol())) {
+                    institutionLogin.put(institution.getId(), institution.getName());
+                } else {
+                    LOGGER.warn(
+                        "Delegation Protocol {} Not Implemented for {}.",
+                        institution.getDelegationProtocol(),
+                        institution.getDelegationProtocol()
+                    );
+                }
+            } else {
+                LOGGER.error(
+                        "Delegation Protocol {} Not Supported for {}.",
+                        institution.getDelegationProtocol(),
+                        institution.getDelegationProtocol()
+                );
+            }
         }
         return institutionLogin;
     }
+
 }

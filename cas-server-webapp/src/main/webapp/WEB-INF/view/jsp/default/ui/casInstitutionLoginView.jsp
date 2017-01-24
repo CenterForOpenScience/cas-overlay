@@ -50,19 +50,11 @@
             var login_url = form.options[form.selectedIndex].value;
             if(login_url == null || login_url == "") {
                 return;
+            } else if (login_url == "okstate") {
+                login_url = "${okstateUrl}";
             }
             window.location = login_url;
         }
-
-        function addAuthenticationDelegatedInstitutions () {
-            var institutionSelect = document.getElementById('institution-form-select');
-            var objOption1 = document.createElement("option");
-            objOption1.text = "Oklahoma State University [Test]";
-            objOption1.value = "${okstateUrl}";
-            institutionSelect.options.add(objOption1);
-        }
-
-        addAuthenticationDelegatedInstitutions();
     </script>
 </div>
 <jsp:directive.include file="includes/bottom.jsp" />
