@@ -21,6 +21,7 @@ package org.jasig.cas.support.pac4j.web.flow;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.principal.Service;
@@ -180,7 +181,10 @@ public final class ClientAction extends AbstractAction {
 
                 // for institution clients, go to `remoteAuthenticate` and finish authentication through API
                 if (INSTITUTION_CLIENTS.contains(clientName)) {
-                    context.getFlowScope().put("authenticationDelegationProtocol", "CAS");
+                    context.getFlowScope().put(
+                        "authenticationDelegationProtocol",
+                        OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction.PROTOCOL_CAS
+                    );
                     return new Event(this, "remote");
                 }
                 // for non-institution clients, follow normal authentication delegation flow

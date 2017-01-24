@@ -130,6 +130,12 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         }
     }
 
+    /** Authentication Delegation Protocol: CAS by pac4j. */
+    public static final String PROTOCOL_CAS = "CAS_PAC4J";
+
+    /** Authentication Delegation Protocol: SAML by Shibboleth. */
+    public static final String PROTOCOL_SAML = "SAML_SHIB";
+
     /** Authentication failure result. */
     public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
 
@@ -140,10 +146,6 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     private static final String SHIBBOLETH_SESSION_HEADER = ATTRIBUTE_PREFIX + "Shib-Session-ID";
 
     private static final int SIXTY_SECONDS = 60 * 1000;
-
-    private static final String PROTOCOL_SAML = "SHIBBOLETH";
-
-    private static final String PROTOCOL_CAS = "CAS";
 
     /** The logger instance. */
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -297,7 +299,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
 
             return credential;
-        } else if (context.getFlowScope().get("authenticationDelegationProtocol") == "CAS") {
+        } else if (context.getFlowScope().get("authenticationDelegationProtocol") == PROTOCOL_CAS) {
             TicketGrantingTicket ticketGrantingTicket;
             Principal principal;
             try {
