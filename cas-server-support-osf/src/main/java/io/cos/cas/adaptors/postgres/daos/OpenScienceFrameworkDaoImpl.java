@@ -136,7 +136,7 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         try {
             final TypedQuery query = entityManager.createQuery(
                     "select i from OpenScienceFrameworkInstitution i "
-                            + "where i.delegationProtocol is not null and i.deleted = false",
+                            + "where i.delegationProtocol is not empty and i.deleted = false",
                     OpenScienceFrameworkInstitution.class
             );
             return query.getResultList();

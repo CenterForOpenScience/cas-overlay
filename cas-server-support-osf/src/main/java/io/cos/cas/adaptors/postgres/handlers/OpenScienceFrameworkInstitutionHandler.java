@@ -87,14 +87,14 @@ public class OpenScienceFrameworkInstitutionHandler {
                     LOGGER.warn(
                         "Delegation Protocol {} Not Implemented for {}.",
                         institution.getDelegationProtocol(),
-                        institution.getDelegationProtocol()
+                        institution.getId()
                     );
                 }
             } else {
                 LOGGER.error(
                         "Delegation Protocol {} Not Supported for {}.",
                         institution.getDelegationProtocol(),
-                        institution.getDelegationProtocol()
+                        institution.getId()
                 );
             }
         }
