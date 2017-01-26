@@ -56,6 +56,17 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
 
     /**
      * {@inheritDoc}
+     *
+     * Note on customization:
+     * 1.   The default behavior is:
+     *          id = isTypedIdUsed() ? profile.getTypedId() : profile.getId();
+     *      When typedId is used, the "class name" of the client is used. This works for ORCiD client because there is
+     *      only one such client. However, this fails to work with CAS clients since the "class name" cannot identify
+     *      different CAS providers. The solution is to use "client name" instead of "class name".
+     *          id = clientName + "Profile#" + profile.getId()
+     *      For OSF compatibility, only CAS clients use client name while the ORCiD client is not changed
+     * 2.   For clients considered as "institution", their authe flow is intercepted and redirected to our
+     *      institution login flow after successful auth. The principal id only contains client name and profile id.
      */
     @Override
     protected HandlerResult createResult(final ClientCredential credentials, final UserProfile profile)
@@ -68,16 +79,15 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
             // customize profile names
             if (ClientAction.INSTITUTION_CLIENTS.contains(clientName)) {
                 // institution clients are independent of authentication delegation protocol
-                // institution id and client name are identical
                 id = clientName + '#' + profile.getId();
             } else if (clientName.startsWith("CasClient")) {
-                // non-institution cas clients: e.g. there can be many CAS clients
+                // non-institution cas clients:
                 id = clientName + "Profile#" + profile.getId();
                 // currently there is no client of this type
-                // this also requires OSF side implementation to generalize what we did for ORCiD
+                // this requires OSF side implementation (similar to what is done for ORCiD or further generalize it)
                 throw new FailedLoginException("Client not supported.");
             } else {
-                // non-institution unique clients: e.g. there can only be one ORCiD clients
+                // other: default behavior
                 id = isTypedIdUsed() ? profile.getTypedId() : profile.getId();
             }
             if (StringUtils.isNotBlank(id)) {
