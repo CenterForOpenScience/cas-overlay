@@ -27,6 +27,7 @@ import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
+import io.cos.cas.authentication.ShouldNotHappenException;
 import org.bson.types.ObjectId;
 import org.apache.commons.codec.binary.Base32;
 
@@ -67,6 +68,14 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     private static final int TOTP_INTERVAL = 30;
     private static final int TOTP_WINDOW = 1;
 
+    // user status
+    private static final String USER_ACTIVE = "ACTIVE";
+    private static final String USER_NOT_CONFIRMED = "NOT_CONFIRED";
+    private static final String USER_NOT_CLAIMED = "NOT_CLAIMED";
+    private static final String USER_MERGED = "MERGED";
+    private static final String USER_DISABLED = "DISABLED";
+    private static final String USER_STATUS_UNKNOWN = "UNKNOWN";
+
     @NotNull
     private PrincipalNameTransformer principalNameTransformer = new NoOpPrincipalNameTransformer();
 
@@ -88,7 +97,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         @Field("is_registered")
         private Boolean isRegistered;
         @Field("merged_by")
-        private Boolean mergedBy;
+        private String mergedBy;
         @Field("date_disabled")
         private Date dateDisabled;
         @Field("date_confirmed")
@@ -275,24 +284,30 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         Boolean validPassphrase = Boolean.FALSE;
+        final String userStatus = verifyUserStatus(user);
+
         if (credential.isRemotePrincipal()) {
             // remote principal's are already verified by a third party (in our case a third party SAML authentication).
             validPassphrase = Boolean.TRUE;
         } else if (verificationKey != null && verificationKey.equals(user.verificationKey)) {
             // verification key can substitute as a temporary password.
             validPassphrase = Boolean.TRUE;
-        } else if (BCrypt.checkpw(plainTextPassword, user.password)) {
-            validPassphrase = Boolean.TRUE;
+        } else if (user.password != null && plainTextPassword != null) {
+            validPassphrase = BCrypt.checkpw(plainTextPassword, user.password);
         }
+
         if (!validPassphrase) {
             throw new FailedLoginException(username + " invalid verification key or password");
         }
 
-        final TimeBasedOneTimePassword timeBasedOneTimePassword = this.mongoTemplate.findOne(new Query(Criteria
+        final TimeBasedOneTimePassword timeBasedOneTimePassword = this.mongoTemplate.findOne(
+            new Query(Criteria
                 .where("owner").is(user.id)
                 .and("isConfirmed").is(Boolean.TRUE)
                 .and("deleted").is(Boolean.FALSE)
-        ), TimeBasedOneTimePassword.class);
+            ),
+            TimeBasedOneTimePassword.class
+        );
 
         if (timeBasedOneTimePassword != null && timeBasedOneTimePassword.totpSecret != null) {
             if (oneTimePassword == null) {
@@ -310,22 +325,19 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         // Validate basic information such as username/password and a potential One-Time Password before
         // providing any indication of account status.
-        if (!user.isRegistered) {
+        if (USER_NOT_CONFIRMED.equals(userStatus)) {
             throw new LoginNotAllowedException(username + " is not registered");
-        }
-        if (!user.isClaimed) {
-            throw new LoginNotAllowedException(username + " is not claimed");
-        }
-        if (user.isMerged()) {
-            throw new LoginNotAllowedException("Cannot log in to a merged user " + username);
-        }
-        if (user.isDisabled()) {
+        } else if (USER_DISABLED.equals(userStatus)) {
             throw new AccountDisabledException(username + " is disabled");
-        }
-        if (!user.isActive()) {
-            throw new LoginNotAllowedException(username + " is not active");
+        } else if (USER_NOT_CLAIMED.equals(userStatus)) {
+            throw new ShouldNotHappenException(username + " is not claimed");
+        } else if (USER_MERGED.equals(userStatus)) {
+            throw new ShouldNotHappenException("Cannot log in to a merged user " + username);
+        } else if (USER_STATUS_UNKNOWN.equals(userStatus)) {
+            throw new ShouldNotHappenException(username + " is not active: unknown status");
         }
 
+        // Only active user can sign in
         final Map<String, Object> attributes = new HashMap<>();
         attributes.put("username", user.username);
         attributes.put("givenName", user.givenName);
@@ -348,5 +360,56 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     @Override
     public boolean supports(final Credential credential) {
         return credential instanceof OpenScienceFrameworkCredential;
+    }
+
+    /**
+     * Verify User Status.
+     *
+     *  USER_ACTIVE:
+     *      authentication succeed
+     *  USER_NOT_CONFIRMED:
+     *      inform the user that the account is not confirmed and provide a resend confirmation link
+     *  USER_DISABLED:
+     *      inform the user that the account is disable and that they can contact OSF support
+     *  USER_MERGED, USER_NOT_CLAIMED and USER_STATUS_UNKNOWN:
+     *      these is not suppose to happen, ask user to contact OSF support
+     *
+     * @param user the OSF user
+     * @return the user status
+     */
+    private String verifyUserStatus(final OpenScienceFrameworkUser user) {
+        // An active user must be registered, claimed, not disabled, not merged and has a not null/None password.
+        // Only active user can pass the verification.
+        if (user.isActive()) {
+            return USER_ACTIVE;
+        } else {
+            // If the user instance is not claimed, it is also not registered.
+            // It can be either an unclaimed contributor or a new user pending confirmation.
+            if (!user.isClaimed && !user.isRegistered && !user.isConfirmed()) {
+                // If the user instance has a null/None password, it must be an unclaimed contributor.
+                if (user.password == null) {
+                    return USER_NOT_CLAIMED;
+                } else {
+                    // If the user instance has a password, it must be a unconfirmed user who registered for a new account.
+                    return USER_NOT_CONFIRMED;
+                }
+            }
+            // If the user instance is merged by another user, it is registered, confirmed and claimed.
+            // `.merged_by` field being not null is a sufficient condition
+            // However, its username and password fields are both null/None.
+            if (user.isMerged()) {
+                return USER_MERGED;
+            }
+            // If the user instance is disabled, it is also not registered but claimed.
+            // `.date_disabled` field being not null is a sufficient condition.
+            // However, it still has the username and password.
+            // When the user tries to login, an account disabled message will be displayed.
+            if (user.isDisabled()) {
+                return USER_DISABLED;
+            }
+
+            // Other status combinations are considered UNKNOWN
+            return USER_STATUS_UNKNOWN;
+        }
     }
 }
