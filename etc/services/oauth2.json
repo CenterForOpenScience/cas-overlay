@@ -1,7 +1,29 @@
 {
   "@class" : "org.jasig.cas.support.oauth.services.OAuthCallbackAuthorizeService",
   "id" : 983450982340993434,
-  "name" : "Open Science Framework",
-  "description" : "The Open Science Framework (OSF) supports the entire research lifecycle: planning, execution, reporting, archiving, and discovery.",
-  "serviceId" : "^https?://(localhost|127.0.0.1|accounts.dev.osf.io)(:8443)?/oauth2/callbackAuthorize"
+  "name" : "",
+  "description" : "",
+  "serviceId" : "^https?://(localhost|127.0.0.1|accounts.dev.osf.io):(8443|8080)?/oauth2/callbackAuthorize",
+  "evaluationOrder": "1000",
+  "properties" : {
+    "@class": "java.util.HashMap",
+    "title": {
+      "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+      "values": [
+        "java.util.HashSet",
+        [
+          "Open Science Framework"
+        ]
+      ]
+    },
+    "titleAbbr": {
+      "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+      "values": [
+        "java.util.HashSet",
+        [
+          "OSF"
+        ]
+      ]
+    }
+  }
 }
