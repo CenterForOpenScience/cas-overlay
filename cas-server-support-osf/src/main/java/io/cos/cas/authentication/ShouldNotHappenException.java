@@ -31,7 +31,7 @@ import javax.security.auth.login.AccountException;
  */
 public class ShouldNotHappenException extends AccountException {
 
-    private static final long serialVersionUID = 3376259469680697723L;
+    private static final long serialVersionUID = 8296529645368130304L;
 
     /**
      * Instantiates a new invalid login location exception.
