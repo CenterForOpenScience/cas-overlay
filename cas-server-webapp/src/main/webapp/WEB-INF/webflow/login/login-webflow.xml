@@ -196,6 +196,7 @@
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
         <!-- Open Science Framework -->
         <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
+        <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
         <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
         <!-- One Time Password -->
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
@@ -269,6 +270,7 @@
     <end-state id="casBadHoursView" view="casBadHoursView"/>
     <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
     <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
+    <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
 
     <end-state id="postView" view="postResponseView">

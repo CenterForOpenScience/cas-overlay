@@ -65,7 +65,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.security.auth.login.AccountException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -147,6 +149,8 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     private static final String ATTRIBUTE_PREFIX = "AUTH-";
 
     private static final String SHIBBOLETH_SESSION_HEADER = ATTRIBUTE_PREFIX + "Shib-Session-ID";
+
+    private static final String SHIBBOLETH_COOKIE_PREFIX = "_shibsession_";
 
     private static final int SIXTY_SECONDS = 60 * 1000;
 
@@ -263,14 +267,17 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @throws AccountException an account exception
      */
     protected Credential constructCredentialsFromRequest(final RequestContext context) throws AccountException {
-
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
         final OpenScienceFrameworkCredential credential
             = (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
-        // WARNING:
-        // Do not assume this works w/o acceptance testing in a Production environment.
-        // The call is made to trust these headers only because we assume that the
-        // Apache Shibboleth Service Provider module rejects any conflicting / forged headers.
+
+        // remove the shibboleth cookie
+        // do not rely on the Shibboleth server to remove this cookie, which only works only for normal flow
+        removeShibbolethSessionCookie(context);
+
+        // WARNING: Do not assume this works w/o acceptance testing in a Production environment.
+        // The call is made to trust these headers only because we assume the Apache Shibboleth Service Provider module
+        // rejects any conflicting / forged headers.
         final String shibbolethSession = request.getHeader(SHIBBOLETH_SESSION_HEADER);
 
         if (StringUtils.hasText(shibbolethSession)) {
@@ -540,5 +547,31 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      */
     protected void onSuccess(final RequestContext context, final Credential credential) {
         // default implementation does nothing
+    }
+
+    /**
+     * Remove Shibboleth Session Cookie.
+     *
+     * In normal institution logout flow, the shibboleth logout endpoint clears this cookie, which happens when
+     * institution-authenticated user clicks the "Log out" button on OSF. However, CAS's built in exception handler
+     * does not clear this cookie when an exception happens.
+     *
+     * @param context   the Request Context
+     */
+    private void removeShibbolethSessionCookie(final RequestContext context) {
+
+        final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
+        final Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
+            for (final Cookie cookie : cookies) {
+                if (cookie.getName().startsWith(SHIBBOLETH_COOKIE_PREFIX)) {
+                    final Cookie shibbolethCookie = new Cookie(cookie.getName(), null);
+                    shibbolethCookie.setMaxAge(0);
+                    response.addCookie(shibbolethCookie);
+                }
+            }
+        }
     }
 }
