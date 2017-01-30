@@ -71,7 +71,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
     // user status
     private static final String USER_ACTIVE = "ACTIVE";
-    private static final String USER_NOT_CONFIRMED = "NOT_CONFIRED";
+    private static final String USER_NOT_CONFIRMED = "NOT_CONFIRMED";
     private static final String USER_NOT_CLAIMED = "NOT_CLAIMED";
     private static final String USER_MERGED = "MERGED";
     private static final String USER_DISABLED = "DISABLED";
@@ -151,9 +151,9 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         } else if (verificationKey != null && verificationKey.equals(user.getVerificationKey())) {
             // verified by verification key
             validPassphrase = Boolean.TRUE;
-        } else if (user.getPassword() != null && plainTextPassword != null) {
+        } else if (plainTextPassword != null && verifyPassword(plainTextPassword, user.getPassword())) {
             // verified by password
-            validPassphrase = verifyPassword(plainTextPassword, user.getPassword());
+            validPassphrase = Boolean.TRUE;
         }
         if (!validPassphrase) {
             throw new FailedLoginException(username + ": invalid remote authentication, verification key or password");
@@ -240,17 +240,18 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             // If the user instance is not claimed, it is also not registered and not confirmed.
             // It can be either an unclaimed contributor or a new user pending confirmation.
             if (!user.isClaimed() && !user.isRegistered() && !user.isConfirmed()) {
-                // If the user instance has a null/None password, it must be an unclaimed contributor.
-                if (user.getPassword() == null) {
+                if (isUnusablePassword(user.getPassword())) {
+                    // If the user instance has an unusable password, it must be an unclaimed contributor.
                     return USER_NOT_CLAIMED;
-                } else {
-                    // If the user instance has a password, it must be a unconfirmed user who registered for a new account.
+                } else if (checkPasswordPrefix(user.getPassword())) {
+                    // If the user instance has a password with a valid prefix, it must be a unconfirmed user who
+                    // has registered for a new account.
                     return USER_NOT_CONFIRMED;
                 }
             }
             // If the user instance is merged by another user, it is registered, confirmed and claimed.
-            // `.merged_by` field being not null is a sufficient condition
-            // However, its username and password fields are both null/None.
+            // `.merged_by` field being not null is a sufficient condition.
+            // However, its username is set to GUID and password is set to unusable.
             if (user.isMerged()) {
                 return USER_MERGED;
             }
@@ -298,6 +299,26 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             logger.error(String.format("CAS has encountered a problem when verifying the password: %s.", e.toString()));
             return false;
         }
+    }
+
+    /**
+     * Check if the password hash is "django-unusable".
+     *
+     * @param passwordHash the password hash
+     * @return true if unusable, false otherwise
+     */
+    private boolean isUnusablePassword(final String passwordHash) {
+        return passwordHash == null || passwordHash.startsWith("!");
+    }
+
+    /**
+     * Check if the password hash bears a valid prefix.
+     *
+     * @param passwordHash the password hash
+     * @return true if usable, false otherwise
+     */
+    private boolean checkPasswordPrefix(final String passwordHash) {
+        return passwordHash != null && (passwordHash.startsWith("bcrypt$") || passwordHash.startsWith("bcrypt_sha256$"));
     }
 
     /**
