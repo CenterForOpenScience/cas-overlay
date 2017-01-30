@@ -235,6 +235,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         // An active user must be registered, claimed, not disabled, not merged and has a not null/None password.
         // Only active user can pass the verification.
         if (user.isActive()) {
+            logger.info("User Status Check: {}", USER_ACTIVE);
             return USER_ACTIVE;
         } else {
             // If the user instance is not claimed, it is also not registered and not confirmed.
@@ -242,10 +243,12 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             if (!user.isClaimed() && !user.isRegistered() && !user.isConfirmed()) {
                 if (isUnusablePassword(user.getPassword())) {
                     // If the user instance has an unusable password, it must be an unclaimed contributor.
+                    logger.info("User Status Check: {}", USER_NOT_CLAIMED);
                     return USER_NOT_CLAIMED;
                 } else if (checkPasswordPrefix(user.getPassword())) {
                     // If the user instance has a password with a valid prefix, it must be a unconfirmed user who
                     // has registered for a new account.
+                    logger.info("User Status Check: {}", USER_NOT_CONFIRMED);
                     return USER_NOT_CONFIRMED;
                 }
             }
@@ -253,6 +256,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             // `.merged_by` field being not null is a sufficient condition.
             // However, its username is set to GUID and password is set to unusable.
             if (user.isMerged()) {
+                logger.info("User Status Check: {}", USER_MERGED);
                 return USER_MERGED;
             }
             // If the user instance is disabled, it is also not registered but claimed.
@@ -260,10 +264,12 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             // However, it still has the username and password.
             // When the user tries to login, an account disabled message will be displayed.
             if (user.isDisabled()) {
+                logger.info("User Status Check: {}", USER_DISABLED);
                 return USER_DISABLED;
             }
 
             // Other status combinations are considered UNKNOWN
+            logger.info("User Status Check: {}", USER_STATUS_UNKNOWN);
             return USER_STATUS_UNKNOWN;
         }
     }
