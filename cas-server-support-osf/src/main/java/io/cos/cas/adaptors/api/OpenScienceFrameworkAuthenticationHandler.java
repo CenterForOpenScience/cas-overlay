@@ -131,8 +131,9 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         data.put("user", user);
         payload.put("data", data);
+        final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
 
-        final Map<String, Object> response = osfApiCasEndpoint.apiCasAuthentication(endpoint, username, payload.toString());
+        final Map<String, Object> response = osfApiCasEndpoint.apiCasAuthentication(endpoint, username, encryptedPayload);
         if (response == null || !response.containsKey("status")) {
             throw new FailedLoginException("I/O Exception: an error has occurred during the api authentication process.");
         }

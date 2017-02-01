@@ -1,12 +1,19 @@
 package io.cos.cas.adaptors.api;
 
-/*
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.EncryptionMethod;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWEAlgorithm;
+import com.nimbusds.jose.JWEHeader;
+import com.nimbusds.jose.JWEObject;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-*/
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
@@ -20,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -61,6 +69,12 @@ public class OpenScienceFrameworkApiCasEndpoint {
     @NotNull
     private String osfApiCasEndpointUrl;
 
+    @NotNull
+    private String apiCasEndpointJweSecret;
+
+    @NotNull
+    private String apiCasEndpointJwtSecret;
+
     /**
      * Default Constructor.
      */
@@ -69,19 +83,27 @@ public class OpenScienceFrameworkApiCasEndpoint {
     /**
      * Instantiates an instance of Open Science Framework API CAS Endpoint and set endpoint url.
      *
-     * @param osfApiCasEndpointUrl the OSF API CAS endpoint UL
+     * @param osfApiCasEndpointUrl the OSF API CAS endpoint URL
+     * @param apiCasEndpointJweSecret the Jwe Secret
+     * @param apiCasEndpointJwtSecret the Jwt Secret
      */
-    public OpenScienceFrameworkApiCasEndpoint(final String osfApiCasEndpointUrl) {
+    public OpenScienceFrameworkApiCasEndpoint(
+        final String osfApiCasEndpointUrl,
+        final String apiCasEndpointJweSecret,
+        final String apiCasEndpointJwtSecret
+    ) {
         this.osfApiCasEndpointUrl = osfApiCasEndpointUrl;
+        this.apiCasEndpointJweSecret = apiCasEndpointJweSecret;
+        this.apiCasEndpointJwtSecret = apiCasEndpointJwtSecret;
     }
 
-/*
-    @NotNull
-    private String apiCasEndpointJweSecret;
-
-    @NotNull
-    private String apiCasEndpointJwtSecret;
-
+    /**
+     * Encrypt the payload to be posted to the OSF API endpoint.
+     *
+     * @param subject the subject
+     * @param payload the payload
+     * @return String, a serialized JWE object
+     */
     public String encryptPayload(final String subject, final String payload) {
 
         final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -114,7 +136,6 @@ public class OpenScienceFrameworkApiCasEndpoint {
             return null;
         }
     }
-*/
 
     /**
      * Make authentication requests to API CAS endpoint with `endpoint`, `email` and `payload`.
