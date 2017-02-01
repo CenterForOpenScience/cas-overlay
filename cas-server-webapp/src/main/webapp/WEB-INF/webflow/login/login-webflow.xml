@@ -213,12 +213,17 @@
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
         <transition on="FailedLoginException" to="generateLoginTicket"/>
 
-        <!-- OSF Login: invalid user status -->
-        <transition on="AccountDisabledException" to="casLoginNotAllowedView"/>
+        <!-- TODO: Remove this after fix merge conflicts -->
         <transition on="UserAlreadyMergedException" to="casLoginNotAllowedView" />
         <transition on="UserNotActiveException" to="casLoginNotAllowedView" />
         <transition on="UserNotClaimedException" to="casLoginNotAllowedView" />
         <transition on="UserNotConfirmedException" to="casLoginNotAllowedView" />
+
+        <!-- Open Science Framework -->
+        <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
+        <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
+        <transition on="AccountDisabledException" to="casLoginNotAllowedView"/>
+        <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
 
         <!-- OSF Login: two factor authentication required or failed -->
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
@@ -298,6 +303,7 @@
     <end-state id="casBadHoursView" view="casBadHoursView"/>
     <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
     <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
+    <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
 
     <end-state id="postView" view="postResponseView">

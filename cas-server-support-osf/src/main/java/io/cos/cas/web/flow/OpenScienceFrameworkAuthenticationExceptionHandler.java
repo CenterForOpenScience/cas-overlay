@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
@@ -38,6 +39,10 @@ import org.jasig.cas.authentication.AccountPasswordMustChangeException;
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.InvalidLoginLocationException;
 import org.jasig.cas.authentication.InvalidLoginTimeException;
+
+// TODO: move this to io.cos.cas.authentication.exceptions after fix merge conflicts
+import io.cos.cas.authentication.ShouldNotHappenException;
+
 import org.jasig.cas.web.flow.AuthenticationExceptionHandler;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.Event;
@@ -82,6 +87,10 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         // Login Exceptions: Account not found, invalid password or verification key
         DEFAULT_ERROR_LIST.add(AccountNotFoundException.class);
         DEFAULT_ERROR_LIST.add(FailedLoginException.class);
+
+        // TODO: udpate the error list after fix merge conflicts
+        DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
+        DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
 
         // Login Exceptions: Remote login failure
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);

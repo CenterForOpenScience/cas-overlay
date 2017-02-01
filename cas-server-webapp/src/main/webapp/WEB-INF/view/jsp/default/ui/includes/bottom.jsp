@@ -31,7 +31,7 @@
                 </c:when>
                 <c:when test="${not empty alternativeBottomLogin}">
                     <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-                    <a id="alternative-osf" href="${osfLoginUrl}">Sign In</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a id="alternative-osf" href="${osfLoginUrl}service=${osfLoginContext.getServiceUrl()}">Sign In</a>&nbsp;&nbsp;&nbsp;&nbsp;
                 </c:when>
                 <c:otherwise>
                     <c:choose>
@@ -91,7 +91,7 @@
     </div> --%>
     <div class="copyright">
         <div class="row">
-            <p>Copyright &copy; 2011-2016 <a href="https://cos.io">Center for Open Science</a> |
+            <p>Copyright &copy; 2011-2017 <a href="https://cos.io">Center for Open Science</a> |
                 <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/TERMS_OF_USE.md">Terms of Use</a> |
                 <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/PRIVACY_POLICY.md">Privacy Policy</a>
             </p>

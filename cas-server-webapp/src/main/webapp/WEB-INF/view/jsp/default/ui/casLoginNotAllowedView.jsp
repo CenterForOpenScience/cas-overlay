@@ -19,6 +19,8 @@
 
 --%>
 <jsp:directive.include file="includes/top.jsp" />
+
+<%-- TODO: Remove this div after fix merge conflicts --%>
     <div id="msg" class="errors">
         <c:choose>
             <c:when test="${osfLoginContext.getHandleErrorName() == 'UserNotConfirmedException'}">
@@ -48,4 +50,14 @@
             </c:otherwise>
         </c:choose>
     </div>
+
+<%-- TODO: Keep and update this div after fix merge conflicts --%>
+    <div id="msg" class="errors">
+        <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')" />
+        <h2><spring:message code="screen.loginnotallowed.heading" /></h2>
+        <p><spring:message code="screen.loginnotallowed.message" arguments="${osfResendConfirmationUrl}" /></p>
+    </div>
+
+<c:set var="alternativeBottomLogin" value="true"/>
+
 <jsp:directive.include file="includes/bottom.jsp" />
