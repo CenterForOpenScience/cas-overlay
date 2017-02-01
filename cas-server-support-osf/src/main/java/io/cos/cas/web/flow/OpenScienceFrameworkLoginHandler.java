@@ -222,7 +222,12 @@ public class OpenScienceFrameworkLoginHandler {
      */
     private String getCampaignFromService(final RequestContext context) {
         final RegexRegisteredService registeredService = (RegexRegisteredService) context.getFlowScope().get("registeredService");
-        final RegisteredServiceProperty campaign = registeredService.getProperties().get("campaign");
-        return campaign == null ? null : campaign.getValue();
+        if (registeredService != null) {
+            final RegisteredServiceProperty campaign = registeredService.getProperties().get("campaign");
+            if (campaign != null) {
+                campaign.getValue();
+            }
+        }
+        return null;
     }
 }
