@@ -324,6 +324,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             throws AccountException {
         try {
             final JSONObject normalized = this.normalizeRemotePrincipal(credential);
+            normalized.put("type", "INSTITUTION_AUTHENTICATE");
             final JSONObject provider = normalized.getJSONObject("provider");
             final String institutionId = provider.getString("id");
             final String username = provider.getJSONObject("user").getString("username");
