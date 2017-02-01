@@ -50,6 +50,8 @@
             var login_url = form.options[form.selectedIndex].value;
             if(login_url == null || login_url == "") {
                 return;
+            } else if (login_url == "okstate") {
+                login_url = "${okstateUrl}";
             }
             window.location = login_url;
         }

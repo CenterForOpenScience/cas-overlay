@@ -19,6 +19,7 @@
 
 package io.cos.cas.adaptors.postgres.models;
 
+import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Set;
 
 /**
  * The Open Science Framework Institution.
@@ -38,6 +40,13 @@ import javax.persistence.Table;
 public class OpenScienceFrameworkInstitution {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
+
+    /** A set of supported delegation protocol with implementation. */
+    private static final Set<String> DELEGATION_PROTOCOLS  = ImmutableSet.of(
+        "cas-oauth2",   // currently only used by ORCiD login (not considered as institution)
+        "cas-pac4j",    // currently only used by Oklahoma State University
+        "saml-shib"
+    );
 
     @Id
     @Column(name = "id", nullable = false)
@@ -60,6 +69,9 @@ public class OpenScienceFrameworkInstitution {
     @Column(name = "logout_url")
     private String logoutUrl;
 
+    @Column(name = "delegation_protocol")
+    private String delegationProtocol;
+
     @Column(name = "is_deleted")
     private Boolean deleted;
 
@@ -67,8 +79,9 @@ public class OpenScienceFrameworkInstitution {
     public OpenScienceFrameworkInstitution() {}
 
     /**
-     * Returns the `objectId` (institution id) instead of `id` (postgres pk).
-     * @return the object id
+     * Returns the `objectId` instead of `id` (postgres pk).
+     *
+     * @return String, the institution id
      */
     public String getId() {
         return objectId;
@@ -84,6 +97,19 @@ public class OpenScienceFrameworkInstitution {
 
     public String getLogoutUrl() {
         return logoutUrl;
+    }
+
+    public String getDelegationProtocol() {
+        return delegationProtocol;
+    }
+
+    /**
+     * Verify that the authentication delegation protocol for a given institution is supported.
+     *
+     * @return boolean, true if supported, false otherwise
+     */
+    public boolean verifyDelegationProtocol() {
+        return DELEGATION_PROTOCOLS.contains(delegationProtocol);
     }
 
     @Override
