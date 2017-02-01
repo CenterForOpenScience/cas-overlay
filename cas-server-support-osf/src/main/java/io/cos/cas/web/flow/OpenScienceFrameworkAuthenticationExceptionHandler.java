@@ -29,19 +29,13 @@ import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
 import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
-import io.cos.cas.authentication.exceptions.UserAlreadyMergedException;
-import io.cos.cas.authentication.exceptions.UserNotActiveException;
-import io.cos.cas.authentication.exceptions.UserNotClaimedException;
-import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
+import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.AccountPasswordMustChangeException;
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.InvalidLoginLocationException;
 import org.jasig.cas.authentication.InvalidLoginTimeException;
-
-// TODO: move this to io.cos.cas.authentication.exceptions after fix merge conflicts
-import io.cos.cas.authentication.ShouldNotHappenException;
 
 import org.jasig.cas.web.flow.AuthenticationExceptionHandler;
 import org.springframework.binding.message.MessageContext;
@@ -68,59 +62,40 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     /** A set of errors that trigger throttle increase. */
     private static final Set<String> THROTTLE_INCREASE_SET = new HashSet<>();
 
-    /** A set of errors that is caused by invalid user status. */
-    private static final Set<String> INVALID_USER_STATUS_SET = new HashSet<>();
-
+    //  Built-in Exceptions that are not explicitly used
     static {
         DEFAULT_ERROR_LIST.add(AccountLockedException.class);
         DEFAULT_ERROR_LIST.add(CredentialExpiredException.class);
         DEFAULT_ERROR_LIST.add(InvalidLoginLocationException.class);
         DEFAULT_ERROR_LIST.add(AccountPasswordMustChangeException.class);
         DEFAULT_ERROR_LIST.add(InvalidLoginTimeException.class);
+    }
 
-        // Open Science Framework Exceptions
-
+    // Open Science Framework Exceptions
+    static {
         // Account Creation Exceptions
         DEFAULT_ERROR_LIST.add(RegistrationFailureUserAlreadyExistsException.class);
         DEFAULT_ERROR_LIST.add(RegistrationSuccessConfirmationRequiredException.class);
 
-        // Login Exceptions: Account not found, invalid password or verification key
+        // Login Exceptions
         DEFAULT_ERROR_LIST.add(AccountNotFoundException.class);
         DEFAULT_ERROR_LIST.add(FailedLoginException.class);
-
-        // TODO: udpate the error list after fix merge conflicts
         DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
+        DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
         DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
 
-        // Login Exceptions: Remote login failure
+        // Remote Login Exceptions
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
 
-        // Login Exceptions: Two factor required or failed
+        // Two factor Login Exceptions
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
-
-        // Login Exceptions: Invalid user status
-        DEFAULT_ERROR_LIST.add(UserAlreadyMergedException.class);
-        DEFAULT_ERROR_LIST.add(UserNotActiveException.class);
-        DEFAULT_ERROR_LIST.add(UserNotClaimedException.class);
-        DEFAULT_ERROR_LIST.add(UserNotConfirmedException.class);
-        DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
     }
 
+    // Login Throttle Triggering Exceptions
     static {
-        INVALID_USER_STATUS_SET.add(UserAlreadyMergedException.class.getSimpleName());
-        INVALID_USER_STATUS_SET.add(UserNotActiveException.class.getSimpleName());
-        INVALID_USER_STATUS_SET.add(UserNotClaimedException.class.getSimpleName());
-        INVALID_USER_STATUS_SET.add(UserNotConfirmedException.class.getSimpleName());
-        INVALID_USER_STATUS_SET.add(AccountDisabledException.class.getSimpleName());
-    }
-
-    static {
-        // Username does not exist
         THROTTLE_INCREASE_SET.add(AccountNotFoundException.class.getSimpleName());
-        // Wrong password
         THROTTLE_INCREASE_SET.add(FailedLoginException.class.getSimpleName());
-        // Wrong one time password
         THROTTLE_INCREASE_SET.add(OneTimePasswordFailedLoginException.class.getSimpleName());
     }
 
@@ -142,20 +117,8 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     }
 
     /**
-     * Check if the authentication exception is caused by invalid user status.
-     *
-     * @param handleErrorName the simple name of the exception
-     * @return true if user status invalid, false otherwise
-     */
-    public static Boolean isInvalidUserStatus(final String handleErrorName) {
-        return handleErrorName != null && INVALID_USER_STATUS_SET.contains(handleErrorName);
-    }
-
-    /**
      * The authentication exception handler event.
-     * 1. handle authentication exception
-     * 2. recognize those failures that should trigger login throttle
-     * 3. update flow scope in context
+     * Record the exception and put it in `jsonLoginContext` in flow scope.
      *
      * @param context the request context
      * @param e the authentication exception
@@ -172,7 +135,6 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
             osfLoginContext.setHandleErrorName(handleErrorName);
             context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
         }
-
 
         return new Event(this, handleErrorName);
     }

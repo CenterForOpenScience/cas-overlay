@@ -202,6 +202,8 @@
 
     <action-state id="handleAuthenticationFailure">
         <evaluate expression="authenticationExceptionHandler.preHandle(flowRequestContext, currentEvent.attributes.error, messageContext)"/>
+
+        <!-- Built-in excpetions that are not explicitly used. -->
         <transition on="AccountLockedException" to="casAccountLockedView"/>
         <transition on="AccountPasswordMustChangeException" to="casMustChangePassView"/>
         <transition on="CredentialExpiredException" to="casExpiredPassView"/>
@@ -209,30 +211,21 @@
         <transition on="InvalidLoginTimeException" to="casBadHoursView"/>
         <transition on="UNKNOWN" to="generateLoginTicket"/>
 
-        <!-- OSF Login: account not found or invalid passphrase -->
+        <!-- Open Science Framework Login -->
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
         <transition on="FailedLoginException" to="generateLoginTicket"/>
-
-        <!-- TODO: Remove this after fix merge conflicts -->
-        <transition on="UserAlreadyMergedException" to="casLoginNotAllowedView" />
-        <transition on="UserNotActiveException" to="casLoginNotAllowedView" />
-        <transition on="UserNotClaimedException" to="casLoginNotAllowedView" />
-        <transition on="UserNotConfirmedException" to="casLoginNotAllowedView" />
-
-        <!-- Open Science Framework -->
         <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
-        <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
         <transition on="AccountDisabledException" to="casLoginNotAllowedView"/>
+        <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
+
+        <!-- Open Science Framework Remote Login -->
         <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
 
-        <!-- OSF Login: two factor authentication required or failed -->
+        <!-- Open Science Framework Two Factor Login -->
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
         <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
 
-        <!-- OSF Remote Login: remote login exception -->
-        <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
-
-        <!-- OSF Registration: user already exists or confirmation required -->
+        <!-- Open Science Framework Registration-->
         <transition on="RegistrationFailureUserAlreadyExistsException" to="viewRegisterForm"/>
         <transition on="RegistrationSuccessConfirmationRequiredException" to="viewRegisterForm"/>
     </action-state>

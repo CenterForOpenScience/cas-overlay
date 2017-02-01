@@ -20,38 +20,6 @@
 --%>
 <jsp:directive.include file="includes/top.jsp" />
 
-<%-- TODO: Remove this div after fix merge conflicts --%>
-    <div id="msg" class="errors">
-        <c:choose>
-            <c:when test="${osfLoginContext.getHandleErrorName() == 'UserNotConfirmedException'}">
-                <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')" />
-                <h2><spring:message code="screen.loginnotallowed.usernotconfirmed.heading" /></h2>
-                <p><spring:message code="screen.loginnotallowed.usernotconfirmed.message" arguments="${osfResendConfirmationUrl}" /></p>
-            </c:when>
-            <c:when test="${osfLoginContext.getHandleErrorName() == 'AccountDisabledException'}">
-                <h2><spring:message code="screen.loginnotallowed.userdisabled.heading" /></h2>
-                <p><spring:message code="screen.loginnotallowed.userdisabled.message" /></p>
-            </c:when>
-            <c:when test="${osfLoginContext.getHandleErrorName() == 'UserNotClaimedException'}">
-                <h2><spring:message code="screen.loginnotallowed.usernotclaimed.heading" /></h2>
-                <p><spring:message code="screen.loginnotallowed.usernotclaimed.message" /></p>
-            </c:when>
-            <c:when test="${osfLoginContext.getHandleErrorName() == 'UserAlreadyMergedException'}">
-                <h2><spring:message code="screen.loginnotallowed.usermerged.heading" /></h2>
-                <p><spring:message code="screen.loginnotallowed.usermerged.message" /></p>
-            </c:when>
-            <c:when test="${osfLoginContext.getHandleErrorName() == 'UserNotActiveException'}">
-                <h2><spring:message code="screen.loginnotallowed.usernotactive.heading" /></h2>
-                <p><spring:message code="screen.loginnotallowed.usernotactive.message" /></p>
-            </c:when>
-            <c:otherwise>
-                <h2><spring:message code="screen.loginnotallowed.unknown.heading" /></h2>
-                <p><spring:message code="screen.loginnotallowed.unknown.message" /></p>
-            </c:otherwise>
-        </c:choose>
-    </div>
-
-<%-- TODO: Keep and update this div after fix merge conflicts --%>
     <div id="msg" class="errors">
         <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')" />
         <h2><spring:message code="screen.loginnotallowed.heading" /></h2>

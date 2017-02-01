@@ -29,13 +29,14 @@ import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
+
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
-import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-
-import io.cos.cas.authentication.ShouldNotHappenException;
+import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 import io.cos.cas.authentication.oath.TotpUtils;
+
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;

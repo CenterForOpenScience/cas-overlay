@@ -21,18 +21,22 @@ package io.cos.cas.authentication.exceptions;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account
- * that has already been merged into another one.
+ * Describes an error condition where authentication occurs from an account that:
+ * 1. unclaimed user which is created as an contributor
+ * 2. merged user which is merged into antoher account
+ * 3. other undefined user status (inactive and unknown)
  *
  * @author Longze Chen
  * @since 4.1.0
  */
-public class UserAlreadyMergedException extends AccountException {
+public class ShouldNotHappenException extends AccountException {
+
+    private static final long serialVersionUID = 8296529645368130304L;
 
     /**
      * Instantiates a new invalid login location exception.
      */
-    public UserAlreadyMergedException() {
+    public ShouldNotHappenException() {
         super();
     }
 
@@ -41,7 +45,7 @@ public class UserAlreadyMergedException extends AccountException {
      *
      * @param message the message
      */
-    public UserAlreadyMergedException(final String message) {
+    public ShouldNotHappenException(final String message) {
         super(message);
     }
 }

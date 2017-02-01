@@ -198,8 +198,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
                 }
                 if ("AUTHENTICATION_SUCCESS".equals(status)) {
                     response.put("status", status);
-                    response.put("userId", responseBody.getInt("userId"));
-                    response.put("guidId", responseBody.getString("guidId"));
+                    response.put("userId", responseBody.getString("userId"));
                     final JSONObject attributes = responseBody.getJSONObject("attributes");
                     attributesMap.put("username", attributes.getString("username"));
                     attributesMap.put("givenName", attributes.getString("givenName"));

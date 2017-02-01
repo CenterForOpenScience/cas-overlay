@@ -121,15 +121,6 @@ public class OpenScienceFrameworkLoginHandler {
         }
 
         /**
-         * Check if an authentication exception is caused by invalid user status.
-         *
-         * @return true if user status invalid, false otherwise
-         */
-        public Boolean isUserStatusException() {
-            return OpenScienceFrameworkAuthenticationExceptionHandler.isInvalidUserStatus(handleErrorName);
-        }
-
-        /**
          * Convert class instance to a JSON string, which will be passed to the flow context.
          *
          * @return JSON string
