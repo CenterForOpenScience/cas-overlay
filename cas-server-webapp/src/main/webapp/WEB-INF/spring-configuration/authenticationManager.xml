@@ -61,7 +61,9 @@
     <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.api.OpenScienceFrameworkAuthenticationHandler"
         p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
     <bean id="openScienceFrameworkApiCasEndpoint" class="io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint"
-        c:osfApiCasEndpointUrl="${osf.api.cas.endpoint.url}" />
+        c:osfApiCasEndpointUrl="${osf.api.cas.endpoint.url}"
+        c:apiCasEndpointJweSecret="${osf.api.cas.endpoint.jweSecret}"
+        c:apiCasEndpointJwtSecret="${osf.api.cas.endpoint.jwtSecret}" />
 
 
     <!-- OAuth Authorization -->
