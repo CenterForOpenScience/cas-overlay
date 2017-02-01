@@ -35,10 +35,10 @@
                 </c:when>
                 <c:otherwise>
                     <c:choose>
-                        <c:when test="${osfLoginContext.isInstitutionLogin() or osfLoginContext.isUserStatusException()}">
+                        <c:when test="${osfLoginContext.isInstitutionLogin()}">
                             <spring:eval var="defaultLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
                             <a id="alternative-osf" href="${defaultLoginUrl}${osfLoginContext.isServiceUrl() ? 'service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">
-                                    ${osfLoginContext.isInstitutionLogin() ? 'Non-institution&nbsp;Login' : 'Login&nbsp;with&nbsp;a&nbsp;Different&nbsp;Account'}
+                                Non-institution&nbsp;Login
                             </a>
                             &nbsp;&nbsp;&nbsp;&nbsp;
                         </c:when>

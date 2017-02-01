@@ -21,6 +21,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.message.BasicHeader;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,7 +173,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
         try {
             final JSONObject responseBody =  new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
             return verifyResponse(statusCode, responseBody);
-        }catch (final IOException e) {
+        }catch (final IOException | JSONException e) {
             LOGGER.error(e.getMessage());
             return null;
         }
