@@ -22,13 +22,13 @@ import java.security.GeneralSecurityException;
 import java.util.Map;
 
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
 import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
 
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
+import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
@@ -159,7 +159,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             } else if ("INVALID_PASSWORD".equals(errorDetail) || "INVALID_VERIFICATION_KEY".equals(errorDetail)) {
                 throw new FailedLoginException();
             } else if ("USER_NOT_CONFIRMED".equals(errorDetail)) {
-                throw new LoginNotAllowedException(username + " is registered but not confirmed");
+                throw new UserNotConfirmedException(username + " is registered but not confirmed");
             } else if ("USER_NOT_CLAIMED".equals(errorDetail)) {
                 throw new FailedLoginException(username + " is not claimed");
             } else if ("USER_NOT_ACTIVE".equals(errorDetail)) {

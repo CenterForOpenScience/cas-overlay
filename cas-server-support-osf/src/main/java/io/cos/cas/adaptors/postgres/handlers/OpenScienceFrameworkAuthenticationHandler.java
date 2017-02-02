@@ -31,10 +31,10 @@ import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
+import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 import io.cos.cas.authentication.oath.TotpUtils;
 
 import org.jasig.cas.authentication.AccountDisabledException;
@@ -185,7 +185,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         // Check user's status, and only ACTIVE user can sign in
         if (USER_NOT_CONFIRMED.equals(userStatus)) {
-            throw new LoginNotAllowedException(username + " is not registered");
+            throw new UserNotConfirmedException(username + " is not registered");
         } else if (USER_DISABLED.equals(userStatus)) {
             throw new AccountDisabledException(username + " is disabled");
         } else if (USER_NOT_CLAIMED.equals(userStatus)) {

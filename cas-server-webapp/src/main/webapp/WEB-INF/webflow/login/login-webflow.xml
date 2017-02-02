@@ -215,8 +215,8 @@
         <!-- Open Science Framework Login -->
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
         <transition on="FailedLoginException" to="generateLoginTicket"/>
-        <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
-        <transition on="AccountDisabledException" to="casLoginNotAllowedView"/>
+        <transition on="UserNotConfirmedException" to="casUserNotConfirmedView" />
+        <transition on="AccountDisabledException" to="casAccountDisabledView"/>
         <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
 
         <!-- Open Science Framework Remote Login -->
@@ -296,7 +296,7 @@
     <end-state id="casAccountLockedView" view="casAccountLockedView"/>
     <end-state id="casBadHoursView" view="casBadHoursView"/>
     <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
-    <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
+    <end-state id="casUserNotConfirmedView" view="casUserNotConfirmedView" />
     <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
 

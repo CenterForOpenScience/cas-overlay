@@ -23,13 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.cos.cas.authentication.exceptions.LoginNotAllowedException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
 import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
+import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.AccountPasswordMustChangeException;
@@ -80,7 +80,7 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         // Login Exceptions
         DEFAULT_ERROR_LIST.add(AccountNotFoundException.class);
         DEFAULT_ERROR_LIST.add(FailedLoginException.class);
-        DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
+        DEFAULT_ERROR_LIST.add(UserNotConfirmedException.class);
         DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
         DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
 

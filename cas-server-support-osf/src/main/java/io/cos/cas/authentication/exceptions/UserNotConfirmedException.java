@@ -26,14 +26,14 @@ import javax.security.auth.login.AccountException;
  * @author Michael Haselton
  * @since 4.1.0
  */
-public class LoginNotAllowedException extends AccountException {
+public class UserNotConfirmedException extends AccountException {
 
-    private static final long serialVersionUID = 3376259469680697722L;
+    private static final long serialVersionUID = -6941281359700123973L;
 
     /**
      * Instantiates a new invalid login location exception.
      */
-    public LoginNotAllowedException() {
+    public UserNotConfirmedException() {
         super();
     }
 
@@ -42,7 +42,7 @@ public class LoginNotAllowedException extends AccountException {
      *
      * @param message the message
      */
-    public LoginNotAllowedException(final String message) {
+    public UserNotConfirmedException(final String message) {
         super(message);
     }
 }
