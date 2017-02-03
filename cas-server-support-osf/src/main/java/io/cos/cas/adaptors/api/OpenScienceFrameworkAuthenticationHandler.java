@@ -137,36 +137,35 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         final String status = (String) response.get("status");
-        if ("AUTHENTICATION_SUCCESS".equals(status)) {
+        if (OpenScienceFrameworkApiStatus.AUTHENTICATION_SUCCESS.equals(status)) {
             // authentication success, create principle with user's guid and attributes
             final String userId = (String) response.get("userId");
             final Map<String, Object> attributes = (Map<String, Object>) response.get("attributes");
             return createHandlerResult(credential, this.principalFactory.createPrincipal(userId, attributes), null);
-        } else if ("REGISTRATION_SUCCESS".equals(status)) {
+        } else if (OpenScienceFrameworkApiStatus.REGISTRATION_SUCCESS.equals(status)) {
             // registration success, requires confirmation
             throw new RegistrationSuccessConfirmationRequiredException();
-        } else if ("AUTHENTICATION_FAILURE".equals(status)) {
+        } else if (OpenScienceFrameworkApiStatus.AUTHENTICATION_FAILURE.equals(status)) {
             // authentication or registration failure
             final String errorDetail = (String) response.get("detail");
-            if ("ALREADY_REGISTERED".equals(errorDetail)) {
+            if (OpenScienceFrameworkApiStatus.ALREADY_REGISTERED.equals(errorDetail)) {
                 throw new RegistrationFailureUserAlreadyExistsException();
-            } else if ("TWO_FACTOR_AUTHENTICATION_REQUIRED".equals(errorDetail)) {
+            } else if (OpenScienceFrameworkApiStatus.TWO_FACTOR_AUTHENTICATION_REQUIRED.equals(errorDetail)) {
                 throw new OneTimePasswordRequiredException("Time-based One Time Password required.");
-            } else if ("INVALID_ONE_TIME_PASSWORD".equals(errorDetail)) {
+            } else if (OpenScienceFrameworkApiStatus.INVALID_ONE_TIME_PASSWORD.equals(errorDetail)) {
                 throw new OneTimePasswordFailedLoginException();
-            } else if ("ACCOUNT_NOT_FOUND".equals(errorDetail)) {
+            } else if (OpenScienceFrameworkApiStatus.ACCOUNT_NOT_FOUND.equals(errorDetail)) {
                 throw new AccountNotFoundException();
-            } else if ("INVALID_PASSWORD".equals(errorDetail) || "INVALID_VERIFICATION_KEY".equals(errorDetail)) {
+            } else if (OpenScienceFrameworkApiStatus.INVALID_PASSWORD.equals(errorDetail)
+                    || OpenScienceFrameworkApiStatus.INVALID_VERIFICATION_KEY.equals(errorDetail)) {
                 throw new FailedLoginException();
-            } else if ("USER_NOT_CONFIRMED".equals(errorDetail)) {
+            } else if (OpenScienceFrameworkApiStatus.USER_NOT_CONFIRMED.equals(errorDetail)) {
                 throw new UserNotConfirmedException(username + " is registered but not confirmed");
-            } else if ("USER_NOT_CLAIMED".equals(errorDetail)) {
+            } else if (OpenScienceFrameworkApiStatus.USER_NOT_CLAIMED.equals(errorDetail)) {
                 throw new FailedLoginException(username + " is not claimed");
-            } else if ("USER_NOT_ACTIVE".equals(errorDetail)) {
+            } else if (OpenScienceFrameworkApiStatus.USER_STATUS_INVALID.equals(errorDetail)) {
                 throw new ShouldNotHappenException(username + " is not active");
-            } else if ("USER_MERGED".equals(errorDetail)) {
-                throw new ShouldNotHappenException("Cannot log in to a merged user " + username);
-            } else if ("USER_DISABLED".equals(errorDetail)) {
+            } else if (OpenScienceFrameworkApiStatus.USER_DISABLED.equals(errorDetail)) {
                 throw new AccountDisabledException(username + "account is disabled");
             } else {
                 // unknown authentication exception

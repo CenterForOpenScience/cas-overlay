@@ -50,21 +50,20 @@ public class OpenScienceFrameworkApiCasEndpoint {
 
     static {
         // register, user already registered
-        API_AUTHENTICATION_ERROR_LIST.add("ALREADY_REGISTERED");
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.ALREADY_REGISTERED);
         // login, initial verification failed
-        API_AUTHENTICATION_ERROR_LIST.add("MISSING_CREDENTIALS");
-        API_AUTHENTICATION_ERROR_LIST.add("ACCOUNT_NOT_FOUND");
-        API_AUTHENTICATION_ERROR_LIST.add("INVALID_PASSWORD");
-        API_AUTHENTICATION_ERROR_LIST.add("INVALID_VERIFICATION_KEY");
-        API_AUTHENTICATION_ERROR_LIST.add("TWO_FACTOR_AUTHENTICATION_REQUIRED");
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.MISSING_CREDENTIALS);
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.ACCOUNT_NOT_FOUND);
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.INVALID_PASSWORD);
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.INVALID_VERIFICATION_KEY);
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.TWO_FACTOR_AUTHENTICATION_REQUIRED);
         // login, two factor verification failed
-        API_AUTHENTICATION_ERROR_LIST.add("INVALID_ONE_TIME_PASSWORD");
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.INVALID_ONE_TIME_PASSWORD);
         // login, invalid user status
-        API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_CONFIRMED");
-        API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_CLAIMED");
-        API_AUTHENTICATION_ERROR_LIST.add("USER_NOT_ACTIVE");
-        API_AUTHENTICATION_ERROR_LIST.add("USER_MERGED");
-        API_AUTHENTICATION_ERROR_LIST.add("USER_DISABLED");
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.USER_NOT_CONFIRMED);
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.USER_NOT_CLAIMED);
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.USER_STATUS_INVALID);
+        API_AUTHENTICATION_ERROR_LIST.add(OpenScienceFrameworkApiStatus.USER_DISABLED);
     }
 
     @NotNull
@@ -193,11 +192,11 @@ public class OpenScienceFrameworkApiCasEndpoint {
         try {
             if (statusCode == HttpStatus.SC_OK) {
                 final String status = responseBody.getString("status");
-                if ("REGISTRATION_SUCCESS".equals(status)) {
+                if (OpenScienceFrameworkApiStatus.REGISTRATION_SUCCESS.equals(status)) {
                     response.put("status", status);
                     return response;
                 }
-                if ("AUTHENTICATION_SUCCESS".equals(status)) {
+                if (OpenScienceFrameworkApiStatus.AUTHENTICATION_SUCCESS.equals(status)) {
                     response.put("status", status);
                     response.put("userId", responseBody.getString("userId"));
                     final JSONObject attributes = responseBody.getJSONObject("attributes");
@@ -218,8 +217,9 @@ public class OpenScienceFrameworkApiCasEndpoint {
                 if (!API_AUTHENTICATION_ERROR_LIST.contains(errorDetail)) {
                     throw new IOException(String.format("INVALID_RESPONSE_SC_FORBIDDEN: status = %s.", errorDetail));
                 }
-                response.put("status", "AUTHENTICATION_FAILURE");
+                response.put("status", OpenScienceFrameworkApiStatus.AUTHENTICATION_FAILURE);
                 response.put("detail", errorDetail);
+                LOGGER.error("Authentication Failure: {}", errorDetail);
                 return response;
             } else {
                 throw new IOException(String.format("INVALID_RESPONSE_SC_OTHER: status code = %d.", statusCode));
