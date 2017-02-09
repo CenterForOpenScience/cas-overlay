@@ -3,7 +3,7 @@
   "id" : 203948234207231,
   "name" : "Preregistration Challenge",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127.0.0.1|dev.osf.io):500[0-9]/prereg/.*",
+  "serviceId" : "^https?://(localhost|127.0.0.1):5000/prereg/.*",
   "evaluationOrder": "1000",
   "logo": "",
   "attributeReleasePolicy" : {

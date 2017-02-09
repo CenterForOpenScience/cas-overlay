@@ -3,7 +3,7 @@
   "id" : 983219871349823,
   "name" : "",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127.0.0.1|accounts.dev.osf.io)(|:8080|:8443)/.*",
+  "serviceId" : "^https?://(localhost|127.0.0.1)(:8080|:8443)/.*",
   "evaluationOrder": "2000",
   "logo": "",
   "attributeReleasePolicy" : {
