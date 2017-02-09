@@ -116,8 +116,7 @@
         <c:if test="${not empty registeredService}">
             <c:if test="${not empty registeredService.id &&
              registeredService.id == 203948234207230 || registeredService.id == 203948234207231 || registeredService.id == 203948234207232 ||
-             registeredService.id == 203948234207240 || registeredService.id == 203948234207241 || registeredService.id == 203948234207242 || registeredService.id == 203948234207243 ||
-             registeredService.id == 203948234207251 || registeredService.id == 203948234207252 || registeredService.id == 203948234207253}">
+             registeredService.id == 203948234207240 || registeredService.id == 203948234207241 || registeredService.id == 203948234207242 || registeredService.id == 203948234207243}">
                 <hr/>
 
                 <section class="row">
