@@ -20,9 +20,11 @@
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:c="http://www.springframework.org/schema/c"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
     <bean id="serviceRegistryDao" class="io.cos.cas.services.MergingServiceRegistryDao">
         <property name="serviceRegistries">
@@ -30,7 +32,7 @@
                 <bean id="jsonServiceRegistryDao" class="org.jasig.cas.services.JsonServiceRegistryDao"
                       c:configDirectory="${service.registry.config.location:classpath:services}" />
                 <bean id="openScienceFrameworkServiceRegistryDao" class="io.cos.cas.services.OpenScienceFrameworkServiceRegistryDao"
-                      c:mongoTemplate-ref="openScienceFrameworkMongoTemplate" />
+                      c:openScienceFrameworkDao-ref="openScienceFrameworkDao" />
             </list>
         </property>
     </bean>

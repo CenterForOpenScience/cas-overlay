@@ -19,8 +19,7 @@
 
 package io.cos.cas.web.flow;
 
-import io.cos.cas.adaptors.mongodb.OpenScienceFrameworkInstitutionHandler;
-
+import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
@@ -35,7 +34,6 @@ import org.springframework.webflow.execution.RequestContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-
 
 /**
  * The Open Science Framework Terminate Session Action.
@@ -63,7 +61,8 @@ public class OpenScienceFrameworkTerminateSessionAction {
     @NotNull
     private final CookieRetrievingCookieGenerator warnCookieGenerator;
 
-    /** Institution authentication handler for logout. */
+
+    /** Open Science Framework Institution Handler. */
     @NotNull
     private final OpenScienceFrameworkInstitutionHandler institutionHandler;
 
@@ -72,7 +71,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
      * @param cas Core business logic object.
      * @param tgtCookieGenerator TGT cookie generator.
      * @param warnCookieGenerator Warn cookie generator.
-     * @param institutionHandler The institution handler.
+     * @param institutionHandler Institution Handler.
      */
     public OpenScienceFrameworkTerminateSessionAction(
             final CentralAuthenticationService cas,
@@ -102,7 +101,7 @@ public class OpenScienceFrameworkTerminateSessionAction {
             final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
             tgtId = this.ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
         }
-        // for institution logout, we need to get the TGT which contains the institutionId
+        // for institution logout, get the institutionId stored in TGT
         if (tgtId != null) {
             TicketGrantingTicket tgt = null;
             try {
@@ -128,14 +127,14 @@ public class OpenScienceFrameworkTerminateSessionAction {
         this.ticketGrantingTicketCookieGenerator.removeCookie(response);
         this.warnCookieGenerator.removeCookie(response);
 
-        // if users logged in through their institutions, redirect to institution logout endpoint
+        // if logged in through institutions, redirect to institution logout endpoint
         if (remotePrincipal && institutionId != null) {
-            final String institutionLogoutUrl = this.institutionHandler.findInstitutionLogoutUrlById(institutionId);
+            final String institutionLogoutUrl = institutionHandler.findInstitutionLogoutUrlById(institutionId);
             if (institutionLogoutUrl == null) {
                 logger.warn("Institution {} does not have a dedicated logout url, use default logout redirection instead", institutionId);
             } else {
                 context.getFlowScope().put("logoutRedirectUrl", institutionLogoutUrl);
-                // we have to overwrite and return `finish` event to prevent `logoutRedirectUrl` being overwritten
+                // return `finish` event to prevent `logoutRedirectUrl` being overwritten
                 return new Event(this, "finish");
             }
         }
