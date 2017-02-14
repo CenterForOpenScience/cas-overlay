@@ -415,6 +415,11 @@ footer a:link, footer a:visited {
   padding: 0 10px 0 10px;
 }
 
+#service-logo.service-logo-AgriXiv {
+  background: #85bf9b;
+  padding: 0 10px 0 10px;
+}
+
 #service-ui .service-logo-full {
   width: 270px;
 }
