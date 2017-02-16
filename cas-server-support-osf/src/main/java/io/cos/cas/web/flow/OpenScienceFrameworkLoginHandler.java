@@ -69,6 +69,22 @@ public class OpenScienceFrameworkLoginHandler {
             return serviceUrl;
         }
 
+        public String getHandleErrorName() {
+            return handleErrorName;
+        }
+
+        private void setInstitutionLogin(final Boolean institutionLogin) {
+            this.institutionLogin = institutionLogin;
+        }
+
+        private void setServiceUrl(final String serviceUrl) {
+            this.serviceUrl = serviceUrl;
+        }
+
+        public void setHandleErrorName(final String handleErrorName) {
+            this.handleErrorName =handleErrorName;
+        }
+
         /**
          * Check if login through institutions.
          *
@@ -85,24 +101,6 @@ public class OpenScienceFrameworkLoginHandler {
          */
         public boolean isServiceUrl() {
             return serviceUrl != null;
-        }
-
-        /**
-         * Check if an authentication exception has occurred.
-         *
-         * @return the name of the exception
-         */
-        public String getHandleErrorName() {
-            return handleErrorName;
-        }
-
-        /**
-         * Set the handleErrorName if an authentication exception occurs.
-         *
-         * @param handleErrorName the name of the exception
-         */
-        public void setHandleErrorName(final String handleErrorName) {
-            this.handleErrorName =handleErrorName;
         }
 
         /**
@@ -128,18 +126,29 @@ public class OpenScienceFrameworkLoginHandler {
     }
 
     /**
-     * Decision making action that handles OSF login: osf, institution, campaign.
+     * Decision making action that handles OSF login.
      *
      * @param context The request context
-     * @return Event "osf", "institution" or "campaigns
+     * @return Event "osfDefaultLogin", "institutionLogin"
      */
     public Event beforeLogin(final RequestContext context) {
 
         final String serviceUrl = getEncodedServiceUrl(context);
         final boolean institutionLogin = isInstitutionLogin(context);
 
-        final OpenScienceFrameworkLoginContext osfLoginContext
-                = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin);
+        final String jsonLoginContext = (String) context.getFlowScope().get("jsonLoginContext");
+        final OpenScienceFrameworkLoginContext osfLoginContext;
+
+        if (jsonLoginContext == null) {
+            // Create a new Login Context with service URL and institution flag
+            osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin);
+        } else {
+            // Use current Login Context which contains information of Authentication Exceptions
+            // Update and override the service URL and the institution flag
+            osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(jsonLoginContext);
+            osfLoginContext.setServiceUrl(serviceUrl);
+            osfLoginContext.setInstitutionLogin(institutionLogin);
+        }
         context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
 
         if (osfLoginContext.isInstitutionLogin()) {

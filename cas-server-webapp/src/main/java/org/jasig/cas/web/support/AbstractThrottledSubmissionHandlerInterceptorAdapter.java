@@ -103,6 +103,7 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
             return;
         }
 
+        // retrieve the Login Context, where `.getFlowScope()` may not be available
         final String loginContext;
         try {
             loginContext = (String) context.getFlowScope().get("jsonLoginContext");
@@ -110,18 +111,21 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
             logger.warn(e.getMessage());
             return;
         }
+        // no need to catch json parsing exceptions, since if `loginContext` exists, it must be good
         final OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext osfLoginContext
                 = OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext.fromJson(loginContext);
-
         if (osfLoginContext == null || osfLoginContext.getHandleErrorName() == null) {
-            logger.warn("Fail to retrieve login context and exceptions.");
+            logger.warn("Fail to retrieve login context and authentication exceptions.");
             return;
         }
-
-        final String handleErrorName = osfLoginContext.getHandleErrorName();
-        if (OpenScienceFrameworkAuthenticationExceptionHandler.isTriggerThrottleIncrease(handleErrorName)) {
+        if (OpenScienceFrameworkAuthenticationExceptionHandler.isTriggerThrottleIncrease(osfLoginContext.getHandleErrorName())) {
+            // record submission failure only for throttle-trigger auth errors
             recordSubmissionFailure(request);
         }
+
+        // clear the all auth errors
+        osfLoginContext.setHandleErrorName(null);
+        context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
     }
 
     public final void setFailureThreshold(final int failureThreshold) {

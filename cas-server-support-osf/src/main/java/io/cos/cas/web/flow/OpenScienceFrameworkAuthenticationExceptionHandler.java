@@ -62,17 +62,15 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
 
     static {
 
-
         DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
         DEFAULT_ERROR_LIST.add(AccountPasswordMustChangeException.class);
         DEFAULT_ERROR_LIST.add(InvalidLoginLocationException.class);
-        DEFAULT_ERROR_LIST.add(InvalidLoginTimeException.class);;
+        DEFAULT_ERROR_LIST.add(InvalidLoginTimeException.class);
 
         DEFAULT_ERROR_LIST.add(AccountLockedException.class);
         DEFAULT_ERROR_LIST.add(AccountNotFoundException.class);
         DEFAULT_ERROR_LIST.add(CredentialExpiredException.class);
         DEFAULT_ERROR_LIST.add(FailedLoginException.class);
-
 
         // Open Science Framework Exceptions
         DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
