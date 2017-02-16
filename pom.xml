@@ -337,13 +337,6 @@
         <type>jar</type>
       </dependency>
 
-      <!-- MongoDB -->
-      <dependency>
-        <groupId>org.springframework.data</groupId>
-        <artifactId>spring-data-mongodb</artifactId>
-        <version>${spring.data.version}</version>
-      </dependency>
-
       <!-- Sentry -->
       <dependency>
         <groupId>com.getsentry.raven</groupId>

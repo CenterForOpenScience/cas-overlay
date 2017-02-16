@@ -27,6 +27,8 @@ import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.RemoteUserFailedLoginException;
+import io.cos.cas.authentication.ShouldNotHappenException;
+
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.web.flow.AuthenticationExceptionHandler;
 import org.springframework.binding.message.MessageContext;
@@ -59,6 +61,7 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         DEFAULT_ERROR_LIST.add(org.jasig.cas.authentication.InvalidLoginTimeException.class);
         // Open Science Framework Exceptions
         DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
+        DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
         // One Time Password Exceptions
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);

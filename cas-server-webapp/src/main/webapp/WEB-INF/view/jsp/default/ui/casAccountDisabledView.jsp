@@ -20,11 +20,10 @@
 --%>
 <jsp:directive.include file="includes/top.jsp" />
 
-  <div id="msg" class="errors">
-    <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')" />
-    <h2><spring:message code="screen.loginnotallowed.heading" /></h2>
-    <p><spring:message code="screen.loginnotallowed.message" arguments="${osfResendConfirmationUrl}" /></p>
-  </div>
+<div id="msg" class="errors">
+    <h2><spring:message code="screen.accountdisabled.heading" /></h2>
+    <p><spring:message code="screen.accountdisabled.message" /></p>
+</div>
 
 <c:set var="alternativeBottomLogin" value="true"/>
 
