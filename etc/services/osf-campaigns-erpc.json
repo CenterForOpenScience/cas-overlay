@@ -3,8 +3,8 @@
   "id" : 203948234207232,
   "name" : "Election Research<br>Preacceptance Competition",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127.0.0.1|dev.osf.io):500[0-9]/erpc/.*",
-  "evaluationOrder": "1000",
+  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/erpc/.*",
+  "evaluationOrder" : "1000",
   "logo": "",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
@@ -24,7 +24,7 @@
         ]
       ]
     },
-    "titleAbbr": {
+    "titleAbbr" : {
       "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
       "values" : [
         "java.util.HashSet", [
@@ -32,7 +32,7 @@
         ]
       ]
     },
-    "registerUrl": {
+    "registerUrl" : {
       "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
       "values" : [
         "java.util.HashSet", [
