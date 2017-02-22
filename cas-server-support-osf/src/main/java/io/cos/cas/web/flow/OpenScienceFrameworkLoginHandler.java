@@ -81,16 +81,24 @@ public class OpenScienceFrameworkLoginHandler {
             return campaign;
         }
 
-        public void setCampaign(final String campaign) {
-            this.campaign = campaign;
-        }
-
         public String getHandleErrorName() {
             return handleErrorName;
         }
 
+        private void setServiceUrl(final String serviceUrl) {
+            this.serviceUrl = serviceUrl;
+        }
+
+        public void setCampaign(final String campaign) {
+            this.campaign = campaign;
+        }
+
         public void setHandleErrorName(final String handleErrorName) {
-            this.handleErrorName = handleErrorName;
+            this.handleErrorName =handleErrorName;
+        }
+
+        private void setInstitutionLogin(final Boolean institutionLogin) {
+            this.institutionLogin = institutionLogin;
         }
 
         /**
@@ -143,10 +151,10 @@ public class OpenScienceFrameworkLoginHandler {
     }
 
     /**
-     * Decision making action that handles OSF login: osf, institution, campaign.
+     * Decision making action that handles OSF login.
      *
      * @param context The request context
-     * @return Event "osf", "institution" or "campaigns
+     * @return Event "osfDefaultLogin", "institutionLogin"
      */
     public Event beforeLogin(final RequestContext context) {
 
@@ -155,8 +163,19 @@ public class OpenScienceFrameworkLoginHandler {
         final boolean institutionLogin = isInstitutionLogin(context);
         final boolean register = isRegister(context);
 
-        final OpenScienceFrameworkLoginContext osfLoginContext
-                = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin, register);
+        final String jsonLoginContext = (String) context.getFlowScope().get("jsonLoginContext");
+        final OpenScienceFrameworkLoginContext osfLoginContext;
+
+        if (jsonLoginContext == null) {
+            // Create a new Login Context with service URL and institution flag
+            osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin, register);
+        } else {
+            // Use current Login Context which contains information of Authentication Exceptions
+            // Update and override the service URL and the institution flag
+            osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(jsonLoginContext);
+            osfLoginContext.setServiceUrl(serviceUrl);
+            osfLoginContext.setInstitutionLogin(institutionLogin);
+        }
         osfLoginContext.setCampaign(campaign);
         context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
 
@@ -198,7 +217,8 @@ public class OpenScienceFrameworkLoginHandler {
      * Encode the decoded service url if service url exists.
      *
      * @param context The request context
-     * @return The encoded service url
+
+     * @return the encoded service url
      * @throws AssertionError if fails to encode the URL
      */
     private String getEncodedServiceUrl(final RequestContext context) throws AssertionError {

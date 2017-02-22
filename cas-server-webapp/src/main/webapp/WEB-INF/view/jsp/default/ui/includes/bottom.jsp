@@ -21,6 +21,8 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+    <c:set var="serviceUrl" value="${not empty osfLoginContext.getServiceUrl() ? osfLoginContext.getServiceUrl() : fn:escapeXml(param.service)}" />
+
     <c:if test= "${empty alternativeBottomNone}">
         <div class="row" style="text-align: center;">
             <hr><br>
@@ -31,7 +33,7 @@
                 </c:when>
                 <c:when test="${not empty alternativeBottomLogin}">
                     <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-                    <a id="alternative-osf" href="${osfLoginUrl}service=${osfLoginContext.getServiceUrl()}">Sign In</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a id="alternative-osf" href="${osfLoginUrl}service=${serviceUrl}">Sign In</a>&nbsp;&nbsp;&nbsp;&nbsp;
                 </c:when>
                 <c:otherwise>
                     <c:choose>

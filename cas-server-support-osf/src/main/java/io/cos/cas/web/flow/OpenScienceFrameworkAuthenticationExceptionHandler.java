@@ -36,8 +36,8 @@ import org.jasig.cas.authentication.AccountPasswordMustChangeException;
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.InvalidLoginLocationException;
 import org.jasig.cas.authentication.InvalidLoginTimeException;
-
 import org.jasig.cas.web.flow.AuthenticationExceptionHandler;
+
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
@@ -64,10 +64,10 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
 
     //  Built-in Exceptions that are not explicitly used
     static {
+        DEFAULT_ERROR_LIST.add(AccountPasswordMustChangeException.class);
         DEFAULT_ERROR_LIST.add(AccountLockedException.class);
         DEFAULT_ERROR_LIST.add(CredentialExpiredException.class);
         DEFAULT_ERROR_LIST.add(InvalidLoginLocationException.class);
-        DEFAULT_ERROR_LIST.add(AccountPasswordMustChangeException.class);
         DEFAULT_ERROR_LIST.add(InvalidLoginTimeException.class);
     }
 
@@ -78,11 +78,11 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         DEFAULT_ERROR_LIST.add(RegistrationSuccessConfirmationRequiredException.class);
 
         // Login Exceptions
+        DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
         DEFAULT_ERROR_LIST.add(AccountNotFoundException.class);
         DEFAULT_ERROR_LIST.add(FailedLoginException.class);
-        DEFAULT_ERROR_LIST.add(UserNotConfirmedException.class);
-        DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
         DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
+        DEFAULT_ERROR_LIST.add(UserNotConfirmedException.class);
 
         // Remote Login Exceptions
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
