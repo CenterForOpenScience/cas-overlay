@@ -398,7 +398,6 @@ footer a:link, footer a:visited {
 
 #service-logo {
   width: 75px;
-  background: darkred;
   text-align: center;
   vertical-align: middle;
 }
@@ -412,7 +411,10 @@ footer a:link, footer a:visited {
 }
 
 #service-logo.service-logo-PsyArXiv {
-  background: #a9a9a9;
+  padding: 0 10px 0 10px;
+}
+
+#service-logo.service-logo-AgriXiv {
   padding: 0 10px 0 10px;
 }
 
