@@ -24,6 +24,14 @@
         ]
       ]
     },
+    "titleAbbr" : {
+      "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+      "values" : [
+        "java.util.HashSet", [
+          "OSF"
+        ]
+      ]
+    },
     "campaign": {
       "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
       "values" : [
