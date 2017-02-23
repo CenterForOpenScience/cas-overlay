@@ -29,6 +29,7 @@ import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
 import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
+import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 
 import org.jasig.cas.authentication.AccountDisabledException;
@@ -83,6 +84,7 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         DEFAULT_ERROR_LIST.add(FailedLoginException.class);
         DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
         DEFAULT_ERROR_LIST.add(UserNotConfirmedException.class);
+        DEFAULT_ERROR_LIST.add(UserNotClaimedException.class);
 
         // Remote Login Exceptions
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);

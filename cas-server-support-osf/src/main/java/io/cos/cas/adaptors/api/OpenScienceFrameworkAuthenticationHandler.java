@@ -28,6 +28,7 @@ import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExists
 import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
 
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
+import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
@@ -162,7 +163,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             } else if (OpenScienceFrameworkApiStatus.USER_NOT_CONFIRMED.equals(errorDetail)) {
                 throw new UserNotConfirmedException(username + " is registered but not confirmed");
             } else if (OpenScienceFrameworkApiStatus.USER_NOT_CLAIMED.equals(errorDetail)) {
-                throw new FailedLoginException(username + " is not claimed");
+                throw new UserNotClaimedException(username + " is not claimed");
             } else if (OpenScienceFrameworkApiStatus.USER_STATUS_INVALID.equals(errorDetail)) {
                 throw new ShouldNotHappenException(username + " is not active");
             } else if (OpenScienceFrameworkApiStatus.USER_DISABLED.equals(errorDetail)) {
