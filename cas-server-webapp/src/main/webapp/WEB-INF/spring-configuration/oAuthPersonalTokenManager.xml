@@ -47,4 +47,5 @@
         <value>user.profile</value>
         <value>user.email</value>
     </util:set>
+
 </beans>
