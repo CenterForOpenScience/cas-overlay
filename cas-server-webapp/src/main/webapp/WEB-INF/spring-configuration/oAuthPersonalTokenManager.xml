@@ -33,21 +33,14 @@
     <bean id="personalAccessTokenManager" class="org.jasig.cas.support.oauth.personal.PersonalAccessTokenManager"
         c:personalAccessTokenHandler-ref="openScienceFrameworkPersonalAccessTokenHandler" />
 
+    <!-- OSF Personal Access Token: Use API Adaptors -->
+    <bean id="openScienceFrameworkPersonalAccessTokenHandler" class="io.cos.cas.adaptors.api.OpenScienceFrameworkPersonalAccessTokenHandler"
+          p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
 
+    <!-- OSF Personal Access Token: Use Postgres Adaptors -->
+    <!--
     <bean id="openScienceFrameworkPersonalAccessTokenHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkPersonalAccessTokenHandler"
         p:openScienceFrameworkDao-ref="openScienceFrameworkDao" />
-
-    <!--
-    <bean id="simplePersonalTokenHandler" class="org.jasig.cas.support.oauth.personal.handler.SimplePersonalAccessTokenHandler">
-        <constructor-arg>
-            <util:set>
-                <bean class="org.jasig.cas.support.oauth.personal.PersonalAccessToken"
-                    c:id="desired-access-token-id"
-                    c:principalId="unique-user-identifier"
-                    c:scopes-ref="simplePersonalTokenScopes" />
-            </util:set>
-        </constructor-arg>
-    </bean>
     -->
 
     <util:set id="simplePersonalTokenScopes">
