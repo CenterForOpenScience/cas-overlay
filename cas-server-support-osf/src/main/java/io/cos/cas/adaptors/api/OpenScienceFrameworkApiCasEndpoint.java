@@ -104,7 +104,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
      * @param payload the payload
      * @return String, a serialized JWE object
      */
-    public String encryptPayload(final String subject, final String payload) {
+     String encryptPayload(final String subject, final String payload) {
 
         final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(subject)
@@ -138,18 +138,17 @@ public class OpenScienceFrameworkApiCasEndpoint {
     }
 
     /**
-     * Make authentication requests to API CAS endpoint with `endpoint`, `email` and `payload`.
-     * Parse response and return a map object containing authentication status and exception messages.
-     * `payload` is encrypted before the request is sent and decrypted after the response is received.
+     * Make service requests to API CAS "Service" endpoint.
+     * Return the response as a JSON object if `HttpStatus.SC_OK`.
+     * Otherwise, log the error and return `null`.
      *
-     * @param endpoint the api cas endpoint
-     * @param email the email or username
-     * @param payload the plaintext payload
-     * @return a Map object
+     * @param endpoint the api cas service endpoint
+     * @param payload the jwe/jwt encrypted payload
+     * @return a JSON object or null
      */
-    public Map<String, Object> apiCasAuthentication(final String endpoint, final String email, final String payload) {
+    JSONObject apiCasService(final String endpoint, final String payload) {
 
-        final String url = osfApiCasEndpointUrl + endpoint + '/';
+        final String url = osfApiCasEndpointUrl + "service/" + endpoint + '/';
         final HttpResponse httpResponse;
         try {
             httpResponse = Request.Post(url)
@@ -164,14 +163,19 @@ public class OpenScienceFrameworkApiCasEndpoint {
 
         final int statusCode = httpResponse.getStatusLine().getStatusCode();
         LOGGER.info(
-                "API CAS Endpoint {} Response: <{}> Status Code {}",
-                endpoint,
-                email,
-                statusCode
+            "API CAS Endpoint \"service/{}/\": {}",
+            endpoint,
+            statusCode
         );
         try {
             final JSONObject responseBody =  new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
-            return verifyResponse(statusCode, responseBody);
+            if (statusCode == HttpStatus.SC_OK) {
+                return responseBody;
+            } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+                LOGGER.error(responseBody.toString());
+                return null;
+            }
+            return null;
         }catch (final IOException | JSONException e) {
             LOGGER.error(e.getMessage());
             return null;
@@ -179,14 +183,54 @@ public class OpenScienceFrameworkApiCasEndpoint {
     }
 
     /**
-     * Parse and verify authentication response in JSON format.
+     * Make authentication requests to API CAS "Auth" endpoint.
+     * Parse response and return a map object containing authentication status and exception messages.
+     *
+     * @param endpoint the api cas auth endpoint
+     * @param email the email or username
+     * @param payload the jwe/jwt encrypted payload
+     * @return a Map object
+     */
+     Map<String, Object> apiCasAuthentication(final String endpoint, final String email, final String payload) {
+
+        final String url = osfApiCasEndpointUrl + "auth/" + endpoint + '/';
+        final HttpResponse httpResponse;
+        try {
+            httpResponse = Request.Post(url)
+                .addHeader(new BasicHeader("Content-Type", "text/plain"))
+                .bodyString(payload, ContentType.APPLICATION_JSON)
+                .execute()
+                .returnResponse();
+        } catch (final IOException e) {
+            LOGGER.error(e.getMessage());
+            return null;
+        }
+
+        final int statusCode = httpResponse.getStatusLine().getStatusCode();
+        LOGGER.info(
+            "API CAS Endpoint {} Response: <{}> Status Code {}",
+            endpoint,
+            email,
+            statusCode
+        );
+        try {
+            final JSONObject responseBody =  new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
+            return verifyAuthenticationResponse(statusCode, responseBody);
+        }catch (final IOException | JSONException e) {
+            LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Parse and verify authentication response.
      * Return a map object containing authentication status and exception messages.
      *
      * @param statusCode the response status code
-     * @param responseBody the response body in JSON forat
+     * @param responseBody the response body in JSON format
      * @return a Map object
      */
-    private Map<String, Object> verifyResponse(final int statusCode, final JSONObject responseBody) {
+    private Map<String, Object> verifyAuthenticationResponse(final int statusCode, final JSONObject responseBody) {
         final Map<String, Object> response = new HashMap<>();
         final Map<String, Object> attributesMap = new HashMap<>();
         try {
