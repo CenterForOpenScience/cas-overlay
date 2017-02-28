@@ -173,7 +173,6 @@ public class OpenScienceFrameworkApiCasEndpoint {
                 return responseBody;
             } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
                 LOGGER.error(responseBody.toString());
-                return null;
             }
             return null;
         }catch (final IOException | JSONException e) {
