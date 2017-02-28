@@ -31,8 +31,16 @@
             <list>
                 <bean id="jsonServiceRegistryDao" class="org.jasig.cas.services.JsonServiceRegistryDao"
                       c:configDirectory="${service.registry.config.location:classpath:services}" />
+
+                <!-- OSF OAuth Service (Developer Apps): Use API Adaptors -->
+                <bean id="openScienceFrameworkServiceRegistryDao" class="io.cos.cas.services.OpenScienceFrameworkServiceRegistryDao"
+                      c:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
+
+                <!-- OSF OAuth Service (Developer Apps): Use Postgres Adaptors -->
+                <!--
                 <bean id="openScienceFrameworkServiceRegistryDao" class="io.cos.cas.services.OpenScienceFrameworkServiceRegistryDao"
                       c:openScienceFrameworkDao-ref="openScienceFrameworkDao" />
+                -->
             </list>
         </property>
     </bean>

@@ -19,16 +19,20 @@
 
 package io.cos.cas.services;
 
-import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
+import io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotNull;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,16 +54,17 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
     /** Map of service ID to registered service. */
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
-    /** The Open Science Framework Data Access Model. */
-    private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
+    /** The Open Science Framework API CAS Endpoint instance. */
+    @NotNull
+    private OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint;
 
     /**
      * Instantiates a new Open Science Framework service registry dao.
      *
-     * @param openScienceFrameworkDao the open science framework data access object
+     * @param osfApiCasEndpoint the Open Science Framework API CAS Endpoint
      */
-    public OpenScienceFrameworkServiceRegistryDao(final OpenScienceFrameworkDaoImpl openScienceFrameworkDao) {
-        this.openScienceFrameworkDao = openScienceFrameworkDao;
+    public OpenScienceFrameworkServiceRegistryDao(final OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint) {
+        this.osfApiCasEndpoint = osfApiCasEndpoint;
     }
 
     @Override
@@ -72,32 +77,40 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
         return false;
     }
 
+
+    @SuppressWarnings("unchecked")
     @Override
     public final synchronized List<RegisteredService> load() {
-        final List<OpenScienceFrameworkApiOauth2Application> oAuthServices = openScienceFrameworkDao.findOauthApplications();
+
+        final Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
         final ReturnAllowedAttributeReleasePolicy attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
-        final Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
         final ArrayList<String> allowedAttributes = new ArrayList<>();
-        /**
-         * e.g. global attribute release
-         * allowedAttributes.add("username");
-         * allowedAttributes.add("givenName");
-         * allowedAttributes.add("familyName");
-         */
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
-        for (final OpenScienceFrameworkApiOauth2Application oAuthService : oAuthServices) {
+
+        final JSONObject data = new JSONObject();
+        data.put("serviceType", "oAuthApplications");
+        // encrypt the payload using JWE/JWT
+        final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
+
+        // talk to API `/cas/service/pat/` endpoint
+        final JSONObject response = osfApiCasEndpoint.apiCasService("developerApps", encryptedPayload);
+        final Iterator<String> iterator = response.keys();
+        while (iterator.hasNext()) {
             final OAuthRegisteredService service = new OAuthRegisteredService();
-            service.setId(new BigInteger(oAuthService.getId(), HEX_RADIX).longValue());
-            service.setName(oAuthService.getName());
-            service.setDescription(oAuthService.getDescription());
-            service.setServiceId(oAuthService.getCallbackUrl());
+            final String serviceGuid = iterator.next();
+            final JSONObject serviceData = verifyService(response, serviceGuid);
+            service.setId(new BigInteger(serviceGuid, HEX_RADIX).longValue());
+            service.setName((serviceData.getString("name")));
+            service.setDescription((serviceData.getString("description")));
+            service.setServiceId((serviceData.getString("callbackUrl")));
             service.setBypassApprovalPrompt(Boolean.FALSE);
-            service.setClientId(oAuthService.getClientId());
-            service.setClientSecret(oAuthService.getClientSecret());
+            service.setClientId((serviceData.getString("clientId")));
+            service.setClientSecret((serviceData.getString("clientSecret")));
             service.setAttributeReleasePolicy(attributeReleasePolicy);
             serviceMap.put(service.getId(), service);
         }
+
         this.serviceMap = serviceMap;
         return new ArrayList<>(this.serviceMap.values());
     }
@@ -105,5 +118,33 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
     @Override
     public final RegisteredService findServiceById(final long id) {
         return serviceMap.get(id);
+    }
+
+    /**
+     * Verify the service information in response.
+     *
+     * @param response the response as a JSONObject
+     * @param serviceGuid the service GUID as a String
+     * @return the service as a JSONObject if verified; null otherwise
+     */
+    private JSONObject verifyService(final JSONObject response, final String serviceGuid) {
+
+        JSONObject serviceData;
+
+        try {
+            serviceData = response.getJSONObject(serviceGuid);
+        } catch (final JSONException e) {
+            LOGGER.error("Fail to Parse OAuth Service. Service ID: {}", serviceGuid);
+            LOGGER.error(e.toString());
+            return null;
+        }
+
+        if (serviceData.has("name") && serviceData.has("description") && serviceData.has("callbackUrl")
+                && serviceData.has("clientId") && serviceData.has("clientSecret")) {
+            return serviceData;
+        } else {
+            LOGGER.error("Missing Information for OAuth Service. Service ID: {}", serviceGuid);
+            return null;
+        }
     }
 }
