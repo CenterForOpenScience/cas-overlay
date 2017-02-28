@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.cos.cas.adaptors.api;
+package io.cos.cas.authentication.handler;
 
 import java.security.GeneralSecurityException;
 import java.util.Map;
 
+import io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.adaptors.api.OpenScienceFrameworkApiStatus;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;

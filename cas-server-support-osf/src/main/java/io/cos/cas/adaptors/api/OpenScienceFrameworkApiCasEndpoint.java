@@ -104,7 +104,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
      * @param payload the payload
      * @return String, a serialized JWE object
      */
-     String encryptPayload(final String subject, final String payload) {
+     public String encryptPayload(final String subject, final String payload) {
 
         final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(subject)
@@ -146,7 +146,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
      * @param payload the jwe/jwt encrypted payload
      * @return a JSON object or null
      */
-    JSONObject apiCasService(final String endpoint, final String payload) {
+    public JSONObject apiCasService(final String endpoint, final String payload) {
 
         final String url = osfApiCasEndpointUrl + "service/" + endpoint + '/';
         final HttpResponse httpResponse;
@@ -191,7 +191,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
      * @param payload the jwe/jwt encrypted payload
      * @return a Map object
      */
-     Map<String, Object> apiCasAuthentication(final String endpoint, final String email, final String payload) {
+     public Map<String, Object> apiCasAuthentication(final String endpoint, final String email, final String payload) {
 
         final String url = osfApiCasEndpointUrl + "auth/" + endpoint + '/';
         final HttpResponse httpResponse;

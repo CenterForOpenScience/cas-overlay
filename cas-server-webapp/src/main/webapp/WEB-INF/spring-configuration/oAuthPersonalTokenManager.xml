@@ -34,7 +34,7 @@
         c:personalAccessTokenHandler-ref="openScienceFrameworkPersonalAccessTokenHandler" />
 
     <!-- OSF Personal Access Token: Use API Adaptors -->
-    <bean id="openScienceFrameworkPersonalAccessTokenHandler" class="io.cos.cas.adaptors.api.OpenScienceFrameworkPersonalAccessTokenHandler"
+    <bean id="openScienceFrameworkPersonalAccessTokenHandler" class="io.cos.cas.authentication.handler.OpenScienceFrameworkPersonalAccessTokenHandler"
           p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
 
     <!-- OSF Personal Access Token: Use Postgres Adaptors -->

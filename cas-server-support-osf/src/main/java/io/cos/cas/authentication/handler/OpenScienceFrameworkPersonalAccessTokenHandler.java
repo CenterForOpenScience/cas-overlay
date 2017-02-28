@@ -17,56 +17,67 @@
  * under the License.
  */
 
-package io.cos.cas.adaptors.api;
+package io.cos.cas.authentication.handler;
 
-import org.jasig.cas.support.oauth.scope.Scope;
-import org.jasig.cas.support.oauth.scope.handler.support.AbstractScopeHandler;
+import io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint;
+import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
+import org.jasig.cas.support.oauth.personal.handler.support.AbstractPersonalAccessTokenHandler;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
- * The Open Science Framework Scope handler.
+ * The Open Science FrameWork API OAuth2 Personal Access Token Handler.
  *
  * @author Michael Haselton
  * @author Longze Chen
  * @since 4.1.0
  */
-public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler implements InitializingBean {
+public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler
+        implements InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkScopeHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkPersonalAccessTokenHandler.class);
 
     /** The Open Science Framework API CAS Endpoint instance. */
     @NotNull
     private OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint;
 
     /** Default Constructor. */
-    public OpenScienceFrameworkScopeHandler() {}
+    public OpenScienceFrameworkPersonalAccessTokenHandler() {}
 
     @Override
-    public void afterPropertiesSet() throws Exception {}
+    public void afterPropertiesSet() throws Exception {
+    }
 
     @Override
-    public Scope getScope(final String scopeName) {
+    public PersonalAccessToken getToken(final String tokenId) {
 
         final JSONObject data = new JSONObject();
-        data.put("scopeName", scopeName);
+        data.put("tokenId", tokenId);
 
         // encrypt the payload using JWE/JWT
         final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
 
-        // talk to API `/cas/service/oauthScopes/` endpoint
-        final JSONObject response = osfApiCasEndpoint.apiCasService("oauthScopes", encryptedPayload);
-        if (response == null || !response.has("scopeDescription")) {
+        // talk to API `/cas/service/pat/` endpoint
+        final JSONObject response = osfApiCasEndpoint.apiCasService("personalAccessToken", encryptedPayload);
+        if (response == null || !response.has("ownerId") || !response.has("tokenScopes")) {
             LOGGER.error("Invalid Response");
             return null;
         }
 
-        final String scopeDescription = (String) response.get("scopeDescription");
-        return new Scope(scopeName, scopeDescription, Boolean.FALSE);
+        final String ownerGuid = (String) response.get("ownerId");
+        final String tokenScopes = (String) response.get("tokenScopes");
+
+        return new PersonalAccessToken(
+            tokenId,
+            ownerGuid,
+            new HashSet<>(Arrays.asList(tokenScopes.split(" ")))
+        );
     }
 
     public void setOsfApiCasEndpoint(final OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint) {

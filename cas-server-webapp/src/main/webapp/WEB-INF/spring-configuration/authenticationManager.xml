@@ -58,7 +58,7 @@
      -->
 
     <!-- OSF Authentication: Use OSF API Adaptors -->
-    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.api.OpenScienceFrameworkAuthenticationHandler"
+    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.authentication.handler.OpenScienceFrameworkAuthenticationHandler"
         p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
     <bean id="openScienceFrameworkApiCasEndpoint" class="io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint"
         c:osfApiCasEndpointUrl="${osf.api.cas.endpoint.url}"
