@@ -38,32 +38,35 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Implementation of <code>ServiceRegistryDao</code> that reads services definition from the
- * Open Science Framework at the Spring Application Context initialization time.
+ * Open Science Framework OAuth Service Registry DAO.
+ *
+ *
+ * Implementation of <code>ServiceRegistryDao</code> that reads OSF OAuth Applications definition via the
+ * OSF API CAS Service Endpoint during the Spring Application Context initialization time.
  *
  * @author Michael Haselton
  * @author Longze Chen
  * @since 4.1.0
  */
-public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDao {
+public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegistryDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkServiceRegistryDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkOAuthServiceRegistryDao.class);
 
     private static final int HEX_RADIX = 16;
 
-    /** Map of service ID to registered service. */
+    private static final String SERVICE_TYPE = "OAUTH_APPLICATIONS";
+
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
-    /** The Open Science Framework API CAS Endpoint instance. */
     @NotNull
     private OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint;
 
     /**
-     * Instantiates a new Open Science Framework service registry dao.
+     * Instantiates a new Open Science Framework OAuth Registry DAO.
      *
      * @param osfApiCasEndpoint the Open Science Framework API CAS Endpoint
      */
-    public OpenScienceFrameworkServiceRegistryDao(final OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint) {
+    public OpenScienceFrameworkOAuthServiceRegistryDao(final OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint) {
         this.osfApiCasEndpoint = osfApiCasEndpoint;
     }
 
@@ -88,27 +91,29 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
         final ArrayList<String> allowedAttributes = new ArrayList<>();
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
 
+        // construct the payload data and encrypt it with JWE/JWT
         final JSONObject data = new JSONObject();
-        data.put("serviceType", "oAuthApplications");
-        // encrypt the payload using JWE/JWT
+        data.put("serviceType", SERVICE_TYPE);
         final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
 
-        // talk to API `/cas/service/pat/` endpoint
+        // `POST` to OSF API `/cas/service/developerApps/` endpoint
         final JSONObject response = osfApiCasEndpoint.apiCasService("developerApps", encryptedPayload);
-        final Iterator<String> iterator = response.keys();
-        while (iterator.hasNext()) {
-            final OAuthRegisteredService service = new OAuthRegisteredService();
-            final String serviceGuid = iterator.next();
-            final JSONObject serviceData = verifyService(response, serviceGuid);
-            service.setId(new BigInteger(serviceGuid, HEX_RADIX).longValue());
-            service.setName((serviceData.getString("name")));
-            service.setDescription((serviceData.getString("description")));
-            service.setServiceId((serviceData.getString("callbackUrl")));
-            service.setBypassApprovalPrompt(Boolean.FALSE);
-            service.setClientId((serviceData.getString("clientId")));
-            service.setClientSecret((serviceData.getString("clientSecret")));
-            service.setAttributeReleasePolicy(attributeReleasePolicy);
-            serviceMap.put(service.getId(), service);
+        if (response != null) {
+            final Iterator<String> iterator = response.keys();
+            while (iterator.hasNext()) {
+                final OAuthRegisteredService service = new OAuthRegisteredService();
+                final String serviceGuid = iterator.next();
+                final JSONObject serviceData = verifyService(response, serviceGuid);
+                service.setId(new BigInteger(serviceGuid, HEX_RADIX).longValue());
+                service.setName((serviceData.getString("name")));
+                service.setDescription((serviceData.getString("description")));
+                service.setServiceId((serviceData.getString("callbackUrl")));
+                service.setBypassApprovalPrompt(Boolean.FALSE);
+                service.setClientId((serviceData.getString("clientId")));
+                service.setClientSecret((serviceData.getString("clientSecret")));
+                service.setAttributeReleasePolicy(attributeReleasePolicy);
+                serviceMap.put(service.getId(), service);
+            }
         }
 
         this.serviceMap = serviceMap;
@@ -123,9 +128,9 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
     /**
      * Verify the service information in response.
      *
-     * @param response the response as a JSONObject
-     * @param serviceGuid the service GUID as a String
-     * @return the service as a JSONObject if verified; null otherwise
+     * @param response the response as a JSON Object
+     * @param serviceGuid the OAuth application's GUID as a String
+     * @return the OAuth application service as a JSON Object if verified; null otherwise
      */
     private JSONObject verifyService(final JSONObject response, final String serviceGuid) {
 
