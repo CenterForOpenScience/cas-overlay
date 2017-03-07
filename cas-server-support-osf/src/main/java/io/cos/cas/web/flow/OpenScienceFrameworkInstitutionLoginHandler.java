@@ -19,8 +19,8 @@
 
 package io.cos.cas.web.flow;
 
+import io.cos.cas.authentication.handler.OpenScienceFrameworkInstitutionHandler;
 
-import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.webflow.execution.Event;
