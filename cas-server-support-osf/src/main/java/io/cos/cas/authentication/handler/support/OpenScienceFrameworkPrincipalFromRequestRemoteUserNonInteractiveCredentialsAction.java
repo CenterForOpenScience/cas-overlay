@@ -366,7 +366,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             if (PROTOCOL_SAML.equals(protocol)) {
                 normalizedPayload = this.normalizeRemotePrincipal(credential);
             } else if (PROTOCOL_CAS.equals(protocol)) {
-                normalizedPayload = this.constructPayloadFromRemotePrincipal(principal);
+                normalizedPayload = this.normalizeRemotePrincipal((this.constructCredentialFromRemotePrincipal(credential, principal)));
             } else {
                 throw new AssertionError(String.format("Unsupported Remote Authentication Protocol: %s", protocol));
             }
@@ -462,43 +462,36 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     }
 
     /**
-     * Construct normalized payload from remote principal authenticated by external CAS.
+     * Update `credential` with remote principal authenticated by external CAS.
      *
+     * @param credential the credential whose authenticationHeaders is going to be udpated
      * @param principal the principal created by external CAS authentication
-     * @return the json object to serialize for authorization with the OSF API
+     * @return the updated credential
      * @throws AccountException RemoteUserFailedLoginException
      */
-    private JSONObject constructPayloadFromRemotePrincipal(final Principal principal)
-            throws AccountException {
-        final Map<String, Object> attributes = principal.getAttributes();
-        final JSONObject payload = new JSONObject();
-        final JSONObject provider = new JSONObject();
-        final String institutionId = principal.getId().split("#")[0];
-        final JSONObject user = new JSONObject();
+    private OpenScienceFrameworkCredential constructCredentialFromRemotePrincipal(
+        final OpenScienceFrameworkCredential credential,
+        final Principal principal
+    ) throws AccountException {
 
-        if ("okstate".equals(institutionId)) {
-            final String username  = (String) attributes.get("mail");
-            if (username == null || "".equals(username)) {
-                logger.error("Email Not Found");
-                throw new RemoteUserFailedLoginException("Email Not Found");
-            }
-            user.put("username", attributes.get("mail"));
-            user.put("familyName", attributes.containsKey("sn") ? (String) attributes.get("sn") : "");
-            user.put("givenName", attributes.containsKey("givenName") ? (String) attributes.get("givenName") : "");
-            user.put("fullname", "");
-            user.put("middleNames", "");
-            user.put("suffix", "");
-        } else {
-            logger.error("Invalid Institution Id");
-            throw new RemoteUserFailedLoginException("Invalid Institution Id");
+        // use institution id for CAS idp
+        final String institutionId = principal.getId().split("#")[0];
+        credential.getAuthenticationHeaders().put("Shib-Identity-Provider", institutionId);
+
+        // for institutions that do not release full name, set uid as their full name in "institution-auth.xsl"
+        final String uid = principal.getId().split("#")[1];
+        credential.getAuthenticationHeaders().put("uid", uid);
+
+        // add principal attributes as they are to the credential's authentication headers
+        final Map<String, Object> attributes = principal.getAttributes();
+        for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
+            credential.getAuthenticationHeaders().put(
+                entry.getKey(),
+                (String) entry.getValue()
+            );
         }
 
-        provider.put("idp", "");
-        provider.put("id", institutionId);
-        provider.put("user", user);
-        payload.put("provider", provider);
-
-        return payload;
+        return credential;
     }
 
     public void setInstitutionsAuthUrl(final String institutionsAuthUrl) {
