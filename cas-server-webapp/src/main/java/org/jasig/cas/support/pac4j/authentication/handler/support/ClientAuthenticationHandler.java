@@ -40,9 +40,7 @@ import java.security.GeneralSecurityException;
  */
 public class ClientAuthenticationHandler extends AbstractClientAuthenticationHandler {
 
-    /**
-     * Whether to use the typed identifier (by default) or just the identifier.
-     */
+    /** Whether to use the typed identifier (by default) or just the identifier. */
     private boolean typedIdUsed = true;
 
     /**
@@ -65,7 +63,7 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
      *      different CAS providers. The solution is to use "client name" instead of "class name".
      *          id = clientName + "Profile#" + profile.getId()
      *      For OSF compatibility, only CAS clients use client name while the ORCiD client is not changed
-     * 2.   For clients considered as "institution", their authe flow is intercepted and redirected to our
+     * 2.   For clients considered as "institution", their auth flow is intercepted and redirected to our
      *      institution login flow after successful auth. The principal id only contains client name and profile id.
      */
     @Override
@@ -79,15 +77,15 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
             // customize profile names
             if (ClientAction.INSTITUTION_CLIENTS.contains(clientName)) {
                 // institution clients are independent of authentication delegation protocol
+                // principal id contains client name and profile id
                 id = clientName + '#' + profile.getId();
             } else if (clientName.startsWith("CasClient")) {
-                // non-institution cas clients:
-                id = clientName + "Profile#" + profile.getId();
+                // cas clients ignore Typed ID flag and use client name instead of class name
                 // currently there is no client of this type
-                // this requires OSF side implementation (similar to what is done for ORCiD or further generalize it)
+                id = clientName + "Profile#" + profile.getId();
                 throw new FailedLoginException("Client not supported.");
             } else {
-                // other: default behavior
+                // default behavior: respect Typed ID flag and use class name
                 id = isTypedIdUsed() ? profile.getTypedId() : profile.getId();
             }
             if (StringUtils.isNotBlank(id)) {

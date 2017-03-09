@@ -67,7 +67,7 @@ import javax.validation.constraints.NotNull;
  */
 public final class ClientAction extends AbstractAction {
 
-    /** The set INSTITUTION_CLIENTS contains all clients whose authentication considered as institution login. */
+    /** The set INSTITUTION_CLIENTS contains all clients whose authentication is considered as Institution Login. */
     public static final Set<String> INSTITUTION_CLIENTS = ImmutableSet.of(
             "okstate"
     );
