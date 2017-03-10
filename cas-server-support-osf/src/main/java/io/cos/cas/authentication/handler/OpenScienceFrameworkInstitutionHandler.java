@@ -61,10 +61,20 @@ public class OpenScienceFrameworkInstitutionHandler {
      * @return the Institution Logout URL or null
      */
     public String findInstitutionLogoutUrlById(final String institutionId) {
-        final OpenScienceFrameworkInstitutionRegisteredService institution
-            = (OpenScienceFrameworkInstitutionRegisteredService) servicesManager
-                .findServiceBy(new BigInteger(institutionId.getBytes()).longValue());
-        return institution != null ? institution.getInstitutionLogoutUrl() : null;
+
+        final long id = (new BigInteger(institutionId.getBytes())).longValue();
+        final Collection<RegisteredService> registeredServices = servicesManager.getAllServices();
+
+        for (final RegisteredService service: registeredServices) {
+            if (service instanceof OpenScienceFrameworkInstitutionRegisteredService) {
+                final OpenScienceFrameworkInstitutionRegisteredService institution
+                        = (OpenScienceFrameworkInstitutionRegisteredService) service;
+                if (institutionId.equals(institution.getInstitutionId())) {
+                    return institution.getInstitutionLogoutUrl();
+                }
+            }
+        }
+        return null;
     }
 
     /**
