@@ -103,8 +103,7 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
                 service.setName((institutionData.getString("institutionName")));
                 service.setInstitutionLoginUrl((institutionData.getString("institutionLoginUrl")));
                 service.setInstitutionLogoutUrl((institutionData.getString("institutionLogoutUrl")));
-                // delegation protocol not supported yet, set to the empty string
-                service.setDelegationProtocol("");
+                service.setDelegationProtocol(institutionData.getString("delegationProtocol"));
                 serviceMap.put(service.getId(), service);
             }
         }
@@ -139,10 +138,11 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
 
         if (institutionData.has("institutionName")
                 && institutionData.has("institutionLoginUrl")
-                && institutionData.has("institutionLogoutUrl")) {
+                && institutionData.has("institutionLogoutUrl")
+                && institutionData.has("delegationProtocol")) {
             return institutionData;
         } else {
-            LOGGER.error("Definition Exception: Invalid Definition for Institution: {}", institutionId);
+            LOGGER.error("Definition Exception: Missing Definition for Institution: {}", institutionId);
             return null;
         }
     }

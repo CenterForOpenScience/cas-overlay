@@ -25,6 +25,7 @@ import org.jasig.cas.services.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ public class OpenScienceFrameworkInstitutionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitutionHandler.class);
 
+    @NotNull
     private ServicesManager servicesManager;
 
     /**
@@ -67,11 +69,13 @@ public class OpenScienceFrameworkInstitutionHandler {
 
     /**
      * Return a map of Institution Login Url and Institution Name.
-     * 1. The Login URL is the Key, and the Name is the value.
-     * 2. Delegation Protocol is not supported yet.
+     * 1. For protocol "saml-shib", the Login URL is the Key, and the Institution Name is the value.
+     * 2. For protocol "cas-pac4j", the Institution ID is the Key, and the Institution Name is the value.
+     *    The "actual" Login URL is generated during the "ClientAction" flow.
      *
-     * @param target the OSF Service Target after successful Institution Login
-     * @return  a map of Institution Login Url and Institution Name.
+     * @param target the OSF Service Target after successful Institution Login,
+     *               which is only applicable for protocol "saml-shib"
+     * @return  a map of Institution Login Url or ID, and Institution Name
      */
     public Map<String, String> getInstitutionLoginUrls(final String target) {
 
@@ -82,8 +86,13 @@ public class OpenScienceFrameworkInstitutionHandler {
             if (service instanceof OpenScienceFrameworkInstitutionRegisteredService) {
                 final OpenScienceFrameworkInstitutionRegisteredService institution
                         = (OpenScienceFrameworkInstitutionRegisteredService) service;
-                if (!institution.getInstitutionLoginUrl().isEmpty()) {
-                    institutionLogin.put(institution.getInstitutionLoginUrl() + "&target=" + target, institution.getName());
+
+                if (institution.verifyDelegationProtocol()) {
+                    if ("saml-shib".equals(institution.getDelegationProtocol())) {
+                        institutionLogin.put(institution.getInstitutionLoginUrl() + "&target=" + target, institution.getName());
+                    } else if ("cas-pac4j".equals(institution.getDelegationProtocol())) {
+                        institutionLogin.put(institution.getInstitutionId(), institution.getName());
+                    }
                 }
             }
         }

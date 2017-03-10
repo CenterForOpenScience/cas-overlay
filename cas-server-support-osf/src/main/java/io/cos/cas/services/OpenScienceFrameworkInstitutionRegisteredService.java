@@ -20,12 +20,16 @@
 package io.cos.cas.services;
 
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jasig.cas.services.RegexRegisteredService;
 import org.jasig.cas.services.RegisteredService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Set;
 
 /**
  * Open Science Framework Institution Registered Service.
@@ -40,6 +44,14 @@ import org.jasig.cas.services.RegisteredService;
 public class OpenScienceFrameworkInstitutionRegisteredService extends RegexRegisteredService {
 
     private static final long serialVersionUID = 2941289781073114252L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitutionRegisteredService.class);
+
+    /** A set of supported delegation protocol with their implementer. */
+    private static final Set<String> DELEGATION_PROTOCOLS = ImmutableSet.of(
+            "cas-pac4j",
+            "saml-shib"
+    );
 
     private static final String SERVICE_ID = "(?!.*)";
 
@@ -142,5 +154,14 @@ public class OpenScienceFrameworkInstitutionRegisteredService extends RegexRegis
                 .appendSuper(super.hashCode())
                 .append(institutionId)
                 .toHashCode();
+    }
+
+    /**
+     * Verify that the delegation protocol for the institution is supported.
+     *
+     * @return boolean, true if supported, false otherwise
+     */
+    public boolean verifyDelegationProtocol() {
+        return DELEGATION_PROTOCOLS.contains(delegationProtocol);
     }
 }
