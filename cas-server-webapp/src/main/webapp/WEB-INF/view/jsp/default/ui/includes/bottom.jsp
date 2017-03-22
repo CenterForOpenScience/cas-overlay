@@ -60,8 +60,6 @@
                     </c:choose>
                 </c:otherwise>
             </c:choose>
-            <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
-            <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
         </div>
     </c:if>
 

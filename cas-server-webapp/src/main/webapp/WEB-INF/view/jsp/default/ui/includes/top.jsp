@@ -51,11 +51,17 @@
         <![endif]-->
 
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,700' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue-deep_purple.min.css">
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     </head>
 
     <body id="cas" onload="selectFocus()">
+        <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
         <div id="container">
             <br>
+            <a id="back-to-osf" href="${osfUrl}"> <i class="fa fa-arrow-left" aria-hidden="true"></i> Back&nbsp;to&nbsp;OSF</a><br>
             <header>
                 <div class="center">
                     <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
