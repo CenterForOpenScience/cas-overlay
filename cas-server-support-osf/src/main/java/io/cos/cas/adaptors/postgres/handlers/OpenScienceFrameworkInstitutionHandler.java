@@ -37,8 +37,6 @@ import java.util.Map;
  */
 public class OpenScienceFrameworkInstitutionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
-
     @NotNull
     private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
 

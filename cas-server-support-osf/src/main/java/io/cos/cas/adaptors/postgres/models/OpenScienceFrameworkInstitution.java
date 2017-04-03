@@ -37,8 +37,6 @@ import javax.persistence.Table;
 @Table(name = "osf_institution")
 public class OpenScienceFrameworkInstitution {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
-
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;

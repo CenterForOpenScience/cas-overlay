@@ -43,9 +43,6 @@ import java.util.Map;
  */
 public class OpenScienceFrameworkInstitutionLoginHandler {
 
-    /** The Logger Instance. */
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     /** The Institution Authentication Handler. */
     private final OpenScienceFrameworkInstitutionHandler institutionHandler;
 
@@ -81,7 +78,6 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
         final Map<String, String> institutions = this.institutionHandler.getInstitutionLoginUrls(target);
         institutions.put("", " -- select an institution -- ");
         final Map<String, String> sortedInstitutions = sortByValue(institutions);
-        logger.info(String.format("Institutions loaded: %s", sortedInstitutions.toString()));
         context.getFlowScope().put("institutions", sortedInstitutions);
         return new Event(this, "success");
     }
