@@ -45,8 +45,6 @@ import java.util.List;
  */
 public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkDaoImpl.class);
-
     /** The entity manager for persistenceUnitOsf. */
     @NotNull
     @PersistenceContext(unitName = "persistenceUnitOsf")
@@ -72,7 +70,6 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("username", username);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            LOGGER.error(e.toString());
             return null;
         }
     }
@@ -96,7 +93,6 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             );
             return (OpenScienceFrameworkUser) query.getSingleResult();
         } catch (final PersistenceException e) {
-            LOGGER.error(e.toString());
             return null;
         }
     }
@@ -111,7 +107,6 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("ownerId", ownerId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            LOGGER.error(e.toString());
             return null;
         }
     }
@@ -126,7 +121,6 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("id", id);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            LOGGER.error(e.toString());
             return null;
         }
     }
@@ -140,7 +134,6 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             );
             return query.getResultList();
         } catch (final PersistenceException e) {
-            LOGGER.error(e.toString());
             return null;
         }
     }
@@ -155,7 +148,6 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("name", name);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            LOGGER.error(e.toString());
             return null;
         }
     }
@@ -170,7 +162,6 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("tokenId", tokenId);
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            LOGGER.error(e.toString());
             return null;
         }
     }
@@ -185,7 +176,6 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             );
             return query.getResultList();
         } catch (final PersistenceException e) {
-            LOGGER.error(e.toString());
             return null;
         }
     }
@@ -205,7 +195,6 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("model", "osfuser");
             return query.getSingleResult();
         } catch (final PersistenceException e) {
-            LOGGER.error(e.toString());
             return null;
         }
     }
