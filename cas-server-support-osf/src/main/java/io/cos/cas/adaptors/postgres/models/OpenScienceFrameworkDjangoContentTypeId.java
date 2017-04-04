@@ -1,8 +1,5 @@
 package io.cos.cas.adaptors.postgres.models;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -17,8 +14,6 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "django_content_type")
 public class OpenScienceFrameworkDjangoContentTypeId {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkDjangoContentTypeId.class);
 
     /** The Primary Key. */
     @Id
