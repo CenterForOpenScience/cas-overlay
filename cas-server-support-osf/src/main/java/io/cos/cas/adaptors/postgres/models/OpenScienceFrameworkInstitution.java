@@ -20,8 +20,6 @@
 package io.cos.cas.adaptors.postgres.models;
 
 import com.google.common.collect.ImmutableSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,13 +37,11 @@ import java.util.Set;
 @Table(name = "osf_institution")
 public class OpenScienceFrameworkInstitution {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
-
     /** A set of supported delegation protocol with implementation. */
     private static final Set<String> DELEGATION_PROTOCOLS  = ImmutableSet.of(
         "cas-oauth2",   // currently only used by ORCiD login (not considered as institution)
         "cas-pac4j",    // currently only used by Oklahoma State University
-        "saml-shib"
+        "saml-shib"    // default institution login protocol
     );
 
     @Id

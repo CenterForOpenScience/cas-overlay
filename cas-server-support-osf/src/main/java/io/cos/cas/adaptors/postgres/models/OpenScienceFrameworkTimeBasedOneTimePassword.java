@@ -20,8 +20,6 @@
 package io.cos.cas.adaptors.postgres.models;
 
 import org.apache.commons.codec.binary.Base32;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,8 +39,6 @@ import javax.xml.bind.DatatypeConverter;
 @Entity
 @Table(name = "addons_twofactor_usersettings")
 public class OpenScienceFrameworkTimeBasedOneTimePassword {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkTimeBasedOneTimePassword.class);
 
     @Id
     @Column(name = "id", nullable = false)
