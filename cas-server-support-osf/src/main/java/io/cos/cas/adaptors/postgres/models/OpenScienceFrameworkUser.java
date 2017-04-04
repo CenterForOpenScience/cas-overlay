@@ -20,8 +20,6 @@
 package io.cos.cas.adaptors.postgres.models;
 
 import org.hibernate.annotations.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,8 +41,6 @@ import java.util.Date;
 @Entity
 @Table(name = "osf_osfuser")
 public final class OpenScienceFrameworkUser {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkUser.class);
 
     @Id
     @Column(name = "id", nullable = false)
