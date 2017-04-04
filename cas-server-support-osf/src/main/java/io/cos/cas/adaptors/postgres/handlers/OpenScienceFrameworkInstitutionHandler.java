@@ -21,8 +21,6 @@ package io.cos.cas.adaptors.postgres.handlers;
 
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;

@@ -26,8 +26,6 @@ import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
