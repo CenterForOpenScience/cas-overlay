@@ -18,17 +18,18 @@
  */
 package org.jasig.cas.support.pac4j.authentication.handler.support;
 
+import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.authentication.BasicCredentialMetaData;
 import org.jasig.cas.authentication.DefaultHandlerResult;
 import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.PreventedException;
 import org.jasig.cas.support.pac4j.authentication.principal.ClientCredential;
-import org.jasig.cas.support.pac4j.web.flow.ClientAction;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.profile.UserProfile;
 
 import javax.security.auth.login.FailedLoginException;
+import javax.validation.constraints.NotNull;
 import java.security.GeneralSecurityException;
 
 /**
@@ -43,13 +44,22 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
     /** Whether to use the typed identifier (by default) or just the identifier. */
     private boolean typedIdUsed = true;
 
+    /** The handler for osf institution. */
+    @NotNull
+    private final OpenScienceFrameworkInstitutionHandler institutionHandler;
+
     /**
      * Define the clients.
      *
+     * @param theInstitutionHandler The handler for osf institution
      * @param theClients The clients for authentication
      */
-    public ClientAuthenticationHandler(final Clients theClients) {
+    public ClientAuthenticationHandler(
+            final OpenScienceFrameworkInstitutionHandler theInstitutionHandler,
+            final Clients theClients
+    ) {
         super(theClients);
+        this.institutionHandler = theInstitutionHandler;
     }
 
     /**
@@ -75,7 +85,7 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
 
         if (clientName != null) {
             // customize profile names
-            if (ClientAction.INSTITUTION_CLIENTS.contains(clientName)) {
+            if (this.institutionHandler.isDelegatedInstitutionLogin(clientName)) {
                 // institution clients are independent of authentication delegation protocol
                 // principal id contains client name and profile id
                 id = clientName + '#' + profile.getId();

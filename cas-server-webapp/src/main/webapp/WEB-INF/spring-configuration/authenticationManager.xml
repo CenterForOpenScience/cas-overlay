@@ -63,5 +63,6 @@
     <bean id="proxyPrincipalResolver" class="org.jasig.cas.authentication.principal.BasicPrincipalResolver" />
 
     <bean id="oAuthClientAuthenticationHandler" class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
+        c:theInstitutionHandler-ref="openScienceFrameworkInstitutionHandler"
         c:theClients-ref="clients" />
 </beans>

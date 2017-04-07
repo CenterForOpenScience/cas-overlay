@@ -21,7 +21,10 @@ package org.jasig.cas.support.pac4j.web.flow;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+
+import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
 import io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.principal.Service;
@@ -29,6 +32,7 @@ import org.jasig.cas.authentication.principal.WebApplicationService;
 import org.jasig.cas.support.pac4j.authentication.principal.ClientCredential;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.web.support.WebUtils;
+
 import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
@@ -40,8 +44,10 @@ import org.pac4j.core.exception.RequiresHttpAction;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.context.ExternalContext;
 import org.springframework.webflow.context.ExternalContextHolder;
@@ -66,11 +72,6 @@ import javax.validation.constraints.NotNull;
  * @since 4.1.0
  */
 public final class ClientAction extends AbstractAction {
-
-    /** The set INSTITUTION_CLIENTS contains all clients whose authentication is considered as Institution Login. */
-    public static final Set<String> INSTITUTION_CLIENTS = ImmutableSet.of(
-            "okstate"
-    );
 
     /** Constant for the service parameter. */
     public static final String SERVICE = "service";
@@ -104,17 +105,24 @@ public final class ClientAction extends AbstractAction {
     @NotNull
     private final CentralAuthenticationService centralAuthenticationService;
 
+    /** The handler for osf institution. */
+    @NotNull
+    private final OpenScienceFrameworkInstitutionHandler institutionHandler;
+
     /**
      * Build the action.
      *
+     * @param theInstitutionHandler The handler for osf institution
      * @param theCentralAuthenticationService The service for CAS authentication
      * @param theClients The clients for authentication
      */
     public ClientAction(
             final CentralAuthenticationService theCentralAuthenticationService,
+            final OpenScienceFrameworkInstitutionHandler theInstitutionHandler,
             final Clients theClients
     ) {
         this.centralAuthenticationService = theCentralAuthenticationService;
+        this.institutionHandler = theInstitutionHandler;
         this.clients = theClients;
         ProfileHelper.setKeepRawData(true);
     }
@@ -124,6 +132,7 @@ public final class ClientAction extends AbstractAction {
      */
     @Override
     protected Event doExecute(final RequestContext context) throws Exception {
+
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
         final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
         final HttpSession session = request.getSession();
@@ -139,8 +148,7 @@ public final class ClientAction extends AbstractAction {
         if (StringUtils.isNotBlank(clientName)) {
             // get client
             final BaseClient<Credentials, CommonProfile> client =
-                    (BaseClient<Credentials, CommonProfile>) this.clients
-                            .findClient(clientName);
+                    (BaseClient<Credentials, CommonProfile>) this.clients.findClient(clientName);
             logger.debug("client: {}", client);
 
             // Only supported protocols
@@ -176,14 +184,14 @@ public final class ClientAction extends AbstractAction {
             // credentials not null -> try to authenticate
             if (credentials != null) {
                 final TicketGrantingTicket tgt =
-                    this.centralAuthenticationService.createTicketGrantingTicket(new ClientCredential(credentials));
+                        this.centralAuthenticationService.createTicketGrantingTicket(new ClientCredential(credentials));
                 WebUtils.putTicketGrantingTicketInScopes(context, tgt);
 
                 // for institution clients, go to `remoteAuthenticate` and finish authentication through API
-                if (INSTITUTION_CLIENTS.contains(clientName)) {
+                if (this.institutionHandler.isDelegatedInstitutionLogin(clientName)) {
                     context.getFlowScope().put(
-                        "authenticationDelegationProtocol",
-                        OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction.PROTOCOL_CAS
+                            "authenticationDelegationProtocol",
+                            OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction.PROTOCOL_CAS
                     );
                     return new Event(this, "remote");
                 }
@@ -235,8 +243,11 @@ public final class ClientAction extends AbstractAction {
      * @param session The HTTP session
      * @param name The name of the parameter
      */
-    private void restoreRequestAttribute(final HttpServletRequest request, final HttpSession session,
-                                         final String name) {
+    private void restoreRequestAttribute(
+            final HttpServletRequest request,
+            final HttpSession session,
+            final String name
+    ) {
         final String value = (String) session.getAttribute(name);
         request.setAttribute(name, value);
     }
@@ -248,8 +259,11 @@ public final class ClientAction extends AbstractAction {
      * @param session The HTTP session
      * @param name The name of the parameter
      */
-    private void saveRequestParameter(final HttpServletRequest request, final HttpSession session,
-                                      final String name) {
+    private void saveRequestParameter(
+            final HttpServletRequest request,
+            final HttpSession session,
+            final String name
+    ) {
         final String value = request.getParameter(name);
         if (value != null) {
             session.setAttribute(name, value);
