@@ -64,6 +64,23 @@ public class OpenScienceFrameworkInstitutionHandler {
     }
 
     /**
+     * Check if a delegation client is indeed an institution with matching protocol.
+     *
+     * @param clientName the name of the client
+     * @return true if the client is institution, false otherwise
+     */
+    public boolean isDelegatedInstitutionLogin(final String clientName) {
+        final OpenScienceFrameworkInstitution institution = openScienceFrameworkDao.findOneInstitutionById(clientName);
+        if (institution != null) {
+            if (institution.getDelegationProtocol().equalsIgnoreCase(
+                    OpenScienceFrameworkInstitution.DelegationProtocols.CAS_PAC4J.name())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Return a map of institution login url and institution name.
      *  1.  The "name" is the value instead of the key.
      *  2.  For institutions authenticated through "cas-pac4j", the institution id replaces the login url,
@@ -78,27 +95,14 @@ public class OpenScienceFrameworkInstitutionHandler {
         final List<OpenScienceFrameworkInstitution> institutionList = openScienceFrameworkDao.findAllInstitutions();
         final Map<String, String> institutionLogin = new HashMap<>();
         for (final OpenScienceFrameworkInstitution institution: institutionList) {
-            if (institution.verifyDelegationProtocol()) {
-                if ("saml-shib".equals(institution.getDelegationProtocol())) {
-                    institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
-                } else if ("cas-pac4j".equals(institution.getDelegationProtocol())) {
-                    institutionLogin.put(institution.getId(), institution.getName());
-                } else {
-                    LOGGER.warn(
-                        "Delegation Protocol {} Not Implemented for {}.",
-                        institution.getDelegationProtocol(),
-                        institution.getId()
-                    );
-                }
-            } else {
-                LOGGER.error(
-                        "Delegation Protocol {} Not Supported for {}.",
-                        institution.getDelegationProtocol(),
-                        institution.getId()
-                );
+            if (institution.getDelegationProtocol().equalsIgnoreCase(
+                    OpenScienceFrameworkInstitution.DelegationProtocols.SAML_SHIB.name())) {
+                institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
+            } else if (institution.getDelegationProtocol().equalsIgnoreCase(
+                    OpenScienceFrameworkInstitution.DelegationProtocols.CAS_PAC4J.name())) {
+                institutionLogin.put(institution.getId(), institution.getName());
             }
         }
         return institutionLogin;
     }
-
 }

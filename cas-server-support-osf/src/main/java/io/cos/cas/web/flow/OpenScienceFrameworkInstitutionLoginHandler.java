@@ -59,7 +59,7 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
      */
     public Event getInstitutions(final RequestContext context) {
 
-        String target = "";
+        String target;
         String service = context.getRequestParameters().get("service");
         try {
             if (service != null) {

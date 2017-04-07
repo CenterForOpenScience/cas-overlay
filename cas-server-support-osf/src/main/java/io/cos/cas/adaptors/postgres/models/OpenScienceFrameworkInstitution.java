@@ -19,13 +19,10 @@
 
 package io.cos.cas.adaptors.postgres.models;
 
-import com.google.common.collect.ImmutableSet;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Set;
 
 /**
  * The Open Science Framework Institution.
@@ -37,12 +34,13 @@ import java.util.Set;
 @Table(name = "osf_institution")
 public class OpenScienceFrameworkInstitution {
 
-    /** A set of supported delegation protocol with implementation. */
-    private static final Set<String> DELEGATION_PROTOCOLS  = ImmutableSet.of(
-        "cas-oauth2",   // currently only used by ORCiD login (not considered as institution)
-        "cas-pac4j",    // currently only used by Oklahoma State University
-        "saml-shib"    // default institution login protocol
-    );
+    /** A set of supported institution delegation protocol with implementation information. */
+    public enum DelegationProtocols {
+        /** CAS Protocol by pac4j. */
+        CAS_PAC4J,
+        /** SAML Protocol by Shibboleth. */
+        SAML_SHIB,
+    }
 
     @Id
     @Column(name = "id", nullable = false)
@@ -97,15 +95,6 @@ public class OpenScienceFrameworkInstitution {
 
     public String getDelegationProtocol() {
         return delegationProtocol;
-    }
-
-    /**
-     * Verify that the authentication delegation protocol for a given institution is supported.
-     *
-     * @return boolean, true if supported, false otherwise
-     */
-    public boolean verifyDelegationProtocol() {
-        return DELEGATION_PROTOCOLS.contains(delegationProtocol);
     }
 
     @Override
