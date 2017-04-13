@@ -47,7 +47,7 @@ import javax.security.auth.login.FailedLoginException;
 
 
 /**
- * Test class ClientAuthenticationHandler.
+ *This class tests the {@link ClientAuthenticationHandler} class.
  *
  * @author Longze Chen
  * @since 4.1
