@@ -43,8 +43,6 @@ import org.pac4j.oauth.profile.orcid.OrcidProfile;
 import org.springframework.webflow.context.ExternalContextHolder;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 
-import javax.security.auth.login.FailedLoginException;
-
 
 /**
  *This class tests the {@link ClientAuthenticationHandler} class.
@@ -54,11 +52,9 @@ import javax.security.auth.login.FailedLoginException;
  */
 public final class ClientAuthenticationHandlerTests {
 
-    private static final String CALLBACK_URL = "http://localhost:8080/login";
+    private static final String CALLBACK_URL = "http://casserver/login";
 
     private static final String INSTITUTION_CAS_CLIENT = "CasClientInstitution";
-
-    private static final String NON_INSTITUTION_CAS_CLIENT = "CasClientNonInstitution";
 
     private static final String PROFILE_ID = "0123456789";
 
@@ -68,11 +64,9 @@ public final class ClientAuthenticationHandlerTests {
 
     private MockCasClient mockInstitutionCasClient;
 
-    private MockCasClient mockNonInstitutionCasClient;
+    private CasProfile mockCasProfile;
 
     private MockOrcidClient mockOrcidClient;
-
-    private CasProfile mockCasProfile;
 
     private OrcidProfile mockOrcidProfile;
 
@@ -88,11 +82,6 @@ public final class ClientAuthenticationHandlerTests {
         mockInstitutionCasClient.setClientName(INSTITUTION_CAS_CLIENT);
         mockInstitutionCasClient.setCasProtocol(CasClient.CasProtocol.SAML);
 
-        // mock non-institution cas client
-        mockNonInstitutionCasClient = new MockCasClient();
-        mockNonInstitutionCasClient.setClientName(NON_INSTITUTION_CAS_CLIENT);
-        mockNonInstitutionCasClient.setCasProtocol(CasClient.CasProtocol.CAS20);
-
         // mock orcid client
         mockOrcidClient = new MockOrcidClient();
 
@@ -100,7 +89,6 @@ public final class ClientAuthenticationHandlerTests {
         final Clients clients = new Clients(
                 CALLBACK_URL,
                 mockInstitutionCasClient,
-                mockNonInstitutionCasClient,
                 mockOrcidClient
         );
         clientAuthenticationHandler = new ClientAuthenticationHandler(institutionHandler, clients);
@@ -109,7 +97,6 @@ public final class ClientAuthenticationHandlerTests {
         mockCasProfile = new CasProfile();
         mockCasProfile.setId(PROFILE_ID);
         mockInstitutionCasClient.setCasProfile(mockCasProfile);
-        mockNonInstitutionCasClient.setCasProfile(mockCasProfile);
         mockOrcidProfile = new OrcidProfile();
         mockOrcidProfile.setId(PROFILE_ID);
         mockOrcidClient.setOrcidProfile(mockOrcidProfile);
@@ -121,31 +108,21 @@ public final class ClientAuthenticationHandlerTests {
     public void verifyPrincipleIdForInstitutionCasClients() throws GeneralSecurityException, PreventedException {
 
         final Credentials credentials = new CasCredentials(null, mockInstitutionCasClient.getName());
-        clientCredential = new ClientCredential(credentials);
+       clientCredential = new ClientCredential(credentials);
 
         final HandlerResult result = clientAuthenticationHandler.createResult(clientCredential, mockCasProfile);
         final Principal principal = result.getPrincipal();
-        final String expectedPrincipalId = INSTITUTION_CAS_CLIENT + '#' + mockCasProfile.getId();
-        assertEquals(expectedPrincipalId, principal.getId());
-    }
-
-    @Test(expected = FailedLoginException.class)
-    public void verifyPrincipleIdForNonInstitutionCasClients() throws GeneralSecurityException, PreventedException {
-
-        final Credentials credentials = new CasCredentials(null, mockNonInstitutionCasClient.getName());
-        clientCredential = new ClientCredential(credentials);
-        final HandlerResult result = clientAuthenticationHandler.createResult(clientCredential, mockCasProfile);
+        assertEquals(INSTITUTION_CAS_CLIENT, principal.getId());
     }
 
     @Test
-    public void verifyPrincipleIdForNonCasClients() throws GeneralSecurityException, PreventedException {
+    public void verifyPrincipleIdForOrcidClient() throws GeneralSecurityException, PreventedException {
 
         final Credentials credentials = new OAuthCredentials(null, mockOrcidClient.getName());
-        final ClientCredential clientCredential = new ClientCredential(credentials);
+        clientCredential = new ClientCredential(credentials);
 
         final HandlerResult result = this.clientAuthenticationHandler.createResult(clientCredential, mockOrcidProfile);
         final Principal principal = result.getPrincipal();
-        final String expectedPrincipalId = OrcidProfile.class.getSimpleName() + "#" + mockCasProfile.getId();
-        assertEquals(expectedPrincipalId, principal.getId());
+        assertEquals(OrcidProfile.class.getSimpleName() + "#" + mockOrcidProfile.getId(), principal.getId());
     }
 }
