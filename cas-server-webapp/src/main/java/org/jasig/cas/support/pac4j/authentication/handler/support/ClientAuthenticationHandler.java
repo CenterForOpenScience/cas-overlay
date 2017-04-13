@@ -66,15 +66,34 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
      * {@inheritDoc}
      *
      * Note on customization:
-     * 1.   The default behavior is:
+     *
+     * 1.   The default behavior for building a principal by id is:
      *          id = isTypedIdUsed() ? profile.getTypedId() : profile.getId();
-     *      When typedId is used, the "class name" of the client is used. This works for ORCiD client because there is
-     *      only one such client. However, this fails to work with CAS clients since the "class name" cannot identify
-     *      different CAS providers. The solution is to use "client name" instead of "class name".
-     *          id = clientName + "Profile#" + profile.getId()
-     *      For OSF compatibility, only CAS clients use client name while the ORCiD client is not changed
-     * 2.   For clients considered as "institution", their auth flow is intercepted and redirected to our
-     *      institution login flow after successful auth. The principal id only contains client name and profile id.
+     *      When typedId (default) is used, the "class name" of the client profile is used.
+     *
+     *      For Example:
+     *      An Orcid user's principal.getId() is "OrcidProfile#0000-1111-2222-3333".
+     *      An OKState user's principal.getId() is "CasProfile#0000-1111-2222-3333".
+     *
+     *      This works for ORCiD, Facebook, Twitter, etc. because there is only one such client.
+     *      However, it fails to work with CAS clients since CAS cannot identify IdP from "CasProfile".
+     *
+     * 3.   Workaround:
+     *
+     *      The issue is caused by profile.getTypedId() uses class names by default.
+     *      "OrcidProfile" comes from OrcidProfile.class.getSimpleName(),
+     *      "CasProfile" comes from CasProfile.class.getSimpleName().
+     *
+     *      The solution is to use "client name" instead of "class name" by explicitly setting the id.
+     *          id = clientName
+     *      Now, an OKState user's principal.getId() becomes "okstate" and we use the "mail" attribute
+     *      for identity.
+     *
+     * 3.   For clients considered as "institution", their auth flow is intercepted and redirected to
+     *      our institution login flow `remoteAuthenticate` after successful authentication.
+     *
+     *      The institutionId and the released delegation attributes are ready in the principal which
+     *      will be used by `remoteAuthenticate`.
      */
     @Override
     protected HandlerResult createResult(final ClientCredential credentials, final UserProfile profile)
