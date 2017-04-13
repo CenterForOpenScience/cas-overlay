@@ -31,6 +31,7 @@ import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.RemoteUserFailedLoginException;
 import org.apache.http.HttpResponse;
@@ -112,6 +113,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @since 4.1.1
      */
     public static class PrincipalAuthenticationResult {
+
         private String username;
         private String institutionId;
 
@@ -136,10 +138,10 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     }
 
     /** Authentication Delegation Protocol: CAS by pac4j. */
-    public static final String PROTOCOL_CAS = "CAS_PAC4J";
+    public static final String PROTOCOL_CAS = OpenScienceFrameworkInstitution.DelegationProtocols.CAS_PAC4J.name();
 
     /** Authentication Delegation Protocol: SAML by Shibboleth. */
-    public static final String PROTOCOL_SAML = "SAML_SHIB";
+    public static final String PROTOCOL_SAML = OpenScienceFrameworkInstitution.DelegationProtocols.SAML_SHIB.name();
 
     /** Authentication failure result. */
     public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
@@ -197,12 +199,12 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             final Map<String, Class<? extends Exception>> failures = new LinkedHashMap<>();
             failures.put(e.getClass().getSimpleName(), e.getClass());
             return getEventFactorySupport().event(
-                this,
-                AUTHENTICATION_FAILURE,
-                new LocalAttributeMap<Object>(
-                    "error",
-                    new AuthenticationException(failures)
-                )
+                    this,
+                    AUTHENTICATION_FAILURE,
+                    new LocalAttributeMap<Object>(
+                            "error",
+                            new AuthenticationException(failures)
+                    )
             );
         }
 
@@ -216,9 +218,9 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         if (isRenewPresent(context) && ticketGrantingTicketId != null && service != null) {
             try {
                 final ServiceTicket serviceTicketId = this.centralAuthenticationService.grantServiceTicket(
-                    ticketGrantingTicketId,
-                    service,
-                    credential
+                        ticketGrantingTicketId,
+                        service,
+                        credential
                 );
                 WebUtils.putServiceTicketInRequestScope(context, serviceTicketId);
                 return result("warn");
@@ -233,16 +235,16 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
         try {
             WebUtils.putTicketGrantingTicketInScopes(
-                context,
-                this.centralAuthenticationService.createTicketGrantingTicket(credential)
+                    context,
+                    this.centralAuthenticationService.createTicketGrantingTicket(credential)
             );
             onSuccess(context, credential);
             return success();
         } catch (final AuthenticationException e) {
             return getEventFactorySupport().event(
-                this,
-                AUTHENTICATION_FAILURE,
-                new LocalAttributeMap<Object>("error", e)
+                    this,
+                    AUTHENTICATION_FAILURE,
+                    new LocalAttributeMap<Object>("error", e)
             );
         } catch (final Exception e) {
             onError(context, credential);
@@ -269,7 +271,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
     protected Credential constructCredentialsFromRequest(final RequestContext context) throws AccountException {
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
         final OpenScienceFrameworkCredential credential
-            = (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
+                = (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
 
         // remove the shibboleth cookie
         // do not rely on the Shibboleth server to remove this cookie, which only works only for normal flow
@@ -295,15 +297,15 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
                     final String headerValue = request.getHeader(headerName);
                     logger.debug("Remote User [{}] Auth Header '{}': '{}'", remoteUser, headerName, headerValue);
                     credential.getDelegationAttributes().put(
-                        headerName.substring(ATTRIBUTE_PREFIX.length()),
-                        headerValue
+                            headerName.substring(ATTRIBUTE_PREFIX.length()),
+                            headerValue
                     );
                 }
             }
             credential.getDelegationAttributes().put("Delegation-Protocol", PROTOCOL_SAML);
             // Notify the OSF of the remote principal authentication.
             final PrincipalAuthenticationResult remoteUserInfo
-                = notifyRemotePrincipalAuthenticated(credential, null, PROTOCOL_SAML);
+                    = notifyRemotePrincipalAuthenticated(credential, null, PROTOCOL_SAML);
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
             return credential;
@@ -313,10 +315,10 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             Principal principal;
             try {
                 final String ticketGrantingTicketId
-                    = (String) context.getFlowScope().get("ticketGrantingTicketId");
+                        = (String) context.getFlowScope().get("ticketGrantingTicketId");
                 ticketGrantingTicket = centralAuthenticationService.getTicket(
-                    ticketGrantingTicketId,
-                    TicketGrantingTicket.class
+                        ticketGrantingTicketId,
+                        TicketGrantingTicket.class
                 );
             } catch (final InvalidTicketException e) {
                 logger.error("Invalid Ticket Granting Ticket");
@@ -332,7 +334,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             }
             // Notify the OSF of the remote principal authentication.
             final PrincipalAuthenticationResult remoteUserInfo
-                = notifyRemotePrincipalAuthenticated(credential, principal, PROTOCOL_CAS);
+                    = notifyRemotePrincipalAuthenticated(credential, principal, PROTOCOL_CAS);
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(ticketGrantingTicket.getAuthentication().getPrincipal().getId());
             return credential;
@@ -357,9 +359,9 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @throws AccountException a account exception
      */
     private PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
-        final OpenScienceFrameworkCredential credential,
-        final Principal principal,
-        final String protocol
+            final OpenScienceFrameworkCredential credential,
+            final Principal principal,
+            final String protocol
     ) throws AccountException {
 
         try {
@@ -471,8 +473,8 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @throws AccountException RemoteUserFailedLoginException
      */
     private OpenScienceFrameworkCredential constructCredentialFromRemotePrincipal(
-        final OpenScienceFrameworkCredential credential,
-        final Principal principal
+            final OpenScienceFrameworkCredential credential,
+            final Principal principal
     ) throws AccountException {
 
         // use clientName (identical to institutionId) as idp
@@ -484,8 +486,8 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         final Map<String, Object> attributes = principal.getAttributes();
         for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
             credential.getDelegationAttributes().put(
-                entry.getKey(),
-                (String) entry.getValue()
+                    entry.getKey(),
+                    (String) entry.getValue()
             );
         }
 
