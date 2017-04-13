@@ -43,12 +43,11 @@ import org.pac4j.oauth.profile.orcid.OrcidProfile;
 import org.springframework.webflow.context.ExternalContextHolder;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 
-
 /**
  *This class tests the {@link ClientAuthenticationHandler} class.
  *
  * @author Longze Chen
- * @since 4.1
+ * @since 4.1.5
  */
 public final class ClientAuthenticationHandlerTests {
 

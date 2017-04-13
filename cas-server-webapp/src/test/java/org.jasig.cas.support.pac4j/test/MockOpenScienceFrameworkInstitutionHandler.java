@@ -28,7 +28,7 @@ import java.util.Set;
  * Mock class for the OpenScienceFrameworkInstitutionHandler.
  *
  * @author Longze Chen
- * @since 4.1
+ * @since 4.1.5
  */
 public class MockOpenScienceFrameworkInstitutionHandler extends OpenScienceFrameworkInstitutionHandler {
 

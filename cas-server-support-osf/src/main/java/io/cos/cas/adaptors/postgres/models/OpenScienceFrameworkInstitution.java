@@ -28,7 +28,7 @@ import javax.persistence.Table;
  * The Open Science Framework Institution.
  *
  * @author Longze Chen
- * @since 4.1.o
+ * @since 4.1.5
  */
 @Entity
 @Table(name = "osf_institution")

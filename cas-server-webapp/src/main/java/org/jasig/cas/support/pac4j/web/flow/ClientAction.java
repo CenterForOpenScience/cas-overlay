@@ -70,7 +70,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author Jerome Leleu
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public final class ClientAction extends AbstractAction {
 
@@ -189,13 +189,13 @@ public final class ClientAction extends AbstractAction {
                         this.centralAuthenticationService.createTicketGrantingTicket(new ClientCredential(credentials));
                 WebUtils.putTicketGrantingTicketInScopes(context, tgt);
 
+                // customized behavior
                 // for institution clients:
                 // 1. retrieve the credential from flow context
                 // 2. set institution and delegation fields
                 // 3. put it back to the flow context
                 // 4. go to login flow `remoteAuthenticate`
                 if (this.institutionHandler.isDelegatedInstitutionLogin(clientName)) {
-
 
                     final OpenScienceFrameworkCredential credential
                             = (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
@@ -208,7 +208,8 @@ public final class ClientAction extends AbstractAction {
                     return new Event(this, "remote");
                 }
 
-                // for non-institution clients, go to login flow `ticketGrantingTicketCheckAction` (default)
+                // default behavior
+                // for non-institution clients, go to login flow `ticketGrantingTicketCheckAction`
                 return success();
             }
         }

@@ -24,12 +24,11 @@ import org.pac4j.oauth.client.OrcidClient;
 import org.pac4j.oauth.credentials.OAuthCredentials;
 import org.pac4j.oauth.profile.orcid.OrcidProfile;
 
-
 /**
  * Mock class for the OrcidClient.
  *
  * @author Longze Chen
- * @since 4.1
+ * @since 4.1.5
  */
 public class MockOrcidClient extends OrcidClient {
 

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.jasig.cas.support.pac4j.authentication.handler.support;
 
 import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
@@ -37,7 +38,7 @@ import java.security.GeneralSecurityException;
  *
  * @author Jerome Leleu
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class ClientAuthenticationHandler extends AbstractClientAuthenticationHandler {
 
@@ -104,11 +105,13 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
 
         if (clientName != null) {
             if (this.institutionHandler.isDelegatedInstitutionLogin(clientName)) {
+                // customized behavior
                 // institution clients are independent of authentication delegation protocol
                 // set principal id to the client name, which is identical to the institution id
                 id = clientName;
             } else {
-                // default behavior: respect Typed ID flag and use class name
+                // default behavior
+                // respect Typed ID flag and use profile's class name
                 id = isTypedIdUsed() ? profile.getTypedId() : profile.getId();
             }
             if (StringUtils.isNotBlank(id)) {

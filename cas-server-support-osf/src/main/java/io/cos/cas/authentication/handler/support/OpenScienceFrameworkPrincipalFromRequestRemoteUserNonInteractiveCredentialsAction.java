@@ -95,14 +95,14 @@ import java.util.Map;
  * find one, this class returns and error event which tells the web flow it
  * could not find any credentials.
  *
- * Since 4.1.1, the functionality of this Action has been expanded to
+ * Since 4.1.5, the functionality of this Action has been expanded to
  *  1.  Institution login using SAML with implementation from Shibboleth
- *  2.  Institution login Using CAS with implementaiton from pac4j
+ *  2.  Institution login Using CAS with implementation from pac4j
  *  3.  Normal login with username and verification key
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.1
+ * @since 4.1.5
  */
 public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction
             extends AbstractAction {
@@ -110,7 +110,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * The Principal Authentication Result.
      *
      * @author Longze Chen
-     * @since 4.1.1
+     * @since 4.1.5
      */
     public static class PrincipalAuthenticationResult {
 

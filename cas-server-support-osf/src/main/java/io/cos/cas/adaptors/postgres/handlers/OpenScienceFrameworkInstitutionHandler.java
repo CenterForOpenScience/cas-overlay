@@ -21,8 +21,6 @@ package io.cos.cas.adaptors.postgres.handlers;
 
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -33,11 +31,9 @@ import java.util.Map;
  * The Open Science Framework Institution Handler.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkInstitutionHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
 
     @NotNull
     private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
@@ -64,13 +60,14 @@ public class OpenScienceFrameworkInstitutionHandler {
     }
 
     /**
-     * Check if a delegation client is indeed an institution with matching protocol.
+     * Check if a delegation client is indeed an institution one with a matching protocol.
      *
      * @param clientName the name of the client
      * @return true if the client is institution, false otherwise
      */
     public boolean isDelegatedInstitutionLogin(final String clientName) {
-        final OpenScienceFrameworkInstitution institution = openScienceFrameworkDao.findOneInstitutionById(clientName);
+        final OpenScienceFrameworkInstitution institution
+                = openScienceFrameworkDao.findOneInstitutionById(clientName.toLowerCase());
         if (institution != null) {
             if (institution.getDelegationProtocol().equalsIgnoreCase(
                     OpenScienceFrameworkInstitution.DelegationProtocols.CAS_PAC4J.name())) {

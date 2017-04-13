@@ -39,12 +39,11 @@ import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.test.MockRequestContext;
 
-
 /**
  * This class tests the {@link ClientAction} class.
  *
  * @author Longze Chen
- * @since 4.1
+ * @since 4.1.5
  */
 public final class ClientActionTests {
 

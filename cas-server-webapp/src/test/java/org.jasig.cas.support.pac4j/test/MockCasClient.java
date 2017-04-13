@@ -25,12 +25,11 @@ import org.pac4j.cas.profile.CasProfile;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.RequiresHttpAction;
 
-
 /**
  * Mock class for the CasClient.
  *
  * @author Longze Chen
- * @since 4.1
+ * @since 4.1.5
  */
 public class MockCasClient extends CasClient {
 
