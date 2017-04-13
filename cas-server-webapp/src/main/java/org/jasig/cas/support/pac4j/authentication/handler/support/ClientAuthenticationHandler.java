@@ -84,16 +84,10 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
         final String id;
 
         if (clientName != null) {
-            // customize profile names
             if (this.institutionHandler.isDelegatedInstitutionLogin(clientName)) {
                 // institution clients are independent of authentication delegation protocol
-                // principal id contains client name and profile id
-                id = clientName + '#' + profile.getId();
-            } else if (clientName.startsWith("CasClient")) {
-                // cas clients ignore Typed ID flag and use client name instead of class name
-                // currently there is no client of this type
-                id = clientName + "Profile#" + profile.getId();
-                throw new FailedLoginException("Client not supported.");
+                // set principal id to the client name, which is identical to the institution id
+                id = clientName;
             } else {
                 // default behavior: respect Typed ID flag and use class name
                 id = isTypedIdUsed() ? profile.getTypedId() : profile.getId();

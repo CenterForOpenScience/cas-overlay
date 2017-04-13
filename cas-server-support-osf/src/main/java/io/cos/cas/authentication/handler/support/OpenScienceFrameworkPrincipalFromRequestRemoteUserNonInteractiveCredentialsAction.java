@@ -300,6 +300,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
                     );
                 }
             }
+            credential.getDelegationAttributes().put("Delegation-Protocol", PROTOCOL_SAML);
             // Notify the OSF of the remote principal authentication.
             final PrincipalAuthenticationResult remoteUserInfo
                 = notifyRemotePrincipalAuthenticated(credential, null, PROTOCOL_SAML);
@@ -474,13 +475,10 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         final Principal principal
     ) throws AccountException {
 
-        // use institution id for CAS idp
-        final String institutionId = principal.getId().split("#")[0];
-        credential.getDelegationAttributes().put("Shib-Identity-Provider", institutionId);
-
-        // for institutions that do not release full name, set uid as their full name in "institution-auth.xsl"
-        final String uid = principal.getId().split("#")[1];
-        credential.getDelegationAttributes().put("uid", uid);
+        // use clientName (identical to institutionId) as idp
+        final String institutionId = principal.getId();
+        credential.getDelegationAttributes().put("Delegation-Protocol", PROTOCOL_CAS);
+        credential.getDelegationAttributes().put("Cas-Identity-Provider", institutionId);
 
         // add principal attributes as they are to the credential's authentication headers
         final Map<String, Object> attributes = principal.getAttributes();
