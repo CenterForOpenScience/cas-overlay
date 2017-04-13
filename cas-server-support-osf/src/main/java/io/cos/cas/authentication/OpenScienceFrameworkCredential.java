@@ -62,8 +62,8 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /** The Institution Id. */
     private String institutionId;
 
-    /** The Authentication Headers. */
-    private Map<String, String> authenticationHeaders = new HashMap<>();
+    /** The Attributes from Authentication Delegation. */
+    private Map<String, String> delegationAttributes = new HashMap<>();
 
     /** Default constructor. */
     public OpenScienceFrameworkCredential() {}
@@ -156,10 +156,10 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
-     * @return Returns the Authentication Headers.
+     * @return Returns the Released Attributes from Authentication Delegation.
      */
-    public final Map<String, String> getAuthenticationHeaders() {
-        return authenticationHeaders;
+    public final Map<String, String> getDelegationAttributes() {
+        return delegationAttributes;
     }
 
     /**

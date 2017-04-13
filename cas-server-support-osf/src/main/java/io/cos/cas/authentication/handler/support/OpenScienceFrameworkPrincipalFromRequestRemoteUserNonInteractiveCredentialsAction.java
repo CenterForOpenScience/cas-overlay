@@ -294,7 +294,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
                 if (headerName.startsWith(ATTRIBUTE_PREFIX)) {
                     final String headerValue = request.getHeader(headerName);
                     logger.debug("Remote User [{}] Auth Header '{}': '{}'", remoteUser, headerName, headerValue);
-                    credential.getAuthenticationHeaders().put(
+                    credential.getDelegationAttributes().put(
                         headerName.substring(ATTRIBUTE_PREFIX.length()),
                         headerValue
                     );
@@ -444,10 +444,10 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         final Element rootElement = document.createElement("auth");
 
         document.appendChild(rootElement);
-        for (final String key : credential.getAuthenticationHeaders().keySet()) {
+        for (final String key : credential.getDelegationAttributes().keySet()) {
             final Element attribute = document.createElement("attribute");
             attribute.setAttribute("name", key);
-            attribute.setAttribute("value", credential.getAuthenticationHeaders().get(key));
+            attribute.setAttribute("value", credential.getDelegationAttributes().get(key));
             rootElement.appendChild(attribute);
         }
 
@@ -476,16 +476,16 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
         // use institution id for CAS idp
         final String institutionId = principal.getId().split("#")[0];
-        credential.getAuthenticationHeaders().put("Shib-Identity-Provider", institutionId);
+        credential.getDelegationAttributes().put("Shib-Identity-Provider", institutionId);
 
         // for institutions that do not release full name, set uid as their full name in "institution-auth.xsl"
         final String uid = principal.getId().split("#")[1];
-        credential.getAuthenticationHeaders().put("uid", uid);
+        credential.getDelegationAttributes().put("uid", uid);
 
         // add principal attributes as they are to the credential's authentication headers
         final Map<String, Object> attributes = principal.getAttributes();
         for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
-            credential.getAuthenticationHeaders().put(
+            credential.getDelegationAttributes().put(
                 entry.getKey(),
                 (String) entry.getValue()
             );
