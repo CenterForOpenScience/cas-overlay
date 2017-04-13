@@ -32,7 +32,7 @@
             <map>
                 <entry key-ref="proxyAuthenticationHandler" value-ref="proxyPrincipalResolver" />
                 <entry key-ref="oAuthAuthenticationHandler" value="#{null}" />
-                <entry key-ref="oAuthClientAuthenticationHandler" value="#{null}" />
+                <entry key-ref="pac4jClientAuthenticationHandler" value="#{null}" />
                 <entry key-ref="openScienceFrameworkAuthenticationHandler" value="#{null}" />
             </map>
         </constructor-arg>
@@ -62,7 +62,7 @@
 
     <bean id="proxyPrincipalResolver" class="org.jasig.cas.authentication.principal.BasicPrincipalResolver" />
 
-    <bean id="oAuthClientAuthenticationHandler" class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
+    <bean id="pac4jClientAuthenticationHandler" class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
         c:theInstitutionHandler-ref="openScienceFrameworkInstitutionHandler"
         c:theClients-ref="clients" />
 </beans>
