@@ -23,7 +23,8 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 
 import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
-import io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.CentralAuthenticationService;
@@ -183,19 +184,31 @@ public final class ClientAction extends AbstractAction {
 
             // credentials not null -> try to authenticate
             if (credentials != null) {
+
                 final TicketGrantingTicket tgt =
                         this.centralAuthenticationService.createTicketGrantingTicket(new ClientCredential(credentials));
                 WebUtils.putTicketGrantingTicketInScopes(context, tgt);
 
-                // for institution clients, go to `remoteAuthenticate` and finish authentication through API
+                // for institution clients:
+                // 1. retrieve the credential from flow context
+                // 2. set institution and delegation fields
+                // 3. put it back to the flow context
+                // 4. go to login flow `remoteAuthenticate`
                 if (this.institutionHandler.isDelegatedInstitutionLogin(clientName)) {
-                    context.getFlowScope().put(
-                            "authenticationDelegationProtocol",
-                            OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction.PROTOCOL_CAS
+
+
+                    final OpenScienceFrameworkCredential credential
+                            = (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
+                    credential.setInstitutionId(clientName);
+                    credential.setRemotePrincipal(Boolean.TRUE);
+                    credential.setDelegationProtocol(
+                            OpenScienceFrameworkInstitution.DelegationProtocols.CAS_PAC4J.name()
                     );
+                    context.getFlowScope().put("credential", credential);
                     return new Event(this, "remote");
                 }
-                // for non-institution clients, follow normal authentication delegation flow
+
+                // for non-institution clients, go to login flow `ticketGrantingTicketCheckAction` (default)
                 return success();
             }
         }

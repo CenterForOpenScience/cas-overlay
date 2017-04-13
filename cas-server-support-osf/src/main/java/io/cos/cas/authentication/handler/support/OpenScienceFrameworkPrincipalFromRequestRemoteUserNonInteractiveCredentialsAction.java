@@ -303,14 +303,15 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
                 }
             }
             credential.getDelegationAttributes().put("Delegation-Protocol", PROTOCOL_SAML);
+            credential.setDelegationProtocol(PROTOCOL_SAML);
             // Notify the OSF of the remote principal authentication.
             final PrincipalAuthenticationResult remoteUserInfo
-                    = notifyRemotePrincipalAuthenticated(credential, null, PROTOCOL_SAML);
+                    = notifyRemotePrincipalAuthenticated(credential, null);
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
             return credential;
-        } else if (context.getFlowScope().get("authenticationDelegationProtocol") == PROTOCOL_CAS) {
-            // CAS-pac4j based institution login
+        } else if (PROTOCOL_CAS.equals(credential.getDelegationProtocol())) {
+            // CAS_PAC4J based institution login
             TicketGrantingTicket ticketGrantingTicket;
             Principal principal;
             try {
@@ -327,14 +328,13 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
             try {
                 credential.setRemotePrincipal(Boolean.TRUE);
                 principal = ticketGrantingTicket.getAuthentication().getPrincipal();
-                logger.info("Authentication Principal For Remote User Received");
             } catch (final NullPointerException e) {
                 logger.error("Cannot Retrieve Authentication Principal");
                 throw new RemoteUserFailedLoginException("Cannot Retrieve Authentication Principal");
             }
             // Notify the OSF of the remote principal authentication.
             final PrincipalAuthenticationResult remoteUserInfo
-                    = notifyRemotePrincipalAuthenticated(credential, principal, PROTOCOL_CAS);
+                    = notifyRemotePrincipalAuthenticated(credential, principal);
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(ticketGrantingTicket.getAuthentication().getPrincipal().getId());
             return credential;
@@ -354,24 +354,23 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      *
      * @param credential the credential object bearing the authentication headers from the idp
      * @param principal the principal constructed from external CAS authentication, or null if protocol is SAML
-     * @param protocol the protocol implementation used by remote authentication: Shibboleth (SAML), CAS (CAS)
      * @return the username from the idp and setup on the OSF
      * @throws AccountException a account exception
      */
     private PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
             final OpenScienceFrameworkCredential credential,
-            final Principal principal,
-            final String protocol
+            final Principal principal
     ) throws AccountException {
 
         try {
             final JSONObject normalizedPayload;
-            if (PROTOCOL_SAML.equals(protocol)) {
+            final String delegationProtocol = credential.getDelegationProtocol();
+            if (PROTOCOL_SAML.equals(delegationProtocol) && principal == null) {
                 normalizedPayload = this.normalizeRemotePrincipal(credential);
-            } else if (PROTOCOL_CAS.equals(protocol)) {
+            } else if (PROTOCOL_CAS.equals(delegationProtocol) && principal != null) {
                 normalizedPayload = this.normalizeRemotePrincipal((this.constructCredentialFromRemotePrincipal(credential, principal)));
             } else {
-                throw new AssertionError(String.format("Unsupported Remote Authentication Protocol: %s", protocol));
+                throw new AssertionError(String.format("Unsupported Remote Authentication Protocol: %s", delegationProtocol));
             }
 
             final JSONObject provider = normalizedPayload.getJSONObject("provider");

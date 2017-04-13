@@ -25,10 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Credential for authenticating with a username and password.
+ * Open Science Framework Credential.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCredential {
 
@@ -62,7 +63,10 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /** The Institution Id. */
     private String institutionId;
 
-    /** The Attributes from Authentication Delegation. */
+    /** The Authentication Delegation Protocol. */
+    private String delegationProtocol;
+
+    /** The Attributes Released from Authentication Delegation. */
     private Map<String, String> delegationAttributes = new HashMap<>();
 
     /** Default constructor. */
@@ -121,7 +125,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
-     * @param oneTimePassword The One Time Password to set.
+     * @param oneTimePassword the One Time Password to set.
      */
     public void setOneTimePassword(final String oneTimePassword) {
         this.oneTimePassword = oneTimePassword;
@@ -135,24 +139,38 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
-     * @param remotePrincipal The Remote Principal.
+     * @param remotePrincipal the Remote Principal.
      */
     public final void setRemotePrincipal(final Boolean remotePrincipal) {
         this.remotePrincipal = remotePrincipal;
     }
 
     /**
-     * @return Returns Institution Id
+     * @return Returns the Institution Id.
      */
     public final String getInstitutionId() {
         return this.institutionId;
     }
 
     /**
-     * @param institutionId The Institution Id
+     * @param institutionId the Institution Id.
      */
     public final void setInstitutionId(final String institutionId) {
         this.institutionId = institutionId;
+    }
+
+    /**
+     * @return Returns the Delegation Protocol.
+     */
+    public String getDelegationProtocol() {
+        return delegationProtocol;
+    }
+
+    /**
+     * @param delegationProtocol the Delegation Protocol.
+     */
+    public void setDelegationProtocol(final String delegationProtocol) {
+        this.delegationProtocol = delegationProtocol;
     }
 
     /**
@@ -197,7 +215,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         if (getClass() != obj.getClass()) {
             return false;
         }
+
         final OpenScienceFrameworkCredential other = (OpenScienceFrameworkCredential) obj;
+
         if (!this.verificationKey.equals(other.verificationKey)) {
             return false;
         }
@@ -208,6 +228,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
             return false;
         }
         if (!this.institutionId.equals(other.institutionId)) {
+            return false;
+        }
+        if (!this.delegationProtocol.equals((other.delegationProtocol))) {
             return false;
         }
         return true;
