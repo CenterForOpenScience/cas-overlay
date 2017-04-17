@@ -48,6 +48,7 @@ public enum DelegationProtocol {
      *
      * @param id the id of the delegation type
      * @return the specific Delegation Protocol enumeration or null
+     * @throws IllegalArgumentException if delegation protocol does not match
      */
     public static DelegationProtocol getType(final String id) throws IllegalArgumentException {
         if (id == null) {

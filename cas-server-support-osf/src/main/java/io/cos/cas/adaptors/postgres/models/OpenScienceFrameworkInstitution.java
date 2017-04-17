@@ -86,10 +86,13 @@ public class OpenScienceFrameworkInstitution {
         return logoutUrl;
     }
 
+    /**
+     * @return the delegation protocol of an institution.
+     */
     public DelegationProtocol getDelegationProtocol() {
         try {
             return DelegationProtocol.getType(delegationProtocol);
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             return null;
         }
     }
