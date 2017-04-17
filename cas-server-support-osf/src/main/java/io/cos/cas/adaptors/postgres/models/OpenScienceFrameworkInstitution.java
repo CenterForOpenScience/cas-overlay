@@ -87,7 +87,11 @@ public class OpenScienceFrameworkInstitution {
     }
 
     public DelegationProtocol getDelegationProtocol() {
-        return DelegationProtocol.getType(delegationProtocol);
+        try {
+            return DelegationProtocol.getType(delegationProtocol);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @Override
