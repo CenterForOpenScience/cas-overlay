@@ -75,9 +75,10 @@ public class OpenScienceFrameworkInstitutionHandler {
         final List<OpenScienceFrameworkInstitution> institutionList = openScienceFrameworkDao.findAllInstitutions();
         final Map<String, String> institutionLogin = new HashMap<>();
         for (final OpenScienceFrameworkInstitution institution: institutionList) {
-            if (institution.getDelegationProtocol().equals(DelegationProtocol.SAML_SHIB)) {
+            final DelegationProtocol delegationProtocol = institution.getDelegationProtocol();
+            if (DelegationProtocol.SAML_SHIB.equals(delegationProtocol)) {
                 institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
-            } else if (institution.getDelegationProtocol().equals(DelegationProtocol.CAS_PAC4J)) {
+            } else if (DelegationProtocol.CAS_PAC4J.equals(delegationProtocol)) {
                 institutionLogin.put(institution.getId(), institution.getName());
             }
         }

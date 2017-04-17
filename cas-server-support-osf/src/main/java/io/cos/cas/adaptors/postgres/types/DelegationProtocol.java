@@ -49,7 +49,7 @@ public enum DelegationProtocol {
      * @param id the id of the delegation type
      * @return the specific Delegation Protocol enumeration or null
      */
-    public static DelegationProtocol getType(final String id) {
+    public static DelegationProtocol getType(final String id) throws IllegalArgumentException {
         if (id == null) {
             return null;
         }
