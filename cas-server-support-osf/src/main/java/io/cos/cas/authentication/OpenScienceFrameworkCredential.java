@@ -231,7 +231,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         if (!this.institutionId.equals(other.institutionId)) {
             return false;
         }
-        if (!this.delegationProtocol.equals((other.delegationProtocol))) {
+        if (!this.delegationProtocol.equals(other.delegationProtocol)) {
             return false;
         }
         return true;
@@ -245,6 +245,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
                 .append(oneTimePassword)
                 .append(remotePrincipal)
                 .append(institutionId)
+                .append(delegationProtocol)
                 .toHashCode();
     }
 }
