@@ -211,7 +211,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
 
         // PAC4J OAuth needs to retain existing credential/tgt for special case login w/ email request on OSF side,
         // send tgt on success is the most appropriate next step.
-        if (credential.getDelegationProtocol().equals(DelegationProtocol.OAUTH_PAC4J)) {
+        if (DelegationProtocol.OAUTH_PAC4J.equals(credential.getDelegationProtocol())) {
             return success();
         }
 
