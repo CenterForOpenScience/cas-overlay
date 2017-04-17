@@ -13,8 +13,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package org.scribe.builder.api;
+package io.cos.scribe.builder.api;
 
+import org.scribe.builder.api.DefaultApi20;
 import org.scribe.extractors.AccessTokenExtractor;
 import org.scribe.extractors.OrcidJsonExtractor;
 import org.scribe.model.OAuthConfig;
@@ -27,12 +28,12 @@ import org.scribe.utils.OAuthEncoder;
  * @author Jens Tinglev
  * @author Michael Haselton
  * @author Longze Chen
- * @since 1.6.0
+ * @since 1.7.0
  */
 public class OrcidApi20 extends DefaultApi20 {
 
     /** The authorization url. */
-    private static final String AUTH_URL = "http://www.orcid.org/oauth/authorize";
+    private static final String AUTH_URL = "https://www.orcid.org/oauth/authorize";
 
     /** The token exchange url. */
     private static final String TOKEN_URL = "https://%s.orcid.org/oauth/token";

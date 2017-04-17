@@ -36,7 +36,7 @@ import java.util.Map;
  * Open Science Framework Institution Login Handler.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkInstitutionLoginHandler {
 
@@ -59,7 +59,7 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
      */
     public Event getInstitutions(final RequestContext context) {
 
-        String target = "";
+        String target;
         String service = context.getRequestParameters().get("service");
         try {
             if (service != null) {

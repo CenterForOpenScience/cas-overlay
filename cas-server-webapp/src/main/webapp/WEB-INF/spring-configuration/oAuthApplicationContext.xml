@@ -20,15 +20,9 @@
 
 -->
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:c="http://www.springframework.org/schema/c"
-       xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     <description>
     </description>
 
@@ -43,21 +37,4 @@
           c:accessTokenUniqueIdGenerator-ref="accessTokenUniqueIdGenerator"
           c:scopeManager-ref="scopeManager"
           c:personalAccessTokenManager-ref="personalAccessTokenManager" />
-
-    <!-- OAuth2 Client -->
-    <bean id="orcid" class="org.pac4j.oauth.client.OrcidClient">
-        <property name="key" value="${oauth.orcid.client.id}" />
-        <property name="secret" value="${oauth.orcid.client.secret}" />
-        <property name="scope" value="${oauth.orcid.scope}" />
-        <property name="member" value="${oauth.orcid.member}" />
-    </bean>
-
-    <bean id="clients" class="org.pac4j.core.client.Clients">
-        <property name="callbackUrl" value="${oauth.redirect.uri}" />
-        <property name="clients">
-            <list>
-                <ref bean="orcid" />
-            </list>
-        </property>
-    </bean>
 </beans>

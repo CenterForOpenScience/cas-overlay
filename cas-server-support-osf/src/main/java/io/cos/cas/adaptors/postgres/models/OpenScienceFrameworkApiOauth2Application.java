@@ -44,7 +44,7 @@ public class OpenScienceFrameworkApiOauth2Application {
      * It comes from `apioauth2application._id` (mongo) to `apioauth2application._id` (postgres).
      * Methods such as `getId()` refer to this `objectId`.
      */
-    @Column(name ="_id", nullable = false)
+    @Column(name ="_id", nullable = false, unique=true)
     private String objectId;
 
     @Column(name = "name", nullable = false)
