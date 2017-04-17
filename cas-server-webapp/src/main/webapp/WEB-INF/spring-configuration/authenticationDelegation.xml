@@ -28,7 +28,7 @@ under the License.
 
     <!-- OAuth2 Clients -->
     <!-- ORCiD -->
-    <bean id="orcid" class="org.pac4j.oauth.client.OrcidClient">
+    <bean id="orcid" class="io.cos.pac4j.oauth.client.OrcidClient">
         <property name="key" value="${oauth.orcid.client.id}" />
         <property name="secret" value="${oauth.orcid.client.secret}" />
         <property name="scope" value="${oauth.orcid.scope}" />

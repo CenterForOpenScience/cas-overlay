@@ -18,6 +18,7 @@
  */
 package io.cos.cas.authentication;
 
+import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jasig.cas.authentication.RememberMeUsernamePasswordCredential;
 
@@ -64,7 +65,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     private String institutionId;
 
     /** The Authentication Delegation Protocol. */
-    private String delegationProtocol;
+    private DelegationProtocol delegationProtocol;
 
     /** The Attributes Released from Authentication Delegation. */
     private Map<String, String> delegationAttributes = new HashMap<>();
@@ -162,14 +163,14 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /**
      * @return Returns the Delegation Protocol.
      */
-    public String getDelegationProtocol() {
+    public final DelegationProtocol getDelegationProtocol() {
         return delegationProtocol;
     }
 
     /**
      * @param delegationProtocol the Delegation Protocol.
      */
-    public void setDelegationProtocol(final String delegationProtocol) {
+    public void setDelegationProtocol(final DelegationProtocol delegationProtocol) {
         this.delegationProtocol = delegationProtocol;
     }
 

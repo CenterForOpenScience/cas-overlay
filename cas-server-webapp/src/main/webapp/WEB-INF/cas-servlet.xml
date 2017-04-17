@@ -378,7 +378,6 @@
   <!-- Client Action for Delegating Authentication -->
   <bean id="pac4jClientAction" class="org.jasig.cas.support.pac4j.web.flow.ClientAction"
         c:theCentralAuthenticationService-ref="centralAuthenticationService"
-        c:theInstitutionHandler-ref="openScienceFrameworkInstitutionHandler"
         c:theClients-ref="clients"/>
 
   <!-- CRaSH -->
