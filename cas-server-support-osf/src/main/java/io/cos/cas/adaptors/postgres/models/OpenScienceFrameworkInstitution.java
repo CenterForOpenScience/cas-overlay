@@ -19,6 +19,8 @@
 
 package io.cos.cas.adaptors.postgres.models;
 
+import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -33,15 +35,6 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "osf_institution")
 public class OpenScienceFrameworkInstitution {
-
-    /** A set of supported institution delegation protocol with implementation information. */
-    public enum DelegationProtocols {
-        /** CAS Protocol by pac4j. */
-        CAS_PAC4J,
-        /** SAML Protocol by Shibboleth. */
-        SAML_SHIB,
-    }
-
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
@@ -93,8 +86,8 @@ public class OpenScienceFrameworkInstitution {
         return logoutUrl;
     }
 
-    public String getDelegationProtocol() {
-        return delegationProtocol;
+    public DelegationProtocol getDelegationProtocol() {
+        return DelegationProtocol.getType(delegationProtocol);
     }
 
     @Override

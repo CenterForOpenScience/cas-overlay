@@ -21,6 +21,7 @@ package io.cos.cas.adaptors.postgres.handlers;
 
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
+import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -60,24 +61,6 @@ public class OpenScienceFrameworkInstitutionHandler {
     }
 
     /**
-     * Check if a delegation client is indeed an institution one with a matching protocol.
-     *
-     * @param clientName the name of the client
-     * @return true if the client is institution, false otherwise
-     */
-    public boolean isDelegatedInstitutionLogin(final String clientName) {
-        final OpenScienceFrameworkInstitution institution
-                = openScienceFrameworkDao.findOneInstitutionById(clientName.toLowerCase());
-        if (institution != null) {
-            if (institution.getDelegationProtocol().equalsIgnoreCase(
-                    OpenScienceFrameworkInstitution.DelegationProtocols.CAS_PAC4J.name())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Return a map of institution login url and institution name.
      *  1.  The "name" is the value instead of the key.
      *  2.  For institutions authenticated through "cas-pac4j", the institution id replaces the login url,
@@ -92,11 +75,9 @@ public class OpenScienceFrameworkInstitutionHandler {
         final List<OpenScienceFrameworkInstitution> institutionList = openScienceFrameworkDao.findAllInstitutions();
         final Map<String, String> institutionLogin = new HashMap<>();
         for (final OpenScienceFrameworkInstitution institution: institutionList) {
-            if (institution.getDelegationProtocol().equalsIgnoreCase(
-                    OpenScienceFrameworkInstitution.DelegationProtocols.SAML_SHIB.name())) {
+            if (institution.getDelegationProtocol().equals(DelegationProtocol.SAML_SHIB)) {
                 institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
-            } else if (institution.getDelegationProtocol().equalsIgnoreCase(
-                    OpenScienceFrameworkInstitution.DelegationProtocols.CAS_PAC4J.name())) {
+            } else if (institution.getDelegationProtocol().equals(DelegationProtocol.CAS_PAC4J)) {
                 institutionLogin.put(institution.getId(), institution.getName());
             }
         }
