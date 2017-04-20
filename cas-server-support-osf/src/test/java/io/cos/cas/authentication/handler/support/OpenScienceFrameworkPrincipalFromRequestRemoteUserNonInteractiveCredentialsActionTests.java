@@ -39,7 +39,25 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
     @Test
     public void verifyInstitutionSamlShibbolethFlow() throws Exception {
-        assertTrue(Boolean.TRUE);
+
+        final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
+        final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
+        final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
+        final MockOsfRemoteAuthenticateAction osfRemoteAuthenticate
+                = new MockOsfRemoteAuthenticateAction(centralAuthenticationService);
+        final Event event = osfRemoteAuthenticate.doExecute(mockContext);
+
+        final OpenScienceFrameworkCredential credential
+                = (OpenScienceFrameworkCredential) mockContext.getFlowScope().get(AbstractTestUtils.CONST_CREDENTIAL);
+        assertTrue(credential.isRemotePrincipal());
+        assertEquals(credential.getUsername(), AbstractTestUtils.CONST_MAIL);
+        assertEquals(credential.getInstitutionId(), AbstractTestUtils.CONST_INSTITUTION_ID);
+        assertEquals(credential.getDelegationProtocol(), DelegationProtocol.SAML_SHIB);
+        assertEquals(
+                credential.getDelegationAttributes().get(AbstractTestUtils.CONST_SHIB_IDENTITY_PROVIDER),
+                AbstractTestUtils.CONST_INSTITUTION_IDP
+        );
+        assertEquals("success", event.getId());
     }
 
     @Test
@@ -74,12 +92,10 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         assertEquals(credential.getInstitutionId(), AbstractTestUtils.CONST_INSTITUTION_ID);
         assertEquals(credential.getDelegationProtocol(), DelegationProtocol.CAS_PAC4J);
         assertEquals(credential.getDelegationAttributes().get(
-                MockOsfRemoteAuthenticateAction.CONST_CAS_IDENTITY_PROVIDER),
+                AbstractTestUtils.CONST_CAS_IDENTITY_PROVIDER),
                 CONST_CAS_CLIENT_NAME
         );
-
         assertEquals("success", event.getId());
-
     }
 
     @Test
@@ -114,10 +130,10 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         assertNull(credential.getInstitutionId());
         assertEquals(credential.getDelegationProtocol(), DelegationProtocol.OAUTH_PAC4J);
         assertFalse(credential.getDelegationAttributes().containsKey(
-                MockOsfRemoteAuthenticateAction.CONST_CAS_IDENTITY_PROVIDER
+                AbstractTestUtils.CONST_CAS_IDENTITY_PROVIDER
         ));
         assertFalse(credential.getDelegationAttributes().containsKey(
-                MockOsfRemoteAuthenticateAction.CONST_SHIB_IDENTITY_PROVIDER
+                AbstractTestUtils.CONST_SHIB_IDENTITY_PROVIDER
         ));
         assertEquals("success", event.getId());
     }

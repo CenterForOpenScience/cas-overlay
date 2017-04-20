@@ -21,11 +21,25 @@ import java.util.Map;
  */
 public abstract class AbstractTestUtils {
 
+    public static final String CONST_CAS_IDENTITY_PROVIDER = "Cas-Identity-Provider";
+
+    public static final String CONST_SHIB_IDENTITY_PROVIDER = "Shib-Identity-Provider";
+
     public static final String CONST_CREDENTIAL = "credential";
 
     public static final String CONST_MAIL = "james@steward.com";
 
     public static final String CONST_INSTITUTION_ID = "stewardu";
+
+    public static final String CONST_INSTITUTION_IDP = "http://institutionidp/";
+
+    private static final String CONST_NOT_EMPTY_STRING = "a_string_that_is_not_empty";
+
+    private static final String REMOTE_USER = "REMOTE_USER";
+
+    private static final String ATTRIBUTE_PREFIX = "AUTH-";
+
+    private static final String SHIBBOLETH_SESSION_HEADER = ATTRIBUTE_PREFIX + "Shib-Session-ID";
 
     private static final String CONST_WEBFLOW_BIND_EXCEPTION =
             "org.springframework.validation.BindException.credentials";
@@ -39,12 +53,7 @@ public abstract class AbstractTestUtils {
     private static final String CONST_DISPLAY_NAME = "Jimmy Steward";
 
     public static Principal getPrincipal(final String name) {
-        final Map<String, Object> attributes = new HashMap<>();
-        attributes.put("displayName", CONST_DISPLAY_NAME);
-        attributes.put("givenName", CONST_GIVEN_NAME);
-        attributes.put("familyName", CONST_FAMILY_NAME);
-        attributes.put("mail", CONST_MAIL);
-        return new DefaultPrincipalFactory().createPrincipal(name, attributes);
+        return new DefaultPrincipalFactory().createPrincipal(name, generateAttributesMap(""));
     }
 
     public static Map<String, Object> getAuthenticationAttributes(final String clientName) {
@@ -53,19 +62,66 @@ public abstract class AbstractTestUtils {
         return attributes;
     }
 
+    public static MockHttpServletRequest getRequestWithShibbolethHeaders() {
+        final MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(SHIBBOLETH_SESSION_HEADER, CONST_NOT_EMPTY_STRING);
+        request.addHeader(REMOTE_USER, AbstractTestUtils.CONST_NOT_EMPTY_STRING);
+        request.addHeader(ATTRIBUTE_PREFIX + CONST_SHIB_IDENTITY_PROVIDER, CONST_INSTITUTION_IDP);
+        for (final Map.Entry<String, Object> entry : generateAttributesMap(ATTRIBUTE_PREFIX).entrySet()) {
+            request.addHeader(entry.getKey(), entry.getValue());
+        }
+        return request;
+    }
+
+    /**
+     * Mock the request context with mock http request.
+     *
+     * @param request the mock http servlet request
+     * @return the mock request context
+     */
+    public static MockRequestContext getContextWithCredentials(final MockHttpServletRequest request) {
+        return getContextWithCredentials(request, new MockHttpServletResponse());
+    }
+
+    /**
+     * Mock the request context with mock http
+     *
+     * @param request
+     * @param ticketGrantingTicketId
+     * @return
+     */
     public static MockRequestContext getContextWithCredentials(
             final MockHttpServletRequest request,
             final String ticketGrantingTicketId
     ) {
-        final MockRequestContext context = getContextWithCredentials(request, new MockHttpServletResponse());
+        final MockRequestContext context = getContextWithCredentials(request);
         context.getFlowScope().put(CONST_TICKET_GRANTING_TICKET, ticketGrantingTicketId);
         return context;
     }
 
+    /**
+     * @return a new osf credential (empty).
+     */
     private static OpenScienceFrameworkCredential getCredential() {
         return new OpenScienceFrameworkCredential();
     }
 
+    private static Map<String, Object> generateAttributesMap(final String prefix) {
+        final Map<String, Object> attributes = new HashMap<>();
+        attributes.put(prefix + "displayName", CONST_DISPLAY_NAME);
+        attributes.put(prefix + "givenName", CONST_GIVEN_NAME);
+        attributes.put(prefix + "familyName", CONST_FAMILY_NAME);
+        attributes.put(prefix + "mail", CONST_MAIL);
+        return attributes;
+    }
+
+    /**
+     * Mock the request context with mock http request and response.
+     *
+     * @param request the mock http servlet request
+     * @param response the mock http servlet response
+     * @return the mock request context
+     */
     private static MockRequestContext getContext(
             final MockHttpServletRequest request,
             final MockHttpServletResponse response
@@ -75,6 +131,13 @@ public abstract class AbstractTestUtils {
         return context;
     }
 
+    /**
+     * Mock the request context with credentials, mock http request and response.
+     *
+     * @param request the mock http servlet request
+     * @param response the mock http servlet response
+     * @return the mock request context
+     */
     private static MockRequestContext getContextWithCredentials(
             final MockHttpServletRequest request,
             final MockHttpServletResponse response

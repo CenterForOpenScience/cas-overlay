@@ -16,10 +16,7 @@ import javax.security.auth.login.AccountException;
 public class MockOsfRemoteAuthenticateAction
     extends OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction {
 
-    public static final String CONST_CAS_IDENTITY_PROVIDER = "Cas-Identity-Provider";
-    public static final String CONST_SHIB_IDENTITY_PROVIDER = "Shib-Identity-Provider";
-
-    private static final String INSTITUTION_AUTH_URL = "https://institutionauth/";
+    private static final String INSTITUTION_AUTH_URL = "http://institutionauth/";
     private static final String INSTITUTION_AUTH_JWE_SECRET = "osf_api_cas_login_jwe_secret_32b";
     private static final String INSTITUTION_AUTH_JWT_SECRET = "osf_api_cas_login_jwt_secret_32b";
     private static final String INSTITUTION_AUTH_XSL_LOCATION = "file:mock-institutions-auth.xsl";
