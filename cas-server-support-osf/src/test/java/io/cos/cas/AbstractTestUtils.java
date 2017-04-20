@@ -21,9 +21,11 @@ import java.util.Map;
  */
 public abstract class AbstractTestUtils {
 
-    public static final String CONST_CAS_CLIENT_NAME = "MockCasClient";
-
     public static final String CONST_CREDENTIAL = "credential";
+
+    public static final String CONST_MAIL = "james@steward.com";
+
+    public static final String CONST_INSTITUTION_ID = "stewardu";
 
     private static final String CONST_WEBFLOW_BIND_EXCEPTION =
             "org.springframework.validation.BindException.credentials";
@@ -36,8 +38,6 @@ public abstract class AbstractTestUtils {
 
     private static final String CONST_DISPLAY_NAME = "Jimmy Steward";
 
-    private static final String CONST_MAIL = "james@steward.com";
-
     public static Principal getPrincipal(final String name) {
         final Map<String, Object> attributes = new HashMap<>();
         attributes.put("displayName", CONST_DISPLAY_NAME);
@@ -47,9 +47,9 @@ public abstract class AbstractTestUtils {
         return new DefaultPrincipalFactory().createPrincipal(name, attributes);
     }
 
-    public static Map<String, Object> getAuthenticationAttributes() {
+    public static Map<String, Object> getAuthenticationAttributes(final String clientName) {
         final Map<String, Object> attributes = new HashMap<>();
-        attributes.put("clientName", CONST_CAS_CLIENT_NAME);
+        attributes.put("clientName", clientName);
         return attributes;
     }
 
@@ -77,14 +77,14 @@ public abstract class AbstractTestUtils {
 
     private static MockRequestContext getContextWithCredentials(
             final MockHttpServletRequest request,
-            final MockHttpServletResponse response) {
+            final MockHttpServletResponse response
+    ) {
         final MockRequestContext context = getContext(request, response);
         context.getFlowScope().put(CONST_CREDENTIAL, AbstractTestUtils.getCredential());
         context.getFlowScope().put(CONST_WEBFLOW_BIND_EXCEPTION, new BindException(
                 AbstractTestUtils.getCredential(),
                 CONST_CREDENTIAL
         ));
-
         return context;
     }
 }

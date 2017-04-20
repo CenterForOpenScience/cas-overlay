@@ -1,5 +1,6 @@
 package io.cos.cas.mock;
 
+import io.cos.cas.AbstractTestUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
 import org.jasig.cas.CentralAuthenticationService;
@@ -16,6 +17,7 @@ public class MockOsfRemoteAuthenticateAction
     extends OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction {
 
     public static final String CONST_CAS_IDENTITY_PROVIDER = "Cas-Identity-Provider";
+    public static final String CONST_SHIB_IDENTITY_PROVIDER = "Shib-Identity-Provider";
 
     private static final String INSTITUTION_AUTH_URL = "https://institutionauth/";
     private static final String INSTITUTION_AUTH_JWE_SECRET = "osf_api_cas_login_jwe_secret_32b";
@@ -37,6 +39,6 @@ public class MockOsfRemoteAuthenticateAction
     protected PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
             final OpenScienceFrameworkCredential credential
     ) throws AccountException {
-        return new PrincipalAuthenticationResult(credential.getUsername(), credential.getInstitutionId());
+        return new PrincipalAuthenticationResult(AbstractTestUtils.CONST_MAIL, AbstractTestUtils.CONST_INSTITUTION_ID);
     }
 }
