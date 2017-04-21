@@ -80,23 +80,10 @@ public abstract class AbstractTestUtils {
         return request;
     }
 
-    /**
-     * Mock the request context with mock http request.
-     *
-     * @param request the mock http servlet request
-     * @return the mock request context
-     */
     public static MockRequestContext getContextWithCredentials(final MockHttpServletRequest request) {
         return getContextWithCredentials(request, new MockHttpServletResponse());
     }
 
-    /**
-     * Mock the request context with mock http
-     *
-     * @param request
-     * @param ticketGrantingTicketId
-     * @return
-     */
     public static MockRequestContext getContextWithCredentials(
             final MockHttpServletRequest request,
             final String ticketGrantingTicketId
@@ -106,9 +93,6 @@ public abstract class AbstractTestUtils {
         return context;
     }
 
-    /**
-     * @return a new osf credential (empty).
-     */
     private static OpenScienceFrameworkCredential getCredential() {
         return new OpenScienceFrameworkCredential();
     }
@@ -122,13 +106,6 @@ public abstract class AbstractTestUtils {
         return attributes;
     }
 
-    /**
-     * Mock the request context with mock http request and response.
-     *
-     * @param request the mock http servlet request
-     * @param response the mock http servlet response
-     * @return the mock request context
-     */
     private static MockRequestContext getContext(
             final MockHttpServletRequest request,
             final MockHttpServletResponse response
@@ -138,13 +115,6 @@ public abstract class AbstractTestUtils {
         return context;
     }
 
-    /**
-     * Mock the request context with credentials, mock http request and response.
-     *
-     * @param request the mock http servlet request
-     * @param response the mock http servlet response
-     * @return the mock request context
-     */
     private static MockRequestContext getContextWithCredentials(
             final MockHttpServletRequest request,
             final MockHttpServletResponse response
