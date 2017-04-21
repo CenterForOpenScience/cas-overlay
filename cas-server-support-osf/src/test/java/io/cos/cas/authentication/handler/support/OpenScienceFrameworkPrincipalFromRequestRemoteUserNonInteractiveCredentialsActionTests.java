@@ -12,6 +12,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.test.MockRequestContext;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -42,6 +44,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
+
         final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
         final MockOsfRemoteAuthenticateAction osfRemoteAuthenticate
                 = new MockOsfRemoteAuthenticateAction(centralAuthenticationService);
@@ -71,7 +74,6 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         when(tgt.getAuthentication()).thenReturn(authentication);
         when(tgt.getId()).thenReturn(TICKET_GRANTING_TICKET_ID);
 
-
         final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
         when(centralAuthenticationService.getTicket(
                 any(String.class),
@@ -83,16 +85,17 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
         final MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest, tgt.getId());
-        final Event event = osfRemoteAuthenticate.doExecute(mockContext);
 
+        final Event event = osfRemoteAuthenticate.doExecute(mockContext);
         final OpenScienceFrameworkCredential credential
                 = (OpenScienceFrameworkCredential) mockContext.getFlowScope().get(AbstractTestUtils.CONST_CREDENTIAL);
+
         assertTrue(credential.isRemotePrincipal());
         assertEquals(credential.getUsername(), AbstractTestUtils.CONST_MAIL);
         assertEquals(credential.getInstitutionId(), AbstractTestUtils.CONST_INSTITUTION_ID);
         assertEquals(credential.getDelegationProtocol(), DelegationProtocol.CAS_PAC4J);
-        assertEquals(credential.getDelegationAttributes().get(
-                AbstractTestUtils.CONST_CAS_IDENTITY_PROVIDER),
+        assertEquals(
+                credential.getDelegationAttributes().get(AbstractTestUtils.CONST_CAS_IDENTITY_PROVIDER),
                 CONST_CAS_CLIENT_NAME
         );
         assertEquals("success", event.getId());
@@ -121,25 +124,39 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
         final MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest, tgt.getId());
-        final Event event = osfRemoteAuthenticate.doExecute(mockContext);
 
+        final Event event = osfRemoteAuthenticate.doExecute(mockContext);
         final OpenScienceFrameworkCredential credential
                 = (OpenScienceFrameworkCredential) mockContext.getFlowScope().get(AbstractTestUtils.CONST_CREDENTIAL);
+
         assertTrue(credential.isRemotePrincipal());
+        assertEquals(credential.getDelegationProtocol(), DelegationProtocol.OAUTH_PAC4J);
+        assertEquals("success", event.getId());
+
         assertNull(credential.getUsername());
         assertNull(credential.getInstitutionId());
-        assertEquals(credential.getDelegationProtocol(), DelegationProtocol.OAUTH_PAC4J);
-        assertFalse(credential.getDelegationAttributes().containsKey(
-                AbstractTestUtils.CONST_CAS_IDENTITY_PROVIDER
-        ));
-        assertFalse(credential.getDelegationAttributes().containsKey(
-                AbstractTestUtils.CONST_SHIB_IDENTITY_PROVIDER
-        ));
-        assertEquals("success", event.getId());
+        assertEquals(credential.getDelegationAttributes(), Collections.EMPTY_MAP);
     }
 
     @Test
     public void verifyUsernameVerificationKeyFlow() throws Exception {
-        assertTrue(Boolean.TRUE);
+        final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithUsernameAndVerificationKey();
+        final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
+        final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
+        final MockOsfRemoteAuthenticateAction osfRemoteAuthenticate
+                = new MockOsfRemoteAuthenticateAction(centralAuthenticationService);
+        final Event event = osfRemoteAuthenticate.doExecute(mockContext);
+
+        final OpenScienceFrameworkCredential credential
+                = (OpenScienceFrameworkCredential) mockContext.getFlowScope().get(AbstractTestUtils.CONST_CREDENTIAL);
+
+        assertEquals(credential.getUsername(), AbstractTestUtils.CONST_MAIL);
+        assertEquals(credential.getVerificationKey(), AbstractTestUtils.CONST_NOT_EMPTY_STRING);
+        assertEquals("success", event.getId());
+
+        assertFalse(credential.isRemotePrincipal());
+        assertNull(credential.getInstitutionId());
+        assertNull(credential.getDelegationProtocol());
+        assertEquals(credential.getDelegationAttributes(), Collections.EMPTY_MAP);
     }
 }

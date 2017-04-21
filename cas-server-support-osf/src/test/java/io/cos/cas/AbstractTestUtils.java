@@ -33,7 +33,7 @@ public abstract class AbstractTestUtils {
 
     public static final String CONST_INSTITUTION_IDP = "http://institutionidp/";
 
-    private static final String CONST_NOT_EMPTY_STRING = "a_string_that_is_not_empty";
+    public static final String CONST_NOT_EMPTY_STRING = "a_string_that_is_not_empty";
 
     private static final String REMOTE_USER = "REMOTE_USER";
 
@@ -60,6 +60,13 @@ public abstract class AbstractTestUtils {
         final Map<String, Object> attributes = new HashMap<>();
         attributes.put("clientName", clientName);
         return attributes;
+    }
+
+    public static MockHttpServletRequest getRequestWithUsernameAndVerificationKey() {
+        final MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addParameter("username", CONST_MAIL);
+        request.addParameter("verification_key", CONST_NOT_EMPTY_STRING);
+        return request;
     }
 
     public static MockHttpServletRequest getRequestWithShibbolethHeaders() {
