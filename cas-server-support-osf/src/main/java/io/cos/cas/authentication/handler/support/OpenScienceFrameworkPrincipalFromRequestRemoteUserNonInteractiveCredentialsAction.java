@@ -106,7 +106,7 @@ import java.util.Map;
  * @author Longze Chen
  * @since 4.1.5
  */
-public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction
+public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction
             extends AbstractAction {
     /**
      * The Principal Authentication Result.
@@ -139,8 +139,9 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
         }
     }
 
-    /** Authentication failure result. */
-    public static final String AUTHENTICATION_FAILURE = "authenticationFailure";
+    private static final String CONST_CREDENTIAL = "credential";
+
+    private static final String AUTHENTICATION_FAILURE = "authenticationFailure";
 
     private static final String REMOTE_USER = "REMOTE_USER";
 
@@ -273,8 +274,11 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      */
     protected OpenScienceFrameworkCredential constructCredential(final RequestContext context) throws AccountException {
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
+        // Note 1:  Do not use `WebUtils.getCredential(RequestContext context)`, it will make the credential`null`.
+        // Note 2:  Should check both FlowScope and RequestScope? And write an `.getCredential(RequestContext context)`
+        //          which are compatible with OpenScienceFrameworkCredential
         final OpenScienceFrameworkCredential credential
-                = (OpenScienceFrameworkCredential) context.getFlowScope().get("credential");
+                = (OpenScienceFrameworkCredential) context.getFlowScope().get(CONST_CREDENTIAL);
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
 
         // WARNING: Do not assume this works w/o acceptance testing in a Production environment.
@@ -384,7 +388,7 @@ public final class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteract
      * @return the username from the idp and setup on the OSF
      * @throws AccountException a account exception
      */
-    private PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
+     protected PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
             final OpenScienceFrameworkCredential credential
     ) throws AccountException {
         try {
