@@ -1,0 +1,44 @@
+{
+  "@class" : "org.jasig.cas.services.RegexRegisteredService",
+  "id" : 203948234207247,
+  "name" : "LawArXiv",
+  "description" : "",
+  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)((local\\.lawarxiv\\.(org|com)(%3A|:)4200)|((localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)lawarxiv))($|%2F|/).*",
+  "evaluationOrder" : "1000",
+  "logo" : "http://localhost:8080/images/preprints-lawarxiv-logo.png",
+  "attributeReleasePolicy" : {
+    "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+    "allowedAttributes" : [
+      "java.util.ArrayList", [
+        "given-names", "family-name"
+      ]
+    ]
+  },
+  "properties" : {
+    "@class" : "java.util.HashMap",
+    "title" : {
+      "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+      "values" : [
+        "java.util.HashSet", [
+          "Open Science Framework"
+        ]
+      ]
+    },
+    "titleAbbr" : {
+      "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+      "values" : [
+        "java.util.HashSet", [
+          "OSF"
+        ]
+      ]
+    },
+    "registerUrl" : {
+      "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+      "values" : [
+        "java.util.HashSet", [
+          "?campaign=lawarxiv-preprints"
+        ]
+      ]
+    }
+  }
+}
