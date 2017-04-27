@@ -20,10 +20,10 @@
 package io.cos.cas.authentication.handler;
 
 import io.cos.cas.services.OpenScienceFrameworkInstitutionRegisteredService;
+import io.cos.cas.types.DelegationProtocol;
+
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServicesManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigInteger;
@@ -35,11 +35,9 @@ import java.util.Map;
  * The Open Science Framework Institution Handler.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkInstitutionHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitutionHandler.class);
 
     @NotNull
     private ServicesManager servicesManager;
@@ -78,14 +76,15 @@ public class OpenScienceFrameworkInstitutionHandler {
     }
 
     /**
-     * Return a map of Institution Login Url and Institution Name.
-     * 1. For protocol "saml-shib", the Login URL is the Key, and the Institution Name is the value.
-     * 2. For protocol "cas-pac4j", the Institution ID is the Key, and the Institution Name is the value.
-     *    The "actual" Login URL is generated during the "ClientAction" flow.
+     * Return a map of institution login url and institution name.
+     *  1.  The "name" is the value instead of the key.
+     *  2.  For institutions authenticated through "cas-pac4j", the institution id replaces the login url,
+     *      whose actual login url is generated during flow "client action".
      *
-     * @param target the OSF Service Target after successful Institution Login,
-     *               which is only applicable for protocol "saml-shib"
-     * @return  a map of Institution Login Url or ID, and Institution Name
+     * @param target The osf service target after successful institution login (only for "saml-shib" institutions)
+     * @return Map.
+     *      For "saml-shib", full login url as key and full institution display name as value;
+     *      For "cas-pac4j", institution id as key and full institution display name as value;
      */
     public Map<String, String> getInstitutionLoginUrls(final String target) {
 
@@ -96,13 +95,11 @@ public class OpenScienceFrameworkInstitutionHandler {
             if (service instanceof OpenScienceFrameworkInstitutionRegisteredService) {
                 final OpenScienceFrameworkInstitutionRegisteredService institution
                         = (OpenScienceFrameworkInstitutionRegisteredService) service;
-
-                if (institution.verifyDelegationProtocol()) {
-                    if ("saml-shib".equals(institution.getDelegationProtocol())) {
-                        institutionLogin.put(institution.getInstitutionLoginUrl() + "&target=" + target, institution.getName());
-                    } else if ("cas-pac4j".equals(institution.getDelegationProtocol())) {
-                        institutionLogin.put(institution.getInstitutionId(), institution.getName());
-                    }
+                final DelegationProtocol delegationProtocol = institution.getDelegationProtocol();
+                if (DelegationProtocol.SAML_SHIB.equals(delegationProtocol)) {
+                    institutionLogin.put(institution.getInstitutionLoginUrl() + "&target=" + target, institution.getName());
+                } else if (DelegationProtocol.CAS_PAC4J.equals(delegationProtocol)) {
+                    institutionLogin.put(institution.getInstitutionId(), institution.getName());
                 }
             }
         }

@@ -32,9 +32,9 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
+import io.cos.cas.types.DelegationProtocol;
 import io.cos.pac4j.oauth.client.OrcidClient;
 
 import org.apache.http.HttpResponse;

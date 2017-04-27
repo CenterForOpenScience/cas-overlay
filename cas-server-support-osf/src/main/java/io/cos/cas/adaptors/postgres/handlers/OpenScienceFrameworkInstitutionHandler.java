@@ -21,7 +21,7 @@ package io.cos.cas.adaptors.postgres.handlers;
 
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
-import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
+import io.cos.cas.types.DelegationProtocol;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;

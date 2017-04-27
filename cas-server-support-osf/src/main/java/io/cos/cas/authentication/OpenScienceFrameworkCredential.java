@@ -18,7 +18,7 @@
  */
 package io.cos.cas.authentication;
 
-import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
+import io.cos.cas.types.DelegationProtocol;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jasig.cas.authentication.RememberMeUsernamePasswordCredential;
 

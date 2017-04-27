@@ -77,6 +77,7 @@
 
     <bean id="proxyPrincipalResolver" class="org.jasig.cas.authentication.principal.BasicPrincipalResolver" />
 
+    <!-- Authentication Delegation -->
     <bean id="pac4jClientAuthenticationHandler" class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
         c:theClients-ref="clients" />
 </beans>

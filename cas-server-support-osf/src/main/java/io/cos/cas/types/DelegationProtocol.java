@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.cos.cas.adaptors.postgres.types;
+
+package io.cos.cas.types;
 
 /**
  * Delegation Protocol Types.

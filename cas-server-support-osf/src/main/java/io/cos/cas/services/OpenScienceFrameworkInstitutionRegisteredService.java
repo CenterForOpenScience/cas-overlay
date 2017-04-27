@@ -19,43 +19,32 @@
 
 package io.cos.cas.services;
 
+import io.cos.cas.types.DelegationProtocol;
 
-import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import org.jasig.cas.services.RegexRegisteredService;
 import org.jasig.cas.services.RegisteredService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Set;
 
 /**
  * Open Science Framework Institution Registered Service.
  *
- * Institution is considered as a special type of Registered  Service, which contains/caches Institution
+ * Institution is considered as a special type of Registered Service, which contains/caches Institution
  * information that is used by CAS for Institution Login and Logout purposes. Its `serviceId` does not
- * match any String and has the the highest evaluation order.
+ * match any String and has the the lowest evaluation priority.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkInstitutionRegisteredService extends RegexRegisteredService {
 
     private static final long serialVersionUID = 2941289781073114252L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitutionRegisteredService.class);
-
-    /** A set of supported delegation protocol with their implementer. */
-    private static final Set<String> DELEGATION_PROTOCOLS = ImmutableSet.of(
-            "cas-pac4j",
-            "saml-shib"
-    );
-
     private static final String SERVICE_ID = "(?!.*)";
 
-    private static final int EVALUATION_ORDER = 1000;
+    private static final int EVALUATION_ORDER = 10000;
 
     private String institutionId;
 
@@ -66,11 +55,11 @@ public class OpenScienceFrameworkInstitutionRegisteredService extends RegexRegis
     private String delegationProtocol;
 
     /**
-     * The Default Constructor.
+     * Default Constructor.
      *
-     * Construct an instance of Institution as a Registered Service.
+     * Construct an instance of Open Science Framework Institution as a Registered Service.
      * Set `serviceId` to "(?!.*)" which matches nothing.
-     * Set `evaluationOrder` to 10000 which is the highest.
+     * Set `evaluationOrder` to 10000 which is the lowest priority.
      */
     public OpenScienceFrameworkInstitutionRegisteredService() {
         this.setServiceId(SERVICE_ID);
@@ -101,8 +90,15 @@ public class OpenScienceFrameworkInstitutionRegisteredService extends RegexRegis
         this.institutionLogoutUrl = institutionLogoutUrl;
     }
 
-    public String getDelegationProtocol() {
-        return delegationProtocol;
+    /**
+     * @return the delegation protocol of an institution.
+     */
+    public DelegationProtocol getDelegationProtocol() {
+        try {
+            return DelegationProtocol.getType(delegationProtocol);
+        } catch (final IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public void setDelegationProtocol(final String delegationProtocol) {
@@ -154,14 +150,5 @@ public class OpenScienceFrameworkInstitutionRegisteredService extends RegexRegis
                 .appendSuper(super.hashCode())
                 .append(institutionId)
                 .toHashCode();
-    }
-
-    /**
-     * Verify that the delegation protocol for the institution is supported.
-     *
-     * @return boolean, true if supported, false otherwise
-     */
-    public boolean verifyDelegationProtocol() {
-        return DELEGATION_PROTOCOLS.contains(delegationProtocol);
     }
 }

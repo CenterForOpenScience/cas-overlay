@@ -1,9 +1,9 @@
 package io.cos.cas.authentication.handler.support;
 
 import io.cos.cas.AbstractTestUtils;
-import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.mock.MockOsfRemoteAuthenticateAction;
+import io.cos.cas.types.DelegationProtocol;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.ticket.TicketGrantingTicket;

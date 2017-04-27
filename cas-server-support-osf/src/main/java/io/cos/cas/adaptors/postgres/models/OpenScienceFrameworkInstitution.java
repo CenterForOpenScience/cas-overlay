@@ -19,7 +19,7 @@
 
 package io.cos.cas.adaptors.postgres.models;
 
-import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
+import io.cos.cas.types.DelegationProtocol;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
