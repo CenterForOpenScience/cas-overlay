@@ -21,8 +21,7 @@ package io.cos.cas.adaptors.postgres.handlers;
 
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -33,11 +32,9 @@ import java.util.Map;
  * The Open Science Framework Institution Handler.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkInstitutionHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
 
     @NotNull
     private OpenScienceFrameworkDaoImpl openScienceFrameworkDao;
@@ -78,27 +75,13 @@ public class OpenScienceFrameworkInstitutionHandler {
         final List<OpenScienceFrameworkInstitution> institutionList = openScienceFrameworkDao.findAllInstitutions();
         final Map<String, String> institutionLogin = new HashMap<>();
         for (final OpenScienceFrameworkInstitution institution: institutionList) {
-            if (institution.verifyDelegationProtocol()) {
-                if ("saml-shib".equals(institution.getDelegationProtocol())) {
-                    institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
-                } else if ("cas-pac4j".equals(institution.getDelegationProtocol())) {
-                    institutionLogin.put(institution.getId(), institution.getName());
-                } else {
-                    LOGGER.warn(
-                        "Delegation Protocol {} Not Implemented for {}.",
-                        institution.getDelegationProtocol(),
-                        institution.getId()
-                    );
-                }
-            } else {
-                LOGGER.error(
-                        "Delegation Protocol {} Not Supported for {}.",
-                        institution.getDelegationProtocol(),
-                        institution.getId()
-                );
+            final DelegationProtocol delegationProtocol = institution.getDelegationProtocol();
+            if (DelegationProtocol.SAML_SHIB.equals(delegationProtocol)) {
+                institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
+            } else if (DelegationProtocol.CAS_PAC4J.equals(delegationProtocol)) {
+                institutionLogin.put(institution.getId(), institution.getName());
             }
         }
         return institutionLogin;
     }
-
 }

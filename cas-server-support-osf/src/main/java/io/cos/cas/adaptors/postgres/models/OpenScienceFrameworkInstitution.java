@@ -19,35 +19,22 @@
 
 package io.cos.cas.adaptors.postgres.models;
 
-import com.google.common.collect.ImmutableSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Set;
 
 /**
  * The Open Science Framework Institution.
  *
  * @author Longze Chen
- * @since 4.1.o
+ * @since 4.1.5
  */
 @Entity
 @Table(name = "osf_institution")
 public class OpenScienceFrameworkInstitution {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
-
-    /** A set of supported delegation protocol with implementation. */
-    private static final Set<String> DELEGATION_PROTOCOLS  = ImmutableSet.of(
-        "cas-oauth2",   // currently only used by ORCiD login (not considered as institution)
-        "cas-pac4j",    // currently only used by Oklahoma State University
-        "saml-shib"
-    );
-
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
@@ -99,17 +86,15 @@ public class OpenScienceFrameworkInstitution {
         return logoutUrl;
     }
 
-    public String getDelegationProtocol() {
-        return delegationProtocol;
-    }
-
     /**
-     * Verify that the authentication delegation protocol for a given institution is supported.
-     *
-     * @return boolean, true if supported, false otherwise
+     * @return the delegation protocol of an institution.
      */
-    public boolean verifyDelegationProtocol() {
-        return DELEGATION_PROTOCOLS.contains(delegationProtocol);
+    public DelegationProtocol getDelegationProtocol() {
+        try {
+            return DelegationProtocol.getType(delegationProtocol);
+        } catch (final IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @Override

@@ -18,6 +18,7 @@
  */
 package io.cos.cas.authentication;
 
+import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jasig.cas.authentication.RememberMeUsernamePasswordCredential;
 
@@ -25,10 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Credential for authenticating with a username and password.
+ * Open Science Framework Credential.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCredential {
 
@@ -68,8 +70,11 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     private String campaign;
     private Boolean createAccount = Boolean.FALSE;
 
-    /** The Authentication Headers. */
-    private Map<String, String> authenticationHeaders = new HashMap<>();
+    /** The Authentication Delegation Protocol. */
+    private DelegationProtocol delegationProtocol;
+
+    /** The Attributes Released from Authentication Delegation. */
+    private Map<String, String> delegationAttributes = new HashMap<>();
 
     /** Default constructor. */
     public OpenScienceFrameworkCredential() {}
@@ -167,7 +172,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
-     * @param oneTimePassword The One Time Password to set.
+     * @param oneTimePassword the One Time Password to set.
      */
     public void setOneTimePassword(final String oneTimePassword) {
         this.oneTimePassword = oneTimePassword;
@@ -181,31 +186,45 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     }
 
     /**
-     * @param remotePrincipal The Remote Principal.
+     * @param remotePrincipal the Remote Principal.
      */
     public final void setRemotePrincipal(final Boolean remotePrincipal) {
         this.remotePrincipal = remotePrincipal;
     }
 
     /**
-     * @return Returns Institution Id
+     * @return Returns the Institution Id.
      */
     public final String getInstitutionId() {
         return this.institutionId;
     }
 
     /**
-     * @param institutionId The Institution Id
+     * @param institutionId the Institution Id.
      */
     public final void setInstitutionId(final String institutionId) {
         this.institutionId = institutionId;
     }
 
     /**
-     * @return Returns the Authentication Headers.
+     * @return Returns the Delegation Protocol.
      */
-    public final Map<String, String> getAuthenticationHeaders() {
-        return authenticationHeaders;
+    public final DelegationProtocol getDelegationProtocol() {
+        return delegationProtocol;
+    }
+
+    /**
+     * @param delegationProtocol the Delegation Protocol.
+     */
+    public void setDelegationProtocol(final DelegationProtocol delegationProtocol) {
+        this.delegationProtocol = delegationProtocol;
+    }
+
+    /**
+     * @return Returns the Released Attributes from Authentication Delegation.
+     */
+    public final Map<String, String> getDelegationAttributes() {
+        return delegationAttributes;
     }
 
     public void setFullname(final String fullname) {
@@ -283,7 +302,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
         if (getClass() != obj.getClass()) {
             return false;
         }
+
         final OpenScienceFrameworkCredential other = (OpenScienceFrameworkCredential) obj;
+
         if (!this.verificationKey.equals(other.verificationKey)) {
             return false;
         }
@@ -294,6 +315,9 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
             return false;
         }
         if (!this.institutionId.equals(other.institutionId)) {
+            return false;
+        }
+        if (!this.delegationProtocol.equals(other.delegationProtocol)) {
             return false;
         }
         return true;
@@ -307,6 +331,7 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
                 .append(oneTimePassword)
                 .append(remotePrincipal)
                 .append(institutionId)
+                .append(delegationProtocol)
                 .toHashCode();
     }
 }
