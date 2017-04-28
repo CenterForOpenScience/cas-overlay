@@ -31,8 +31,8 @@
 
     <!-- Oauth Client Action-->
     <action-state id="clientAction">
-        <evaluate expression="clientAction" />
-        <transition on="success" to="sendTicketGrantingTicket" />
+        <evaluate expression="pac4jClientAction" />
+        <transition on="success" to="remoteAuthenticate" />
         <transition on="error" to="ticketGrantingTicketCheck" />
         <transition on="stop" to="stopWebflow" />
     </action-state>

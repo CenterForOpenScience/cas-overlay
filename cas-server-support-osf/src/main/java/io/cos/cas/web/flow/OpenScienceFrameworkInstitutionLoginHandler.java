@@ -19,10 +19,7 @@
 
 package io.cos.cas.web.flow;
 
-
 import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -39,12 +36,9 @@ import java.util.Map;
  * Open Science Framework Institution Login Handler.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkInstitutionLoginHandler {
-
-    /** The Logger Instance. */
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /** The Institution Authentication Handler. */
     private final OpenScienceFrameworkInstitutionHandler institutionHandler;
@@ -65,7 +59,7 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
      */
     public Event getInstitutions(final RequestContext context) {
 
-        String target = "";
+        String target;
         String service = context.getRequestParameters().get("service");
         try {
             if (service != null) {
@@ -81,7 +75,6 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
         final Map<String, String> institutions = this.institutionHandler.getInstitutionLoginUrls(target);
         institutions.put("", " -- select an institution -- ");
         final Map<String, String> sortedInstitutions = sortByValue(institutions);
-        logger.info(String.format("Institutions loaded: %s", sortedInstitutions.toString()));
         context.getFlowScope().put("institutions", sortedInstitutions);
         return new Event(this, "success");
     }

@@ -19,9 +19,6 @@
 
 package io.cos.cas.adaptors.postgres.models;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -38,8 +35,6 @@ import javax.persistence.Table;
 @Table(name = "osf_apioauth2application")
 public class OpenScienceFrameworkApiOauth2Application {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkApiOauth2PersonalAccessToken.class);
-
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
@@ -49,7 +44,7 @@ public class OpenScienceFrameworkApiOauth2Application {
      * It comes from `apioauth2application._id` (mongo) to `apioauth2application._id` (postgres).
      * Methods such as `getId()` refer to this `objectId`.
      */
-    @Column(name ="_id", nullable = false)
+    @Column(name ="_id", nullable = false, unique=true)
     private String objectId;
 
     @Column(name = "name", nullable = false)

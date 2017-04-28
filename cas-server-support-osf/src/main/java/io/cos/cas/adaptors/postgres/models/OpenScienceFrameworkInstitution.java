@@ -19,8 +19,7 @@
 
 package io.cos.cas.adaptors.postgres.models;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,14 +30,11 @@ import javax.persistence.Table;
  * The Open Science Framework Institution.
  *
  * @author Longze Chen
- * @since 4.1.o
+ * @since 4.1.5
  */
 @Entity
 @Table(name = "osf_institution")
 public class OpenScienceFrameworkInstitution {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitution.class);
-
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
@@ -60,6 +56,9 @@ public class OpenScienceFrameworkInstitution {
     @Column(name = "logout_url")
     private String logoutUrl;
 
+    @Column(name = "delegation_protocol")
+    private String delegationProtocol;
+
     @Column(name = "is_deleted")
     private Boolean deleted;
 
@@ -67,8 +66,9 @@ public class OpenScienceFrameworkInstitution {
     public OpenScienceFrameworkInstitution() {}
 
     /**
-     * Returns the `objectId` (institution id) instead of `id` (postgres pk).
-     * @return the object id
+     * Returns the `objectId` instead of `id` (postgres pk).
+     *
+     * @return String, the institution id
      */
     public String getId() {
         return objectId;
@@ -84,6 +84,17 @@ public class OpenScienceFrameworkInstitution {
 
     public String getLogoutUrl() {
         return logoutUrl;
+    }
+
+    /**
+     * @return the delegation protocol of an institution.
+     */
+    public DelegationProtocol getDelegationProtocol() {
+        try {
+            return DelegationProtocol.getType(delegationProtocol);
+        } catch (final IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @Override
