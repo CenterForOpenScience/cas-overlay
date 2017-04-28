@@ -19,7 +19,8 @@
 
 package io.cos.cas.authentication.handler;
 
-import io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.types.ApiEndpoint;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.personal.handler.support.AbstractPersonalAccessTokenHandler;
 import org.json.JSONObject;
@@ -36,7 +37,7 @@ import java.util.HashSet;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler
         implements InitializingBean {
@@ -64,9 +65,9 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
         final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
 
         // talk to API `/cas/service/pat/` endpoint
-        final JSONObject response = osfApiCasEndpoint.apiCasService("personalAccessToken", encryptedPayload);
+        final JSONObject response = osfApiCasEndpoint.apiCasService(ApiEndpoint.SERVICE_PERSONAL_ACCESS_TOKEN, encryptedPayload);
         if (response == null || !response.has("ownerId") || !response.has("tokenScopes")) {
-            LOGGER.error("Invalid Response");
+            LOGGER.debug("Invalid Response");
             return null;
         }
 

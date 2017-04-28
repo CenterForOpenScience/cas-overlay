@@ -19,7 +19,8 @@
 
 package io.cos.cas.services;
 
-import io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.types.ApiEndpoint;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.jasig.cas.services.ServiceRegistryDao;
@@ -46,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegistryDao {
 
@@ -97,7 +98,7 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
         final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
 
         // `POST` to OSF API `/cas/service/developerApps/` endpoint
-        final JSONObject response = osfApiCasEndpoint.apiCasService("developerApps", encryptedPayload);
+        final JSONObject response = osfApiCasEndpoint.apiCasService(ApiEndpoint.SERVICE_DEVELOPER_APPS, encryptedPayload);
         if (response != null) {
             final Iterator<String> iterator = response.keys();
             while (iterator.hasNext()) {
@@ -140,7 +141,6 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
             serviceData = response.getJSONObject(serviceGuid);
         } catch (final JSONException e) {
             LOGGER.error("Fail to Parse OAuth Service. Service ID: {}", serviceGuid);
-            LOGGER.error(e.toString());
             return null;
         }
 

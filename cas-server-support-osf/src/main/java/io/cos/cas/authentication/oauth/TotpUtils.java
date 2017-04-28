@@ -1,4 +1,4 @@
-package io.cos.cas.authentication.oath;
+package io.cos.cas.authentication.oauth;
 
 import org.apache.commons.codec.binary.Base32;
 

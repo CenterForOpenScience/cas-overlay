@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.cos.cas.authentication.handler.support;
+
+package io.cos.cas.web.flow;
 
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
@@ -95,7 +96,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 
 /**
  * Implementation of the NonInteractiveCredentialsAction that looks for a remote

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.cos.cas.authentication.exceptions;
 
 import javax.security.auth.login.AccountException;
@@ -24,9 +25,11 @@ import javax.security.auth.login.AccountException;
  * Describes an error condition where registration failed due to user already registered.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class RegistrationFailureUserAlreadyExistsException extends AccountException {
+
+    private static final long serialVersionUID = 1200784660656118770L;
 
     /**
      * Default Constructor.

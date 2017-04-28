@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.cos.cas.authentication.handler;
 
 import java.security.GeneralSecurityException;
 import java.util.Map;
 
-import io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint;
-import io.cos.cas.adaptors.api.OpenScienceFrameworkApiStatus;
+import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.api.AbstractOpenScienceFrameworkApiUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
@@ -32,6 +33,7 @@ import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequi
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
+import io.cos.cas.types.ApiEndpoint;
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
@@ -52,7 +54,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPostProcessingAuthenticationHandler
         implements InitializingBean {
@@ -113,7 +115,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final JSONObject data = new JSONObject();
         final JSONObject payload = new JSONObject();
 
-        final String endpoint;
+        final ApiEndpoint endpoint;
         user.put("email", username);
         user.put("password", plainTextPassword);
 
@@ -121,13 +123,13 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             user.put("fullname", fullname);
             user.put("campaign", campaign);
             data.put("type", "REGISTER");
-            endpoint = "register";
+            endpoint = ApiEndpoint.AUTH_REGISTER;
         } else {
             user.put("verificationKey", verificationKey);
             user.put("remoteAuthenticated", credential.isRemotePrincipal());
             user.put("oneTimePassword", oneTimePassword);
             data.put("type", "LOGIN");
-            endpoint = "login";
+            endpoint = ApiEndpoint.AUTH_LOGIN;
         }
 
         data.put("user", user);
@@ -140,35 +142,35 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         final String status = (String) response.get("status");
-        if (OpenScienceFrameworkApiStatus.AUTHENTICATION_SUCCESS.equals(status)) {
+        if (AbstractOpenScienceFrameworkApiUtils.AUTHENTICATION_SUCCESS.equals(status)) {
             // authentication success, create principle with user's guid and attributes
             final String userId = (String) response.get("userId");
             final Map<String, Object> attributes = (Map<String, Object>) response.get("attributes");
             return createHandlerResult(credential, this.principalFactory.createPrincipal(userId, attributes), null);
-        } else if (OpenScienceFrameworkApiStatus.REGISTRATION_SUCCESS.equals(status)) {
+        } else if (AbstractOpenScienceFrameworkApiUtils.REGISTRATION_SUCCESS.equals(status)) {
             // registration success, requires confirmation
             throw new RegistrationSuccessConfirmationRequiredException();
-        } else if (OpenScienceFrameworkApiStatus.AUTHENTICATION_FAILURE.equals(status)) {
+        } else if (AbstractOpenScienceFrameworkApiUtils.AUTHENTICATION_FAILURE.equals(status)) {
             // authentication or registration failure
             final String errorDetail = (String) response.get("detail");
-            if (OpenScienceFrameworkApiStatus.ALREADY_REGISTERED.equals(errorDetail)) {
+            if (AbstractOpenScienceFrameworkApiUtils.ALREADY_REGISTERED.equals(errorDetail)) {
                 throw new RegistrationFailureUserAlreadyExistsException();
-            } else if (OpenScienceFrameworkApiStatus.TWO_FACTOR_AUTHENTICATION_REQUIRED.equals(errorDetail)) {
+            } else if (AbstractOpenScienceFrameworkApiUtils.TWO_FACTOR_AUTHENTICATION_REQUIRED.equals(errorDetail)) {
                 throw new OneTimePasswordRequiredException("Time-based One Time Password required.");
-            } else if (OpenScienceFrameworkApiStatus.INVALID_ONE_TIME_PASSWORD.equals(errorDetail)) {
+            } else if (AbstractOpenScienceFrameworkApiUtils.INVALID_ONE_TIME_PASSWORD.equals(errorDetail)) {
                 throw new OneTimePasswordFailedLoginException();
-            } else if (OpenScienceFrameworkApiStatus.ACCOUNT_NOT_FOUND.equals(errorDetail)) {
+            } else if (AbstractOpenScienceFrameworkApiUtils.ACCOUNT_NOT_FOUND.equals(errorDetail)) {
                 throw new AccountNotFoundException();
-            } else if (OpenScienceFrameworkApiStatus.INVALID_PASSWORD.equals(errorDetail)
-                    || OpenScienceFrameworkApiStatus.INVALID_VERIFICATION_KEY.equals(errorDetail)) {
+            } else if (AbstractOpenScienceFrameworkApiUtils.INVALID_PASSWORD.equals(errorDetail)
+                    || AbstractOpenScienceFrameworkApiUtils.INVALID_VERIFICATION_KEY.equals(errorDetail)) {
                 throw new FailedLoginException();
-            } else if (OpenScienceFrameworkApiStatus.USER_NOT_CONFIRMED.equals(errorDetail)) {
+            } else if (AbstractOpenScienceFrameworkApiUtils.USER_NOT_CONFIRMED.equals(errorDetail)) {
                 throw new UserNotConfirmedException(username + " is registered but not confirmed");
-            } else if (OpenScienceFrameworkApiStatus.USER_NOT_CLAIMED.equals(errorDetail)) {
+            } else if (AbstractOpenScienceFrameworkApiUtils.USER_NOT_CLAIMED.equals(errorDetail)) {
                 throw new UserNotClaimedException(username + " is not claimed");
-            } else if (OpenScienceFrameworkApiStatus.USER_STATUS_INVALID.equals(errorDetail)) {
+            } else if (AbstractOpenScienceFrameworkApiUtils.USER_STATUS_INVALID.equals(errorDetail)) {
                 throw new ShouldNotHappenException(username + " is not active");
-            } else if (OpenScienceFrameworkApiStatus.USER_DISABLED.equals(errorDetail)) {
+            } else if (AbstractOpenScienceFrameworkApiUtils.USER_DISABLED.equals(errorDetail)) {
                 throw new AccountDisabledException(username + "account is disabled");
             } else {
                 // unknown authentication exception

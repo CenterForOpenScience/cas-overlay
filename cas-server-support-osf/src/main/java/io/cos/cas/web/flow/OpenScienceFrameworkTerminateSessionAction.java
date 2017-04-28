@@ -39,7 +39,7 @@ import javax.validation.constraints.NotNull;
  * The Open Science Framework Terminate Session Action.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkTerminateSessionAction {
 

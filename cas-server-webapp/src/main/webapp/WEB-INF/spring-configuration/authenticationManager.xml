@@ -41,8 +41,8 @@
                 <bean class="org.jasig.cas.authentication.SuccessfulHandlerMetaDataPopulator" />
                 <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator" />
                 <bean class="org.jasig.cas.support.oauth.authentication.principal.OAuthAuthenticationMetaDataPopulator" />
-                <bean class="io.cos.cas.authentication.principal.OpenScienceFrameworkAuthenticationMetaDataPopulator" />
                 <bean class="org.jasig.cas.support.pac4j.authentication.ClientAuthenticationMetaDataPopulator" />
+                <bean class="io.cos.cas.authentication.principal.OpenScienceFrameworkAuthenticationMetaDataPopulator" />
             </list>
         </property>
         <property name="authenticationPolicy">
@@ -60,7 +60,7 @@
     <!-- OSF Authentication: Use OSF API Adaptors -->
     <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.authentication.handler.OpenScienceFrameworkAuthenticationHandler"
         p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
-    <bean id="openScienceFrameworkApiCasEndpoint" class="io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint"
+    <bean id="openScienceFrameworkApiCasEndpoint" class="io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint"
         c:osfApiCasEndpointUrl="${osf.api.cas.endpoint.url}"
         c:apiCasEndpointJweSecret="${osf.api.cas.endpoint.jweSecret}"
         c:apiCasEndpointJwtSecret="${osf.api.cas.endpoint.jwtSecret}" />

@@ -16,18 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.cos.cas.authentication.exceptions;
 
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account that:
- * 1. unclaimed user which is created as an contributor
- * 2. merged user which is merged into antoher account
- * 3. other undefined user status (inactive and unknown)
+ * Describes an error condition where authentication occurs from an account with an unreachable status.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class ShouldNotHappenException extends AccountException {
 

@@ -351,7 +351,7 @@
 
   <bean id="acceptableUsagePolicyFormAction" class="org.jasig.cas.web.flow.AcceptableUsagePolicyFormAction"/>
 
-  <bean id="principalFromRemoteAction" class="io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction"
+  <bean id="principalFromRemoteAction" class="io.cos.cas.web.flow.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction"
         p:centralAuthenticationService-ref="centralAuthenticationService"
         p:institutionsAuthUrl="${osf.api.cas.endpoint.institution.auth.url}"
         p:institutionsAuthJweSecret="${osf.api.cas.endpoint.jweSecret}"

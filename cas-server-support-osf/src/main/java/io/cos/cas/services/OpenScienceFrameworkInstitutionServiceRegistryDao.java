@@ -19,7 +19,8 @@
 
 package io.cos.cas.services;
 
-import io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.types.ApiEndpoint;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.json.JSONException;
@@ -88,7 +89,7 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
         final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
 
         // `POST` to OSF API `/cas/service/institutions/` endpoint
-        final JSONObject response = osfApiCasEndpoint.apiCasService("institutions", encryptedPayload);
+        final JSONObject response = osfApiCasEndpoint.apiCasService(ApiEndpoint.SERVICE_INSTITUTIONS, encryptedPayload);
         if (response != null) {
             final Iterator<String> iterator = response.keys();
             while (iterator.hasNext()) {
@@ -132,7 +133,6 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
             institutionData = response.getJSONObject(institutionId);
         } catch (final JSONException e) {
             LOGGER.error("JSON Exception: Cannot Parse JSON Object for Institution: {}", institutionId);
-            LOGGER.error(e.toString());
             return null;
         }
 

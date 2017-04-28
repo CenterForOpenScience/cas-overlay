@@ -1,4 +1,4 @@
-package io.cos.cas.authentication.handler.support;
+package io.cos.cas.web.flow;
 
 import io.cos.cas.AbstractTestUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;

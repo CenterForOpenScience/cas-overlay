@@ -19,7 +19,8 @@
 
 package io.cos.cas.authentication.handler;
 
-import io.cos.cas.adaptors.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
+import io.cos.cas.types.ApiEndpoint;
 import org.jasig.cas.support.oauth.scope.Scope;
 import org.jasig.cas.support.oauth.scope.handler.support.AbstractScopeHandler;
 import org.json.JSONObject;
@@ -34,7 +35,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler implements InitializingBean {
 
@@ -60,9 +61,9 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
         final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
 
         // talk to API `/cas/service/oauthScopes/` endpoint
-        final JSONObject response = osfApiCasEndpoint.apiCasService("oauthScopes", encryptedPayload);
+        final JSONObject response = osfApiCasEndpoint.apiCasService(ApiEndpoint.SERVICE_OAUTH_SCOPES, encryptedPayload);
         if (response == null || !response.has("scopeDescription")) {
-            LOGGER.error("Invalid Response");
+            LOGGER.debug("Invalid Response");
             return null;
         }
 

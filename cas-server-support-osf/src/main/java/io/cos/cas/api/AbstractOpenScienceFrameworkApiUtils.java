@@ -1,12 +1,31 @@
-package io.cos.cas.adaptors.api;
+/*
+ * Licensed to Jasig under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work
+ * for additional information regarding copyright ownership.
+ * Jasig licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License.  You may obtain a
+ * copy of the License at the following location:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package io.cos.cas.api;
 
 /**
- * Open Science Framework API Status and Error Messages.
+ * Abstract Util Class for Open Science Framework API Authentication.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
-public final class OpenScienceFrameworkApiStatus {
+public abstract class AbstractOpenScienceFrameworkApiUtils {
 
     /** Authentication Success. */
     public static final String AUTHENTICATION_SUCCESS = "AUTHENTICATION_SUCCESS";
@@ -49,9 +68,4 @@ public final class OpenScienceFrameworkApiStatus {
 
     /** Two Factor Authentication Required. */
     public static final String TWO_FACTOR_AUTHENTICATION_REQUIRED = "TWO_FACTOR_AUTHENTICATION_REQUIRED";
-
-    /**
-     * The Default Constructor.
-     */
-    private OpenScienceFrameworkApiStatus() {}
 }

@@ -35,7 +35,7 @@ import java.net.URLEncoder;
  * Open Science Framework Login Handler.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkLoginHandler {
 
@@ -45,7 +45,7 @@ public class OpenScienceFrameworkLoginHandler {
      * Open Science Framework Login Context.
      *
      * @author Longze chen
-     * @since  4.1.0
+     * @since  4.1.5
      */
     public static final class OpenScienceFrameworkLoginContext {
         private String serviceUrl;

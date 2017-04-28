@@ -20,7 +20,6 @@
 package io.cos.cas.web.flow;
 
 import io.cos.cas.authentication.handler.OpenScienceFrameworkInstitutionHandler;
-
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.cos.cas.web.flow;
 
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ import javax.security.auth.login.FailedLoginException;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkAuthenticationExceptionHandler extends AuthenticationExceptionHandler {
 

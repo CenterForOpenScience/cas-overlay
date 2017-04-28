@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.cos.cas.services;
 
 import org.jasig.cas.services.RegisteredService;
@@ -34,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * and merges them at the Spring Application Context initialization time.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class MergingServiceRegistryDao implements ServiceRegistryDao {
 
