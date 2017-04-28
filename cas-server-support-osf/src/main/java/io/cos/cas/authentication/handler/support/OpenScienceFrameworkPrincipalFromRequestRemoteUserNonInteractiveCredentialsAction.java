@@ -400,6 +400,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
     ) throws AccountException {
         try {
             final JSONObject normalizedPayload = this.normalizeRemotePrincipal(credential);
+            normalizedPayload.put("type", "INSTITUTION_AUTHENTICATE");
             final JSONObject provider = normalizedPayload.getJSONObject("provider");
             final String institutionId = provider.getString("id");
             final String username = provider.getJSONObject("user").getString("username");
