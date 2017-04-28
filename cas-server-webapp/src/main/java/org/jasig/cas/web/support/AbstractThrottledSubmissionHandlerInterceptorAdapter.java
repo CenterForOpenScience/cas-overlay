@@ -39,7 +39,7 @@ import javax.validation.constraints.NotNull;
  * Abstract implementation of the handler that has all of the logic.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter extends HandlerInterceptorAdapter implements InitializingBean {
 
