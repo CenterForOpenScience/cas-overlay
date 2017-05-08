@@ -67,10 +67,12 @@
     <br>
     <c:choose>
         <c:when test="${osfLoginContext.isRegister()}">
-            <spring:eval var="alreadyHaveAnAccountUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-            <a id="already-have-an-account" href="${alreadyHaveAnAccountUrl}${osfLoginContext.isServiceUrl() ? 'service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">
-                Already&nbsp;have&nbsp;an&nbsp;account?
-            </a>
+            <c:if test="${empty alternativeBottomLogin}">
+                <spring:eval var="alreadyHaveAnAccountUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
+                <a id="already-have-an-account" href="${alreadyHaveAnAccountUrl}${osfLoginContext.isServiceUrl() ? 'service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">
+                    Already&nbsp;have&nbsp;an&nbsp;account?
+                </a>
+            </c:if>
         </c:when>
         <c:otherwise>
             <c:if test= "${empty alternativeBottomNone}">
@@ -107,11 +109,17 @@
     function selectFocus() {
         var fullname = document.getElementById("fullname");
         var username = document.getElementById("username");
+        var email = document.getElementById("email");
+        var verificationCode = document.getElementById("verificationCode");
         var institutionSelect = document.getElementById("institution-form-select")
         if (fullname) {
             fullname.focus();
         } else if (username) {
             username.focus();
+        } else if (verificationCode) {
+            verificationCode.focus();
+        } else if (email) {
+            email.focus();
         } else if (institutionSelect) {
             institutionSelect.focus();
         }

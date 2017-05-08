@@ -25,15 +25,17 @@ import java.util.Map;
 import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
 import io.cos.cas.api.AbstractOpenScienceFrameworkApiUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
+import io.cos.cas.authentication.exceptions.ApiEndpointNotImplementedException;
+import io.cos.cas.authentication.exceptions.LoginChallengeRequiredException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
-import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
 
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 import io.cos.cas.types.ApiEndpoint;
+import io.cos.cas.types.OsfLoginAction;
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
@@ -107,36 +109,59 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String plainTextPassword = credential.getPassword();
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
-        final Boolean createAccount = credential.getCreateAccount();
-        final String fullname = credential.getFullname();
         final String campaign = credential.getCampaign();
+        final String loginAction = credential.getLoginAction();
+        final String fullname = credential.getFullname();
+        final String email = credential.getEmail();
+        final String verificationCode = credential.getVerificationCode();
 
         final JSONObject user = new JSONObject();
         final JSONObject data = new JSONObject();
         final JSONObject payload = new JSONObject();
 
-        final ApiEndpoint endpoint;
-        user.put("email", username);
-        user.put("password", plainTextPassword);
+        ApiEndpoint endpoint = ApiEndpoint.NONE;
 
-        if (createAccount) {
-            user.put("fullname", fullname);
-            user.put("campaign", campaign);
-            data.put("type", "REGISTER");
-            endpoint = ApiEndpoint.AUTH_REGISTER;
+        if (loginAction != null) {
+           if (loginAction.equals(OsfLoginAction.REGISTER.getId())) {
+                user.put("email", email);
+                user.put("password", plainTextPassword);
+                user.put("fullname", fullname);
+                user.put("campaign", campaign);
+                data.put("type", "REGISTER");
+                endpoint = ApiEndpoint.AUTH_REGISTER;
+            } else if (loginAction.equals(OsfLoginAction.RESEND_CONFIRMATION.getId())) {
+                if (verificationCode == null) {
+                    endpoint = ApiEndpoint.HELP_RESEND_CONFIRMATION;
+                }
+            } else if (loginAction.equals(OsfLoginAction.FORGOT_PASSWORD.getId())) {
+                if (verificationCode == null) {
+                    endpoint = ApiEndpoint.HELP_FORGOT_PASSWORD;
+                }
+            }
         } else {
+            user.put("email", username);
+            user.put("password", plainTextPassword);
             user.put("verificationKey", verificationKey);
             user.put("remoteAuthenticated", credential.isRemotePrincipal());
             user.put("oneTimePassword", oneTimePassword);
             data.put("type", "LOGIN");
             endpoint = ApiEndpoint.AUTH_LOGIN;
         }
-
         data.put("user", user);
         payload.put("data", data);
         final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
 
         final Map<String, Object> response = osfApiCasEndpoint.apiCasAuthentication(endpoint, username, encryptedPayload);
+
+        if (response != null) {
+            if (response.containsKey("action")) {
+                credential.setLoginAction((String) response.get("action"));
+                throw new LoginChallengeRequiredException();
+            } else if (response.containsKey("none")) {
+                throw new ApiEndpointNotImplementedException("Invalid API Endpoint");
+            }
+        }
+
         if (response == null || !response.containsKey("status")) {
             throw new FailedLoginException("I/O Exception: an error has occurred during the api authentication process.");
         }
@@ -149,7 +174,8 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             return createHandlerResult(credential, this.principalFactory.createPrincipal(userId, attributes), null);
         } else if (AbstractOpenScienceFrameworkApiUtils.REGISTRATION_SUCCESS.equals(status)) {
             // registration success, requires confirmation
-            throw new RegistrationSuccessConfirmationRequiredException();
+            credential.setLoginAction(OsfLoginAction.CONFIRM_EMAIL.getId());
+            throw new LoginChallengeRequiredException();
         } else if (AbstractOpenScienceFrameworkApiUtils.AUTHENTICATION_FAILURE.equals(status)) {
             // authentication or registration failure
             final String errorDetail = (String) response.get("detail");

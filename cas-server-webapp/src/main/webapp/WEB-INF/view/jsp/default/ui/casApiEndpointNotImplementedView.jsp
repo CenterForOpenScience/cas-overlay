@@ -19,13 +19,11 @@
 
 --%>
 <jsp:directive.include file="includes/top.jsp" />
-
 <div id="msg" class="errors">
-    <spring:eval var="resendConfirmationUrl" expression="@casProperties.getProperty('cas.osf.resendConfirmation.url')" />
-    <h2><spring:message code="screen.exception.usernotconfirmed.heading"/></h2>
-    <p><spring:message code="screen.exception.usernotconfirmed.message" arguments="${osfLoginContext.getUsername()}, ${resendConfirmationUrl}&service=${osfLoginContext.getServiceUrl()}" /></p>
+    <h2><spring:message code="screen.exception.api.endpoint.header" /></h2>
 </div>
 
-<c:set var="alternativeBottomLogin" value="true"/>
+<c:set var="alternativeBottomLogin" value="true" />
 
 <jsp:directive.include file="includes/bottom.jsp" />
+

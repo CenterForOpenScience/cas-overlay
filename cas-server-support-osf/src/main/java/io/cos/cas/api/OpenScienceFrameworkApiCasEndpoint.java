@@ -34,6 +34,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.cos.cas.types.ApiEndpoint;
+import io.cos.cas.types.OsfLoginAction;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
@@ -210,6 +211,22 @@ public class OpenScienceFrameworkApiCasEndpoint {
      * @return a Map object
      */
      public Map<String, Object> apiCasAuthentication(final ApiEndpoint endpoint, final String email, final String payload) {
+
+         final Map<String, Object> response = new HashMap<>();
+         if (endpoint.equals(ApiEndpoint.NONE)) {
+             response.put("none", endpoint);
+             return response;
+         }
+
+         if (endpoint.equals(ApiEndpoint.HELP_FORGOT_PASSWORD)) {
+             response.put("action", OsfLoginAction.RESET_PASSWORD.getId());
+             return response;
+         }
+
+         if (endpoint.equals(ApiEndpoint.HELP_RESEND_CONFIRMATION)) {
+             response.put("action", OsfLoginAction.CONFIRM_EMAIL.getId());
+             return response;
+         }
 
         final String url = osfApiCasEndpointUrl + endpoint.getId() + '/';
         final HttpResponse httpResponse;

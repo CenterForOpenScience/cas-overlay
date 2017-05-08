@@ -27,26 +27,53 @@ package io.cos.cas.types;
  */
 public enum ApiEndpoint {
 
+    /** Default Endpoint. */
+    NONE("none"),
+
+    /** Authentication Endpoint. */
+    AUTH("auth"),
+
+    /** Login Help Endpoint. */
+    HELP("help"),
+
+    /** Login Challenge Endpoint. */
+    CHALLENGE("challenge"),
+
+    /** Service Endpoint. */
+    SERVICE("service"),
+
     /** User Login. */
-    AUTH_LOGIN("auth/login"),
+    AUTH_LOGIN(ApiEndpoint.AUTH.getId() + "/login"),
 
     /** User Register. */
-    AUTH_REGISTER("auth/register"),
+    AUTH_REGISTER(ApiEndpoint.AUTH.getId() + "/register"),
 
     /** Login through Institutions. */
-    AUTH_INSTITUTION("auth/institution"),
+    AUTH_INSTITUTION(ApiEndpoint.AUTH.getId() + "/institution"),
+
+    /** Forgot Password. */
+    HELP_FORGOT_PASSWORD(ApiEndpoint.HELP.getId() + '/' + OsfLoginAction.FORGOT_PASSWORD.getId()),
+
+    /** Resend Confirmation Email for New Account. */
+    HELP_RESEND_CONFIRMATION(ApiEndpoint.HELP.getId() + '/' + OsfLoginAction.RESEND_CONFIRMATION.getId()),
+
+    /** Reset Password. */
+    CHALLENGE_RESET_PASSWORD(ApiEndpoint.CHALLENGE.getId() + '/' + OsfLoginAction.RESET_PASSWORD.getId()),
+
+    /** Confirm Email. */
+    CHALLENGE_CONFIRM_EMAIL(ApiEndpoint.CHALLENGE.getId() + '/' + OsfLoginAction.CONFIRM_EMAIL.getId()),
 
     /** Load Developer Applications as Registered Services. */
-    SERVICE_DEVELOPER_APPS("service/developerApps"),
+    SERVICE_DEVELOPER_APPS(ApiEndpoint.SERVICE.getId() + "/developerApps"),
 
     /** Load Institutions as Registered Services. */
-    SERVICE_INSTITUTIONS("service/institutions"),
+    SERVICE_INSTITUTIONS(ApiEndpoint.SERVICE.getId() + "/institutions"),
 
     /** Personal Access Token. */
-    SERVICE_PERSONAL_ACCESS_TOKEN("service/personalAccessToken"),
+    SERVICE_PERSONAL_ACCESS_TOKEN(ApiEndpoint.SERVICE.getId() + "/personalAccessToken"),
 
     /** OAuth Scopes. */
-    SERVICE_OAUTH_SCOPES("service/oauthScopes");
+    SERVICE_OAUTH_SCOPES(ApiEndpoint.SERVICE.getId() + "/oauthScopes");
 
     private final String id;
 

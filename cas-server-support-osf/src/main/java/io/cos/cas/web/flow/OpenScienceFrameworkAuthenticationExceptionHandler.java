@@ -24,11 +24,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
+import io.cos.cas.authentication.exceptions.ApiEndpointNotImplementedException;
+import io.cos.cas.authentication.exceptions.LoginChallengeRequiredException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
-import io.cos.cas.authentication.exceptions.RegistrationSuccessConfirmationRequiredException;
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
@@ -40,6 +42,7 @@ import org.jasig.cas.authentication.InvalidLoginLocationException;
 import org.jasig.cas.authentication.InvalidLoginTimeException;
 import org.jasig.cas.web.flow.AuthenticationExceptionHandler;
 
+import org.jasig.cas.web.support.WebUtils;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
@@ -77,7 +80,6 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     static {
         // Account Creation Exceptions
         DEFAULT_ERROR_LIST.add(RegistrationFailureUserAlreadyExistsException.class);
-        DEFAULT_ERROR_LIST.add(RegistrationSuccessConfirmationRequiredException.class);
 
         // Login Exceptions
         DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
@@ -93,6 +95,10 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         // Two factor Login Exceptions
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
+
+        // Challenge Request
+        DEFAULT_ERROR_LIST.add(LoginChallengeRequiredException.class);
+        DEFAULT_ERROR_LIST.add(ApiEndpointNotImplementedException.class);
     }
 
     // Login Throttle Triggering Exceptions
@@ -136,6 +142,8 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
                 = OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext.fromJson(loginContext);
         if (osfLoginContext != null) {
             osfLoginContext.setHandleErrorName(handleErrorName);
+            osfLoginContext.setUsername(((OpenScienceFrameworkCredential) WebUtils.getCredential(context)).getUsername());
+            osfLoginContext.setAction(((OpenScienceFrameworkCredential) WebUtils.getCredential(context)).getLoginAction());
             context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
         }
 

@@ -51,58 +51,42 @@
     </c:if>
 </c:if>
 
-<div class="box" id="login">
+<div id="login" style="width: 100%;">
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
-        <section class="row">
-            <label for="fullname"><spring:message code="screen.register.label.fullname" /></label>
-            <spring:message code="screen.register.label.fullname.accesskey" var="fullnameAccessKey" />
-            <form:input cssClass="required" cssErrorClass="error" id="fullname" size="25" tabindex="1" accesskey="${fullnameAccessKey}" path="fullname" autocomplete="off" htmlEscape="true" />
-            <form:errors path="fullname" id="msg" cssClass="errors" element="div" htmlEscape="false" />
-        </section>
+        <c:choose>
+            <c:when test="${osfLoginContext.getAction() == 'forgotPassword'}">
+                <spring:message code="screen.help.forgot.password.header" var="helpHeader"/>
+                <spring:message code="screen.help.forgot.password.message" var="helpMessage"/>
+            </c:when>
+            <c:when test="${osfLoginContext.getAction() == 'resendConfirmation'}">
+                <spring:message code="screen.help.resend.confirmation.header" var="helpHeader"/>
+                <spring:message code="screen.help.resend.confirmation.message" var="helpMessage"/>
+            </c:when>
+        </c:choose>
+
+        <h2>${helpHeader}</h2>
 
         <section class="row">
-            <label for="email"><spring:message code="screen.register.label.email" /></label>
-            <spring:message code="screen.register.label.email.accesskey" var="emailAccessKey" />
+            <label for="email">${helpMessage}</label><br/>
+            <spring:message code="screen.help.label.email.accesskey" var="emailAccessKey" />
             <form:input cssClass="required" cssErrorClass="error" id="email" size="25" tabindex="1" accesskey="${emailAccessKey}" path="email" autocomplete="off" htmlEscape="true" />
-            <form:errors path="email" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
 
-        <section class="row">
-            <label for="confirmEmail"><spring:message code="screen.register.label.email.confirm" /></label>
-            <spring:message code="screen.register.label.email.confirm.accesskey" var="confirmEmailAccessKey" />
-            <form:input cssClass="required" cssErrorClass="error" id="confirmEmail" size="25" tabindex="1" accesskey="${confirmEmailAccessKey}" path="confirmEmail" autocomplete="off" htmlEscape="true" />
-            <form:errors path="confirmEmail" id="msg" cssClass="errors" element="div" htmlEscape="false" />
-        </section>
-
-        <section class="row">
-            <label for="password"><spring:message code="screen.welcome.label.password" />
-            </label><spring:message code="screen.welcome.label.password.accesskey" var="passwordAccessKey" />
-            <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password"  accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
-            <span id="capslock-on" style="display:none;"><p><img src="images/warning.png" valign="top"> <spring:message code="screen.capslock.on" /></p></span>
-            <form:errors path="password" id="msg" cssClass="errors" element="div" htmlEscape="false" />
-        </section>
-
+        <form:errors path="email" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         <form:errors path="loginAction" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
-        <section class="row">
-            <input type="hidden" name="loginAction" value="register" />
-            <input type="hidden" name="campaign" value="${osfLoginContext.getCampaign()}" />
+        <section class="row btn-row">
+            <input type="hidden" name="loginAction" value="${osfLoginContext.getAction()}" />
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
-            <input type="submit" class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.register.button.register" />" tabindex="4"  />
+            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.help.button.send" />" tabindex="4" type="submit" />
         </section>
-
-        <%-- TODO: Only display OAuth Client options for the OSF service, due to a limitation of our OAuth Provider implementation as it does not support non-existing OSF accounts. --%>
-        <c:if test="${not empty registeredService}">
-            <hr/>
-            <section class="row">
-                <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo" src="../images/orcid-logo.png">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<spring:message code="screen.register.button.register.orcid" /></a>
-            </section>
-        </c:if>
 
     </form:form>
 </div>
+
+<c:set var="alternativeBottomLogin" value="true"/>
 
 <jsp:directive.include file="includes/bottom.jsp" />

@@ -158,7 +158,13 @@ header h1 {
   /*background: url(../../../images/error.png) no-repeat 20px center;*/
 }
 
-#msg.success { /*border: 1px dotted #390;*/ color: #390; /*padding-left: 100px; background: url(../../../images/success.png) no-repeat 20px center;*/ }
+#msg.success {
+  /*border: 1px dotted #390;*/
+  color: #390;
+  /*padding-left: 100px;*/
+  /*background: url(../../../images/success.png) no-repeat 20px center;*/
+}
+
 #msg.info { /*border: 1px dotted #008;*/ color: #008; /*padding-left: 100px; background: url(../../../images/info.png) no-repeat 20px center;*/ }
 #msg.question { /*border: 1px dotted #390;*/ color: #390; /*padding-left: 100px; background: url(../../../images/question.png) no-repeat 20px center;*/ }
 #msg.warn { /*border: 1px dotted #960;*/ color: #960; /*padding-left: 100px; background: #ffbc8f url(../../../images/info.png) no-repeat 20px center;*/ background: #ffbc8f; }

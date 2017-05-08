@@ -22,27 +22,27 @@ package io.cos.cas.authentication.exceptions;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where registration is successful with pending confirmation.
+ * Describes an error condition where requires the user to verify their request.
  *
  * @author Longze Chen
  * @since 4.1.5
  */
-public class RegistrationSuccessConfirmationRequiredException extends AccountException {
+public class LoginChallengeRequiredException extends AccountException {
 
-    private static final long serialVersionUID = 6149549970560584011L;
+    private static final long serialVersionUID = 1560258979755078146L;
 
     /**
      * Default Constructor.
      */
-    public RegistrationSuccessConfirmationRequiredException() {
+    public LoginChallengeRequiredException() {
         super();
     }
 
     /**
-     * Create a instance of RegistrationSuccessConfirmationRequiredException with a given message.
+     * Create a instance of LoginChallengeRequiredException with a given message.
      * @param message the message
      */
-    public RegistrationSuccessConfirmationRequiredException(final String message) {
+    public LoginChallengeRequiredException(final String message) {
         super(message);
     }
 }
