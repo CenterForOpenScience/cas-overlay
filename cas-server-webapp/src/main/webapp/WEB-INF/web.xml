@@ -152,6 +152,11 @@
 
     <servlet-mapping>
         <servlet-name>cas</servlet-name>
+        <url-pattern>/account/register</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>cas</servlet-name>
         <url-pattern>/validate</url-pattern>
     </servlet-mapping>
 

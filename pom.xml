@@ -691,6 +691,7 @@
   </build>
 
   <modules>
+    <module>cas-server-support-account-manager</module>
     <module>cas-server-support-oauth</module>
     <module>cas-server-support-osf</module>
     <module>cas-server-webapp</module>
