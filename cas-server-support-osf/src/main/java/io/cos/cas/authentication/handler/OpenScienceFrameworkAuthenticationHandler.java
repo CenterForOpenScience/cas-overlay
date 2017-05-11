@@ -22,8 +22,8 @@ package io.cos.cas.authentication.handler;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 
-import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
-import io.cos.cas.api.AbstractOpenScienceFrameworkApiUtils;
+import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.util.AbstractApiEndpointUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.ApiEndpointNotImplementedException;
 import io.cos.cas.authentication.exceptions.LoginChallengeRequiredException;
@@ -34,7 +34,7 @@ import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExists
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
-import io.cos.cas.types.ApiEndpoint;
+import io.cos.cas.api.type.ApiEndpoint;
 import io.cos.cas.types.OsfLoginAction;
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
@@ -65,9 +65,8 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     @NotNull
     private PrincipalNameTransformer principalNameTransformer = new NoOpPrincipalNameTransformer();
 
-    /** The Open Science Framework API CAS Endpoint instance. */
     @NotNull
-    private OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint;
+    private ApiEndpointHandler apiEndpointHandler;
 
     /**
      * Default Constructor.
@@ -149,9 +148,9 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
         data.put("user", user);
         payload.put("data", data);
-        final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
+        final String encryptedPayload = apiEndpointHandler.encryptPayload("data", data.toString());
 
-        final Map<String, Object> response = osfApiCasEndpoint.apiCasAuthentication(endpoint, username, encryptedPayload);
+        final Map<String, Object> response = apiEndpointHandler.apiCasAuthentication(endpoint, username, encryptedPayload);
 
         if (response != null) {
             if (response.containsKey("action")) {
@@ -167,36 +166,36 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         final String status = (String) response.get("status");
-        if (AbstractOpenScienceFrameworkApiUtils.AUTHENTICATION_SUCCESS.equals(status)) {
+        if (AbstractApiEndpointUtils.AUTH_SUCCESS.equals(status)) {
             // authentication success, create principle with user's guid and attributes
             final String userId = (String) response.get("userId");
             final Map<String, Object> attributes = (Map<String, Object>) response.get("attributes");
             return createHandlerResult(credential, this.principalFactory.createPrincipal(userId, attributes), null);
-        } else if (AbstractOpenScienceFrameworkApiUtils.REGISTRATION_SUCCESS.equals(status)) {
+        } else if (AbstractApiEndpointUtils.REGISTER_SUCCESS.equals(status)) {
             // registration success, requires confirmation
             credential.setLoginAction(OsfLoginAction.CONFIRM_EMAIL.getId());
             throw new LoginChallengeRequiredException();
-        } else if (AbstractOpenScienceFrameworkApiUtils.AUTHENTICATION_FAILURE.equals(status)) {
+        } else if (AbstractApiEndpointUtils.AUTH_FAILURE.equals(status)) {
             // authentication or registration failure
             final String errorDetail = (String) response.get("detail");
-            if (AbstractOpenScienceFrameworkApiUtils.ALREADY_REGISTERED.equals(errorDetail)) {
+            if (AbstractApiEndpointUtils.ALREADY_REGISTERED.equals(errorDetail)) {
                 throw new RegistrationFailureUserAlreadyExistsException();
-            } else if (AbstractOpenScienceFrameworkApiUtils.TWO_FACTOR_AUTHENTICATION_REQUIRED.equals(errorDetail)) {
+            } else if (AbstractApiEndpointUtils.TWO_FACTOR_AUTH_REQUIRED.equals(errorDetail)) {
                 throw new OneTimePasswordRequiredException("Time-based One Time Password required.");
-            } else if (AbstractOpenScienceFrameworkApiUtils.INVALID_ONE_TIME_PASSWORD.equals(errorDetail)) {
+            } else if (AbstractApiEndpointUtils.INVALID_ONE_TIME_PASSWORD.equals(errorDetail)) {
                 throw new OneTimePasswordFailedLoginException();
-            } else if (AbstractOpenScienceFrameworkApiUtils.ACCOUNT_NOT_FOUND.equals(errorDetail)) {
+            } else if (AbstractApiEndpointUtils.ACCOUNT_NOT_FOUND.equals(errorDetail)) {
                 throw new AccountNotFoundException();
-            } else if (AbstractOpenScienceFrameworkApiUtils.INVALID_PASSWORD.equals(errorDetail)
-                    || AbstractOpenScienceFrameworkApiUtils.INVALID_VERIFICATION_KEY.equals(errorDetail)) {
+            } else if (AbstractApiEndpointUtils.INVALID_PASSWORD.equals(errorDetail)
+                    || AbstractApiEndpointUtils.INVALID_VERIFICATION_KEY.equals(errorDetail)) {
                 throw new FailedLoginException();
-            } else if (AbstractOpenScienceFrameworkApiUtils.USER_NOT_CONFIRMED.equals(errorDetail)) {
+            } else if (AbstractApiEndpointUtils.USER_NOT_CONFIRMED.equals(errorDetail)) {
                 throw new UserNotConfirmedException(username + " is registered but not confirmed");
-            } else if (AbstractOpenScienceFrameworkApiUtils.USER_NOT_CLAIMED.equals(errorDetail)) {
+            } else if (AbstractApiEndpointUtils.USER_NOT_CLAIMED.equals(errorDetail)) {
                 throw new UserNotClaimedException(username + " is not claimed");
-            } else if (AbstractOpenScienceFrameworkApiUtils.USER_STATUS_INVALID.equals(errorDetail)) {
+            } else if (AbstractApiEndpointUtils.USER_STATUS_INVALID.equals(errorDetail)) {
                 throw new ShouldNotHappenException(username + " is not active");
-            } else if (AbstractOpenScienceFrameworkApiUtils.USER_DISABLED.equals(errorDetail)) {
+            } else if (AbstractApiEndpointUtils.USER_DISABLED.equals(errorDetail)) {
                 throw new AccountDisabledException(username + "account is disabled");
             } else {
                 // unknown authentication exception
@@ -212,8 +211,8 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         this.principalNameTransformer = principalNameTransformer;
     }
 
-    public void setOsfApiCasEndpoint(final OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint) {
-        this.osfApiCasEndpoint = osfApiCasEndpoint;
+    public void setApiEndpointHandler(final ApiEndpointHandler apiEndpointHandler) {
+        this.apiEndpointHandler = apiEndpointHandler;
     }
 
     /**

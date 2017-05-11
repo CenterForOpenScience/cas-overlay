@@ -36,7 +36,7 @@
 
     <!-- OSF OAuth Scopes: Use API Adaptors -->
     <bean id="openScienceFrameworkScopeHandler" class="io.cos.cas.authentication.handler.OpenScienceFrameworkScopeHandler"
-          p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
+          p:apiEndpointHandler-ref="apiEndpointHandler" />
 
     <!-- OSF OAuth Scopes: Use Postgres Adaptors -->
     <!--

@@ -17,24 +17,24 @@
  * under the License.
  */
 
-package io.cos.cas.api;
+package io.cos.cas.api.util;
 
 /**
- * Abstract Util Class for Open Science Framework API Authentication.
+ * Abstract Utility Class for API Endpoint.
  *
  * @author Longze Chen
  * @since 4.1.5
  */
-public abstract class AbstractOpenScienceFrameworkApiUtils {
+public abstract class AbstractApiEndpointUtils {
 
     /** Authentication Success. */
-    public static final String AUTHENTICATION_SUCCESS = "AUTHENTICATION_SUCCESS";
+    public static final String AUTH_SUCCESS = "AUTHENTICATION_SUCCESS";
 
     /** Authentication Failure. */
-    public static final String AUTHENTICATION_FAILURE = "AUTHENTICATION_FAILURE";
+    public static final String AUTH_FAILURE = "AUTHENTICATION_FAILURE";
 
     /** Registration Success. */
-    public static final String REGISTRATION_SUCCESS = "REGISTRATION_SUCCESS";
+    public static final String REGISTER_SUCCESS = "REGISTRATION_SUCCESS";
 
     /** Registration Failure. */
      public static final String ALREADY_REGISTERED = "ALREADY_REGISTERED";
@@ -67,5 +67,5 @@ public abstract class AbstractOpenScienceFrameworkApiUtils {
     public static final String INVALID_ONE_TIME_PASSWORD = "INVALID_ONE_TIME_PASSWORD";
 
     /** Two Factor Authentication Required. */
-    public static final String TWO_FACTOR_AUTHENTICATION_REQUIRED = "TWO_FACTOR_AUTHENTICATION_REQUIRED";
+    public static final String TWO_FACTOR_AUTH_REQUIRED = "TWO_FACTOR_AUTHENTICATION_REQUIRED";
 }

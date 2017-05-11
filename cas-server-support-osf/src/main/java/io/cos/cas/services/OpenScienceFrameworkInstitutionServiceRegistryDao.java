@@ -19,8 +19,8 @@
 
 package io.cos.cas.services;
 
-import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
-import io.cos.cas.types.ApiEndpoint;
+import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.ApiEndpoint;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.json.JSONException;
@@ -55,15 +55,15 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
     @NotNull
-    private OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint;
+    private ApiEndpointHandler apiEndpointHandler;
 
     /**
      * Instantiates a new Open Science Framework Institution Service Registry Dao.
      *
-     * @param osfApiCasEndpoint the OSF API CAS Endpoint
+     * @param apiEndpointHandler the API Endpoint Handler
      */
-    public OpenScienceFrameworkInstitutionServiceRegistryDao(final OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint) {
-        this.osfApiCasEndpoint = osfApiCasEndpoint;
+    public OpenScienceFrameworkInstitutionServiceRegistryDao(final ApiEndpointHandler apiEndpointHandler) {
+        this.apiEndpointHandler = apiEndpointHandler;
     }
 
     @Override
@@ -86,10 +86,10 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
         // construct the payload data and encrypt it with JWE/JWT
         final JSONObject data = new JSONObject();
         data.put("serviceType", SERVICE_TYPE);
-        final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
+        final String encryptedPayload = apiEndpointHandler.encryptPayload("data", data.toString());
 
         // `POST` to OSF API `/cas/service/institutions/` endpoint
-        final JSONObject response = osfApiCasEndpoint.apiCasService(ApiEndpoint.SERVICE_INSTITUTIONS, encryptedPayload);
+        final JSONObject response = apiEndpointHandler.apiCasService(ApiEndpoint.SERVICE_INSTITUTIONS, encryptedPayload);
         if (response != null) {
             final Iterator<String> iterator = response.keys();
             while (iterator.hasNext()) {

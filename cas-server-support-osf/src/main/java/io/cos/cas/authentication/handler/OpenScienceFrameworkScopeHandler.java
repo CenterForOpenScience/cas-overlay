@@ -19,8 +19,8 @@
 
 package io.cos.cas.authentication.handler;
 
-import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
-import io.cos.cas.types.ApiEndpoint;
+import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.ApiEndpoint;
 import org.jasig.cas.support.oauth.scope.Scope;
 import org.jasig.cas.support.oauth.scope.handler.support.AbstractScopeHandler;
 import org.json.JSONObject;
@@ -41,9 +41,8 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkScopeHandler.class);
 
-    /** The Open Science Framework API CAS Endpoint instance. */
     @NotNull
-    private OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint;
+    private ApiEndpointHandler apiEndpointHandler;
 
     /** Default Constructor. */
     public OpenScienceFrameworkScopeHandler() {}
@@ -58,10 +57,10 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
         data.put("scopeName", scopeName);
 
         // encrypt the payload using JWE/JWT
-        final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
+        final String encryptedPayload = apiEndpointHandler.encryptPayload("data", data.toString());
 
         // talk to API `/cas/service/oauthScopes/` endpoint
-        final JSONObject response = osfApiCasEndpoint.apiCasService(ApiEndpoint.SERVICE_OAUTH_SCOPES, encryptedPayload);
+        final JSONObject response = apiEndpointHandler.apiCasService(ApiEndpoint.SERVICE_OAUTH_SCOPES, encryptedPayload);
         if (response == null || !response.has("scopeDescription")) {
             LOGGER.debug("Invalid Response");
             return null;
@@ -71,7 +70,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
         return new Scope(scopeName, scopeDescription, Boolean.FALSE);
     }
 
-    public void setOsfApiCasEndpoint(final OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint) {
-        this.osfApiCasEndpoint = osfApiCasEndpoint;
+    public void setApiEndpointHandler(final ApiEndpointHandler apiEndpointHandler) {
+        this.apiEndpointHandler = apiEndpointHandler;
     }
 }

@@ -59,11 +59,11 @@
 
     <!-- OSF Authentication: Use OSF API Adaptors -->
     <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.authentication.handler.OpenScienceFrameworkAuthenticationHandler"
-        p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
-    <bean id="openScienceFrameworkApiCasEndpoint" class="io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint"
-        c:osfApiCasEndpointUrl="${osf.api.cas.endpoint.url}"
-        c:apiCasEndpointJweSecret="${osf.api.cas.endpoint.jweSecret}"
-        c:apiCasEndpointJwtSecret="${osf.api.cas.endpoint.jwtSecret}" />
+          p:apiEndpointHandler-ref="apiEndpointHandler" />
+    <bean id="apiEndpointHandler" class="io.cos.cas.api.handler.ApiEndpointHandler"
+          c:apiCasEndpointUrl="${osf.api.cas.endpoint.url}"
+          c:apiCasEndpointJweSecret="${osf.api.cas.endpoint.jweSecret}"
+          c:apiCasEndpointJwtSecret="${osf.api.cas.endpoint.jwtSecret}" />
 
 
     <!-- OAuth Authorization -->

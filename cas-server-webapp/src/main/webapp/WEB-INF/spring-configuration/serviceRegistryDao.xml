@@ -34,11 +34,11 @@
 
                 <!-- OSF OAuth Applications (Developer Apps) Service Registry: Use API Adaptors -->
                 <bean id="openScienceFrameworkOAuthServiceRegistryDao" class="io.cos.cas.services.OpenScienceFrameworkOAuthServiceRegistryDao"
-                      c:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
+                      c:apiEndpointHandler-ref="apiEndpointHandler" />
 
                 <!-- OSF Institutions (Login through Institutions) Service Registry: Use API Adaptors -->
                 <bean id="OpenScienceFrameworkInstitutionsServiceRegistryDao" class="io.cos.cas.services.OpenScienceFrameworkInstitutionServiceRegistryDao"
-                      c:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
+                      c:apiEndpointHandler-ref="apiEndpointHandler" />
 
             </list>
         </property>

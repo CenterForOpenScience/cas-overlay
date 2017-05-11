@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package io.cos.cas.api;
+package io.cos.cas.api.handler;
 
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
@@ -33,7 +33,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import io.cos.cas.types.ApiEndpoint;
+import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.util.AbstractApiEndpointUtils;
 import io.cos.cas.types.OsfLoginAction;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -56,14 +57,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The Open Science Framework API CAS Endpoint.
+ * Handles Communication between CAS and API.
  *
  * @author Longze Chen
  * @since 4.1.0
  */
-public class OpenScienceFrameworkApiCasEndpoint {
+public class ApiEndpointHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkApiCasEndpoint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiEndpointHandler.class);
 
     private static final int SIXTY_SECONDS = 60 * 1000;
 
@@ -72,27 +73,27 @@ public class OpenScienceFrameworkApiCasEndpoint {
     static {
 
         // register, user already registered
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.ALREADY_REGISTERED);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.ALREADY_REGISTERED);
 
         // login, initial verification failed
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.MISSING_CREDENTIALS);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.ACCOUNT_NOT_FOUND);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.INVALID_PASSWORD);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.INVALID_VERIFICATION_KEY);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.TWO_FACTOR_AUTHENTICATION_REQUIRED);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.MISSING_CREDENTIALS);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.ACCOUNT_NOT_FOUND);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.INVALID_PASSWORD);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.INVALID_VERIFICATION_KEY);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.TWO_FACTOR_AUTH_REQUIRED);
 
         // login, two factor verification failed
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.INVALID_ONE_TIME_PASSWORD);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.INVALID_ONE_TIME_PASSWORD);
 
         // login, invalid user status
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.USER_NOT_CONFIRMED);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.USER_NOT_CLAIMED);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.USER_STATUS_INVALID);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractOpenScienceFrameworkApiUtils.USER_DISABLED);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.USER_NOT_CONFIRMED);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.USER_NOT_CLAIMED);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.USER_STATUS_INVALID);
+        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.USER_DISABLED);
     }
 
     @NotNull
-    private String osfApiCasEndpointUrl;
+    private String apiCasEndpointUrl;
 
     @NotNull
     private String apiCasEndpointJweSecret;
@@ -103,16 +104,16 @@ public class OpenScienceFrameworkApiCasEndpoint {
     /**
      * Instantiates an instance of Open Science Framework API CAS Endpoint and set endpoint url.
      *
-     * @param osfApiCasEndpointUrl the OSF API CAS endpoint URL
+     * @param apiCasEndpointUrl the API CAS Endpoint URL
      * @param apiCasEndpointJweSecret the Jwe Secret
      * @param apiCasEndpointJwtSecret the Jwt Secret
      */
-    public OpenScienceFrameworkApiCasEndpoint(
-        final String osfApiCasEndpointUrl,
+    public ApiEndpointHandler(
+        final String apiCasEndpointUrl,
         final String apiCasEndpointJweSecret,
         final String apiCasEndpointJwtSecret
     ) {
-        this.osfApiCasEndpointUrl = osfApiCasEndpointUrl;
+        this.apiCasEndpointUrl = apiCasEndpointUrl;
         this.apiCasEndpointJweSecret = apiCasEndpointJweSecret;
         this.apiCasEndpointJwtSecret = apiCasEndpointJwtSecret;
     }
@@ -168,7 +169,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
      */
     public JSONObject apiCasService(final ApiEndpoint endpoint, final String payload) {
 
-        final String url = osfApiCasEndpointUrl + endpoint.getId() + '/';
+        final String url = apiCasEndpointUrl + endpoint.getId() + '/';
         final HttpResponse httpResponse;
         try {
             httpResponse = Request.Post(url)
@@ -228,7 +229,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
              return response;
          }
 
-        final String url = osfApiCasEndpointUrl + endpoint.getId() + '/';
+        final String url = apiCasEndpointUrl + endpoint.getId() + '/';
         final HttpResponse httpResponse;
         try {
             httpResponse = Request.Post(url)
@@ -271,11 +272,11 @@ public class OpenScienceFrameworkApiCasEndpoint {
         try {
             if (statusCode == HttpStatus.SC_OK) {
                 final String status = responseBody.getString("status");
-                if (AbstractOpenScienceFrameworkApiUtils.REGISTRATION_SUCCESS.equals(status)) {
+                if (AbstractApiEndpointUtils.REGISTER_SUCCESS.equals(status)) {
                     response.put("status", status);
                     return response;
                 }
-                if (AbstractOpenScienceFrameworkApiUtils.AUTHENTICATION_SUCCESS.equals(status)) {
+                if (AbstractApiEndpointUtils.AUTH_SUCCESS.equals(status)) {
                     response.put("status", status);
                     response.put("userId", responseBody.getString("userId"));
                     final JSONObject attributes = responseBody.getJSONObject("attributes");
@@ -296,7 +297,7 @@ public class OpenScienceFrameworkApiCasEndpoint {
                 if (!API_AUTHENTICATION_ERROR_LIST.contains(errorDetail)) {
                     throw new IOException(String.format("INVALID_RESPONSE_SC_FORBIDDEN: status = %s.", errorDetail));
                 }
-                response.put("status", AbstractOpenScienceFrameworkApiUtils.AUTHENTICATION_FAILURE);
+                response.put("status", AbstractApiEndpointUtils.AUTH_FAILURE);
                 response.put("detail", errorDetail);
                 LOGGER.debug("Authentication Failure: {}", errorDetail);
                 return response;

@@ -19,8 +19,8 @@
 
 package io.cos.cas.services;
 
-import io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint;
-import io.cos.cas.types.ApiEndpoint;
+import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.ApiEndpoint;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.jasig.cas.services.ServiceRegistryDao;
@@ -60,15 +60,15 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
     @NotNull
-    private OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint;
+    private ApiEndpointHandler apiEndpointHandler;
 
     /**
      * Instantiates a new Open Science Framework OAuth Registry DAO.
      *
-     * @param osfApiCasEndpoint the Open Science Framework API CAS Endpoint
+     * @param apiEndpointHandler the API Endpoint Handler
      */
-    public OpenScienceFrameworkOAuthServiceRegistryDao(final OpenScienceFrameworkApiCasEndpoint osfApiCasEndpoint) {
-        this.osfApiCasEndpoint = osfApiCasEndpoint;
+    public OpenScienceFrameworkOAuthServiceRegistryDao(final ApiEndpointHandler apiEndpointHandler) {
+        this.apiEndpointHandler = apiEndpointHandler;
     }
 
     @Override
@@ -95,10 +95,10 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
         // construct the payload data and encrypt it with JWE/JWT
         final JSONObject data = new JSONObject();
         data.put("serviceType", SERVICE_TYPE);
-        final String encryptedPayload = osfApiCasEndpoint.encryptPayload("data", data.toString());
+        final String encryptedPayload = apiEndpointHandler.encryptPayload("data", data.toString());
 
         // `POST` to OSF API `/cas/service/developerApps/` endpoint
-        final JSONObject response = osfApiCasEndpoint.apiCasService(ApiEndpoint.SERVICE_DEVELOPER_APPS, encryptedPayload);
+        final JSONObject response = apiEndpointHandler.apiCasService(ApiEndpoint.SERVICE_DEVELOPER_APPS, encryptedPayload);
         if (response != null) {
             final Iterator<String> iterator = response.keys();
             while (iterator.hasNext()) {

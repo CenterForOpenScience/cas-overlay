@@ -17,7 +17,9 @@
  * under the License.
  */
 
-package io.cos.cas.types;
+package io.cos.cas.api.type;
+
+import io.cos.cas.types.OsfLoginAction;
 
 /**
  * Open Science Framework API Endpoint Types.
