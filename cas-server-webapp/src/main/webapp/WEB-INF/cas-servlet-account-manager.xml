@@ -58,7 +58,16 @@
         <property name="order" value="1"/>
     </bean>
 
-    <bean id="registerAction" class="io.cos.cas.account.flow.RegisterAction" />
+    <bean id="registerAction" class="io.cos.cas.account.flow.RegisterAction">
+        <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+    </bean>
+
+    <bean id="verifyEmailAction" class="io.cos.cas.account.flow.VerifyEmailAction">
+        <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+    </bean>
+
     <bean id="registerFormBeanValidator" class="io.cos.cas.account.validator.RegisterFormBeanValidator" />
+
+    <bean id="verifyEmailBeanValidator" class="io.cos.cas.account.validator.VerifyEmailFormBeanValidator" />
 
 </beans>

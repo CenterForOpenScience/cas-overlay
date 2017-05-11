@@ -53,7 +53,7 @@ public class RegisterFormBean implements Serializable {
     }
 
     public void setEmail(final String email) {
-        this.email = email.trim();
+        this.email = email.trim().toLowerCase();
     }
 
     public String getConfirmEmail() {
@@ -61,7 +61,7 @@ public class RegisterFormBean implements Serializable {
     }
 
     public void setConfirmEmail(final String confirmEmail) {
-        this.confirmEmail = confirmEmail.trim();
+        this.confirmEmail = confirmEmail.trim().toLowerCase();
     }
 
     public String getPassword() {

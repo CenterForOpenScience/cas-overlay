@@ -2,7 +2,9 @@ package io.cos.cas.account.validator;
 
 import io.cos.cas.account.flow.RegisterAction;
 import io.cos.cas.account.model.RegisterFormBean;
+
 import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
+
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.binding.validation.ValidationContext;

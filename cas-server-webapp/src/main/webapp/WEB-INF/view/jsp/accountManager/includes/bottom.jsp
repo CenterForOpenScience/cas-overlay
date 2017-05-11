@@ -21,7 +21,7 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-    <c:if test="${accountPageContext.isRegister()}">
+    <c:if test="${accountManagerContext.isRegister()}">
         <div class="row" style="text-align: center;"><hr><br>
             <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')" />
             <a id="alternative-institution" href="${institutionLoginUrl}&amp;service=${serviceUrl}">Login&nbsp;through&nbsp;Your&nbsp;Institution</a>
@@ -36,7 +36,7 @@
 
 <div class="row" style="text-align: center;">
     <br>
-    <c:if test="${accountPageContext.isRegister()}">
+    <c:if test="${accountManagerContext.isRegister()}">
         <spring:eval var="alreadyHaveAnAccountUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
         <a id="already-have-an-account" href="${alreadyHaveAnAccountUrl}service=${serviceUrl}">Already&nbsp;have&nbsp;an&nbsp;account?</a>
     </c:if>

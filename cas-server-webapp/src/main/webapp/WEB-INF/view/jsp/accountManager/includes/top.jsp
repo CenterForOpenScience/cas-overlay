@@ -28,14 +28,13 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%@ page import="io.cos.cas.account.flow.AccountManagerPageContext" %>
-<c:set var="jsonPageContext" value="${jsonAccountPageContext}" />
+<%@ page import="io.cos.cas.account.flow.AccountManager" %>
+<c:set var="accountManagerContext" value="${accountManager}" />
 <%
-    String stringPageContext = (String) pageContext.getAttribute("jsonPageContext");
-    AccountManagerPageContext accountPageContext = AccountManagerPageContext.fromJson(stringPageContext);
-    pageContext.setAttribute("accountPageContext", accountPageContext);
+    AccountManager accountManager = AccountManager.fromJson((String) pageContext.getAttribute("accountManagerContext"));
+    pageContext.setAttribute("accountManagerContext", accountManager);
 %>
-<c:set var="serviceUrl" value="${not empty accountPageContext.getServiceUrl() ? accountPageContext.getServiceUrl() : fn:escapeXml(param.service)}" />
+<c:set var="serviceUrl" value="${not empty accountManagerContext.getServiceUrl() ? accountManagerContext.getServiceUrl() : fn:escapeXml(param.service)}" />
 
 <html lang="en">
     <head>
@@ -77,7 +76,7 @@
                     <div id="description">
                         <br><br>
                         <c:choose>
-                            <c:when test="${accountPageContext.isRegister()}">
+                            <c:when test="${accountManagerContext.isRegister()}">
                                 <spring:message code="screen.osf.register.message" />
                             </c:when>
                             <c:otherwise>

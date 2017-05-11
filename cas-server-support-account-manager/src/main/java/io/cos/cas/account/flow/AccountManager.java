@@ -3,26 +3,30 @@ package io.cos.cas.account.flow;
 import com.google.gson.Gson;
 
 /**
- * Account Manager Page Context.
+ * The Open Science Framework Account Manager.
  *
  * @author Longze Chen
  * @since 4.1.5
  */
-public class AccountManagerPageContext {
+public class AccountManager {
+
+    /** Flow Scope Attribute Name for Account Manager. */
+    public static final String ATTRIBUTE_NAME = "accountManager";
 
     private String serviceUrl;
     private String action;
     private String username;
+    private String emailToVerify;
     private String campaign;
 
     /**
-     * Instantiate an Account Manager Page Context with Service URL, Action and Campaign.
+     * Instantiate an Account Manager with Service URL, Action and Campaign.
      *
      * @param serviceUrl the service url
      * @param action the action
      * @param campaign the campaign
      */
-    public AccountManagerPageContext(final String serviceUrl, final String action, final String campaign) {
+    public AccountManager(final String serviceUrl, final String action, final String campaign) {
         this.serviceUrl = serviceUrl;
         this.action = action;
         this.username = null;
@@ -51,6 +55,14 @@ public class AccountManagerPageContext {
 
     public void setUsername(final String username) {
         this.username = username;
+    }
+
+    public String getEmailToVerify() {
+        return emailToVerify;
+    }
+
+    public void setEmailToVerify(final String emailToVerify) {
+        this.emailToVerify = emailToVerify;
     }
 
     public String getCampaign() {
@@ -89,10 +101,13 @@ public class AccountManagerPageContext {
      * Restore the Instance from a JSON string.
      *
      * @param jsonString The json String
-     * @return an instance of {@link AccountManagerPageContext}
+     * @return an instance of {@link AccountManager}
      */
-    public static AccountManagerPageContext fromJson(final String jsonString) {
-        final Gson gson = new Gson();
-        return gson.fromJson(jsonString, AccountManagerPageContext.class);
+    public static AccountManager fromJson(final String jsonString) {
+        if (jsonString != null && !jsonString.isEmpty()) {
+            final Gson gson = new Gson();
+            return gson.fromJson(jsonString, AccountManager.class);
+        }
+        return null;
     }
 }

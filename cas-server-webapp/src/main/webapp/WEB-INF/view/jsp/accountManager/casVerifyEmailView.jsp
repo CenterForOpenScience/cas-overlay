@@ -51,49 +51,46 @@
     </c:if>
 </c:if>
 
-<div class="box" id="login">
+<div id="login" style="width: 100%;">
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
+        <div id="msg" class="success">
+            <c:if test="${flowExecutionUrl.contains('/account/register?')}">
+                <p><spring:message code="screen.confirmEmail.register.success.message"/></p>
+            </c:if>
+            <c:if test="${flowExecutionUrl.contains('/account/resend?')}">
+                <p><spring:message code="screen.confirmEmail.resend.success.message"/></p>
+            </c:if>
+        </div>
+
+        <h2><spring:message code="screen.challenge.header" /></h2>
+
         <section class="row">
-            <label for="fullname"><spring:message code="screen.register.label.fullname" /></label>
-            <spring:message code="screen.register.label.fullname.accesskey" var="fullnameAccessKey" />
-            <form:input cssClass="required" cssErrorClass="error" id="fullname" size="25" tabindex="1" accesskey="${fullnameAccessKey}" path="fullname" autocomplete="off" htmlEscape="true" />
-            <form:errors path="fullname" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+            <label for="emailToVerify"><spring:message code="screen.challenge.label.email.primary" /></label><br/>
+            <spring:message code="screen.challenge.label.email.primary.accesskey" var="emailAccessKey" />
+            <form:input disabled="true" value="${accountManagerContext.getEmailToVerify()}" cssClass="required" cssErrorClass="error" id="emailToVerify" size="25" tabindex="1" accesskey="${emailAccessKey}" path="emailToVerify" autocomplete="off" htmlEscape="true" />
         </section>
 
         <section class="row">
-            <label for="email"><spring:message code="screen.register.label.email" /></label>
-            <spring:message code="screen.register.label.email.accesskey" var="emailAccessKey" />
-            <form:input cssClass="required" cssErrorClass="error" id="email" size="25" tabindex="1" accesskey="${emailAccessKey}" path="email" autocomplete="off" htmlEscape="true" />
-            <form:errors path="email" id="msg" cssClass="errors" element="div" htmlEscape="false" />
-        </section>
-
-        <section class="row">
-            <label for="confirmEmail"><spring:message code="screen.register.label.email.confirm" /></label>
-            <spring:message code="screen.register.label.email.confirm.accesskey" var="confirmEmailAccessKey" />
-            <form:input cssClass="required" cssErrorClass="error" id="confirmEmail" size="25" tabindex="1" accesskey="${confirmEmailAccessKey}" path="confirmEmail" autocomplete="off" htmlEscape="true" />
-            <form:errors path="confirmEmail" id="msg" cssClass="errors" element="div" htmlEscape="false" />
-        </section>
-
-        <section class="row">
-            <label for="password"><spring:message code="screen.welcome.label.password" />
-            </label><spring:message code="screen.welcome.label.password.accesskey" var="passwordAccessKey" />
-            <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password"  accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
-            <form:errors path="password" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+            <label for="verificationCode"><spring:message code="screen.challenge.label.code.verification" /></label><br/>
+            <spring:message code="screen.challenge.label.code.verification.accesskey" var="verificationCodeAccessKey" />
+            <form:input cssClass="required" cssErrorClass="error" id="verificationCode" size="25" tabindex="1" accesskey="${verificationCodeAccessKey}" path="verificationCode" autocomplete="off" htmlEscape="true" />
+            <form:errors path="verificationCode" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
 
         <form:errors path="action" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
-        <section class="row">
+        <section class="row btn-row">
             <input type="hidden" name="action" value="${accountManagerContext.getAction()}" />
-            <input type="hidden" name="campaign" value="${accountManagerContext.getCampaign()}" />
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
-            <input type="submit" class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.register.button.register" />" tabindex="4"  />
+            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.challenge.button.submit" />" tabindex="4" type="submit" />
         </section>
 
     </form:form>
 </div>
 
-<jsp:directive.include file="./includes/bottom.jsp" />
+<c:set var="alternativeBottomLogin" value="true"/>
+
+<jsp:directive.include file="includes/bottom.jsp" />

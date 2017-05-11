@@ -24,7 +24,8 @@
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
                           http://www.springframework.org/schema/webflow/spring-webflow.xsd">
 
-    <var name="registerFormBean" class="io.cos.cas.account.model.RegisterFormBean"/>
+    <var name="registerFormBean" class="io.cos.cas.account.model.RegisterFormBean" />
+    <var name="verifyEmailFormBean" class="io.cos.cas.account.model.VerifyEmailFormBean" />
 
     <on-start>
         <evaluate expression="initialFlowSetupAction"/>
@@ -34,7 +35,7 @@
         <evaluate expression="ticketGrantingTicketCheckAction"/>
         <transition on="notExists" to="serviceAuthorizationCheck"/>
         <transition on="invalid" to="terminateSession"/>
-        <transition on="valid" to="viewAccountOverview"/>
+        <transition on="valid" to="terminateSession"/>
     </action-state>
 
     <action-state id="terminateSession">
@@ -73,11 +74,27 @@
     </view-state>
 
     <action-state id="registerUser">
-        <evaluate expression="registerAction.submitForm(flowRequestContext, flowScope.registerForm, messageContext)" />
-        <transition on="success" to="casAccountOverviewView"/>
+        <evaluate expression="registerAction.submitForm(flowRequestContext, flowScope.registerFormBean, messageContext)" />
+        <transition on="success" to="viewVerifyEmailPage"/>
         <transition on="error" to="generateLoginTicket"/>
     </action-state>
 
-    <end-state id="viewAccountOverview" view="casAccountOverviewView" />
+    <view-state id="viewVerifyEmailPage" view="/WEB-INF/view/jsp/accountManager/casVerifyEmailView.jsp" model="verifyEmailFormBean">
+        <binder>
+            <binding property="action" />
+            <binding property="emailToVerify" />
+            <binding property="verificationCode" />
+        </binder>
+        <on-entry>
+            <set name="viewScope.commandName" value="'confirmEmailFormBean'"/>
+        </on-entry>
+        <transition on="submit" bind="true" validate="true" to="confirmEmail"/>
+    </view-state>
+
+    <action-state id="confirmEmail">
+        <evaluate expression="verifyEmailFormBean.submitForm(flowRequestContext, flowScope.verifyEmailFormBean, messageContext)" />
+        <transition on="success" to="viewVerifyEmailPage" />
+        <transition on="error" to="viewVerifyEmailPage" />
+    </action-state>
 
 </flow>

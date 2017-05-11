@@ -1,7 +1,10 @@
 package io.cos.cas.account.util;
 
+import io.cos.cas.account.flow.AccountManager;
+
 import org.jasig.cas.services.RegexRegisteredService;
 import org.jasig.cas.services.RegisteredServiceProperty;
+
 import org.springframework.webflow.execution.RequestContext;
 
 import java.io.UnsupportedEncodingException;
@@ -14,6 +17,29 @@ import java.net.URLEncoder;
  * @since 4.1.5
  */
 public abstract class AbstractAccountFlowUtils {
+
+    /** The Default Error Message. */
+    public static final String DEFAULT_ERROR_MESSAGE = "Internal server error. Please try again later.";
+
+    /**
+     * Get the Account Manager from Flow Scope in Request Context.
+     *
+     * @param context the request context
+     * @return the account manager
+     */
+    public static AccountManager getAccountManagerFromRequestContext(final RequestContext context) {
+        return AccountManager.fromJson((String) context.getFlowScope().get(AccountManager.ATTRIBUTE_NAME));
+    }
+
+    /**
+     * Put the Account Manager to Flow Scope in Request Context.
+     *
+     * @param context the request context
+     * @param manager the account manager
+     */
+    public static void putAccountManagerToRequestContext(final RequestContext context, final AccountManager manager) {
+        context.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, manager.toJson());
+    }
 
     /**
      * Get the OSF Campaign Name from the Registered Service .
