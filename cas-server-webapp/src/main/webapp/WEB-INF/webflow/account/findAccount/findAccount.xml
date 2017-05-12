@@ -25,36 +25,34 @@
               http://www.springframework.org/schema/webflow/spring-webflow.xsd"
       parent="account/internal/onStart,account/internal/verifyEmail">
 
-    <var name="registerFormBean" class="io.cos.cas.account.model.RegisterFormBean" />
+    <var name="findAccountFormBean" class="io.cos.cas.account.model.FindAccountFormBean" />
 
     <action-state id="generateLoginTicket">
         <evaluate expression="generateLoginTicketAction.generate(flowRequestContext)"/>
-        <transition on="generated" to="showRegisterPage"/>
+        <transition on="generated" to="showFindAccountPage"/>
     </action-state>
 
-    <action-state id="showRegisterPage">
-        <evaluate expression="registerAction.preparePage(flowRequestContext)" />
-        <transition on="success" to="viewRegisterPage" />
+    <action-state id="showFindAccountPage">
+        <evaluate expression="findAccountAction.preparePage(flowRequestContext)" />
+        <transition on="success" to="viewFindAccountPage" />
+        <transition on="error" to="viewInvalidRequestPage" />
     </action-state>
 
-    <view-state id="viewRegisterPage" view="/WEB-INF/view/jsp/accountManager/casRegisterView.jsp" model="registerFormBean">
+    <view-state id="viewFindAccountPage" view="/WEB-INF/view/jsp/accountManager/casFindAccountView.jsp" model="findAccountFormBean">
         <binder>
-            <binding property="fullname" />
-            <binding property="email" />
-            <binding property="confirmEmail" />
-            <binding property="password" />
             <binding property="action" />
-            <binding property="campaign" />
+            <binding property="email" />
         </binder>
         <on-entry>
-            <set name="viewScope.commandName" value="'registerFormBean'"/>
+            <set name="viewScope.commandName" value="'findAccountFormBean'"/>
         </on-entry>
-        <transition on="submit" bind="true" validate="true" to="registerUser"/>
+        <transition on="submit" bind="true" validate="true" to="findAccount"/>
     </view-state>
 
-    <action-state id="registerUser">
-        <evaluate expression="registerAction.submitForm(flowRequestContext, flowScope.registerFormBean, messageContext)" />
-        <transition on="success" to="viewVerifyEmailPage"/>
+    <action-state id="findAccount">
+        <evaluate expression="findAccountAction.submitForm(flowRequestContext, flowScope.findAccountFormBean, messageContext)" />
+        <transition on="verifyEmail" to="viewVerifyEmailPage"/>
+        <transition on="resetPassword" to="viewResetPasswordPage" />
         <transition on="error" to="generateLoginTicket"/>
     </action-state>
 

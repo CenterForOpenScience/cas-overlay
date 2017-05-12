@@ -31,7 +31,10 @@
     <!-- Web Flow Setup -->
 
     <webflow:flow-registry id="accountFlowRegistry" base-path="/WEB-INF/webflow">
-        <webflow:flow-location-pattern value="/account/register/register.xml"/>
+        <webflow:flow-location-pattern value="/account/internal/onStart/onStart.xml" />
+        <webflow:flow-location-pattern value="/account/internal/verifyEmail/verifyEmail.xml" />
+        <webflow:flow-location-pattern value="/account/register/register.xml" />
+        <webflow:flow-location-pattern value="/account/findAccount/findAccount.xml" />
     </webflow:flow-registry>
 
     <webflow:flow-executor id="accountFlowExecutor" flow-registry="accountFlowRegistry">
@@ -47,6 +50,7 @@
         <property name="supportedFlowIds">
             <set>
                 <value>account/register</value>
+                <value>account/findAccount</value>
             </set>
         </property>
         <property name="flowExecutor" ref="accountFlowExecutor" />
@@ -66,8 +70,14 @@
         <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
     </bean>
 
+    <bean id="findAccountAction" class="io.cos.cas.account.flow.FindAccountAction">
+        <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+    </bean>
+
     <bean id="registerFormBeanValidator" class="io.cos.cas.account.validator.RegisterFormBeanValidator" />
 
-    <bean id="verifyEmailBeanValidator" class="io.cos.cas.account.validator.VerifyEmailFormBeanValidator" />
+    <bean id="verifyEmailFormBeanValidator" class="io.cos.cas.account.validator.VerifyEmailFormBeanValidator" />
+
+    <bean id="findAccountFormBeanValidator" class="io.cos.cas.account.validator.FindAccountFormBeanValidator" />
 
 </beans>

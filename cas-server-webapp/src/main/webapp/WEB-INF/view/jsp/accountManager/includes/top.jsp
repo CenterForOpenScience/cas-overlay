@@ -88,3 +88,33 @@
             </header>
             <br>
             <div id="content">
+                <spring:eval var="tgcCookieSecure" expression="@casProperties.getProperty('tgc.cookie.secure')" />
+                <c:if test="${not pageContext.request.secure && tgcCookieSecure}">
+                    <div id="msg" class="errors">
+                        <h2><spring:message code="screen.nonsecure.title" /></h2>
+                        <p><spring:message code="screen.nonsecure.message" /></p>
+                    </div>
+                </c:if>
+
+                <c:if test="${not empty registeredService}">
+                    <c:if test="${not empty registeredService.logo || not empty registeredService.name}">
+                        <div id="service-ui" class="service-info">
+                            <table>
+                                <tr>
+                                    <c:if test="${not empty registeredService.logo && empty registeredService.name}">
+                                        <td><img class="service-logo-full" src="${registeredService.logo}"> </td>
+                                    </c:if>
+                                    <c:if test="${empty registeredService.logo && not empty registeredService.name}">
+                                        <td><span class="service-name">${registeredService.name}</span></td>
+                                    </c:if>
+                                    <c:if test="${not empty registeredService.logo && not empty registeredService.name}">
+                                        <td><img id="service-logo" class="service-logo-${registeredService.name}" src="${registeredService.logo}"> </td>
+                                        <td>&nbsp;&nbsp;&nbsp;</td>
+                                        <td><span class="service-name">${registeredService.name} Preprints</span></td>
+                                    </c:if>
+                                </tr>
+                            </table>
+                        </div>
+                    </c:if>
+                </c:if>
+                <br/>
