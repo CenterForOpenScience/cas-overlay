@@ -18,8 +18,11 @@ import java.net.URLEncoder;
  */
 public abstract class AbstractAccountFlowUtils {
 
-    /** The Default Error Message. */
-    public static final String DEFAULT_ERROR_MESSAGE = "Internal server error. Please try again later.";
+    /** The Default Server-side Error Message. */
+    public static final String DEFAULT_SERVER_ERROR_MESSAGE = "Internal server error. Please try again later.";
+
+    /** The Default Client-side Error Message. */
+    public static final String DEFAULT_CLIENT_ERROR_MESSAGE = "Invalid client state. Please try again later.";
 
     /**
      * Get the Account Manager from Flow Scope in Request Context.
@@ -59,7 +62,7 @@ public abstract class AbstractAccountFlowUtils {
     }
 
     /**
-     * Get and Encode the Service URL from request.
+     * Get and Encode the Service URL from Request Context.
      *
      * @param context The request context
 
@@ -77,5 +80,15 @@ public abstract class AbstractAccountFlowUtils {
         } catch (final UnsupportedEncodingException e) {
             throw new AssertionError("UTF-8 is unknown");
         }
+    }
+
+    /**
+     * Get the Target Action from the Request Context.
+     *
+     * @param context the request context
+     * @return the target action
+     */
+    public static String getTargetFromRequestContext(final RequestContext context) {
+        return context.getRequestParameters().get("target");
     }
 }

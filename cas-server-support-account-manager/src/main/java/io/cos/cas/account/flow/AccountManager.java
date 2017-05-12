@@ -15,21 +15,25 @@ public class AccountManager {
 
     private String serviceUrl;
     private String action;
+    private String target;
     private String username;
     private String emailToVerify;
     private String campaign;
 
     /**
-     * Instantiate an Account Manager with Service URL, Action and Campaign.
+     * Instantiate an Account Manager with Service URL, Action, Target and Campaign.
      *
      * @param serviceUrl the service url
      * @param action the action
+     * @param target the target
      * @param campaign the campaign
      */
-    public AccountManager(final String serviceUrl, final String action, final String campaign) {
+    public AccountManager(final String serviceUrl, final String action, final String target, final String campaign) {
         this.serviceUrl = serviceUrl;
         this.action = action;
+        this.target = target;
         this.username = null;
+        this.emailToVerify = null;
         this.campaign = campaign;
     }
 
@@ -47,6 +51,14 @@ public class AccountManager {
 
     public void setAction(final String action) {
         this.action = action;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(final String target) {
+        this.target = target;
     }
 
     public String getUsername() {

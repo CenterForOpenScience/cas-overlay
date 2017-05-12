@@ -20,7 +20,7 @@ import org.springframework.webflow.execution.RequestContext;
 public class VerifyEmailAction {
 
     /** The Name of the Action. */
-    public static final String NAME = "VERIFY_EMAIL";
+    public static final String NAME = "verifyEmail";
 
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;
@@ -48,7 +48,7 @@ public class VerifyEmailAction {
             final MessageContext messageContext
     ) {
         final AccountManager accountManager = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
-        final String errorMessage = AbstractAccountFlowUtils.DEFAULT_ERROR_MESSAGE;
+        final String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
         if (accountManager != null && accountManager.getEmailToVerify() != null) {
 

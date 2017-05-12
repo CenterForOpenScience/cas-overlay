@@ -47,7 +47,7 @@ public class RegisterAction {
     public Event preparePage(final RequestContext requestContext) {
         final String serviceUrl = AbstractAccountFlowUtils.getEncodedServiceUrl(requestContext);
         final String campaign = AbstractAccountFlowUtils.getCampaignFromRegisteredService(requestContext);
-        final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, campaign);
+        final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, null, campaign);
         requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
         return new Event(this, "success");
     }
