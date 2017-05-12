@@ -38,8 +38,8 @@
         </section>
 
         <section class="row">
-            <label for="confirmEmail"><spring:message code="screen.register.label.email.confirm" /></label>
-            <spring:message code="screen.register.label.email.confirm.accesskey" var="confirmEmailAccessKey" />
+            <label for="confirmEmail"><spring:message code="screen.register.label.confirmEmail" /></label>
+            <spring:message code="screen.register.label.confirmEmail.accesskey" var="confirmEmailAccessKey" />
             <form:input cssClass="required" cssErrorClass="error" id="confirmEmail" size="25" tabindex="1" accesskey="${confirmEmailAccessKey}" path="confirmEmail" autocomplete="off" htmlEscape="true" />
             <form:errors path="confirmEmail" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
@@ -59,7 +59,7 @@
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
-            <input type="submit" class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.register.button.register" />" tabindex="4"  />
+            <input type="submit" class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.register.button.createAccount" />" tabindex="4"  />
         </section>
 
     </form:form>

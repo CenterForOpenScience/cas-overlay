@@ -23,7 +23,7 @@
       xmlns="http://www.springframework.org/schema/webflow"
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
               http://www.springframework.org/schema/webflow/spring-webflow.xsd"
-      parent="account/internal/onStart,account/internal/verifyEmail">
+      parent="account/internal/onStart,account/internal/verifyEmail,account/internal/resetPassword">
 
     <var name="findAccountFormBean" class="io.cos.cas.account.model.FindAccountFormBean" />
 

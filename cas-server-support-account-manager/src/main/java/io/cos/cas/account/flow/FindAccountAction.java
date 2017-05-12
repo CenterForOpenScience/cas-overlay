@@ -3,7 +3,9 @@ package io.cos.cas.account.flow;
 import io.cos.cas.account.model.FindAccountFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
+
 import org.json.JSONObject;
+
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.Event;
@@ -82,6 +84,7 @@ public class FindAccountAction {
                 accountManager.setEmailToVerify(findAccountForm.getEmail());
             } else if (ResetPasswordAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
                 accountManager.setAction(ResetPasswordAction.NAME);
+                accountManager.setUsername(findAccountForm.getEmail());
             }
             AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
             return new Event(this, accountManager.getAction());

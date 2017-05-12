@@ -35,7 +35,7 @@ public class VerifyEmailAction {
     }
 
     /**
-     * Handle Register From Submission.
+     * Handle Verify Email From Submission.
      *
      * @param requestContext the request context
      * @param verifyEmailForm the verify email form

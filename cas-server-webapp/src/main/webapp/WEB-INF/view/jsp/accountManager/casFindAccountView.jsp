@@ -25,12 +25,12 @@
 
         <c:choose>
             <c:when test="${accountManagerContext.getTarget() == 'resetPassword'}">
-                <spring:message code="screen.help.forgot.password.header" var="helpHeader"/>
-                <spring:message code="screen.help.forgot.password.message" var="helpMessage"/>
+                <spring:message code="screen.findAccount.resetPassword.header" var="helpHeader"/>
+                <spring:message code="screen.findAccount.resetPassword.message" var="helpMessage"/>
             </c:when>
             <c:when test="${accountManagerContext.getTarget() == 'verifyEmail'}">
-                <spring:message code="screen.help.resend.confirmation.header" var="helpHeader"/>
-                <spring:message code="screen.help.resend.confirmation.message" var="helpMessage"/>
+                <spring:message code="screen.findAccount.verifyEmail.header" var="helpHeader"/>
+                <spring:message code="screen.findAccount.verifyEmail.message" var="helpMessage"/>
             </c:when>
         </c:choose>
 
@@ -38,7 +38,7 @@
 
         <section class="row">
             <label for="email">${helpMessage}</label><br/>
-            <spring:message code="screen.help.label.email.accesskey" var="emailAccessKey" />
+            <spring:message code="screen.findAccount.label.email.accesskey" var="emailAccessKey" />
             <form:input cssClass="required" cssErrorClass="error" id="email" size="25" tabindex="1" accesskey="${emailAccessKey}" path="email" autocomplete="off" htmlEscape="true" />
         </section>
 
@@ -50,7 +50,7 @@
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
-            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.help.button.send" />" tabindex="4" type="submit" />
+            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.findAccount.button.send" />" tabindex="4" type="submit" />
         </section>
 
     </form:form>

@@ -24,20 +24,15 @@
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
         <div id="msg" class="success">
-            <c:if test="${flowExecutionUrl.contains('/account/register?')}">
-                <p><spring:message code="screen.verifyEmail.register.success.message" /></p>
-            </c:if>
-            <c:if test="${flowExecutionUrl.contains('/account/findAccount?')}">
-                <p><spring:message code="screen.verifyEmail.resend.success.message" /></p>
-            </c:if>
+            <p><spring:message code="screen.resetPassword.emailSent.success.message" /></p>
         </div>
 
         <h2><spring:message code="screen.challenge.header" /></h2>
 
         <section class="row">
-            <label for="emailToVerify"><spring:message code="screen.challenge.label.primaryEmail" /></label><br/>
+            <label for="username"><spring:message code="screen.challenge.label.primaryEmail" /></label><br/>
             <spring:message code="screen.challenge.label.email.primary.accesskey" var="emailAccessKey" />
-            <form:input disabled="true" value="${accountManagerContext.getEmailToVerify()}" cssClass="required" cssErrorClass="error" id="emailToVerify" size="25" tabindex="1" accesskey="${emailAccessKey}" path="emailToVerify" autocomplete="off" htmlEscape="true" />
+            <form:input disabled="true" value="${accountManagerContext.getUsername()}" cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${emailAccessKey}" path="username" autocomplete="off" htmlEscape="true" />
         </section>
 
         <section class="row">
@@ -45,6 +40,22 @@
             <spring:message code="screen.challenge.label.verificationCode.accesskey" var="verificationCodeAccessKey" />
             <form:input cssClass="required" cssErrorClass="error" id="verificationCode" size="25" tabindex="1" accesskey="${verificationCodeAccessKey}" path="verificationCode" autocomplete="off" htmlEscape="true" />
             <form:errors path="verificationCode" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+        </section>
+
+        <h2><spring:message code="screen.resetPassword.header" /></h2>
+
+        <section class="row">
+            <label for="newPassword"><spring:message code="screen.resetPassword.label.newPassword" /></label><br/>
+            <spring:message code="screen.resetPassword.label.newPassword.accesskey" var="newPasswordAccessKey" />
+            <form:input type="password" cssClass="required" cssErrorClass="error" id="newPassword" size="25" tabindex="1" accesskey="${newPasswordAccessKey}" path="newPassword" autocomplete="off" htmlEscape="true" />
+            <form:errors path="newPassword" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+        </section>
+
+        <section class="row">
+            <label for="confirmPassword"><spring:message code="screen.resetPassword.label.confirmPassword" /></label><br/>
+            <spring:message code="screen.resetPassword.label.newPassword.accesskey" var="confirmPasswordAccessKey" />
+            <form:input type="password" cssClass="required" cssErrorClass="error" id="confirmPassword" size="25" tabindex="1" accesskey="${confirmPasswordAccessKey}" path="confirmPassword" autocomplete="off" htmlEscape="true" />
+            <form:errors path="confirmPassword" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
 
         <form:errors path="action" id="msg" cssClass="errors" element="div" htmlEscape="false" />

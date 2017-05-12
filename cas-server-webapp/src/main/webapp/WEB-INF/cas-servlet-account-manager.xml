@@ -31,8 +31,11 @@
     <!-- Web Flow Setup -->
 
     <webflow:flow-registry id="accountFlowRegistry" base-path="/WEB-INF/webflow">
+        <!-- Internal Web Flows -->
         <webflow:flow-location-pattern value="/account/internal/onStart/onStart.xml" />
         <webflow:flow-location-pattern value="/account/internal/verifyEmail/verifyEmail.xml" />
+        <webflow:flow-location-pattern value="/account/internal/resetPassword/resetPassword.xml" />
+        <!-- Entry Web Flows -->
         <webflow:flow-location-pattern value="/account/register/register.xml" />
         <webflow:flow-location-pattern value="/account/findAccount/findAccount.xml" />
     </webflow:flow-registry>
@@ -74,10 +77,16 @@
         <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
     </bean>
 
+    <bean id="resetPasswordAction" class="io.cos.cas.account.flow.ResetPasswordAction">
+        <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+    </bean>
+
     <bean id="registerFormBeanValidator" class="io.cos.cas.account.validator.RegisterFormBeanValidator" />
 
     <bean id="verifyEmailFormBeanValidator" class="io.cos.cas.account.validator.VerifyEmailFormBeanValidator" />
 
     <bean id="findAccountFormBeanValidator" class="io.cos.cas.account.validator.FindAccountFormBeanValidator" />
+
+    <bean id="resetPasswordFormBeanValidator" class="io.cos.cas.account.validator.ResetPasswordFormBeanValidator" />
 
 </beans>
