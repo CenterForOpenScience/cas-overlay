@@ -103,10 +103,7 @@
     <action-state id="beforeLogin">
         <evaluate expression="loginHandler.beforeLogin(flowRequestContext)" />
         <transition on="osfDefaultLogin" to="viewLoginForm" />
-        <transition on="osfDefaultRegister" to="viewRegisterForm" />
         <transition on="institutionLogin" to="osfInstitutionLogin" />
-        <transition on="osfLoginHelp" to="viewLoginHelpForm" />
-        <transition on="osfLoginChallenge" to="viewLoginChallenge" />
     </action-state>
 
     <action-state id="osfInstitutionLogin">
@@ -115,21 +112,6 @@
     </action-state>
 
     <view-state id="viewInstitutionLoginForm" view="casInstitutionLoginView">
-    </view-state>
-
-    <view-state id="viewRegisterForm" view="casRegisterView"  model="credential">
-        <binder>
-            <binding property="fullname" />
-            <binding property="email" />
-            <binding property="confirmEmail" />
-            <binding property="password" required="true"/>
-            <binding property="loginAction" />
-            <binding property="campaign" />
-        </binder>
-        <on-entry>
-            <set name="viewScope.commandName" value="'credential'"/>
-        </on-entry>
-        <transition on="submit" bind="true" validate="true" to="realSubmit"/>
     </view-state>
 
     <view-state id="viewLoginForm" view="casLoginView" model="credential">
@@ -153,31 +135,6 @@
     <view-state id="casOtpLoginView" view="casOtpLoginView" model="credential">
         <binder>
             <binding property="oneTimePassword" required="true" />
-        </binder>
-        <on-entry>
-            <set name="viewScope.commandName" value="'credential'" />
-        </on-entry>
-        <transition on="submit" bind="true" validate="true" to="realSubmit" />
-    </view-state>
-
-    <view-state id="viewLoginHelpForm" view="casLoginHelpView" model="credential">
-        <binder>
-            <binding property="email" />
-            <binding property="loginAction" />
-        </binder>
-        <on-entry>
-            <set name="viewScope.commandName" value="'credential'" />
-        </on-entry>
-        <transition on="submit" bind="true" validate="true" to="realSubmit" />
-    </view-state>
-
-    <view-state id="viewLoginChallenge" view="casLoginChallengeView" model="credential">
-        <binder>
-            <binding property="email" />
-            <binding property="verificationCode"  />
-            <binding property="newPassword" />
-            <binding property="confirmPassword" />
-            <binding property="loginAction" />
         </binder>
         <on-entry>
             <set name="viewScope.commandName" value="'credential'" />
@@ -252,13 +209,6 @@
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
         <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
 
-        <!-- Open Science Framework Registration-->
-        <transition on="RegistrationFailureUserAlreadyExistsException" to="viewRegisterForm"/>
-        <transition on="RegistrationSuccessConfirmationRequiredException" to="viewLoginChallenge"/>
-
-        <!-- Other -->
-        <transition on="LoginChallengeRequiredException" to="viewLoginChallenge" />
-        <transition on="ApiEndpointNotImplementedException" to="viewApiEndpointNotImplemented" />
     </action-state>
 
     <action-state id="sendTicketGrantingTicket">
@@ -305,8 +255,6 @@
                       result-type="org.jasig.cas.authentication.principal.Principal"/>
         </on-entry>
     </end-state>
-
-    <end-state id="viewApiEndpointNotImplemented" view="casApiEndpointNotImplementedView" />
 
     <!--
     The "showWarningView" end state is the end state for when the user has requested privacy settings (to be "warned") to be turned on.  It delegates to a

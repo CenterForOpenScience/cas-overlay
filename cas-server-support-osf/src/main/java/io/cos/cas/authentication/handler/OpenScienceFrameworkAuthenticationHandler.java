@@ -25,17 +25,13 @@ import java.util.Map;
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.util.AbstractApiEndpointUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.authentication.exceptions.ApiEndpointNotImplementedException;
-import io.cos.cas.authentication.exceptions.LoginChallengeRequiredException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
-import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
 
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 import io.cos.cas.api.type.ApiEndpoint;
-import io.cos.cas.types.OsfLoginAction;
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
@@ -61,21 +57,17 @@ import javax.validation.constraints.NotNull;
 public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPostProcessingAuthenticationHandler
         implements InitializingBean {
 
-    /** The Principle Name Transformer instance. */
     @NotNull
     private PrincipalNameTransformer principalNameTransformer = new NoOpPrincipalNameTransformer();
 
     @NotNull
     private ApiEndpointHandler apiEndpointHandler;
 
-    /**
-     * Default Constructor.
-     */
+    /** Default Constructor. */
     public OpenScienceFrameworkAuthenticationHandler() {}
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-    }
+    public void afterPropertiesSet() throws Exception {}
 
     @Override
     protected final HandlerResult doAuthentication(final Credential credential)
@@ -108,61 +100,25 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         final String plainTextPassword = credential.getPassword();
         final String verificationKey = credential.getVerificationKey();
         final String oneTimePassword = credential.getOneTimePassword();
-        final String campaign = credential.getCampaign();
-        final String loginAction = credential.getLoginAction();
-        final String fullname = credential.getFullname();
-        final String email = credential.getEmail();
-        final String verificationCode = credential.getVerificationCode();
 
         final JSONObject user = new JSONObject();
         final JSONObject data = new JSONObject();
         final JSONObject payload = new JSONObject();
 
-        ApiEndpoint endpoint = ApiEndpoint.NONE;
-
-        if (loginAction != null) {
-           if (loginAction.equals(OsfLoginAction.REGISTER.getId())) {
-                user.put("email", email);
-                user.put("password", plainTextPassword);
-                user.put("fullname", fullname);
-                user.put("campaign", campaign);
-                data.put("type", "REGISTER");
-                endpoint = ApiEndpoint.AUTH_REGISTER;
-            } else if (loginAction.equals(OsfLoginAction.RESEND_CONFIRMATION.getId())) {
-                if (verificationCode == null) {
-                    endpoint = ApiEndpoint.HELP_RESEND_CONFIRMATION;
-                }
-            } else if (loginAction.equals(OsfLoginAction.FORGOT_PASSWORD.getId())) {
-                if (verificationCode == null) {
-                    endpoint = ApiEndpoint.HELP_FORGOT_PASSWORD;
-                }
-            }
-        } else {
-            user.put("email", username);
-            user.put("password", plainTextPassword);
-            user.put("verificationKey", verificationKey);
-            user.put("remoteAuthenticated", credential.isRemotePrincipal());
-            user.put("oneTimePassword", oneTimePassword);
-            data.put("type", "LOGIN");
-            endpoint = ApiEndpoint.AUTH_LOGIN;
-        }
+        user.put("email", username);
+        user.put("password", plainTextPassword);
+        user.put("verificationKey", verificationKey);
+        user.put("remoteAuthenticated", credential.isRemotePrincipal());
+        user.put("oneTimePassword", oneTimePassword);
+        data.put("type", "LOGIN");
         data.put("user", user);
         payload.put("data", data);
+
         final String encryptedPayload = apiEndpointHandler.encryptPayload("data", data.toString());
-
-        final Map<String, Object> response = apiEndpointHandler.apiCasAuthentication(endpoint, username, encryptedPayload);
-
-        if (response != null) {
-            if (response.containsKey("action")) {
-                credential.setLoginAction((String) response.get("action"));
-                throw new LoginChallengeRequiredException();
-            } else if (response.containsKey("none")) {
-                throw new ApiEndpointNotImplementedException("Invalid API Endpoint");
-            }
-        }
+        final Map<String, Object> response = apiEndpointHandler.apiCasAuthentication(ApiEndpoint.AUTH_LOGIN, username, encryptedPayload);
 
         if (response == null || !response.containsKey("status")) {
-            throw new FailedLoginException("I/O Exception: an error has occurred during the api authentication process.");
+            throw new FailedLoginException("I/O Exception: invalid authentication response.");
         }
 
         final String status = (String) response.get("status");
@@ -171,16 +127,10 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             final String userId = (String) response.get("userId");
             final Map<String, Object> attributes = (Map<String, Object>) response.get("attributes");
             return createHandlerResult(credential, this.principalFactory.createPrincipal(userId, attributes), null);
-        } else if (AbstractApiEndpointUtils.REGISTER_SUCCESS.equals(status)) {
-            // registration success, requires confirmation
-            credential.setLoginAction(OsfLoginAction.CONFIRM_EMAIL.getId());
-            throw new LoginChallengeRequiredException();
         } else if (AbstractApiEndpointUtils.AUTH_FAILURE.equals(status)) {
             // authentication or registration failure
             final String errorDetail = (String) response.get("detail");
-            if (AbstractApiEndpointUtils.ALREADY_REGISTERED.equals(errorDetail)) {
-                throw new RegistrationFailureUserAlreadyExistsException();
-            } else if (AbstractApiEndpointUtils.TWO_FACTOR_AUTH_REQUIRED.equals(errorDetail)) {
+            if (AbstractApiEndpointUtils.TWO_FACTOR_AUTH_REQUIRED.equals(errorDetail)) {
                 throw new OneTimePasswordRequiredException("Time-based One Time Password required.");
             } else if (AbstractApiEndpointUtils.INVALID_ONE_TIME_PASSWORD.equals(errorDetail)) {
                 throw new OneTimePasswordFailedLoginException();
@@ -199,11 +149,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                 throw new AccountDisabledException(username + "account is disabled");
             } else {
                 // unknown authentication exception
-                throw new FailedLoginException("I/O Exception: an error has occurred during the api authentication process.");
+                throw new FailedLoginException("I/O Exception: unsupported authentication exception");
             }
         } else {
             // unknown authentication status
-            throw new FailedLoginException("I/O Exception: an error has occurred during the api authentication process.");
+            throw new FailedLoginException("I/O Exception: unsupported authentication status");
         }
     }
 

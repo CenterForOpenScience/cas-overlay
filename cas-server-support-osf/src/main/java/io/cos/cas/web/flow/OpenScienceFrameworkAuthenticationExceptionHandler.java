@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.authentication.exceptions.ApiEndpointNotImplementedException;
-import io.cos.cas.authentication.exceptions.LoginChallengeRequiredException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
@@ -95,10 +93,6 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         // Two factor Login Exceptions
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
-
-        // Challenge Request
-        DEFAULT_ERROR_LIST.add(LoginChallengeRequiredException.class);
-        DEFAULT_ERROR_LIST.add(ApiEndpointNotImplementedException.class);
     }
 
     // Login Throttle Triggering Exceptions
@@ -129,24 +123,24 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
      * The authentication exception handler event.
      * Record the exception and put it in `jsonLoginContext` in flow scope.
      *
-     * @param context the request context
+     * @param requestContext the request context
      * @param e the authentication exception
      * @param messageContext the message context
      * @return an Event with the name of the exception
      */
-    public Event preHandle(final RequestContext context, final AuthenticationException e, final MessageContext messageContext) {
+    public Event preHandle(
+            final RequestContext requestContext,
+            final AuthenticationException e,
+            final MessageContext messageContext
+    ) {
         final String handleErrorName = super.handle(e, messageContext);
-
-        final String loginContext = (String) context.getFlowScope().get("jsonLoginContext");
-        final OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext osfLoginContext
-                = OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext.fromJson(loginContext);
-        if (osfLoginContext != null) {
-            osfLoginContext.setHandleErrorName(handleErrorName);
-            osfLoginContext.setUsername(((OpenScienceFrameworkCredential) WebUtils.getCredential(context)).getUsername());
-            osfLoginContext.setAction(((OpenScienceFrameworkCredential) WebUtils.getCredential(context)).getLoginAction());
-            context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
+        final LoginManager loginMangerContext
+                = OpenScienceFrameworkLoginHandler.getLoginManagerFromRequestContext(requestContext);
+        if (loginMangerContext != null) {
+            loginMangerContext.setHandleErrorName(handleErrorName);
+            loginMangerContext.setUsername(((OpenScienceFrameworkCredential) WebUtils.getCredential(requestContext)).getUsername());
+            OpenScienceFrameworkLoginHandler.putLoginManagerToRequestContext(requestContext, loginMangerContext);
         }
-
         return new Event(this, handleErrorName);
     }
 }

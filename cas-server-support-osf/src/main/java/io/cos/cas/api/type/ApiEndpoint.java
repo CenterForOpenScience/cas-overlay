@@ -19,8 +19,6 @@
 
 package io.cos.cas.api.type;
 
-import io.cos.cas.types.OsfLoginAction;
-
 /**
  * Open Science Framework API Endpoint Types.
  *
@@ -29,17 +27,8 @@ import io.cos.cas.types.OsfLoginAction;
  */
 public enum ApiEndpoint {
 
-    /** Default Endpoint. */
-    NONE("none"),
-
     /** Authentication Endpoint. */
     AUTH("auth"),
-
-    /** Login Help Endpoint. */
-    HELP("help"),
-
-    /** Login Challenge Endpoint. */
-    CHALLENGE("challenge"),
 
     /** Service Endpoint. */
     SERVICE("service"),
@@ -52,18 +41,6 @@ public enum ApiEndpoint {
 
     /** Login through Institutions. */
     AUTH_INSTITUTION(ApiEndpoint.AUTH.getId() + "/institution"),
-
-    /** Forgot Password. */
-    HELP_FORGOT_PASSWORD(ApiEndpoint.HELP.getId() + '/' + OsfLoginAction.FORGOT_PASSWORD.getId()),
-
-    /** Resend Confirmation Email for New Account. */
-    HELP_RESEND_CONFIRMATION(ApiEndpoint.HELP.getId() + '/' + OsfLoginAction.RESEND_CONFIRMATION.getId()),
-
-    /** Reset Password. */
-    CHALLENGE_RESET_PASSWORD(ApiEndpoint.CHALLENGE.getId() + '/' + OsfLoginAction.RESET_PASSWORD.getId()),
-
-    /** Confirm Email. */
-    CHALLENGE_CONFIRM_EMAIL(ApiEndpoint.CHALLENGE.getId() + '/' + OsfLoginAction.CONFIRM_EMAIL.getId()),
 
     /** Load Developer Applications as Registered Services. */
     SERVICE_DEVELOPER_APPS(ApiEndpoint.SERVICE.getId() + "/developerApps"),

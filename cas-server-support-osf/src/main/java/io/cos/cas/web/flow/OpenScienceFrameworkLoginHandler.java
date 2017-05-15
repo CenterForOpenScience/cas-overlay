@@ -19,244 +19,57 @@
 
 package io.cos.cas.web.flow;
 
-import com.google.gson.Gson;
-import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
-import io.cos.cas.types.OsfLoginAction;
 import org.jasig.cas.services.RegexRegisteredService;
 import org.jasig.cas.services.RegisteredServiceProperty;
+
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.security.GeneralSecurityException;
 
 
 /**
- * Open Science Framework Login Handler.
+ * Web Flow Action to Prepare Different Login Options.
  *
  * @author Longze Chen
  * @since 4.1.5
  */
 public class OpenScienceFrameworkLoginHandler {
 
-    private static final String PARAM_HELP = "help";
-    private static final String PARAM_CHALLENGE = "challenge";
-    private static final String PARAM_REGISTER = "register";
     private static final String PARAM_CAMPAIGN = "campaign";
     private static final String PARAM_INSTITUTION = "institution";
-    private static final String PARAM_USER = "user";
 
     /**
-     * Open Science Framework Login Context.
+     * Prepare Login Manager Context and Select the Default Login or Institution Login.
      *
-     * @author Longze chen
-     * @since  4.1.5
+     * @param requestContext The request requestContext
+     * @return the event
      */
-    public static final class OpenScienceFrameworkLoginContext {
+    public Event beforeLogin(final RequestContext requestContext) {
 
-        private String serviceUrl;
-        private String action;
-        private String fullname;
-        private String username;
-        private String campaign;
-        private boolean institutionLogin;
-        private String handleErrorName;
+        final String serviceUrl = getEncodedServiceUrl(requestContext);
+        final String campaign = getCampaignFromRegisteredService(requestContext);
+        final boolean institutionLogin = isInstitutionLogin(requestContext);
 
-        /**
-         * Instantiate an Open Science Framework Login Context with Service URL, Institution Login and Register Flags.
-         *
-         * @param serviceUrl the service url
-         * @param action the login action
-         * @param institutionLogin login through institutions
-         */
-        private OpenScienceFrameworkLoginContext(
-                final String serviceUrl,
-                final String action,
-                final boolean institutionLogin
-        ) {
-            this.serviceUrl = serviceUrl;
-            this.action = action;
-            this.username = null;
-            this.fullname = null;
-            this.campaign = null;
-            this.handleErrorName = null;
-            this.institutionLogin = institutionLogin;
+        LoginManager loginManagerContext = getLoginManagerFromRequestContext(requestContext);
+        if (loginManagerContext == null) {
+            loginManagerContext = new LoginManager(serviceUrl, campaign, institutionLogin);
+        } else {
+            loginManagerContext.setServiceUrl(serviceUrl);
+            loginManagerContext.setCampaign(serviceUrl);
+            loginManagerContext.setInstitutionLogin(institutionLogin);
         }
+        putLoginManagerToRequestContext(requestContext, loginManagerContext);
 
-        public String getServiceUrl() {
-            return serviceUrl;
+        if (institutionLogin) {
+            return new Event(this, "institutionLogin");
         }
-
-        public String getAction() {
-            return action;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getFullname() {
-            return fullname;
-        }
-
-        public String getCampaign() {
-            return campaign;
-        }
-
-        public String getHandleErrorName() {
-            return handleErrorName;
-        }
-
-        public void setServiceUrl(final String serviceUrl) {
-            this.serviceUrl = serviceUrl;
-        }
-
-        public void setAction(final String action) {
-            this.action = action;
-        }
-
-        public void setUsername(final String username) {
-            this.username = username;
-        }
-
-        public void setFullname(final String fullname) {
-            this.fullname = fullname;
-        }
-
-        public void setCampaign(final String campaign) {
-            this.campaign = campaign;
-        }
-
-        public void setInstitutionLogin(final Boolean institutionLogin) {
-            this.institutionLogin = institutionLogin;
-        }
-
-        public void setHandleErrorName(final String handleErrorName) {
-            this.handleErrorName = handleErrorName;
-        }
-
-
-        /**
-         * @return true if action is default login.
-         */
-        public Boolean isDefaultLogin() {
-            return OsfLoginAction.isLogin(action);
-        }
-
-        /**
-         * @return true if action is register.
-         */
-        public Boolean isRegister() {
-            return OsfLoginAction.isRegister(action);
-        }
-
-        /**
-         * @return true if action is login help.
-         */
-        public Boolean isLoginHelp() {
-            return OsfLoginAction.isHelp(action);
-        }
-
-        /**
-         * @return true if action is login help.
-         */
-        public Boolean isLoginChallenge() {
-            return OsfLoginAction.isChallenge(action);
-        }
-
-        /**
-         * @return true if institution login.
-         */
-        public boolean isInstitutionLogin() {
-            return institutionLogin;
-        }
-
-        /**
-         * @return true if service url exists.
-         */
-        public boolean isServiceUrl() {
-            return serviceUrl != null;
-        }
-
-        /**
-         * Serialize the class instance to a JSON string, which will be passed to the flow context.
-         *
-         * @return JSON string
-         */
-        public String toJson() {
-            final Gson gson = new Gson();
-            return gson.toJson(this);
-        }
-
-        /**
-         * Construct an instance from the JSON string obtained from flow context.
-         *
-         * @param jsonString The json String
-         * @return an instance of OpenScienceFrameworkCampaign
-         */
-        public static OpenScienceFrameworkLoginContext fromJson(final String jsonString) {
-            final Gson gson = new Gson();
-            return gson.fromJson(jsonString, OpenScienceFrameworkLoginContext.class);
-        }
+        return new Event(this, "osfDefaultLogin");
     }
 
     /**
-     * Decision making action that handles OSF login.
-     *
-     * @param context The request context
-     * @return Event "osfDefaultLogin", "institutionLogin"
-     * @throws GeneralSecurityException on authentication failure
-     */
-    public Event beforeLogin(final RequestContext context) throws GeneralSecurityException {
-
-        final String serviceUrl = getEncodedServiceUrl(context);
-        final OsfLoginAction loginHelp = getLoginHelpFromRequest(context);
-        final OsfLoginAction loginOrRegister = getLoginOrRegisterFromRequest(context);
-        final String campaign = getCampaignFromRegisteredService(context);
-        final boolean institutionLogin = isInstitutionLogin(context);
-
-        if (loginHelp != null) {
-            final OpenScienceFrameworkLoginContext osfLoginContext
-                    = new OpenScienceFrameworkLoginContext(serviceUrl, loginHelp.getId(), false);
-            context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
-            return new Event(this, "osfLoginHelp");
-        }
-
-        if (loginOrRegister != null) {
-            final OpenScienceFrameworkLoginContext osfLoginContext;
-            final String jsonLoginContext = (String) context.getFlowScope().get("jsonLoginContext");
-            if (jsonLoginContext == null) {
-                osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, loginOrRegister.getId(), institutionLogin);
-            } else {
-                // If the web flow comes from authentication exception, the login context exists and contains error
-                // information stored in "handlerErrorName" which is set during exception handler.
-                osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(jsonLoginContext);
-                osfLoginContext.setServiceUrl(serviceUrl);
-                osfLoginContext.setAction(loginOrRegister.getId());
-                osfLoginContext.setInstitutionLogin(institutionLogin);
-            }
-            osfLoginContext.setCampaign(campaign);
-            context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
-
-            if (institutionLogin) {
-                return new Event(this, "institutionLogin");
-            }
-
-            if (OsfLoginAction.isRegister(loginOrRegister.getId())) {
-                return new Event(this, "osfDefaultRegister");
-            }
-
-            if (OsfLoginAction.isLogin(loginOrRegister.getId())) {
-                return new Event(this, "osfDefaultLogin");
-            }
-        }
-
-        throw new ShouldNotHappenException();
-    }
-
-    /**
-     * Encode the decoded service url if service url exists.
+     * Get and Encode the Service URL from Request Context.
      *
      * @param context The request context
 
@@ -264,9 +77,8 @@ public class OpenScienceFrameworkLoginHandler {
      * @throws AssertionError if fails to encode the URL
      */
     private String getEncodedServiceUrl(final RequestContext context) throws AssertionError {
-
         final String serviceUrl = context.getRequestParameters().get("service");
-        if (serviceUrl == null) {
+        if (serviceUrl == null || serviceUrl.isEmpty()) {
             return null;
         }
         try {
@@ -289,7 +101,7 @@ public class OpenScienceFrameworkLoginHandler {
     }
 
     /**
-     * Get campaign name from registered service.
+     * Get the OSF Campaign Name from the Registered Service.
      *
      * @param context the request context
      * @return the campaign name
@@ -298,7 +110,7 @@ public class OpenScienceFrameworkLoginHandler {
         final RegexRegisteredService registeredService = (RegexRegisteredService) context.getFlowScope().get("registeredService");
         if (registeredService != null) {
             final RegisteredServiceProperty campaign = registeredService.getProperties().get("campaign");
-            if (campaign != null) {
+            if (campaign != null && !campaign.getValue().isEmpty()) {
                 return campaign.getValue();
             }
         }
@@ -306,30 +118,22 @@ public class OpenScienceFrameworkLoginHandler {
     }
 
     /**
-     * Check and verify request parameter "help".
+     * Get the Login Manager from Flow Scope in Request Context.
      *
      * @param context the request context
-     * @return the action if the request has a valid help parameter
+     * @return the login manager
      */
-    private OsfLoginAction getLoginHelpFromRequest(final RequestContext context) {
-        final String help = context.getRequestParameters().get(PARAM_HELP);
-        if (OsfLoginAction.isHelp(help)) {
-            return OsfLoginAction.getType(help);
-        }
-        return null;
+    public static LoginManager getLoginManagerFromRequestContext(final RequestContext context) {
+        return LoginManager.fromJson((String) context.getFlowScope().get(LoginManager.ATTRIBUTE_NAME));
     }
 
     /**
-     * Check and verify request parameter "register".
+     * Put the Login Manager to Flow Scope in Request Context.
      *
      * @param context the request context
-     * @return action "login" or "register"
+     * @param manager the login manager
      */
-    private OsfLoginAction getLoginOrRegisterFromRequest(final RequestContext context) {
-        final String register = context.getRequestParameters().get(PARAM_REGISTER);
-        if (Boolean.TRUE.toString().equalsIgnoreCase(register)) {
-            return OsfLoginAction.REGISTER;
-        }
-        return OsfLoginAction.LOGIN;
+    public static void putLoginManagerToRequestContext(final RequestContext context, final LoginManager manager) {
+        context.getFlowScope().put(LoginManager.ATTRIBUTE_NAME, manager.toJson());
     }
 }

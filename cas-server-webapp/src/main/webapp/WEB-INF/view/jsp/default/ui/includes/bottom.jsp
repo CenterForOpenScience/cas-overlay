@@ -21,41 +21,33 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-    <c:set var="serviceUrl" value="${not empty osfLoginContext.getServiceUrl() ? osfLoginContext.getServiceUrl() : fn:escapeXml(param.service)}" />
-
     <c:if test= "${empty alternativeBottomNone}">
         <div class="row" style="text-align: center;">
             <hr><br>
             <c:choose>
                 <c:when test="${not empty alternativeBottomLogout}">
                     <spring:eval var="casLogoutUrl" expression="@casProperties.getProperty('cas.logout.url')" />
-                    <a id="alternative-osf" href="${casLogoutUrl}">Sign Out</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a id="alternative-osf" href="${casLogoutUrl}">Sign Out</a>
                 </c:when>
                 <c:when test="${not empty alternativeBottomLogin}">
                     <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-                    <a id="alternative-osf" href="${osfLoginUrl}service=${serviceUrl}">Sign In</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a id="alternative-osf" href="${osfLoginUrl}service=${serviceUrl}">Sign In</a>
                 </c:when>
                 <c:otherwise>
                     <c:choose>
-                        <c:when test="${osfLoginContext.isInstitutionLogin()}">
+                        <c:when test="${loginManagerContext.isInstitutionLogin()}">
                             <spring:eval var="defaultLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-                            <a id="alternative-osf" href="${defaultLoginUrl}${osfLoginContext.isServiceUrl() ? 'service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">
-                                Non-institution&nbsp;Login
-                            </a>
-                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <a id="alternative-osf" href="${defaultLoginUrl}service=${serviceUrl}">Non-institution&nbsp;Login</a>
                         </c:when>
                         <c:otherwise>
                             <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')" />
-                            <a id="alternative-institution" href="${institutionLoginUrl}${osfLoginContext.isServiceUrl() ? '&service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">
-                                Login&nbsp;through&nbsp;Your&nbsp;Institution
-                            </a>
-                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <a id="alternative-institution" href="${institutionLoginUrl}&service=${serviceUrl}">Login&nbsp;through&nbsp;Your&nbsp;Institution</a>
                         </c:otherwise>
                     </c:choose>
                 </c:otherwise>
             </c:choose>
             <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
-            <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
         </div>
     </c:if>
 
@@ -65,27 +57,15 @@
 
 <div class="row" style="text-align: center;">
     <br>
-    <c:choose>
-        <c:when test="${osfLoginContext.isRegister()}">
-            <c:if test="${empty alternativeBottomLogin}">
-                <spring:eval var="alreadyHaveAnAccountUrl" expression="@casProperties.getProperty('cas.osf.login.url')" />
-                <a id="already-have-an-account" href="${alreadyHaveAnAccountUrl}${osfLoginContext.isServiceUrl() ? 'service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">
-                    Already&nbsp;have&nbsp;an&nbsp;account?
-                </a>
-            </c:if>
-        </c:when>
-        <c:otherwise>
-            <c:if test= "${empty alternativeBottomNone}">
-                <c:if test="${empty alternativeBottomLogout}">
-                    <div class="row" style="text-align: center;">
-                        <br>
-                        <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('cas.osf.createAccount.url')" />
-                        <a id="create-account" href="${createAccountUrl}${osfLoginContext.isServiceUrl() ? '&service=' : ''}${fn:escapeXml(osfLoginContext.getServiceUrl())}">Create&nbsp;Account</a>
-                    </div>
-                </c:if>
-            </c:if>
-        </c:otherwise>
-    </c:choose>
+    <c:if test= "${empty alternativeBottomNone}">
+        <c:if test="${empty alternativeBottomLogout}">
+            <div class="row" style="text-align: center;">
+                <br>
+                <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('cas.osf.register.url')" />
+                <a id="create-account" href="${createAccountUrl}service=${serviceUrl}">Create&nbsp;Account</a>
+            </div>
+        </c:if>
+    </c:if>
 </div>
 
 <footer>

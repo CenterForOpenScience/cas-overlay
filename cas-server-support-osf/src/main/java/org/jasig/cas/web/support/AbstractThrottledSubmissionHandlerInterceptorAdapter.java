@@ -18,6 +18,7 @@
  */
 package org.jasig.cas.web.support;
 
+import io.cos.cas.web.flow.LoginManager;
 import io.cos.cas.web.flow.OpenScienceFrameworkAuthenticationExceptionHandler;
 import io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -104,28 +105,26 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
         }
 
         // retrieve the Login Context, where `.getFlowScope()` may not be available
-        final String loginContext;
+        LoginManager loginManagerContext;
         try {
-            loginContext = (String) context.getFlowScope().get("jsonLoginContext");
+            loginManagerContext = OpenScienceFrameworkLoginHandler.getLoginManagerFromRequestContext(context);
         } catch (final IllegalStateException e) {
             logger.warn(e.getMessage());
             return;
         }
-        // no need to catch json parsing exceptions, since if `loginContext` exists, it must be good
-        final OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext osfLoginContext
-                = OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext.fromJson(loginContext);
-        if (osfLoginContext == null || osfLoginContext.getHandleErrorName() == null) {
+
+        if (loginManagerContext == null || loginManagerContext.getHandleErrorName() == null) {
             logger.warn("Fail to retrieve login context and authentication exceptions.");
             return;
         }
-        if (OpenScienceFrameworkAuthenticationExceptionHandler.isTriggerThrottleIncrease(osfLoginContext.getHandleErrorName())) {
+        if (OpenScienceFrameworkAuthenticationExceptionHandler.isTriggerThrottleIncrease(loginManagerContext.getHandleErrorName())) {
             // record submission failure only for throttle-trigger auth errors
             recordSubmissionFailure(request);
         }
 
         // clear the all auth errors
-        osfLoginContext.setHandleErrorName(null);
-        context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
+        loginManagerContext.setHandleErrorName(null);
+        OpenScienceFrameworkLoginHandler.putLoginManagerToRequestContext(context, loginManagerContext);
     }
 
     public final void setFailureThreshold(final int failureThreshold) {

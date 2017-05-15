@@ -28,13 +28,13 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%@ page import="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext" %>
-<c:set var="pageLoginContext" value="${jsonLoginContext}" />
+<%@ page import="io.cos.cas.web.flow.LoginManager" %>
+<c:set var="jsonLoginManagerContext" value="${loginManager}" />
 <%
-    String loginContext = (String) pageContext.getAttribute("pageLoginContext");
-    OpenScienceFrameworkLoginContext osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(loginContext);
-    pageContext.setAttribute("osfLoginContext", osfLoginContext);
+    LoginManager loginManager = LoginManager.fromJson((String) pageContext.getAttribute("jsonLoginManagerContext"));
+    pageContext.setAttribute("loginManagerContext", loginManager);
 %>
+<c:set var="serviceUrl" value="${loginManagerContext.checkService() ? loginManagerContext.getServiceUrl() : fn:escapeXml(param.service)}" />
 
 <html lang="en">
     <head>
@@ -61,7 +61,7 @@
                 <div class="center">
                     <span id="title">
                         <c:choose>
-                            <c:when test="${osfLoginContext.isInstitutionLogin()}">
+                            <c:when test="${loginManagerContext.isInstitutionLogin()}">
                                 <span>OSF Institutions</span>
                             </c:when>
                             <c:when test="${not empty registeredService}">
@@ -79,24 +79,14 @@
                     <div id="description">
                         <br><br>
                         <c:choose>
-                            <c:when test="${osfLoginContext.isLoginHelp() or osfLoginContext.isLoginChallenge()}">
-                                <spring:message code="screen.cas.login.message" />
+                            <c:when test="${loginManagerContext.isInstitutionLogin()}">
+                                <spring:message code="screen.institution.login.message" />
+                            </c:when>
+                            <c:when test="${not empty registeredService}">
+                                <spring:message code="screen.osf.login.message" />
                             </c:when>
                             <c:otherwise>
-                                <c:choose>
-                                    <c:when test="${osfLoginContext.isInstitutionLogin()}">
-                                        <spring:message code="screen.institution.login.message" />
-                                    </c:when>
-                                    <c:when test="${osfLoginContext.isRegister()}">
-                                        <spring:message code="screen.osf.register.message" />
-                                    </c:when>
-                                    <c:when test="${osfLoginContext.isDefaultLogin() and not empty registeredService}">
-                                        <spring:message code="screen.osf.login.message" />
-                                    </c:when>
-                                    <c:otherwise>
-                                        <spring:message code="screen.cas.login.message" />
-                                    </c:otherwise>
-                                </c:choose>
+                                <spring:message code="screen.cas.login.message" />
                             </c:otherwise>
                         </c:choose>
                     </div>

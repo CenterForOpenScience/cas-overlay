@@ -109,23 +109,16 @@
             <br/> --%>
             <input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked tabindex="5" />
             <label for="rememberMe"><spring:message code="screen.rememberme.checkbox.title" /></label>
-            <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('cas.osf.forgotPassword.url')" />
-            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}&service=${osfLoginContext.getServiceUrl()}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
+            <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('cas.osf.resetPassword.url')" />
+            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}&service=${loginManagerContext.getServiceUrl()}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
         </section>
 
         <%-- TODO: Only display OAuth Client options for the OSF service, due to a limitation of our OAuth Provider implementation as it does not support non-existing OSF accounts. --%>
-        <c:if test="${not empty registeredService}">
-            <c:if test="${not empty registeredService.id &&
-             registeredService.id == 983450982340993434 ||
-             registeredService.id == 203948234207230 || registeredService.id == 203948234207231 || registeredService.id == 203948234207232 || registeredService.id == 203948234207240 ||
-             registeredService.id == 203948234207241 || registeredService.id == 203948234207242 || registeredService.id == 203948234207243 || registeredService.id == 203948234207244 ||
-             registeredService.id == 203948234207245 || registeredService.id == 203948234207246}">
-                <hr/>
-
-                <section class="row">
-                    <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo" src="../images/orcid-logo.png"><spring:message code="screen.welcome.button.login.orcid" /></a>
-                </section>
-            </c:if>
+        <c:if test="${not empty registeredService and not empty loginManagerContext.getServiceUrl()}">
+            <hr/>
+            <section class="row">
+                <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo" src="../images/orcid-logo.png"><spring:message code="screen.welcome.button.login.orcid" /></a>
+            </section>
         </c:if>
 
     </form:form>

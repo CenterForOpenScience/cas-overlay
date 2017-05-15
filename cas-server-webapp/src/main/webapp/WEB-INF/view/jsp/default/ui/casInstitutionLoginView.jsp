@@ -20,6 +20,7 @@
 --%>
 
 <jsp:directive.include file="includes/top.jsp" />
+
 <div id="inst-login">
     <section class="row">
         <div class="heading">
@@ -57,4 +58,5 @@
         }
     </script>
 </div>
+
 <jsp:directive.include file="includes/bottom.jsp" />
