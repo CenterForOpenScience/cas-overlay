@@ -170,7 +170,7 @@
               <value>file:${project.parent.basedir}/etc/log4j2.xml</value>
             </systemProperty>
             <systemProperty>
-              <name>osf.api.institutions.auth.xslLocation</name>
+              <name>osf.api.cas.endpoint.institution.auth.xslLocation</name>
               <value>file:${project.parent.basedir}/etc/institutions-auth.xsl</value>
             </systemProperty>
           </systemProperties>

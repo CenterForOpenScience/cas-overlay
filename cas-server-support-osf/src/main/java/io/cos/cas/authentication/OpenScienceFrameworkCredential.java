@@ -16,11 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.cos.cas.authentication;
 
-import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
+import io.cos.cas.types.DelegationProtocol;
+import io.cos.cas.types.OsfLoginAction;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.jasig.cas.authentication.RememberMeUsernamePasswordCredential;
+import org.springframework.binding.message.MessageBuilder;
+import org.springframework.binding.message.MessageContext;
+import org.springframework.binding.validation.ValidationContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,133 +58,149 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
     /** Time-based One Time Password suffix appended to username in string representation. */
     private static final String ONE_TIME_PASSWORD_SUFFIX = "+otp";
 
-    /** The Verification Key. */
     private String verificationKey;
 
-    /** The One Time Password. */
     private String oneTimePassword;
 
-    /** Indicates a Remote Principal. */
     private Boolean remotePrincipal = Boolean.FALSE;
 
-    /** The Institution Id. */
     private String institutionId;
 
-    /** The Authentication Delegation Protocol. */
     private DelegationProtocol delegationProtocol;
 
-    /** The Attributes Released from Authentication Delegation. */
     private Map<String, String> delegationAttributes = new HashMap<>();
 
-    /** Default constructor. */
+    private String fullname;
+
+    private String email;
+
+    private String confirmEmail;
+
+    private String campaign;
+
+    private String verificationCode;
+
+    private String newPassword;
+
+    private String confirmPassword;
+
+    private String loginAction;
+
+    /** Default Constructor. */
     public OpenScienceFrameworkCredential() {}
 
-    /**
-     * Creates a new instance with the given username and password.
-     *
-     * @param username Non-null user name.
-     * @param password Non-null password.
-     * @param rememberMe remember me.
-     * @param verificationKey verification key.
-     */
-    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe,
-                                          final String verificationKey) {
-        this(username, password, rememberMe, verificationKey, null);
-    }
-
-    /**
-     * Creates a new instance with the given username and password.
-     *
-     * @param username Non-null user name.
-     * @param password Non-null password.
-     * @param rememberMe remember me.
-     * @param verificationKey verification key.
-     * @param oneTimePassword one time password.
-     */
-    public OpenScienceFrameworkCredential(final String username, final String password, final Boolean rememberMe,
-                                          final String verificationKey, final String oneTimePassword) {
-        this.setUsername(username);
-        this.setPassword(password);
-        this.setRememberMe(rememberMe);
-        this.setVerificationKey(verificationKey);
-        this.setOneTimePassword(oneTimePassword);
-    }
-
-    /**
-     * @return Returns the Verification Key.
-     */
     public String getVerificationKey() {
         return this.verificationKey;
     }
 
-    /**
-     * @param verificationKey The Verification Key to set.
-     */
     public void setVerificationKey(final String verificationKey) {
         this.verificationKey = verificationKey;
     }
 
-    /**
-     * @return Returns the One Time Password.
-     */
     public String getOneTimePassword() {
         return this.oneTimePassword;
     }
 
-    /**
-     * @param oneTimePassword the One Time Password to set.
-     */
     public void setOneTimePassword(final String oneTimePassword) {
         this.oneTimePassword = oneTimePassword;
     }
 
-    /**
-     * @return Returns the Remote Principal.
-     */
     public final Boolean isRemotePrincipal() {
         return this.remotePrincipal;
     }
 
-    /**
-     * @param remotePrincipal the Remote Principal.
-     */
     public final void setRemotePrincipal(final Boolean remotePrincipal) {
         this.remotePrincipal = remotePrincipal;
     }
 
-    /**
-     * @return Returns the Institution Id.
-     */
     public final String getInstitutionId() {
         return this.institutionId;
     }
 
-    /**
-     * @param institutionId the Institution Id.
-     */
     public final void setInstitutionId(final String institutionId) {
         this.institutionId = institutionId;
     }
 
-    /**
-     * @return Returns the Delegation Protocol.
-     */
     public final DelegationProtocol getDelegationProtocol() {
         return delegationProtocol;
     }
 
-    /**
-     * @param delegationProtocol the Delegation Protocol.
-     */
     public void setDelegationProtocol(final DelegationProtocol delegationProtocol) {
         this.delegationProtocol = delegationProtocol;
     }
 
-    /**
-     * @return Returns the Released Attributes from Authentication Delegation.
-     */
     public final Map<String, String> getDelegationAttributes() {
         return delegationAttributes;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(final String fullname) {
+        this.fullname = fullname.trim();
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Set email and update username.
+     *
+     * @param email the email
+     */
+    public void setEmail(final String email) {
+        this.email = email.trim();
+        setUsername(this.email);
+    }
+
+    public String getConfirmEmail() {
+        return confirmEmail;
+    }
+
+    public void setConfirmEmail(final String confirmEmail) {
+        this.confirmEmail = confirmEmail.trim();
+    }
+
+    public String getCampaign() {
+        return campaign;
+    }
+
+    public void setCampaign(final String campaign) {
+        this.campaign = campaign;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(final String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(final String newPassword) {
+        this.newPassword = newPassword.trim();
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(final String confirmPassword) {
+        this.confirmPassword = confirmPassword.trim();
+    }
+
+    public String getLoginAction() {
+        return loginAction;
+    }
+
+    public void setLoginAction(final String loginAction) {
+        this.loginAction = loginAction;
     }
 
     /**
@@ -247,5 +269,137 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
                 .append(institutionId)
                 .append(delegationProtocol)
                 .toHashCode();
+    }
+
+    /**
+     * Form Submission Validation for View State: viewRegisterForm.
+     *
+     * Inherited property "password" is validated by super class "UsernamePasswordCredential".
+     * Hidden form property "loginAction" is checked against client side modification
+     *
+     * @param context the validation context
+     */
+    public void validateViewRegisterForm(final ValidationContext context) {
+
+        final MessageContext messageContext = context.getMessageContext();
+        final EmailValidator emailValidator = new EmailValidator();
+
+        if (loginAction == null || !OsfLoginAction.isRegister(loginAction)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("loginAction").defaultText("Invalid Client State.").build()
+            );
+        }
+
+        if (fullname == null || fullname.trim().isEmpty()) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("fullname").defaultText("Please enter your name.").build()
+            );
+        }
+
+        if (email == null || email.trim().isEmpty()) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("email").defaultText("Please enter your email.").build()
+            );
+        } else if (!emailValidator.isValid(email, null)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("email").defaultText("Please enter a valid email.").build()
+            );
+        }
+
+        if (confirmEmail == null || confirmEmail.trim().isEmpty()) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("confirmEmail").defaultText("Please confirm your email.").build()
+            );
+        } else if (!emailValidator.isValid(confirmEmail, null)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("confirmEmail").defaultText("Please enter a valid email.").build()
+            );
+        } else if (!confirmEmail.equals(email)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("confirmEmail").defaultText("Email does not match.").build()
+            );
+        }
+    }
+
+    /**
+     * Form Submission Validation for View State: viewLoginHelpForm.
+     *
+     * Hidden form property "loginAction" is checked against client side modification
+     *
+     * @param context the validation context
+     */
+    public void validateViewLoginHelpForm(final ValidationContext context) {
+
+        final MessageContext messageContext = context.getMessageContext();
+        final EmailValidator emailValidator = new EmailValidator();
+
+        if (loginAction == null || !OsfLoginAction.isHelp(loginAction)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("loginAction").defaultText("Invalid Client State.").build()
+            );
+        }
+
+        if (email == null || email.trim().isEmpty()) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("email").defaultText("Please enter your email.").build()
+            );
+        } else if (!emailValidator.isValid(email, null)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("email").defaultText("Please enter a valid email.").build()
+            );
+        }
+    }
+
+    /**
+     * Form Submission Validation for View State: viewLoginChallenge.
+     *
+     * Hidden form property "loginAction" is checked against client side modification
+     *
+     * @param context the validation context
+     */
+    public void validateViewLoginChallenge(final ValidationContext context) {
+
+        final MessageContext messageContext = context.getMessageContext();
+        final EmailValidator emailValidator = new EmailValidator();
+
+        if (loginAction == null || !OsfLoginAction.isChallenge(loginAction)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("loginAction").defaultText("Invalid Client State.").build()
+            );
+        }
+
+        if (email == null || email.trim().isEmpty()) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("email").defaultText("Please enter your email.").build()
+            );
+        } else if (!emailValidator.isValid(email, null)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("email").defaultText("Please enter a valid email.").build()
+            );
+        }
+
+        if (verificationCode == null || verificationCode.trim().isEmpty()) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("verificationCode").defaultText("Please enter the verification code.").build()
+            );
+        }
+
+        if (loginAction.equals(OsfLoginAction.RESET_PASSWORD.getId())) {
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                messageContext.addMessage(
+                        new MessageBuilder().error().source("newPassword").defaultText("Please enter a new password.").build()
+                );
+            }
+
+            if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
+                messageContext.addMessage(
+                        new MessageBuilder().error().source("confirmPassword").defaultText("Please confirm the new password.").build()
+                );
+            } else if (!confirmPassword.equals(newPassword)) {
+                messageContext.addMessage(
+                        new MessageBuilder().error().source("confirmPassword").defaultText("Password does not match.").build()
+                );
+            }
+        }
     }
 }

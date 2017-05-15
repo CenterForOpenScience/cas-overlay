@@ -40,15 +40,11 @@
     <head>
         <meta charset="UTF-8" />
 
-        <title>Open Science Framework | Sign In </title>
+        <title>OSF | Central Authentication Service</title>
 
         <spring:theme code="standard.custom.css.file" var="customCssFile" />
         <link rel="stylesheet" href="<c:url value="${customCssFile}" />" />
         <link rel="icon" href="<c:url value="/favicon.ico" />" type="image/x-icon" />
-
-        <!--[if lt IE 9]>
-            <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.1/html5shiv.js" type="text/javascript"></script>
-        <![endif]-->
 
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,700' rel='stylesheet' type='text/css'>
     </head>
@@ -83,14 +79,24 @@
                     <div id="description">
                         <br><br>
                         <c:choose>
-                            <c:when test="${osfLoginContext.isInstitutionLogin()}">
-                                    <spring:message code="screen.institution.login.message" />
-                            </c:when>
-                            <c:when test="${not empty registeredService}">
-                                    <spring:message code="screen.osf.login.message" />
+                            <c:when test="${osfLoginContext.isLoginHelp() or osfLoginContext.isLoginChallenge()}">
+                                <spring:message code="screen.cas.login.message" />
                             </c:when>
                             <c:otherwise>
-                                <spring:message code="screen.cas.login.message" />
+                                <c:choose>
+                                    <c:when test="${osfLoginContext.isInstitutionLogin()}">
+                                        <spring:message code="screen.institution.login.message" />
+                                    </c:when>
+                                    <c:when test="${osfLoginContext.isRegister()}">
+                                        <spring:message code="screen.osf.register.message" />
+                                    </c:when>
+                                    <c:when test="${osfLoginContext.isDefaultLogin() and not empty registeredService}">
+                                        <spring:message code="screen.osf.login.message" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <spring:message code="screen.cas.login.message" />
+                                    </c:otherwise>
+                                </c:choose>
                             </c:otherwise>
                         </c:choose>
                     </div>

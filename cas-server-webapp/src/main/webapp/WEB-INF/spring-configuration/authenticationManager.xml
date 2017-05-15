@@ -41,8 +41,8 @@
                 <bean class="org.jasig.cas.authentication.SuccessfulHandlerMetaDataPopulator" />
                 <bean class="org.jasig.cas.authentication.principal.RememberMeAuthenticationMetaDataPopulator" />
                 <bean class="org.jasig.cas.support.oauth.authentication.principal.OAuthAuthenticationMetaDataPopulator" />
-                <bean class="io.cos.cas.authentication.principal.OpenScienceFrameworkAuthenticationMetaDataPopulator" />
                 <bean class="org.jasig.cas.support.pac4j.authentication.ClientAuthenticationMetaDataPopulator" />
+                <bean class="io.cos.cas.authentication.principal.OpenScienceFrameworkAuthenticationMetaDataPopulator" />
             </list>
         </property>
         <property name="authenticationPolicy">
@@ -50,10 +50,25 @@
         </property>
     </bean>
 
-    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkAuthenticationHandler"
-        p:openScienceFrameworkDao-ref="openScienceFrameworkDao"/>
+    <!-- OSF Authentication: Use Postgres Adaptors -->
+    <!--
+        <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkAuthenticationHandler"
+            p:openScienceFrameworkDao-ref="openScienceFrameworkDao"
+        />
+     -->
 
-    <bean id="oAuthAuthenticationHandler" class="org.jasig.cas.support.oauth.authentication.handler.support.OAuthCredentialsAuthenticationHandler" />
+    <!-- OSF Authentication: Use OSF API Adaptors -->
+    <bean id="openScienceFrameworkAuthenticationHandler" class="io.cos.cas.authentication.handler.OpenScienceFrameworkAuthenticationHandler"
+        p:osfApiCasEndpoint-ref="openScienceFrameworkApiCasEndpoint" />
+    <bean id="openScienceFrameworkApiCasEndpoint" class="io.cos.cas.api.OpenScienceFrameworkApiCasEndpoint"
+        c:osfApiCasEndpointUrl="${osf.api.cas.endpoint.url}"
+        c:apiCasEndpointJweSecret="${osf.api.cas.endpoint.jweSecret}"
+        c:apiCasEndpointJwtSecret="${osf.api.cas.endpoint.jwtSecret}" />
+
+
+    <!-- OAuth Authorization -->
+    <bean id="oAuthAuthenticationHandler"
+        class="org.jasig.cas.support.oauth.authentication.handler.support.OAuthCredentialsAuthenticationHandler" />
 
     <!-- Required for proxy ticket mechanism. -->
     <bean id="proxyAuthenticationHandler" class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
@@ -62,6 +77,7 @@
 
     <bean id="proxyPrincipalResolver" class="org.jasig.cas.authentication.principal.BasicPrincipalResolver" />
 
+    <!-- Authentication Delegation -->
     <bean id="pac4jClientAuthenticationHandler" class="org.jasig.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler"
         c:theClients-ref="clients" />
 </beans>

@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.cos.cas.web.flow;
 
 import org.jasig.cas.CentralAuthenticationService;
@@ -30,7 +31,7 @@ import javax.validation.constraints.NotNull;
  * Webflow action that checks whether the Action parameter is specified and invalidates the TGT.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkTicketGrantingTicketCheckAction extends TicketGrantingTicketCheckAction {
 
