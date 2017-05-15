@@ -353,10 +353,8 @@
 
   <bean id="principalFromRemoteAction" class="io.cos.cas.web.flow.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction"
         p:centralAuthenticationService-ref="centralAuthenticationService"
-        p:institutionsAuthUrl="${osf.api.cas.endpoint.institution.auth.url}"
-        p:institutionsAuthJweSecret="${osf.api.cas.endpoint.jweSecret}"
-        p:institutionsAuthJwtSecret="${osf.api.cas.endpoint.jwtSecret}"
-        p:institutionsAuthXslLocation="${osf.api.cas.endpoint.institution.auth.xslLocation}"/>
+        p:apiEndpointHandler-ref="apiEndpointHandler"
+        p:institutionsAuthXslLocation="${cas.institution.auth.xsl.location}"/>
 
   <!--<bean id="shibbolethLoginController" class="org.jasig.cas.web.ServiceValidateController"-->
           <!--p:validationSpecificationClass="org.jasig.cas.validation.Cas20WithoutProxyingValidationSpecification"-->

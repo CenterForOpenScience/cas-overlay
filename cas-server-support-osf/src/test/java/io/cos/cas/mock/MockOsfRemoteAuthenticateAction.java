@@ -1,6 +1,7 @@
 package io.cos.cas.mock;
 
 import io.cos.cas.AbstractTestUtils;
+import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.web.flow.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
 import org.jasig.cas.CentralAuthenticationService;
@@ -25,10 +26,15 @@ public class MockOsfRemoteAuthenticateAction
     public MockOsfRemoteAuthenticateAction(
             final CentralAuthenticationService centralAuthenticationService
     ) {
+
         this.setCentralAuthenticationService(centralAuthenticationService);
-        this.setInstitutionsAuthUrl(INSTITUTION_AUTH_URL);
-        this.setInstitutionsAuthJweSecret(INSTITUTION_AUTH_JWE_SECRET);
-        this.setInstitutionsAuthJwtSecret(INSTITUTION_AUTH_JWT_SECRET);
+        this.setApiEndpointHandler(
+                new ApiEndpointHandler(
+                        INSTITUTION_AUTH_URL,
+                        INSTITUTION_AUTH_JWE_SECRET,
+                        INSTITUTION_AUTH_JWT_SECRET
+                )
+        );
         this.setInstitutionsAuthXslLocation(INSTITUTION_AUTH_XSL_LOCATION);
     }
 

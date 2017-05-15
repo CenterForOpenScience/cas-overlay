@@ -19,31 +19,14 @@
 
 package io.cos.cas.web.flow;
 
-import com.nimbusds.jose.EncryptionMethod;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.JWEHeader;
-import com.nimbusds.jose.JWEObject;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.DirectEncrypter;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-
+import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.ApiEndpoint;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.types.DelegationProtocol;
 import io.cos.pac4j.oauth.client.OrcidClient;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.message.BasicHeader;
 
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
@@ -90,10 +73,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -167,13 +148,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
     protected PrincipalFactory principalFactory = new DefaultPrincipalFactory();
 
     @NotNull
-    private String institutionsAuthUrl;
-
-    @NotNull
-    private String institutionsAuthJweSecret;
-
-    @NotNull
-    private String institutionsAuthJwtSecret;
+    private ApiEndpointHandler apiEndpointHandler;
 
     @NotNull
     private String institutionsAuthXslLocation;
@@ -397,61 +372,34 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      */
      protected PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
             final OpenScienceFrameworkCredential credential
-    ) throws AccountException {
-        try {
-            final JSONObject normalizedPayload = this.normalizeRemotePrincipal(credential);
-            normalizedPayload.put("type", "INSTITUTION_AUTHENTICATE");
-            final JSONObject provider = normalizedPayload.getJSONObject("provider");
-            final String institutionId = provider.getString("id");
-            final String username = provider.getJSONObject("user").getString("username");
-            final String payload = normalizedPayload.toString();
+     ) throws AccountException {
+         try {
+             final JSONObject normalizedPayload = this.normalizeRemotePrincipal(credential);
+             normalizedPayload.put("type", "INSTITUTION_AUTHENTICATE");
 
-            logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
-            logger.debug("Notify Remote Principal Authenticated [{}, {}] Normalized Payload '{}'", username, institutionId, payload);
+             final JSONObject provider = normalizedPayload.getJSONObject("provider");
+             final String institutionId = provider.getString("id");
+             final String username = provider.getJSONObject("user").getString("username");
+             logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
 
-            // Build a JWT and wrap it with JWE for secure transport to the OSF API.
-            final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                    .subject(username)
-                    .claim("data", payload)
-                    .expirationTime(new Date(new Date().getTime() + SIXTY_SECONDS))
-                    .build();
+             final String encryptedPayload
+                     = apiEndpointHandler.encryptPayload("data", normalizedPayload.toString());
+             final Map<String, Object> response
+                     = apiEndpointHandler.apiCasAuthentication(ApiEndpoint.AUTH_INSTITUTION, username, encryptedPayload);
 
-            final SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
-
-            final JWSSigner signer = new MACSigner(this.institutionsAuthJwtSecret.getBytes());
-            signedJWT.sign(signer);
-
-            final JWEObject jweObject = new JWEObject(
-                    new JWEHeader.Builder(JWEAlgorithm.DIR, EncryptionMethod.A256GCM)
-                            .contentType("JWT")
-                            .build(),
-                    new Payload(signedJWT));
-            jweObject.encrypt(new DirectEncrypter(this.institutionsAuthJweSecret.getBytes()));
-            final String jweString = jweObject.serialize();
-
-            // A call is made to the OSF CAS Institution Login Endpoint to create a registered user (if
-            // one does not already exist) and apply institutional affiliation.
-            final HttpResponse httpResponse = Request.Post(this.institutionsAuthUrl)
-                    .addHeader(new BasicHeader("Content-Type", "text/plain"))
-                    .bodyString(jweString, ContentType.APPLICATION_JSON)
-                    .execute()
-                    .returnResponse();
-            final int statusCode = httpResponse.getStatusLine().getStatusCode();
-            logger.info(
-                    "Notify Remote Principal Authenticated [OSF API] Response: <{}> Status Code {}",
-                    username,
-                    statusCode
-            );
-            // The institutional authentication endpoint should always respond with a 204 No Content when successful.
-            if (statusCode != HttpStatus.SC_NO_CONTENT) {
-                final String responseString = new BasicResponseHandler().handleResponse(httpResponse);
-                logger.error("Notify Remote Principal Authenticated [OSF API] Response Body: '{}'", responseString);
-                throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");
-            }
-
-            // return the username for the credential build.
-            return new PrincipalAuthenticationResult(username, institutionId);
-        } catch (final JOSEException | IOException | ParserConfigurationException | TransformerException e) {
+             if (response != null && response.containsKey("status")) {
+                 final int statusCode = (int) response.get("status");
+                 logger.info(
+                         "Notify Remote Principal Authenticated [OSF API] Response: <{}> Status Code {}",
+                         username,
+                         statusCode
+                 );
+                 if (statusCode == HttpStatus.SC_NO_CONTENT) {
+                     return new PrincipalAuthenticationResult(username, institutionId);
+                 }
+             }
+             throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");
+         } catch (final ParserConfigurationException | TransformerException e) {
             logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
             logger.trace("Notify Remote Principal Authenticated Exception: {}", e);
             throw new RemoteUserFailedLoginException("Unable to Build Message for OSF API Endpoint");
@@ -499,16 +447,8 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         return XML.toJSONObject(writer.getBuffer().toString());
     }
 
-    public void setInstitutionsAuthUrl(final String institutionsAuthUrl) {
-        this.institutionsAuthUrl = institutionsAuthUrl;
-    }
-
-    public void setInstitutionsAuthJweSecret(final String institutionsAuthJweSecret) {
-        this.institutionsAuthJweSecret = institutionsAuthJweSecret;
-    }
-
-    public void setInstitutionsAuthJwtSecret(final String institutionsAuthJwtSecret) {
-        this.institutionsAuthJwtSecret = institutionsAuthJwtSecret;
+    public void setApiEndpointHandler(final ApiEndpointHandler apiEndpointHandler) {
+        this.apiEndpointHandler = apiEndpointHandler;
     }
 
     public void setInstitutionsAuthXslLocation(final String institutionsAuthXslLocation) {

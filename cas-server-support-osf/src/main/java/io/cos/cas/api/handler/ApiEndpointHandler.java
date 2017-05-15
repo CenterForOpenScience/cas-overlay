@@ -212,34 +212,41 @@ public class ApiEndpointHandler {
      */
      public Map<String, Object> apiCasAuthentication(final ApiEndpoint endpoint, final String email, final String payload) {
 
-        final String url = apiCasEndpointUrl + endpoint.getId() + '/';
-        final HttpResponse httpResponse;
-        try {
-            httpResponse = Request.Post(url)
-                .addHeader(new BasicHeader("Content-Type", "text/plain"))
-                .bodyString(payload, ContentType.APPLICATION_JSON)
-                .execute()
-                .returnResponse();
-        } catch (final IOException e) {
-            LOGGER.debug(e.getMessage());
-            return null;
-        }
+         final String url = apiCasEndpointUrl + endpoint.getId() + '/';
+         final HttpResponse httpResponse;
+         try {
+             httpResponse = Request.Post(url)
+                     .addHeader(new BasicHeader("Content-Type", "text/plain"))
+                     .bodyString(payload, ContentType.APPLICATION_JSON)
+                     .execute()
+                     .returnResponse();
+         } catch (final IOException e) {
+             LOGGER.debug(e.getMessage());
+             return null;
+         }
 
-        final int statusCode = httpResponse.getStatusLine().getStatusCode();
-        LOGGER.info(
-            "API CAS Endpoint {} Response: <{}> Status Code {}",
-            endpoint,
-            email,
-            statusCode
-        );
-        try {
-            final JSONObject responseBody =  new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
-            return verifyAuthenticationResponse(statusCode, responseBody);
-        }catch (final IOException | JSONException e) {
-            LOGGER.debug(e.getMessage());
-            return null;
-        }
-    }
+         final int statusCode = httpResponse.getStatusLine().getStatusCode();
+         LOGGER.info(
+                 "API CAS Endpoint {} Response: <{}> Status Code {}",
+                 endpoint,
+                 email,
+                 statusCode
+         );
+
+         if (ApiEndpoint.AUTH_INSTITUTION.equals(endpoint) && statusCode == HttpStatus.SC_NO_CONTENT) {
+             final Map<String, Object> response = new HashMap<>();
+             response.put("status", statusCode);
+             return response;
+         }
+
+         try {
+             final JSONObject responseBody = new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
+             return verifyAuthenticationResponse(statusCode, responseBody);
+         }catch (final IOException | JSONException e) {
+             LOGGER.debug(e.getMessage());
+             return null;
+         }
+     }
 
     /**
      * Parse and verify authentication response.
