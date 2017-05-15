@@ -20,6 +20,8 @@
 package io.cos.cas.web.flow;
 
 import com.google.gson.Gson;
+import org.jasig.cas.services.RegexRegisteredService;
+import org.jasig.cas.services.RegisteredServiceProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.webflow.execution.Event;
@@ -33,7 +35,7 @@ import java.net.URLEncoder;
  * Open Science Framework Login Handler.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkLoginHandler {
 
@@ -43,25 +45,60 @@ public class OpenScienceFrameworkLoginHandler {
      * Open Science Framework Login Context.
      *
      * @author Longze chen
-     * @since  4.1.0
+     * @since  4.1.5
      */
     public static final class OpenScienceFrameworkLoginContext {
         private String serviceUrl;
+        private String campaign;
+        private String handleErrorName;
         private boolean institutionLogin;
+        private boolean register;
 
         /**
          * Construct an instance of `OpenScienceFrameworkLoginContext` with given settings.
          *
          * @param serviceUrl the service url
          * @param institutionLogin login through institutions
+         * @param register show register page instead of login
          */
-        private OpenScienceFrameworkLoginContext(final String serviceUrl, final boolean institutionLogin) {
+        private OpenScienceFrameworkLoginContext(
+                final String serviceUrl,
+                final boolean institutionLogin,
+                final boolean register
+        ) {
             this.serviceUrl = serviceUrl;
+            this.campaign = null;
+            this.handleErrorName = null;
             this.institutionLogin = institutionLogin;
+            this.register = register;
         }
 
         public String getServiceUrl() {
             return serviceUrl;
+        }
+
+        public String getCampaign() {
+            return campaign;
+        }
+
+        public String getHandleErrorName() {
+            return handleErrorName;
+        }
+
+        private void setServiceUrl(final String serviceUrl) {
+            this.serviceUrl = serviceUrl;
+        }
+
+        public void setCampaign(final String campaign) {
+            this.campaign = campaign;
+        }
+
+        public void setHandleErrorName(final String handleErrorName) {
+            this.handleErrorName =handleErrorName;
+        }
+
+        private void setInstitutionLogin(final Boolean institutionLogin) {
+            this.institutionLogin = institutionLogin;
         }
 
         /**
@@ -82,13 +119,21 @@ public class OpenScienceFrameworkLoginHandler {
             return serviceUrl != null;
         }
 
+        /**
+         * Check if show sign up page instead of login page.
+         *
+         * @return true if register, false otherwise.
+         */
+        public boolean isRegister() {
+            return register;
+        }
 
         /**
          * Convert class instance to a JSON string, which will be passed to the flow context.
          *
          * @return JSON string
          */
-        private String toJson() {
+        public String toJson() {
             final Gson gson = new Gson();
             return gson.toJson(this);
         }
@@ -106,21 +151,38 @@ public class OpenScienceFrameworkLoginHandler {
     }
 
     /**
-     * Decision making action that handles OSF login: osf, institution, campaign.
+     * Decision making action that handles OSF login.
      *
      * @param context The request context
-     * @return Event "osf", "institution" or "campaigns
+     * @return Event "osfDefaultLogin", "institutionLogin"
      */
     public Event beforeLogin(final RequestContext context) {
 
         final String serviceUrl = getEncodedServiceUrl(context);
+        final String campaign = getCampaignFromService(context);
         final boolean institutionLogin = isInstitutionLogin(context);
+        final boolean register = isRegister(context);
 
-        final OpenScienceFrameworkLoginContext osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin);
+        final String jsonLoginContext = (String) context.getFlowScope().get("jsonLoginContext");
+        final OpenScienceFrameworkLoginContext osfLoginContext;
+
+        if (jsonLoginContext == null) {
+            // Create a new Login Context with service URL and institution flag
+            osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin, register);
+        } else {
+            // Use current Login Context which contains information of Authentication Exceptions
+            // Update and override the service URL and the institution flag
+            osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(jsonLoginContext);
+            osfLoginContext.setServiceUrl(serviceUrl);
+            osfLoginContext.setInstitutionLogin(institutionLogin);
+        }
+        osfLoginContext.setCampaign(campaign);
         context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
 
         if (osfLoginContext.isInstitutionLogin()) {
             return new Event(this, "institutionLogin");
+        } else if (osfLoginContext.isRegister()) {
+            return new Event(this, "osfDefaultRegister");
         } else {
             return new Event(this, "osfDefaultLogin");
         }
@@ -139,13 +201,27 @@ public class OpenScienceFrameworkLoginHandler {
     }
 
     /**
+     * Check if show sign up page instead of login page.
+     * Return true if `register=true` is present in request parameters.
+     *
+     * @param context The request context
+     * @return Boolean
+     */
+    private boolean isRegister(final RequestContext context) {
+        final String register = context.getRequestParameters().get("register");
+        return "true".equals(register);
+    }
+
+
+    /**
      * Encode the decoded service url if service url exists.
      *
      * @param context The request context
+
      * @return the encoded service url
-     * @throws AssertionError
+     * @throws AssertionError if fails to encode the URL
      */
-    private String getEncodedServiceUrl(final RequestContext context) {
+    private String getEncodedServiceUrl(final RequestContext context) throws AssertionError {
 
         final String serviceUrl = context.getRequestParameters().get("service");
         if (serviceUrl == null) {
@@ -156,5 +232,22 @@ public class OpenScienceFrameworkLoginHandler {
         } catch (final UnsupportedEncodingException e) {
             throw new AssertionError("UTF-8 is unknown");
         }
+    }
+
+    /**
+     * Get campaign name from service.
+     *
+     * @param context The request context
+     * @return The campaign name
+     */
+    private String getCampaignFromService(final RequestContext context) {
+        final RegexRegisteredService registeredService = (RegexRegisteredService) context.getFlowScope().get("registeredService");
+        if (registeredService != null) {
+            final RegisteredServiceProperty campaign = registeredService.getProperties().get("campaign");
+            if (campaign != null) {
+                campaign.getValue();
+            }
+        }
+        return null;
     }
 }

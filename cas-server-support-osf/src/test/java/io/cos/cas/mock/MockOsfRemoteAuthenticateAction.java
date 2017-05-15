@@ -2,7 +2,7 @@ package io.cos.cas.mock;
 
 import io.cos.cas.AbstractTestUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
+import io.cos.cas.web.flow.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
 import org.jasig.cas.CentralAuthenticationService;
 
 import javax.security.auth.login.AccountException;

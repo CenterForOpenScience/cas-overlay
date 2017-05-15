@@ -84,10 +84,13 @@
                         <br><br>
                         <c:choose>
                             <c:when test="${osfLoginContext.isInstitutionLogin()}">
-                                    <spring:message code="screen.institution.login.message" />
+                                <spring:message code="screen.institution.login.message" />
+                            </c:when>
+                            <c:when test="${osfLoginContext.isRegister()}">
+                                <spring:message code="screen.osf.register.message" />
                             </c:when>
                             <c:when test="${not empty registeredService}">
-                                    <spring:message code="screen.osf.login.message" />
+                                <spring:message code="screen.osf.login.message" />
                             </c:when>
                             <c:otherwise>
                                 <spring:message code="screen.cas.login.message" />
