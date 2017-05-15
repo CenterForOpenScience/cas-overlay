@@ -33,6 +33,7 @@ import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
 
+import io.cos.cas.web.util.AbstractFlowUtils;
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.AccountPasswordMustChangeException;
 import org.jasig.cas.authentication.AuthenticationException;
@@ -135,11 +136,11 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     ) {
         final String handleErrorName = super.handle(e, messageContext);
         final LoginManager loginMangerContext
-                = OpenScienceFrameworkLoginHandler.getLoginManagerFromRequestContext(requestContext);
+                = AbstractFlowUtils.getLoginManagerFromRequestContext(requestContext);
         if (loginMangerContext != null) {
             loginMangerContext.setHandleErrorName(handleErrorName);
             loginMangerContext.setUsername(((OpenScienceFrameworkCredential) WebUtils.getCredential(requestContext)).getUsername());
-            OpenScienceFrameworkLoginHandler.putLoginManagerToRequestContext(requestContext, loginMangerContext);
+            AbstractFlowUtils.putLoginManagerToRequestContext(requestContext, loginMangerContext);
         }
         return new Event(this, handleErrorName);
     }

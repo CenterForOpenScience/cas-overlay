@@ -20,7 +20,7 @@ package org.jasig.cas.web.support;
 
 import io.cos.cas.web.flow.LoginManager;
 import io.cos.cas.web.flow.OpenScienceFrameworkAuthenticationExceptionHandler;
-import io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler;
+import io.cos.cas.web.util.AbstractFlowUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -107,7 +107,7 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
         // retrieve the Login Context, where `.getFlowScope()` may not be available
         LoginManager loginManagerContext;
         try {
-            loginManagerContext = OpenScienceFrameworkLoginHandler.getLoginManagerFromRequestContext(context);
+            loginManagerContext = AbstractFlowUtils.getLoginManagerFromRequestContext(context);
         } catch (final IllegalStateException e) {
             logger.warn(e.getMessage());
             return;
@@ -124,7 +124,7 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter exten
 
         // clear the all auth errors
         loginManagerContext.setHandleErrorName(null);
-        OpenScienceFrameworkLoginHandler.putLoginManagerToRequestContext(context, loginManagerContext);
+        AbstractFlowUtils.putLoginManagerToRequestContext(context, loginManagerContext);
     }
 
     public final void setFailureThreshold(final int failureThreshold) {

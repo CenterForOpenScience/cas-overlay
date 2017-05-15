@@ -102,7 +102,7 @@ public class AccountManager {
     /**
      * Serialize the Instance to a JSON String.
      *
-     * @return JSON string
+     * @return a JSON string
      */
     public String toJson() {
         final Gson gson = new Gson();
@@ -110,7 +110,7 @@ public class AccountManager {
     }
 
     /**
-     * Restore the Instance from a JSON string.
+     * Restore the Instance from a JSON String.
      *
      * @param jsonString The json String
      * @return an instance of {@link AccountManager}
