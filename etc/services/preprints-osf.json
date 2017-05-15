@@ -39,14 +39,6 @@
           "osf-preprints"
         ]
       ]
-    },
-    "registerUrl" : {
-      "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-      "values" : [
-        "java.util.HashSet", [
-          "?campaign=osf-preprints"
-        ]
-      ]
     }
   }
 }

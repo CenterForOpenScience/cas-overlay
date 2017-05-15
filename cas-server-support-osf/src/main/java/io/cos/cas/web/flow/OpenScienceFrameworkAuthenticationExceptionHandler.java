@@ -28,7 +28,6 @@ import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
-import io.cos.cas.authentication.exceptions.RegistrationFailureUserAlreadyExistsException;
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 import io.cos.cas.authentication.exceptions.UserNotClaimedException;
 import io.cos.cas.authentication.exceptions.UserNotConfirmedException;
@@ -77,8 +76,6 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
 
     // Open Science Framework Exceptions
     static {
-        // Account Creation Exceptions
-        DEFAULT_ERROR_LIST.add(RegistrationFailureUserAlreadyExistsException.class);
 
         // Login Exceptions
         DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
