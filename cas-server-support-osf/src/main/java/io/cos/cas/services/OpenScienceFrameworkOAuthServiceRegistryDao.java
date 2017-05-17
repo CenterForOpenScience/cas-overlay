@@ -21,6 +21,7 @@ package io.cos.cas.services;
 
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.type.ApiEndpoint;
+import org.apache.http.HttpStatus;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.jasig.cas.services.ServiceRegistryDao;
@@ -55,7 +56,7 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
 
     private static final int HEX_RADIX = 16;
 
-    private static final String SERVICE_TYPE = "OAUTH_APPLICATIONS";
+    private static final String SERVICE_TYPE = "LOAD_DEVELOPER_APPS";
 
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
@@ -92,31 +93,32 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
         final ArrayList<String> allowedAttributes = new ArrayList<>();
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
 
-        // construct the payload data and encrypt it with JWE/JWT
-        final JSONObject data = new JSONObject();
-        data.put("serviceType", SERVICE_TYPE);
-        final String encryptedPayload = apiEndpointHandler.encryptPayload("data", data.toString());
+        final JSONObject data = new JSONObject().put("serviceType", SERVICE_TYPE);
+        final JSONObject response = apiEndpointHandler.handle(
+                ApiEndpoint.SERVICE_LOAD_DEVELOPER_APPS,
+                apiEndpointHandler.encryptPayload("data", data.toString())
+        );
 
-        // `POST` to OSF API `/cas/service/developerApps/` endpoint
-        final JSONObject response = apiEndpointHandler.apiCasService(ApiEndpoint.SERVICE_DEVELOPER_APPS, encryptedPayload);
-        if (response != null) {
-            final Iterator<String> iterator = response.keys();
-            while (iterator.hasNext()) {
-                final OAuthRegisteredService service = new OAuthRegisteredService();
-                final String serviceGuid = iterator.next();
-                final JSONObject serviceData = verifyService(response, serviceGuid);
-                service.setId(new BigInteger(serviceGuid, HEX_RADIX).longValue());
-                service.setName((serviceData.getString("name")));
-                service.setDescription((serviceData.getString("description")));
-                service.setServiceId((serviceData.getString("callbackUrl")));
-                service.setBypassApprovalPrompt(Boolean.FALSE);
-                service.setClientId((serviceData.getString("clientId")));
-                service.setClientSecret((serviceData.getString("clientSecret")));
-                service.setAttributeReleasePolicy(attributeReleasePolicy);
-                serviceMap.put(service.getId(), service);
+        if (response != null && response.getInt("status") == HttpStatus.SC_OK) {
+            final JSONObject responseBody = response.getJSONObject("body");
+            if (responseBody != null) {
+                final Iterator<String> iterator = responseBody.keys();
+                while (iterator.hasNext()) {
+                    final OAuthRegisteredService service = new OAuthRegisteredService();
+                    final String serviceGuid = iterator.next();
+                    final JSONObject serviceData = verifyService(responseBody, serviceGuid);
+                    service.setId(new BigInteger(serviceGuid, HEX_RADIX).longValue());
+                    service.setName((serviceData.getString("name")));
+                    service.setDescription((serviceData.getString("description")));
+                    service.setServiceId((serviceData.getString("callbackUrl")));
+                    service.setBypassApprovalPrompt(Boolean.FALSE);
+                    service.setClientId((serviceData.getString("clientId")));
+                    service.setClientSecret((serviceData.getString("clientSecret")));
+                    service.setAttributeReleasePolicy(attributeReleasePolicy);
+                    serviceMap.put(service.getId(), service);
+                }
             }
         }
-
         this.serviceMap = serviceMap;
         return new ArrayList<>(this.serviceMap.values());
     }

@@ -20,7 +20,7 @@ import org.springframework.webflow.execution.RequestContext;
 public class ResetPasswordAction {
 
     /** The Name of the Action. */
-    public static final String NAME = "resetPassword";
+    public static final String NAME = "RESET_PASSWORD";
 
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;

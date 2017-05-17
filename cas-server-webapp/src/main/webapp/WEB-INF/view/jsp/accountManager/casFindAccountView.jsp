@@ -24,11 +24,11 @@
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
         <c:choose>
-            <c:when test="${accountManagerContext.getTarget() == 'resetPassword'}">
+            <c:when test="${accountManagerContext.getTarget() == 'RESET_PASSWORD'}">
                 <spring:message code="screen.findAccount.resetPassword.header" var="helpHeader"/>
                 <spring:message code="screen.findAccount.resetPassword.message" var="helpMessage"/>
             </c:when>
-            <c:when test="${accountManagerContext.getTarget() == 'verifyEmail'}">
+            <c:when test="${accountManagerContext.getTarget() == 'VERIFY_EMAIL'}">
                 <spring:message code="screen.findAccount.verifyEmail.header" var="helpHeader"/>
                 <spring:message code="screen.findAccount.verifyEmail.message" var="helpMessage"/>
             </c:when>

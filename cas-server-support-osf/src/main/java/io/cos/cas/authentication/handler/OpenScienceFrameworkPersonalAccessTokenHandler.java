@@ -21,6 +21,7 @@ package io.cos.cas.authentication.handler;
 
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.type.ApiEndpoint;
+import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.personal.handler.support.AbstractPersonalAccessTokenHandler;
 import org.json.JSONObject;
@@ -57,29 +58,30 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
     @Override
     public PersonalAccessToken getToken(final String tokenId) {
 
-        final JSONObject data = new JSONObject();
-        data.put("tokenId", tokenId);
+        final JSONObject data = new JSONObject().put("tokenId", tokenId);
+        final JSONObject response = apiEndpointHandler.handle(
+                ApiEndpoint.SERVICE_CHECK_PERSONAL_ACCESS_TOKEN,
+                apiEndpointHandler.encryptPayload("data", data.toString())
+        );
 
-        // encrypt the payload using JWE/JWT
-        final String encryptedPayload = apiEndpointHandler.encryptPayload("data", data.toString());
+        if (response != null && response.getInt("status") == HttpStatus.SC_OK) {
+            final JSONObject responseBody = response.getJSONObject("body");
+            if (responseBody == null || !responseBody.has("ownerId") || !responseBody.has("tokenScopes")) {
+                LOGGER.debug("Invalid Response");
+                return null;
+            }
+            final String ownerGuid = (String) responseBody.get("ownerId");
+            final String tokenScopes = (String) responseBody.get("tokenScopes");
 
-        // talk to API `/cas/service/pat/` endpoint
-        final JSONObject response = apiEndpointHandler.apiCasService(ApiEndpoint.SERVICE_PERSONAL_ACCESS_TOKEN, encryptedPayload);
-        if (response == null || !response.has("ownerId") || !response.has("tokenScopes")) {
-            LOGGER.debug("Invalid Response");
-            return null;
+            return new PersonalAccessToken(
+                    tokenId,
+                    ownerGuid,
+                    new HashSet<>(Arrays.asList(tokenScopes.split(" ")))
+            );
         }
 
-        final String ownerGuid = (String) response.get("ownerId");
-        final String tokenScopes = (String) response.get("tokenScopes");
-
-        return new PersonalAccessToken(
-            tokenId,
-            ownerGuid,
-            new HashSet<>(Arrays.asList(tokenScopes.split(" ")))
-        );
+        return null;
     }
-
     public void setApiEndpointHandler(final ApiEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }

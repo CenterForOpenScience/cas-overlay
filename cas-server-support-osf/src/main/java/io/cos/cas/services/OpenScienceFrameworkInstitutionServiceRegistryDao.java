@@ -21,6 +21,7 @@ package io.cos.cas.services;
 
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.type.ApiEndpoint;
+import org.apache.http.HttpStatus;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.json.JSONException;
@@ -36,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  * Open Science Framework Institution Service Registry DAO.
  *
@@ -50,7 +50,7 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitutionServiceRegistryDao.class);
 
-    private static final String SERVICE_TYPE = "INSTITUTIONS";
+    private static final String SERVICE_TYPE = "LOAD_INSTITUTIONS";
 
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
@@ -83,29 +83,31 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
 
         final Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
-        // construct the payload data and encrypt it with JWE/JWT
-        final JSONObject data = new JSONObject();
-        data.put("serviceType", SERVICE_TYPE);
-        final String encryptedPayload = apiEndpointHandler.encryptPayload("data", data.toString());
+        final JSONObject data = new JSONObject().put("serviceType", SERVICE_TYPE);
+        final JSONObject response = apiEndpointHandler.handle(
+                ApiEndpoint.SERVICE_LOAD_INSTITUTIONS,
+                apiEndpointHandler.encryptPayload("data", data.toString())
+        );
 
-        // `POST` to OSF API `/cas/service/institutions/` endpoint
-        final JSONObject response = apiEndpointHandler.apiCasService(ApiEndpoint.SERVICE_INSTITUTIONS, encryptedPayload);
-        if (response != null) {
-            final Iterator<String> iterator = response.keys();
-            while (iterator.hasNext()) {
-                final OpenScienceFrameworkInstitutionRegisteredService service = new OpenScienceFrameworkInstitutionRegisteredService();
-                final String institutionId = iterator.next();
-                final JSONObject institutionData = verifyService(response, institutionId);
-                if (institutionData == null) {
-                    continue;
+        if (response != null && response.getInt("status") == HttpStatus.SC_OK) {
+            final JSONObject responseBody = response.getJSONObject("body");
+            if (responseBody != null) {
+                final Iterator<String> iterator = responseBody.keys();
+                while (iterator.hasNext()) {
+                    final OpenScienceFrameworkInstitutionRegisteredService service = new OpenScienceFrameworkInstitutionRegisteredService();
+                    final String institutionId = iterator.next();
+                    final JSONObject institutionData = verifyService(responseBody, institutionId);
+                    if (institutionData == null) {
+                        continue;
+                    }
+                    service.setId(new BigInteger(institutionId.getBytes()).longValue());
+                    service.setInstitutionId(institutionId);
+                    service.setName((institutionData.getString("institutionName")));
+                    service.setInstitutionLoginUrl((institutionData.getString("institutionLoginUrl")));
+                    service.setInstitutionLogoutUrl((institutionData.getString("institutionLogoutUrl")));
+                    service.setDelegationProtocol(institutionData.getString("delegationProtocol"));
+                    serviceMap.put(service.getId(), service);
                 }
-                service.setId(new BigInteger(institutionId.getBytes()).longValue());
-                service.setInstitutionId(institutionId);
-                service.setName((institutionData.getString("institutionName")));
-                service.setInstitutionLoginUrl((institutionData.getString("institutionLoginUrl")));
-                service.setInstitutionLogoutUrl((institutionData.getString("institutionLogoutUrl")));
-                service.setDelegationProtocol(institutionData.getString("delegationProtocol"));
-                serviceMap.put(service.getId(), service);
             }
         }
 

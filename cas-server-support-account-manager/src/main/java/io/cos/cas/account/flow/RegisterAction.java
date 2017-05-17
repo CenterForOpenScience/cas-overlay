@@ -24,7 +24,7 @@ import java.util.Map;
 public class RegisterAction {
 
     /** The Name of the Action. */
-    public static final String NAME = "register";
+    public static final String NAME = "REGISTER";
 
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;

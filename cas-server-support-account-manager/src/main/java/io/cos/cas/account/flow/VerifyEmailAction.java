@@ -20,7 +20,7 @@ import org.springframework.webflow.execution.RequestContext;
 public class VerifyEmailAction {
 
     /** The Name of the Action. */
-    public static final String NAME = "verifyEmail";
+    public static final String NAME = "VERIFY_EMAIL";
 
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;

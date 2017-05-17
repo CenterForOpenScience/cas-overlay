@@ -4,6 +4,8 @@ import io.cos.cas.account.model.FindAccountFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
 
+import io.cos.cas.api.type.ApiEndpoint;
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
 import org.springframework.binding.message.MessageBuilder;
@@ -20,7 +22,7 @@ import org.springframework.webflow.execution.RequestContext;
 public class FindAccountAction {
 
     /** The Name of the Action. */
-    public static final String NAME = "findAccount";
+    public static final String NAME = "FIND_ACCOUNT";
 
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;
@@ -41,6 +43,7 @@ public class FindAccountAction {
      * @return the event
      */
     public Event preparePage(final RequestContext requestContext) {
+
         final String serviceUrl = AbstractAccountFlowUtils.getEncodedServiceUrl(requestContext);
         final String target = AbstractAccountFlowUtils.getTargetFromRequestContext(requestContext);
         final String campaign = AbstractAccountFlowUtils.getCampaignFromRegisteredService(requestContext);
@@ -67,7 +70,7 @@ public class FindAccountAction {
             final MessageContext messageContext
     ) {
         final AccountManager accountManager = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
-        final String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
+        String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
         if (accountManager != null && verifyTargetAction(accountManager.getTarget())) {
 
@@ -75,19 +78,33 @@ public class FindAccountAction {
             final JSONObject data = new JSONObject();
 
             user.put("email", findAccountForm.getEmail());
-            data.put("type", NAME);
+            data.put("type", NAME + "_FOR_" + accountManager.getTarget().toUpperCase());
             data.put("user", user);
-            apiEndpointHandler.encryptPayload("data", data.toString());
 
-            if (VerifyEmailAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
-                accountManager.setAction(VerifyEmailAction.NAME);
-                accountManager.setEmailToVerify(findAccountForm.getEmail());
-            } else if (ResetPasswordAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
-                accountManager.setAction(ResetPasswordAction.NAME);
-                accountManager.setUsername(findAccountForm.getEmail());
+            final JSONObject response = apiEndpointHandler.handle(
+                    ApiEndpoint.SERVICE_FIND_ACCOUNT,
+                    apiEndpointHandler.encryptPayload("data", data.toString())
+            );
+
+            if (response != null) {
+                final int status = response.getInt("status");
+                if (status == HttpStatus.SC_NO_CONTENT) {
+                    if (VerifyEmailAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
+                        accountManager.setAction(VerifyEmailAction.NAME);
+                        accountManager.setEmailToVerify(findAccountForm.getEmail());
+                    } else if (ResetPasswordAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
+                        accountManager.setAction(ResetPasswordAction.NAME);
+                        accountManager.setUsername(findAccountForm.getEmail());
+                    }
+                    AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
+                    return new Event(this, accountManager.getAction());
+                } else if (status == HttpStatus.SC_OK) {
+                    final JSONObject body = response.getJSONObject("body");
+                    if (body.has("errorDetail")) {
+                        errorMessage = body.getString("errorDetail");
+                    }
+                }
             }
-            AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
-            return new Event(this, accountManager.getAction());
         }
 
         messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());

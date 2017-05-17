@@ -158,47 +158,27 @@ public class ApiEndpointHandler {
     }
 
     /**
-     * Make service requests to API CAS "Service" endpoint.
-     * Return the response as a JSON object if `HttpStatus.SC_OK`.
-     * Otherwise, log the error and return `null`.
+     * Handle API Request and Response.
      *
-     * @param endpoint the api cas service endpoint
-     * @param payload the jwe/jwt encrypted payload
-     * @return a JSON object or null
+     * @param endpoint the API endpoint
+     * @param payload the payload
+     * @return JSONObject
      */
-    public JSONObject apiCasService(final ApiEndpoint endpoint, final String payload) {
+    public JSONObject handle(final ApiEndpoint endpoint, final String payload) {
 
         final String url = apiCasEndpointUrl + endpoint.getId() + '/';
-        final HttpResponse httpResponse;
-        try {
-            httpResponse = Request.Post(url)
-                .addHeader(new BasicHeader("Content-Type", "text/plain"))
-                .bodyString(payload, ContentType.APPLICATION_JSON)
-                .execute()
-                .returnResponse();
-        } catch (final IOException e) {
-            LOGGER.debug(e.getMessage());
-            return null;
+        LOGGER.info("Making API Request {}.", url);
+
+        final HttpResponse response = makeApiRequest(url, payload);
+        if (response != null) {
+            final JSONObject parsedResponse = parseApiResponse(response);
+            if (parsedResponse != null) {
+                LOGGER.info("API Response Received {} {}.", url, parsedResponse.getInt("status"));
+                return parsedResponse;
+            }
         }
 
-        final int statusCode = httpResponse.getStatusLine().getStatusCode();
-        LOGGER.info(
-            "API CAS Endpoint \"service/{}/\": {}",
-            endpoint,
-            statusCode
-        );
-        try {
-            final JSONObject responseBody =  new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
-            if (statusCode == HttpStatus.SC_OK) {
-                return responseBody;
-            } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
-                LOGGER.debug(responseBody.toString());
-            }
-            return null;
-        }catch (final IOException | JSONException e) {
-            LOGGER.debug(e.getMessage());
-            return null;
-        }
+        return null;
     }
 
     /**
@@ -299,5 +279,58 @@ public class ApiEndpointHandler {
             response.put("status", "UNKNOWN");
             return response;
         }
+    }
+
+    /**
+     * Make HTTP POST Request to API CAS Endpoint.
+     *
+     * @param url the full request URL
+     * @param payload the payload
+     * @return  HttpResponse
+     */
+    private HttpResponse makeApiRequest(final String url, final String payload) {
+
+        try {
+            return Request.Post(url)
+                    .addHeader(new BasicHeader("Content-Type", "application/json"))
+                    .bodyString(payload, ContentType.APPLICATION_JSON)
+                    .execute()
+                    .returnResponse();
+        } catch (final IOException e) {
+            LOGGER.error("An exception has occurred when making API request: {}", url);
+            LOGGER.debug(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Parse HTTP POST Response from API CAS Endpoint.
+     *
+     * @param response the http response
+     * @return JSONObject
+     */
+    private JSONObject parseApiResponse(final HttpResponse response) {
+
+        final int statusCode = response.getStatusLine().getStatusCode();
+        final JSONObject parsedResponse = new JSONObject();
+
+        if (statusCode == HttpStatus.SC_NO_CONTENT || statusCode == HttpStatus.SC_BAD_REQUEST || statusCode == HttpStatus.SC_FORBIDDEN) {
+            return parsedResponse.put("status", statusCode);
+        }
+
+        if (statusCode == HttpStatus.SC_OK) {
+            try {
+                parsedResponse.put("status", statusCode);
+                parsedResponse.put("body", new JSONObject(new BasicResponseHandler().handleEntity(response.getEntity())));
+                return parsedResponse;
+            } catch (final IOException | JSONException e) {
+                LOGGER.error("An exception has occurred when parsing API response.");
+                LOGGER.debug(e.getMessage());
+                return null;
+            }
+        }
+
+        LOGGER.error("Request Failed: {}", statusCode);
+        return null;
     }
 }

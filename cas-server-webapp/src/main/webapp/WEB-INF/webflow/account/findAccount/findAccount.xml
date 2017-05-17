@@ -35,7 +35,7 @@
     <action-state id="showFindAccountPage">
         <evaluate expression="findAccountAction.preparePage(flowRequestContext)" />
         <transition on="success" to="viewFindAccountPage" />
-        <transition on="error" to="viewInvalidRequestPage" />
+        <transition on="error" to="viewFindAccountPage" />
     </action-state>
 
     <view-state id="viewFindAccountPage" view="/WEB-INF/view/jsp/accountManager/casFindAccountView.jsp" model="findAccountFormBean">
@@ -51,8 +51,8 @@
 
     <action-state id="findAccount">
         <evaluate expression="findAccountAction.submitForm(flowRequestContext, flowScope.findAccountFormBean, messageContext)" />
-        <transition on="verifyEmail" to="viewVerifyEmailPage"/>
-        <transition on="resetPassword" to="viewResetPasswordPage" />
+        <transition on="VERIFY_EMAIL" to="viewVerifyEmailPage"/>
+        <transition on="RESET_PASSWORD" to="viewResetPasswordPage" />
         <transition on="error" to="generateLoginTicket"/>
     </action-state>
 
