@@ -3,9 +3,10 @@ package io.cos.cas.account.flow;
 import io.cos.cas.account.model.FindAccountFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
-
 import io.cos.cas.api.type.ApiEndpoint;
+
 import org.apache.http.HttpStatus;
+
 import org.json.JSONObject;
 
 import org.springframework.binding.message.MessageBuilder;
@@ -98,11 +99,8 @@ public class FindAccountAction {
                     }
                     AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
                     return new Event(this, accountManager.getAction());
-                } else if (status == HttpStatus.SC_OK) {
-                    final JSONObject body = response.getJSONObject("body");
-                    if (body.has("errorDetail")) {
-                        errorMessage = body.getString("errorDetail");
-                    }
+                } else if (status == HttpStatus.SC_FORBIDDEN) {
+                    errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
                 }
             }
         }

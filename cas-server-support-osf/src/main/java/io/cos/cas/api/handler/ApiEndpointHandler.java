@@ -34,7 +34,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.cos.cas.api.type.ApiEndpoint;
-import io.cos.cas.api.util.AbstractApiEndpointUtils;
+import io.cos.cas.web.util.AbstractFlowUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
@@ -50,10 +50,6 @@ import org.slf4j.LoggerFactory;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Handles Communication between CAS and API.
@@ -66,30 +62,6 @@ public class ApiEndpointHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiEndpointHandler.class);
 
     private static final int SIXTY_SECONDS = 60 * 1000;
-
-    private static final Set<String> API_AUTHENTICATION_ERROR_LIST = new HashSet<>();
-
-    static {
-
-        // register, user already registered
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.ALREADY_REGISTERED);
-
-        // login, initial verification failed
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.MISSING_CREDENTIALS);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.ACCOUNT_NOT_FOUND);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.INVALID_PASSWORD);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.INVALID_VERIFICATION_KEY);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.TWO_FACTOR_AUTH_REQUIRED);
-
-        // login, two factor verification failed
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.INVALID_ONE_TIME_PASSWORD);
-
-        // login, invalid user status
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.USER_NOT_CONFIRMED);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.USER_NOT_CLAIMED);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.USER_STATUS_INVALID);
-        API_AUTHENTICATION_ERROR_LIST.add(AbstractApiEndpointUtils.USER_DISABLED);
-    }
 
     @NotNull
     private String apiCasEndpointUrl;
@@ -148,7 +120,6 @@ public class ApiEndpointHandler {
                         EncryptionMethod.A256GCM
                 ).contentType("JWT") .build(),
                 new Payload(signedJWT));
-
         try {
             jweObject.encrypt(new DirectEncrypter(apiCasEndpointJweSecret.getBytes()));
             return jweObject.serialize();
@@ -181,104 +152,22 @@ public class ApiEndpointHandler {
         return null;
     }
 
-    /**
-     * Make authentication requests to API CAS "Auth" endpoint.
-     * Parse response and return a map object containing authentication status and exception messages.
-     *
-     * @param endpoint the api cas auth endpoint
-     * @param email the email or username
-     * @param payload the jwe/jwt encrypted payload
-     * @return a Map object
-     */
-     public Map<String, Object> apiCasAuthentication(final ApiEndpoint endpoint, final String email, final String payload) {
-
-         final String url = apiCasEndpointUrl + endpoint.getId() + '/';
-         final HttpResponse httpResponse;
-         try {
-             httpResponse = Request.Post(url)
-                     .addHeader(new BasicHeader("Content-Type", "text/plain"))
-                     .bodyString(payload, ContentType.APPLICATION_JSON)
-                     .execute()
-                     .returnResponse();
-         } catch (final IOException e) {
-             LOGGER.debug(e.getMessage());
-             return null;
-         }
-
-         final int statusCode = httpResponse.getStatusLine().getStatusCode();
-         LOGGER.info(
-                 "API CAS Endpoint {} Response: <{}> Status Code {}",
-                 endpoint,
-                 email,
-                 statusCode
-         );
-
-         if (ApiEndpoint.AUTH_INSTITUTION.equals(endpoint) && statusCode == HttpStatus.SC_NO_CONTENT) {
-             final Map<String, Object> response = new HashMap<>();
-             response.put("status", statusCode);
-             return response;
-         }
-
-         try {
-             final JSONObject responseBody = new JSONObject(new BasicResponseHandler().handleEntity(httpResponse.getEntity()));
-             return verifyAuthenticationResponse(statusCode, responseBody);
-         }catch (final IOException | JSONException e) {
-             LOGGER.debug(e.getMessage());
-             return null;
-         }
-     }
 
     /**
-     * Parse and verify authentication response.
-     * Return a map object containing authentication status and exception messages.
+     * Get the error message from HTTP 400s response.
      *
-     * @param statusCode the response status code
-     * @param responseBody the response body in JSON format
-     * @return a Map object
+     * @param responseBody the 400s response body
+     * @return the error detail in 400s response
      */
-    private Map<String, Object> verifyAuthenticationResponse(final int statusCode, final JSONObject responseBody) {
-        final Map<String, Object> response = new HashMap<>();
-        final Map<String, Object> attributesMap = new HashMap<>();
-        try {
-            if (statusCode == HttpStatus.SC_OK) {
-                final String status = responseBody.getString("status");
-                if (AbstractApiEndpointUtils.REGISTER_SUCCESS.equals(status)) {
-                    response.put("status", status);
-                    return response;
-                }
-                if (AbstractApiEndpointUtils.AUTH_SUCCESS.equals(status)) {
-                    response.put("status", status);
-                    response.put("userId", responseBody.getString("userId"));
-                    final JSONObject attributes = responseBody.getJSONObject("attributes");
-                    attributesMap.put("username", attributes.getString("username"));
-                    attributesMap.put("givenName", attributes.getString("givenName"));
-                    attributesMap.put("familyName", attributes.getString("familyName"));
-                    response.put("attributes", attributesMap);
-                    return response;
-                }
-                throw new IOException(String.format("INVALID_RESPONSE_SC_OK: status = %s.", status));
-            } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
-                final JSONArray errorList = responseBody.getJSONArray("errors");
-                if (errorList.length() != 1) {
-                    throw new IOException("INVALID_RESPONSE_SC_FORBIDDEN: multiple errors.");
-                }
-                final JSONObject error = errorList.getJSONObject(0);
-                final String errorDetail = error.getString("detail");
-                if (!API_AUTHENTICATION_ERROR_LIST.contains(errorDetail)) {
-                    throw new IOException(String.format("INVALID_RESPONSE_SC_FORBIDDEN: status = %s.", errorDetail));
-                }
-                response.put("status", AbstractApiEndpointUtils.AUTH_FAILURE);
-                response.put("detail", errorDetail);
-                LOGGER.debug("Authentication Failure: {}", errorDetail);
-                return response;
-            } else {
-                throw new IOException(String.format("INVALID_RESPONSE_SC_OTHER: status code = %d.", statusCode));
+    public String getErrorMessageFromResponseBody(final JSONObject responseBody) {
+        if (responseBody != null && responseBody.has("errors")) {
+            final JSONArray errorList = responseBody.getJSONArray("errors");
+            if (errorList.length() == 1 && errorList.getJSONObject(0).has("detail")) {
+                return errorList.getJSONObject(0).getString("detail");
             }
-        } catch (final Exception e) {
-            LOGGER.debug(e.getMessage());
-            response.put("status", "UNKNOWN");
-            return response;
         }
+        LOGGER.error("Invalid HTTP 403/401 response.");
+        return AbstractFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
     }
 
     /**
@@ -314,11 +203,11 @@ public class ApiEndpointHandler {
         final int statusCode = response.getStatusLine().getStatusCode();
         final JSONObject parsedResponse = new JSONObject();
 
-        if (statusCode == HttpStatus.SC_NO_CONTENT || statusCode == HttpStatus.SC_BAD_REQUEST || statusCode == HttpStatus.SC_FORBIDDEN) {
+        if (statusCode == HttpStatus.SC_NO_CONTENT) {
             return parsedResponse.put("status", statusCode);
         }
 
-        if (statusCode == HttpStatus.SC_OK) {
+        if (statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_FORBIDDEN ) {
             try {
                 parsedResponse.put("status", statusCode);
                 parsedResponse.put("body", new JSONObject(new BasicResponseHandler().handleEntity(response.getEntity())));

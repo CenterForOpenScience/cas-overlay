@@ -22,20 +22,20 @@ package io.cos.cas.authentication.exceptions;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an invited but not claimed account.
+ * Describes an error condition where authentication occurs from a registered account pending verification.
  *
  * @author Michael Haselton
  * @author Longze Chen
  * @since 4.1.5
  */
-public class UserNotClaimedException extends AccountException {
+public class AccountNotVerifiedException extends AccountException {
 
-    private static final long serialVersionUID = 1271266461167445623L;
+    private static final long serialVersionUID = -6941281359700123973L;
 
     /**
      * Instantiates a new invalid login location exception.
      */
-    public UserNotClaimedException() {
+    public AccountNotVerifiedException() {
         super();
     }
 
@@ -44,7 +44,7 @@ public class UserNotClaimedException extends AccountException {
      *
      * @param message the message
      */
-    public UserNotClaimedException(final String message) {
+    public AccountNotVerifiedException(final String message) {
         super(message);
     }
 }

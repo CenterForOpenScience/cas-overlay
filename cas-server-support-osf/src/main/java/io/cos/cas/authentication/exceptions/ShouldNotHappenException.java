@@ -22,7 +22,7 @@ package io.cos.cas.authentication.exceptions;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account with an unreachable status.
+ * Describes an error condition where authentication occurs from an account with an invalid status.
  *
  * @author Longze Chen
  * @since 4.1.5

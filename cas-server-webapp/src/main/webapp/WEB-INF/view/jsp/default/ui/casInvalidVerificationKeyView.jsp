@@ -21,8 +21,8 @@
 <jsp:directive.include file="includes/top.jsp" />
 
 <div id="msg" class="errors">
-    <h2><spring:message code="screen.usernotclaimed.heading" /></h2>
-    <p><spring:message code="screen.usernotclaimed.message" /></p>
+    <h2><spring:message code="screen.invalidVerificationKey.heading" /></h2>
+    <p><spring:message code="screen.invalidVerificationKey.message" /></p>
 </div>
 
 <c:set var="alternativeBottomLogin" value="true"/>

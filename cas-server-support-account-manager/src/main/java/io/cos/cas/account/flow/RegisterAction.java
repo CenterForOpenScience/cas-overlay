@@ -4,16 +4,14 @@ import io.cos.cas.account.model.RegisterFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.type.ApiEndpoint;
-import io.cos.cas.api.util.AbstractApiEndpointUtils;
 
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-
-import java.util.Map;
 
 /**
  * Web Flow Action to Register a New OSF Account.
@@ -72,17 +70,16 @@ public class RegisterAction {
         data.put("type", NAME.toUpperCase());
         data.put("user", user);
 
-        final Map<String, Object> response = apiEndpointHandler.apiCasAuthentication(
+        final JSONObject response = apiEndpointHandler.handle(
                 ApiEndpoint.AUTH_REGISTER,
-                registerForm.getEmail(),
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 
-        String errorMessage = "Internal server error. Please try again later.";
+        String errorMessage = AbstractAccountFlowUtils.DEFAULT_CLIENT_ERROR_MESSAGE;
 
-        if (response != null && response.containsKey("status")) {
-            final String status = (String) response.get("status");
-            if (AbstractApiEndpointUtils.REGISTER_SUCCESS.equals(status)) {
+        if (response != null) {
+            final int status = response.getInt("status");
+            if (status == HttpStatus.SC_NO_CONTENT) {
                 final AccountManager accountManager
                         = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
                 if (accountManager != null) {
@@ -91,12 +88,8 @@ public class RegisterAction {
                     AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
                     return new Event(this, "success");
                 }
-            }
-            if (AbstractApiEndpointUtils.AUTH_FAILURE.equals(status) && response.containsKey("detail")) {
-                final String detail = (String) response.get("detail");
-                if (AbstractApiEndpointUtils.ALREADY_REGISTERED.equals(detail)) {
-                    errorMessage = String.format("The email %s has already been registered.", registerForm.getEmail());
-                }
+            } else if (status == HttpStatus.SC_UNAUTHORIZED || status == HttpStatus.SC_FORBIDDEN) {
+                errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
             }
         }
 

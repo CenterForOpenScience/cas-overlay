@@ -42,7 +42,7 @@
             <form:errors path="verificationCode" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
 
-        <h2><spring:message code="screen.resetPassword.header" /></h2>
+        <br/><h2><spring:message code="screen.resetPassword.header" /></h2>
 
         <section class="row">
             <label for="newPassword"><spring:message code="screen.resetPassword.label.newPassword" /></label><br/>

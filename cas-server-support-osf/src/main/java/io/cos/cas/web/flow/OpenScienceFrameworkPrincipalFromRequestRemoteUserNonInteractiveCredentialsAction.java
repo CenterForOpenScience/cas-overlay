@@ -384,11 +384,11 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
              final String encryptedPayload
                      = apiEndpointHandler.encryptPayload("data", normalizedPayload.toString());
-             final Map<String, Object> response
-                     = apiEndpointHandler.apiCasAuthentication(ApiEndpoint.AUTH_INSTITUTION, username, encryptedPayload);
+             final JSONObject response
+                     = apiEndpointHandler.handle(ApiEndpoint.AUTH_INSTITUTION, encryptedPayload);
 
-             if (response != null && response.containsKey("status")) {
-                 final int statusCode = (int) response.get("status");
+             if (response != null) {
+                 final int statusCode = response.getInt("status");
                  logger.info(
                          "Notify Remote Principal Authenticated [OSF API] Response: <{}> Status Code {}",
                          username,

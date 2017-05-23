@@ -196,10 +196,10 @@
 
         <!-- Open Science Framework Login -->
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
-        <transition on="FailedLoginException" to="generateLoginTicket"/>
-        <transition on="UserNotConfirmedException" to="casUserNotConfirmedView" />
-        <transition on="UserNotClaimedException" to="casUserNotClaimedView" />
+        <transition on="AccountNotVerifiedException" to="casAccountNotVerifiedView" />
         <transition on="AccountDisabledException" to="casAccountDisabledView"/>
+        <transition on="FailedLoginException" to="generateLoginTicket"/>
+        <transition on="InvalidVerificationKeyException" to="generateLoginTicket"/>
         <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
 
         <!-- Open Science Framework Remote Login -->
@@ -277,8 +277,8 @@
 
     <!-- Open Science Framework Login Exceptions View -->
     <end-state id="casAccountDisabledView" view="casAccountDisabledView" />
-    <end-state id="casUserNotConfirmedView" view="casUserNotConfirmedView" />
-    <end-state id="casUserNotClaimedView" view="casUserNotClaimedView" />
+    <end-state id="casAccountNotVerifiedView" view="casAccountNotVerifiedView" />
+    <end-state id="casInvalidVerificationKeyView" view="casInvalidVerificationKeyView" />
     <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
 

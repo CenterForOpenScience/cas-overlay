@@ -22,20 +22,20 @@ package io.cos.cas.authentication.exceptions;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from a registered but not confirmed account.
+ * Describes an error condition where authentication occurs when using an invalid verification key.
  *
  * @author Michael Haselton
  * @author Longze Chen
  * @since 4.1.5
  */
-public class UserNotConfirmedException extends AccountException {
+public class InvalidVerificationKeyException extends AccountException {
 
-    private static final long serialVersionUID = -6941281359700123973L;
+    private static final long serialVersionUID = 1271266461167445623L;
 
     /**
      * Instantiates a new invalid login location exception.
      */
-    public UserNotConfirmedException() {
+    public InvalidVerificationKeyException() {
         super();
     }
 
@@ -44,7 +44,7 @@ public class UserNotConfirmedException extends AccountException {
      *
      * @param message the message
      */
-    public UserNotConfirmedException(final String message) {
+    public InvalidVerificationKeyException(final String message) {
         super(message);
     }
 }
