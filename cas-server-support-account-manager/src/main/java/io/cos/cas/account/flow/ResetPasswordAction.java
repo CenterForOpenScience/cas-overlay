@@ -3,6 +3,9 @@ package io.cos.cas.account.flow;
 import io.cos.cas.account.model.ResetPasswordFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.ApiEndpoint;
+
+import org.apache.http.HttpStatus;
 
 import org.json.JSONObject;
 
@@ -48,7 +51,7 @@ public class ResetPasswordAction {
             final MessageContext messageContext
     ) {
         final AccountManager accountManager = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
-        final String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
+        String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
         if (accountManager != null && accountManager.getUsername() != null) {
 
@@ -62,9 +65,30 @@ public class ResetPasswordAction {
             user.put("password", resetPasswordForm.getNewPassword());
             data.put("type", NAME);
             data.put("user", user);
-            apiEndpointHandler.encryptPayload("data", data.toString());
 
-            return new Event(this, "success");
+            final JSONObject response = apiEndpointHandler.handle(
+                    ApiEndpoint.AUTH_RESET_PASSWORD,
+                    apiEndpointHandler.encryptPayload("data", data.toString())
+            );
+
+            if (response != null) {
+                final int status = response.getInt("status");
+                if (status == HttpStatus.SC_OK) {
+                    final JSONObject responseBody = response.getJSONObject("body");
+                    if (responseBody != null && responseBody.has("verificationKey") && responseBody.has("serviceUrl")) {
+                        final String redirectUrl = AbstractAccountFlowUtils.buildLoginUrlWithUsernameAndVerificationKey(
+                                apiEndpointHandler.getCasLoginUrl(),
+                                responseBody.getString("serviceUrl"),
+                                accountManager.getUsername(),
+                                responseBody.getString("verificationKey")
+                        );
+                        requestContext.getFlowScope().put("loginRedirectUrl", redirectUrl);
+                        return new Event(this, "redirect");
+                    }
+                } else if (status == HttpStatus.SC_FORBIDDEN || status == HttpStatus.SC_UNAUTHORIZED) {
+                    errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
+                }
+            }
         }
 
         messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());

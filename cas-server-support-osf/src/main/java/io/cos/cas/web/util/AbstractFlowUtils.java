@@ -86,7 +86,7 @@ public abstract class AbstractFlowUtils {
     }
 
     /**
-     * Check and verify request parameter "institution".
+     * Check and Verify Request Parameter "institution".
      *
      * @param context the request context
      * @return <code>true</code> if the request has param "institution=true", false otherwise
@@ -94,5 +94,19 @@ public abstract class AbstractFlowUtils {
     public static boolean isInstitutionLogin(final RequestContext context) {
         final String institution = context.getRequestParameters().get(PARAM_INSTITUTION);
         return Boolean.TRUE.toString().equalsIgnoreCase(institution);
+    }
+
+    /**
+     * Encode Request Parameter with UTF-8.
+     *
+     * @param value the value of the parameter
+     * @return the encoded parameter
+     */
+    public static String encodeUrlParameter(final String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch (final UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF-8 is unknown");
+        }
     }
 }

@@ -33,6 +33,7 @@
     <webflow:flow-registry id="accountFlowRegistry" base-path="/WEB-INF/webflow">
         <!-- Internal Web Flows -->
         <webflow:flow-location-pattern value="/account/internal/onStart/onStart.xml" />
+        <webflow:flow-location-pattern value="/account/internal/onFinish/onFinish.xml" />
         <webflow:flow-location-pattern value="/account/internal/verifyEmail/verifyEmail.xml" />
         <webflow:flow-location-pattern value="/account/internal/resetPassword/resetPassword.xml" />
         <!-- Entry Web Flows -->

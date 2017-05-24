@@ -1,7 +1,6 @@
 package io.cos.cas.account.util;
 
 import io.cos.cas.account.flow.AccountManager;
-
 import io.cos.cas.web.util.AbstractFlowUtils;
 
 import org.springframework.webflow.execution.RequestContext;
@@ -45,5 +44,29 @@ public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
      */
     public static String getTargetFromRequestContext(final RequestContext context) {
         return context.getRequestParameters().get(PARAM_TARGET);
+    }
+
+    /**
+     * Build CAS login URL with service, username and verification key.
+     *
+     * @param casLoginUrl the CAS login url
+     * @param serviceUrl the encoded Service URL
+     * @param username the username
+     * @param verificationKey the verification key
+     * @return the url with encoded parameter
+     */
+    public static String buildLoginUrlWithUsernameAndVerificationKey(
+            final String casLoginUrl,
+            final String serviceUrl,
+            final String username,
+            final String verificationKey
+    ) {
+        return String.format(
+                "%sservice=%s&username=%s&verification_key=%s",
+                casLoginUrl,
+                encodeUrlParameter(serviceUrl),
+                encodeUrlParameter(username),
+                encodeUrlParameter(verificationKey)
+        );
     }
 }

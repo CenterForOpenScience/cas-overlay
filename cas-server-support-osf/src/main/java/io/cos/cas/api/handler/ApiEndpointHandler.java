@@ -35,19 +35,23 @@ import com.nimbusds.jwt.SignedJWT;
 
 import io.cos.cas.api.type.ApiEndpoint;
 import io.cos.cas.web.util.AbstractFlowUtils;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.message.BasicHeader;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+
 import java.io.IOException;
 import java.util.Date;
 
@@ -55,13 +59,16 @@ import java.util.Date;
  * Handles Communication between CAS and API.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class ApiEndpointHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiEndpointHandler.class);
 
     private static final int SIXTY_SECONDS = 60 * 1000;
+
+    @NotNull
+    private String casLoginUrl;
 
     @NotNull
     private String apiCasEndpointUrl;
@@ -75,18 +82,25 @@ public class ApiEndpointHandler {
     /**
      * Instantiates an instance of Open Science Framework API CAS Endpoint and set endpoint url.
      *
+     * @param casLoginUrl the CAS login URL
      * @param apiCasEndpointUrl the API CAS Endpoint URL
      * @param apiCasEndpointJweSecret the Jwe Secret
      * @param apiCasEndpointJwtSecret the Jwt Secret
      */
     public ApiEndpointHandler(
-        final String apiCasEndpointUrl,
-        final String apiCasEndpointJweSecret,
-        final String apiCasEndpointJwtSecret
+            final String casLoginUrl,
+            final String apiCasEndpointUrl,
+            final String apiCasEndpointJweSecret,
+            final String apiCasEndpointJwtSecret
     ) {
+        this.casLoginUrl = casLoginUrl;
         this.apiCasEndpointUrl = apiCasEndpointUrl;
         this.apiCasEndpointJweSecret = apiCasEndpointJweSecret;
         this.apiCasEndpointJwtSecret = apiCasEndpointJwtSecret;
+    }
+
+    public String getCasLoginUrl() {
+        return casLoginUrl;
     }
 
     /**
@@ -151,7 +165,6 @@ public class ApiEndpointHandler {
 
         return null;
     }
-
 
     /**
      * Get the error message from HTTP 400s response.

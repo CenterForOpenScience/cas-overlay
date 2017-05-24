@@ -35,7 +35,7 @@
     <action-state id="showFindAccountPage">
         <evaluate expression="findAccountAction.preparePage(flowRequestContext)" />
         <transition on="success" to="viewFindAccountPage" />
-        <transition on="error" to="viewFindAccountPage" />
+        <transition on="error" to="viewManagerException" />
     </action-state>
 
     <view-state id="viewFindAccountPage" view="/WEB-INF/view/jsp/accountManager/casFindAccountView.jsp" model="findAccountFormBean">
