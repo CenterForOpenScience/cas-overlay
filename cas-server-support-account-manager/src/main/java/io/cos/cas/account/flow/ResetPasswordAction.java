@@ -74,15 +74,12 @@ public class ResetPasswordAction {
             if (response != null) {
                 final int status = response.getInt("status");
                 if (status == HttpStatus.SC_OK) {
-                    final JSONObject responseBody = response.getJSONObject("body");
-                    if (responseBody != null && responseBody.has("verificationKey") && responseBody.has("serviceUrl")) {
-                        final String redirectUrl = AbstractAccountFlowUtils.buildLoginUrlWithUsernameAndVerificationKey(
-                                apiEndpointHandler.getCasLoginUrl(),
-                                responseBody.getString("serviceUrl"),
-                                accountManager.getUsername(),
-                                responseBody.getString("verificationKey")
-                        );
-                        requestContext.getFlowScope().put("loginRedirectUrl", redirectUrl);
+                    if (AbstractAccountFlowUtils.verifyResponseAndPutLoginRedirectUrlToRequestContext(
+                            requestContext,
+                            response.getJSONObject("body"),
+                            apiEndpointHandler.getCasLoginUrl(),
+                            accountManager.getUsername()
+                    )) {
                         return new Event(this, "redirect");
                     }
                 } else if (status == HttpStatus.SC_FORBIDDEN || status == HttpStatus.SC_UNAUTHORIZED) {

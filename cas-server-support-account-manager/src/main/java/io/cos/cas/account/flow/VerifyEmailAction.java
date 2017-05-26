@@ -4,6 +4,8 @@ import io.cos.cas.account.model.VerifyEmailFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
 
+import io.cos.cas.api.type.ApiEndpoint;
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
 import org.springframework.binding.message.MessageBuilder;
@@ -48,11 +50,10 @@ public class VerifyEmailAction {
             final MessageContext messageContext
     ) {
         final AccountManager accountManager = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
-        final String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
+        String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
         if (accountManager != null && accountManager.getEmailToVerify() != null) {
 
-            // VerifyEmailFormBean.emailToVerify is disabled in the form and should be null from submission
             verifyEmailForm.setEmailToVerify(accountManager.getEmailToVerify());
 
             final JSONObject user = new JSONObject();
@@ -62,9 +63,27 @@ public class VerifyEmailAction {
             user.put("verificationCode", verifyEmailForm.getVerificationCode());
             data.put("type", NAME);
             data.put("user", user);
-            apiEndpointHandler.encryptPayload("data", data.toString());
 
-            return new Event(this, "success");
+            final JSONObject response = apiEndpointHandler.handle(
+                    ApiEndpoint.AUTH_VERIFY_EMAIL,
+                    apiEndpointHandler.encryptPayload("data", data.toString())
+            );
+
+            if (response != null) {
+                final int status = response.getInt("status");
+                if (status == HttpStatus.SC_OK) {
+                    if (AbstractAccountFlowUtils.verifyResponseAndPutLoginRedirectUrlToRequestContext(
+                            requestContext,
+                            response.getJSONObject("body"),
+                            apiEndpointHandler.getCasLoginUrl(),
+                            accountManager.getEmailToVerify()
+                    )) {
+                        return new Event(this, "redirect");
+                    }
+                } else if (status == HttpStatus.SC_FORBIDDEN || status == HttpStatus.SC_UNAUTHORIZED) {
+                    errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
+                }
+            }
         }
 
         messageContext.addMessage(

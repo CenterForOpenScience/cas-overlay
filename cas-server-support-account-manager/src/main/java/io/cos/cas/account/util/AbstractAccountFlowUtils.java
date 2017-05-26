@@ -3,6 +3,7 @@ package io.cos.cas.account.util;
 import io.cos.cas.account.flow.AccountManager;
 import io.cos.cas.web.util.AbstractFlowUtils;
 
+import org.json.JSONObject;
 import org.springframework.webflow.execution.RequestContext;
 
 /**
@@ -47,26 +48,31 @@ public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
     }
 
     /**
-     * Build CAS login URL with service, username and verification key.
+     * Parse API 200 Response, build and set login redirect url with username and verification key.
      *
-     * @param casLoginUrl the CAS login url
-     * @param serviceUrl the encoded Service URL
+     * @param requestContext the request context
+     * @param responseBody the response body
+     * @param casLoginUrl the cas login url
      * @param username the username
-     * @param verificationKey the verification key
-     * @return the url with encoded parameter
+     * @return <code>true</code> if response is valid, <code>false</code> otherwise
      */
-    public static String buildLoginUrlWithUsernameAndVerificationKey(
+    public static boolean verifyResponseAndPutLoginRedirectUrlToRequestContext(
+            final RequestContext requestContext,
+            final JSONObject responseBody,
             final String casLoginUrl,
-            final String serviceUrl,
-            final String username,
-            final String verificationKey
+            final String username
     ) {
-        return String.format(
-                "%sservice=%s&username=%s&verification_key=%s",
-                casLoginUrl,
-                encodeUrlParameter(serviceUrl),
-                encodeUrlParameter(username),
-                encodeUrlParameter(verificationKey)
-        );
+        if (responseBody != null && responseBody.has("verificationKey") && responseBody.has("serviceUrl")) {
+            final String redirectUrl = String.format(
+                    "%sservice=%s&username=%s&verification_key=%s",
+                    casLoginUrl,
+                    encodeUrlParameter(responseBody.getString("serviceUrl")),
+                    encodeUrlParameter(username),
+                    encodeUrlParameter(responseBody.getString("verificationKey"))
+            );
+            requestContext.getFlowScope().put("loginRedirectUrl", redirectUrl);
+            return true;
+        }
+        return false;
     }
 }

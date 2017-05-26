@@ -22,7 +22,8 @@
 <flow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns="http://www.springframework.org/schema/webflow"
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
-              http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+              http://www.springframework.org/schema/webflow/spring-webflow.xsd"
+      parent="account/internal/onFinish">
 
     <var name="verifyEmailFormBean" class="io.cos.cas.account.model.VerifyEmailFormBean" />
 
@@ -35,12 +36,12 @@
         <on-entry>
             <set name="viewScope.commandName" value="'verifyEmailFormBean'"/>
         </on-entry>
-        <transition on="submit" bind="true" validate="true" to="confirmEmail"/>
+        <transition on="submit" bind="true" validate="true" to="verifyEmail"/>
     </view-state>
 
-    <action-state id="confirmEmail">
+    <action-state id="verifyEmail">
         <evaluate expression="verifyEmailAction.submitForm(flowRequestContext, flowScope.verifyEmailFormBean, messageContext)" />
-        <transition on="success" to="viewVerifyEmailPage" />
+        <transition on="redirect" to="finishLogin" />
         <transition on="error" to="viewVerifyEmailPage" />
     </action-state>
 
