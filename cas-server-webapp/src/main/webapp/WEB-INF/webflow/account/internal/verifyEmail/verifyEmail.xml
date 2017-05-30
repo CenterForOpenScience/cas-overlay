@@ -23,7 +23,7 @@
       xmlns="http://www.springframework.org/schema/webflow"
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
               http://www.springframework.org/schema/webflow/spring-webflow.xsd"
-      parent="account/internal/onFinish">
+      parent="account/internal">
 
     <var name="verifyEmailFormBean" class="io.cos.cas.account.model.VerifyEmailFormBean" />
 

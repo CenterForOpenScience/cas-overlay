@@ -62,6 +62,13 @@
             <input type="submit" class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.register.button.createAccount" />" tabindex="4"  />
         </section>
 
+        <c:if test="${not empty registeredService and not empty accountManagerContext.getServiceUrl()}">
+            <hr/>
+            <section class="row">
+                <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo" src="../images/orcid-logo.png"><spring:message code="screen.register.button.createAccount.orcid" /></a>
+            </section>
+        </c:if>
+
     </form:form>
 </div>
 

@@ -24,9 +24,11 @@
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
         http://www.springframework.org/schema/webflow/spring-webflow.xsd">
 
-    <on-start>
-        <evaluate expression="initialFlowSetupAction"/>
-    </on-start>
+    <!-- Delegation Client Action-->
+    <action-state id="clientAction">
+        <evaluate expression="pac4jClientAction" />
+        <transition on="error" to="ticketGrantingTicketCheck" />
+    </action-state>
 
     <action-state id="ticketGrantingTicketCheck">
         <evaluate expression="ticketGrantingTicketCheckAction"/>
@@ -44,5 +46,13 @@
         <evaluate expression="serviceAuthorizationCheck"/>
         <transition to="generateLoginTicket"/>
     </action-state>
+
+    <decision-state id="finishLogin">
+        <if test="flowScope.loginRedirectUrl != null" then="viewLoginRedirect" else="viewManagerException" />
+    </decision-state>
+
+    <end-state id="viewLoginRedirect" view="externalRedirect:#{flowScope.loginRedirectUrl}" />
+
+    <end-state id="viewManagerException" view="/WEB-INF/view/jsp/accountManager/casManagerExceptionView.jsp" />
 
 </flow>

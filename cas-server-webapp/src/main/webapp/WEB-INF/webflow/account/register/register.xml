@@ -23,9 +23,14 @@
       xmlns="http://www.springframework.org/schema/webflow"
       xsi:schemaLocation="http://www.springframework.org/schema/webflow
               http://www.springframework.org/schema/webflow/spring-webflow.xsd"
-      parent="account/internal/onStart,account/internal/verifyEmail">
+      parent="account/internal,account/internal/verifyEmail">
 
     <var name="registerFormBean" class="io.cos.cas.account.model.RegisterFormBean" />
+
+    <action-state id="onStart">
+        <evaluate expression="initialFlowSetupAction" />
+        <transition on="success" to="clientAction" />
+    </action-state>
 
     <action-state id="generateLoginTicket">
         <evaluate expression="generateLoginTicketAction.generate(flowRequestContext)"/>
