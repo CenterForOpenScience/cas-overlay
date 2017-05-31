@@ -105,25 +105,25 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
     public static class PrincipalAuthenticationResult {
 
         private String username;
-        private String institutionId;
+        private String externalId;
 
         /**
-         * Creates a new instance with the given parameters.
+         * Instantiate Principal Authentication Result.
          *
-         * @param username The username
-         * @param institutionId The institution id
+         * @param username the username
+         * @param externalId the external id, either the institution id or non-institution external id (e.g. ORCiD ID)
          */
-        public PrincipalAuthenticationResult(final String username, final String institutionId) {
+        public PrincipalAuthenticationResult(final String username, final String externalId) {
             this.username = username;
-            this.institutionId = institutionId;
+            this.externalId = externalId;
         }
 
         public String getUsername() {
             return username;
         }
 
-        public String getInstitutionId() {
-            return institutionId;
+        public String getExternalId() {
+            return externalId;
         }
     }
 
@@ -138,8 +138,6 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
     private static final String SHIBBOLETH_SESSION_HEADER = ATTRIBUTE_PREFIX + "Shib-Session-ID";
 
     private static final String SHIBBOLETH_COOKIE_PREFIX = "_shibsession_";
-
-    private static final int SIXTY_SECONDS = 60 * 1000;
 
     /** The Logger Instance. */
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -298,7 +296,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             final PrincipalAuthenticationResult remoteUserInfo
                     = notifyRemotePrincipalAuthenticated(credential);
             credential.setUsername(remoteUserInfo.getUsername());
-            credential.setInstitutionId(remoteUserInfo.getInstitutionId());
+            credential.setInstitutionId(remoteUserInfo.getExternalId());
             return credential;
         } else if (ticketGrantingTicketId != null) {
             // pac4j login
@@ -348,7 +346,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                     = notifyRemotePrincipalAuthenticated(credential);
 
             credential.setUsername(remoteUserInfo.getUsername());
-            credential.setInstitutionId(remoteUserInfo.getInstitutionId());
+            credential.setInstitutionId(remoteUserInfo.getExternalId());
 
             // We create a new tgt w/ the osf specific credential, cleanup the existing one from pac4j.
             this.centralAuthenticationService.destroyTicketGrantingTicket(ticketGrantingTicketId);

@@ -61,6 +61,8 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
 
     private String institutionId;
 
+    private String nonInstitutionExternalId;
+
     private DelegationProtocol delegationProtocol;
 
     private Map<String, String> delegationAttributes = new HashMap<>();
@@ -98,6 +100,14 @@ public class OpenScienceFrameworkCredential extends RememberMeUsernamePasswordCr
 
     public final void setInstitutionId(final String institutionId) {
         this.institutionId = institutionId;
+    }
+
+    public String getNonInstitutionExternalId() {
+        return nonInstitutionExternalId;
+    }
+
+    public void setNonInstitutionExternalId(final String nonInstitutionExternalId) {
+        this.nonInstitutionExternalId = nonInstitutionExternalId;
     }
 
     public final DelegationProtocol getDelegationProtocol() {
