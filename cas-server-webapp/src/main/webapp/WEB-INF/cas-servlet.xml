@@ -142,10 +142,11 @@
 
   <!-- login webflow configuration -->
   <bean id="loginFlowHandlerMapping" class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping"
-        p:flowRegistry-ref="loginFlowRegistry" p:order="2">
+      p:flowRegistry-ref="loginFlowRegistry" p:order="2">
       <property name="interceptors">
           <array value-type="org.springframework.web.servlet.HandlerInterceptor">
               <ref bean="localeChangeInterceptor" />
+              <ref bean="loginThrottle" />
           </array>
       </property>
   </bean>
@@ -350,12 +351,10 @@
 
   <bean id="acceptableUsagePolicyFormAction" class="org.jasig.cas.web.flow.AcceptableUsagePolicyFormAction"/>
 
-  <bean id="principalFromRemoteAction" class="io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction"
+  <bean id="principalFromRemoteAction" class="io.cos.cas.web.flow.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction"
         p:centralAuthenticationService-ref="centralAuthenticationService"
-        p:institutionsAuthUrl="${osf.api.institutions.auth.url}"
-        p:institutionsAuthJweSecret="${osf.api.institutions.auth.jweSecret}"
-        p:institutionsAuthJwtSecret="${osf.api.institutions.auth.jwtSecret}"
-        p:institutionsAuthXslLocation="${osf.api.institutions.auth.xslLocation}"/>
+        p:apiEndpointHandler-ref="apiEndpointHandler"
+        p:institutionsAuthXslLocation="${cas.institution.auth.xsl.location}"/>
 
   <!--<bean id="shibbolethLoginController" class="org.jasig.cas.web.ServiceValidateController"-->
           <!--p:validationSpecificationClass="org.jasig.cas.validation.Cas20WithoutProxyingValidationSpecification"-->

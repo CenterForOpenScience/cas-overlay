@@ -19,142 +19,44 @@
 
 package io.cos.cas.web.flow;
 
-import com.google.gson.Gson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.cos.cas.web.util.AbstractFlowUtils;
+
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
-
 /**
- * Open Science Framework Login Handler.
+ * Web Flow Action to Prepare Different Login Options.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkLoginHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkLoginHandler.class);
-
     /**
-     * Open Science Framework Login Context.
+     * Prepare Login Manager Context and Select the Default Login or Institution Login.
      *
-     * @author Longze chen
-     * @since  4.1.0
+     * @param requestContext The request requestContext
+     * @return the event
      */
-    public static final class OpenScienceFrameworkLoginContext {
-        private String serviceUrl;
-        private boolean institutionLogin;
+    public Event beforeLogin(final RequestContext requestContext) {
 
-        /**
-         * Construct an instance of `OpenScienceFrameworkLoginContext` with given settings.
-         *
-         * @param serviceUrl the service url
-         * @param institutionLogin login through institutions
-         */
-        private OpenScienceFrameworkLoginContext(final String serviceUrl, final boolean institutionLogin) {
-            this.serviceUrl = serviceUrl;
-            this.institutionLogin = institutionLogin;
-        }
+        final String serviceUrl = AbstractFlowUtils.getEncodedServiceUrl(requestContext);
+        final String campaign = AbstractFlowUtils.getCampaignFromRegisteredService(requestContext);
+        final boolean institutionLogin = AbstractFlowUtils.isInstitutionLogin(requestContext);
 
-        public String getServiceUrl() {
-            return serviceUrl;
-        }
-
-        /**
-         * Check if login through institutions.
-         *
-         * @return true if institution login, false otherwise
-         */
-        public boolean isInstitutionLogin() {
-            return institutionLogin;
-        }
-
-        /**
-         * Check if service url exists.
-         *
-         * @return true if service url exists, false otherwise
-         */
-        public boolean isServiceUrl() {
-            return serviceUrl != null;
-        }
-
-
-        /**
-         * Convert class instance to a JSON string, which will be passed to the flow context.
-         *
-         * @return JSON string
-         */
-        private String toJson() {
-            final Gson gson = new Gson();
-            return gson.toJson(this);
-        }
-
-        /**
-         * Convert JSON string to a class instance.
-         *
-         * @param jsonString The json String
-         * @return an instance of OpenScienceFrameworkCampaign
-         */
-        public static OpenScienceFrameworkLoginContext fromJson(final String jsonString) {
-            final Gson gson = new Gson();
-            return gson.fromJson(jsonString, OpenScienceFrameworkLoginContext.class);
-        }
-    }
-
-    /**
-     * Decision making action that handles OSF login: osf, institution, campaign.
-     *
-     * @param context The request context
-     * @return Event "osf", "institution" or "campaigns
-     */
-    public Event beforeLogin(final RequestContext context) {
-
-        final String serviceUrl = getEncodedServiceUrl(context);
-        final boolean institutionLogin = isInstitutionLogin(context);
-
-        final OpenScienceFrameworkLoginContext osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin);
-        context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
-
-        if (osfLoginContext.isInstitutionLogin()) {
-            return new Event(this, "institutionLogin");
+        LoginManager loginManagerContext = AbstractFlowUtils.getLoginManagerFromRequestContext(requestContext);
+        if (loginManagerContext == null) {
+            loginManagerContext = new LoginManager(serviceUrl, campaign, institutionLogin);
         } else {
-            return new Event(this, "osfDefaultLogin");
+            loginManagerContext.setServiceUrl(serviceUrl);
+            loginManagerContext.setCampaign(serviceUrl);
+            loginManagerContext.setInstitutionLogin(institutionLogin);
         }
-    }
+        AbstractFlowUtils.putLoginManagerToRequestContext(requestContext, loginManagerContext);
 
-    /**
-     * Check institution login.
-     * Return true if `campaign=institution` is present in request parameters.
-     *
-     * @param context The request context
-     * @return Boolean
-     */
-    private boolean isInstitutionLogin(final RequestContext context) {
-        final String campaign = context.getRequestParameters().get("campaign");
-        return "institution".equals(campaign);
-    }
-
-    /**
-     * Encode the decoded service url if service url exists.
-     *
-     * @param context The request context
-     * @return the encoded service url
-     * @throws AssertionError
-     */
-    private String getEncodedServiceUrl(final RequestContext context) {
-
-        final String serviceUrl = context.getRequestParameters().get("service");
-        if (serviceUrl == null) {
-            return null;
+        if (institutionLogin) {
+            return new Event(this, "institutionLogin");
         }
-        try {
-            return URLEncoder.encode(serviceUrl, "UTF-8");
-        } catch (final UnsupportedEncodingException e) {
-            throw new AssertionError("UTF-8 is unknown");
-        }
+        return new Event(this, "osfDefaultLogin");
     }
 }

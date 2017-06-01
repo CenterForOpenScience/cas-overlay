@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to Apereo under one or more contributor license
+    agreements. See the NOTICE file distributed with this work
+    for additional information regarding copyright ownership.
+    Apereo licenses this file to you under the Apache License,
+    Version 2.0 (the "License"); you may not use this file
+    except in compliance with the License.  You may obtain a
+    copy of the License at the following location:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:webflow="http://www.springframework.org/schema/webflow-config"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/webflow-config
+        http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.3.xsd">
+
+    <!-- Web Flow Setup -->
+
+    <webflow:flow-registry id="accountFlowRegistry" base-path="/WEB-INF/webflow">
+        <!-- Internal Web Flows -->
+        <webflow:flow-location-pattern value="/account/internal/internal.xml" />
+        <webflow:flow-location-pattern value="/account/internal/verifyEmail/verifyEmail.xml" />
+        <webflow:flow-location-pattern value="/account/internal/resetPassword/resetPassword.xml" />
+        <!-- Entry Web Flows -->
+        <webflow:flow-location-pattern value="/account/register/register.xml" />
+        <webflow:flow-location-pattern value="/account/findAccount/findAccount.xml" />
+    </webflow:flow-registry>
+
+    <webflow:flow-executor id="accountFlowExecutor" flow-registry="accountFlowRegistry">
+        <webflow:flow-execution-attributes>
+            <webflow:always-redirect-on-pause value="false" />
+            <webflow:redirect-in-same-state value="false" />
+        </webflow:flow-execution-attributes>
+    </webflow:flow-executor>
+
+    <bean id="accountFlowUrlHandler" class="io.cos.cas.account.support.AccountDefaultFlowUrlHandler" />
+
+    <bean id="accountFlowHandlerAdaptor" class="org.jasig.cas.web.flow.SelectiveFlowHandlerAdapter">
+        <property name="supportedFlowIds">
+            <set>
+                <value>account/register</value>
+                <value>account/findAccount</value>
+            </set>
+        </property>
+        <property name="flowExecutor" ref="accountFlowExecutor" />
+        <property name="flowUrlHandler" ref="accountFlowUrlHandler" />
+    </bean>
+
+    <bean id="accountFlowHandlerMapping" class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+        <property name="flowRegistry" ref="accountFlowRegistry"/>
+        <property name="order" value="1"/>
+    </bean>
+
+    <bean id="registerAction" class="io.cos.cas.account.flow.RegisterAction">
+        <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+    </bean>
+
+    <bean id="verifyEmailAction" class="io.cos.cas.account.flow.VerifyEmailAction">
+        <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+    </bean>
+
+    <bean id="findAccountAction" class="io.cos.cas.account.flow.FindAccountAction">
+        <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+    </bean>
+
+    <bean id="resetPasswordAction" class="io.cos.cas.account.flow.ResetPasswordAction">
+        <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+    </bean>
+
+    <bean id="registerFormBeanValidator" class="io.cos.cas.account.validator.RegisterFormBeanValidator" />
+
+    <bean id="verifyEmailFormBeanValidator" class="io.cos.cas.account.validator.VerifyEmailFormBeanValidator" />
+
+    <bean id="findAccountFormBeanValidator" class="io.cos.cas.account.validator.FindAccountFormBeanValidator" />
+
+    <bean id="resetPasswordFormBeanValidator" class="io.cos.cas.account.validator.ResetPasswordFormBeanValidator" />
+
+</beans>

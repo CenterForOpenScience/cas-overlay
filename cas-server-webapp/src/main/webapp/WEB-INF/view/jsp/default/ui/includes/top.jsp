@@ -28,27 +28,23 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%@ page import="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext" %>
-<c:set var="pageLoginContext" value="${jsonLoginContext}" />
+<%@ page import="io.cos.cas.web.flow.LoginManager" %>
+<c:set var="jsonLoginManagerContext" value="${loginManager}" />
 <%
-    String loginContext = (String) pageContext.getAttribute("pageLoginContext");
-    OpenScienceFrameworkLoginContext osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(loginContext);
-    pageContext.setAttribute("osfLoginContext", osfLoginContext);
+    LoginManager loginManager = LoginManager.fromJson((String) pageContext.getAttribute("jsonLoginManagerContext"));
+    pageContext.setAttribute("loginManagerContext", loginManager);
 %>
+<c:set var="serviceUrl" value="${loginManagerContext.checkService() ? loginManagerContext.getServiceUrl() : fn:escapeXml(param.service)}" />
 
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
 
-        <title>Open Science Framework | Sign In </title>
+        <title>OSF | Central Authentication Service</title>
 
         <spring:theme code="standard.custom.css.file" var="customCssFile" />
         <link rel="stylesheet" href="<c:url value="${customCssFile}" />" />
         <link rel="icon" href="<c:url value="/favicon.ico" />" type="image/x-icon" />
-
-        <!--[if lt IE 9]>
-            <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.1/html5shiv.js" type="text/javascript"></script>
-        <![endif]-->
 
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,700' rel='stylesheet' type='text/css'>
     </head>
@@ -65,7 +61,7 @@
                 <div class="center">
                     <span id="title">
                         <c:choose>
-                            <c:when test="${osfLoginContext.isInstitutionLogin()}">
+                            <c:when test="${loginManagerContext.isInstitutionLogin()}">
                                 <span>OSF Institutions</span>
                             </c:when>
                             <c:when test="${not empty registeredService}">
@@ -83,11 +79,11 @@
                     <div id="description">
                         <br><br>
                         <c:choose>
-                            <c:when test="${osfLoginContext.isInstitutionLogin()}">
-                                    <spring:message code="screen.institution.login.message" />
+                            <c:when test="${loginManagerContext.isInstitutionLogin()}">
+                                <spring:message code="screen.institution.login.message" />
                             </c:when>
                             <c:when test="${not empty registeredService}">
-                                    <spring:message code="screen.osf.login.message" />
+                                <spring:message code="screen.osf.login.message" />
                             </c:when>
                             <c:otherwise>
                                 <spring:message code="screen.cas.login.message" />
