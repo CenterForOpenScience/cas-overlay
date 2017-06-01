@@ -36,6 +36,9 @@ public enum ApiEndpoint {
     /** OSF Institution Login. */
     AUTH_INSTITUTION(ApiEndpoint.AUTH + "/institution"),
 
+    /** OSF Non-institution External Login. */
+    AUTH_EXTERNAL(ApiEndpoint.AUTH + "/external"),
+
     /** Verify Email. */
     AUTH_VERIFY_EMAIL(ApiEndpoint.AUTH + "/verifyEmail"),
 

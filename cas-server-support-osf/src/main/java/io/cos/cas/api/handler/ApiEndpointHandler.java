@@ -71,6 +71,9 @@ public class ApiEndpointHandler {
     private String casLoginUrl;
 
     @NotNull
+    private String casCreateOrLinkOsfAccountUrl;
+
+    @NotNull
     private String apiCasEndpointUrl;
 
     @NotNull
@@ -83,17 +86,20 @@ public class ApiEndpointHandler {
      * Instantiates an instance of Open Science Framework API CAS Endpoint and set endpoint url.
      *
      * @param casLoginUrl the CAS login URL
+     * @param casCreateOrLinkOsfAccountUrl the CAS account manager URL for create or link OSF account with external id
      * @param apiCasEndpointUrl the API CAS Endpoint URL
      * @param apiCasEndpointJweSecret the Jwe Secret
      * @param apiCasEndpointJwtSecret the Jwt Secret
      */
     public ApiEndpointHandler(
             final String casLoginUrl,
+            final String casCreateOrLinkOsfAccountUrl,
             final String apiCasEndpointUrl,
             final String apiCasEndpointJweSecret,
             final String apiCasEndpointJwtSecret
     ) {
         this.casLoginUrl = casLoginUrl;
+        this.casCreateOrLinkOsfAccountUrl = casCreateOrLinkOsfAccountUrl;
         this.apiCasEndpointUrl = apiCasEndpointUrl;
         this.apiCasEndpointJweSecret = apiCasEndpointJweSecret;
         this.apiCasEndpointJwtSecret = apiCasEndpointJwtSecret;
@@ -101,6 +107,10 @@ public class ApiEndpointHandler {
 
     public String getCasLoginUrl() {
         return casLoginUrl;
+    }
+
+    public String getCasCreateOrLinkOsfAccountUrl() {
+        return casCreateOrLinkOsfAccountUrl;
     }
 
     /**
@@ -156,7 +166,7 @@ public class ApiEndpointHandler {
 
         final HttpResponse response = makeApiRequest(url, payload);
         if (response != null) {
-            final JSONObject parsedResponse = parseApiResponse(response);
+            final JSONObject parsedResponse = parseApiResponse(url, response);
             if (parsedResponse != null) {
                 LOGGER.info("API Response Received {} {}.", url, parsedResponse.getInt("status"));
                 return parsedResponse;
@@ -192,6 +202,7 @@ public class ApiEndpointHandler {
      */
     private HttpResponse makeApiRequest(final String url, final String payload) {
 
+        LOGGER.info("Making API Request {}.", url);
         try {
             return Request.Post(url)
                     .addHeader(new BasicHeader("Content-Type", "application/json"))
@@ -199,7 +210,7 @@ public class ApiEndpointHandler {
                     .execute()
                     .returnResponse();
         } catch (final IOException e) {
-            LOGGER.error("An exception has occurred when making API request: {}", url);
+            LOGGER.error("An exception has occurred during API request: {}", url);
             LOGGER.debug(e.getMessage());
             return null;
         }
@@ -208,10 +219,11 @@ public class ApiEndpointHandler {
     /**
      * Parse HTTP POST Response from API CAS Endpoint.
      *
+     * @param url the full request URL
      * @param response the http response
      * @return JSONObject
      */
-    private JSONObject parseApiResponse(final HttpResponse response) {
+    private JSONObject parseApiResponse(final String url, final HttpResponse response) {
 
         final int statusCode = response.getStatusLine().getStatusCode();
         final JSONObject parsedResponse = new JSONObject();
@@ -220,19 +232,19 @@ public class ApiEndpointHandler {
             return parsedResponse.put("status", statusCode);
         }
 
-        if (statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_FORBIDDEN ) {
+        if (statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_FORBIDDEN) {
             try {
                 parsedResponse.put("status", statusCode);
                 parsedResponse.put("body", new JSONObject(new BasicResponseHandler().handleEntity(response.getEntity())));
                 return parsedResponse;
             } catch (final IOException | JSONException e) {
-                LOGGER.error("An exception has occurred when parsing API response.");
+                LOGGER.error("An exception has occurred when parsing API response: {}", url);
                 LOGGER.debug(e.getMessage());
                 return null;
             }
         }
 
-        LOGGER.error("Request Failed: {}", statusCode);
+        LOGGER.error("API Request Failed: {} {}", url, statusCode);
         return null;
     }
 }

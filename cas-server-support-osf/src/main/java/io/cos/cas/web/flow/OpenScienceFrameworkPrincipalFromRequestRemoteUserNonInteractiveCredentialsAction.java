@@ -21,6 +21,7 @@ package io.cos.cas.web.flow;
 
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.util.AbstractApiEndpointUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.types.DelegationProtocol;
@@ -190,10 +191,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             return error();
         }
 
-        // PAC4J OAuth needs to retain existing credential/tgt for special case login w/ email request on OSF side,
-        // send tgt on success is the most appropriate next step.
-        if (DelegationProtocol.OAUTH_PAC4J.equals(credential.getDelegationProtocol())) {
-            return success();
+        // For external IdPs such as ORCiD which use OAUTH_PAC4J and do not release email, credential.isRemotePrincipal()
+        // is false. Redirect to account flow for user to submit their email.
+        if (DelegationProtocol.OAUTH_PAC4J.equals(credential.getDelegationProtocol()) && !credential.isRemotePrincipal()) {
+            context.getFlowScope().put("credential", credential);
+            context.getFlowScope().put("createOrLinkOsfAccountUrl", apiEndpointHandler.getCasCreateOrLinkOsfAccountUrl());
+            return new Event(this, "createOrLink");
         }
 
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
@@ -328,7 +331,20 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
             if (OrcidClient.class.getSimpleName().equals(clientName)) {
                 credential.setDelegationProtocol(DelegationProtocol.OAUTH_PAC4J);
-                credential.setRemotePrincipal(Boolean.TRUE);
+                credential.setNonInstitutionExternalId(principal.getId());
+                for (final Map.Entry<String, Object> entry : principal.getAttributes().entrySet()) {
+                    credential.getDelegationAttributes().put(entry.getKey(), (String) entry.getValue().toString());
+                }
+                final PrincipalAuthenticationResult remoteUserInfo
+                        = notifyNonInstitutionRemotePrincipalAuthenticated(credential);
+                if (remoteUserInfo != null) {
+                    credential.setUsername(remoteUserInfo.getUsername());
+                    credential.setRemotePrincipal(Boolean.TRUE);
+                } else {
+                    credential.setRemotePrincipal(Boolean.FALSE);
+                }
+                // clean up the tgt from pac4j
+                this.centralAuthenticationService.destroyTicketGrantingTicket(ticketGrantingTicketId);
                 return credential;
             }
 
@@ -358,6 +374,61 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             return credential;
         }
         return null;
+    }
+
+    /**
+     * Securely notify the OSF API of a successful authentication from a Non-institution External ID Provider. Ask API
+     * whether a user with this external identity exists.
+     *
+     * @param credential the credential object bearing the authentication attributes from the external idp
+     * @return if user found, return the username and external ID, otherwise return null
+     * @throws AccountException if API request fails
+     */
+    private PrincipalAuthenticationResult notifyNonInstitutionRemotePrincipalAuthenticated(
+            final OpenScienceFrameworkCredential credential
+    ) throws AccountException {
+
+        final JSONObject user = new JSONObject();
+        final JSONObject data = new JSONObject();
+
+        user.put("externalIdWithProvider", credential.getNonInstitutionExternalId());
+        data.put("type", "NON_INSTITUTION_EXTERNAL_AUTHENTICATE");
+        data.put("user", user);
+
+        final JSONObject response = apiEndpointHandler.handle(
+                ApiEndpoint.AUTH_EXTERNAL,
+                apiEndpointHandler.encryptPayload("data", data.toString())
+        );
+
+        if (response != null) {
+            final int statusCode = response.getInt("status");
+            if (statusCode == HttpStatus.SC_OK) {
+                final JSONObject responseBody = response.getJSONObject("body");
+                if (responseBody != null && responseBody.has("username")) {
+                    final String username = responseBody.getString("username");
+                    logger.info(
+                            "External Identity Found in OSF: username = {}, externalIdWithProvider = {}",
+                            username,
+                            credential.getNonInstitutionExternalId()
+                    );
+                    return new PrincipalAuthenticationResult(username, credential.getNonInstitutionExternalId());
+                }
+            } else if (statusCode == HttpStatus.SC_FORBIDDEN || statusCode == HttpStatus.SC_UNAUTHORIZED) {
+                final String errorDetail = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
+                if (AbstractApiEndpointUtils.ACCOUNT_NOT_FOUND.equals(errorDetail)) {
+                    logger.info(
+                            "External Identity Not Found in OSF: externalIdWithProvider = {}",
+                            credential.getNonInstitutionExternalId()
+                    );
+                    return null;
+                }
+            }
+        }
+        logger.error(
+                "Notify Non-institution Remote Authenticated Exception: externalIdWithProvider = {}",
+                credential.getNonInstitutionExternalId()
+        );
+        throw new RemoteUserFailedLoginException("Notify Non-institution Remote Authenticated Exception");
     }
 
     /**
