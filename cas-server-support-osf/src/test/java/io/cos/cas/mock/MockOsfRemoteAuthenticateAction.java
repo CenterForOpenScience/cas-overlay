@@ -18,8 +18,9 @@ import javax.security.auth.login.AccountException;
 public class MockOsfRemoteAuthenticateAction
     extends OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction {
 
-    private static final String INSTITUTION_AUTH_URL = "http://institutionauth/";
     private static final String CAS_LOGIN_URL = "http://caslogin/";
+    private static final String CAS_CREATE_OR_LINK_ACCOUNT_URL = "http://casCreateOrLink/";
+    private static final String INSTITUTION_AUTH_URL = "http://institutionauth/";
     private static final String INSTITUTION_AUTH_JWE_SECRET = "osf_api_cas_login_jwe_secret_32b";
     private static final String INSTITUTION_AUTH_JWT_SECRET = "osf_api_cas_login_jwt_secret_32b";
     private static final String INSTITUTION_AUTH_XSL_LOCATION = "file:mock-institutions-auth.xsl";
@@ -32,8 +33,9 @@ public class MockOsfRemoteAuthenticateAction
         this.setCentralAuthenticationService(centralAuthenticationService);
         this.setApiEndpointHandler(
                 new ApiEndpointHandler(
-                        INSTITUTION_AUTH_URL,
                         CAS_LOGIN_URL,
+                        CAS_CREATE_OR_LINK_ACCOUNT_URL,
+                        INSTITUTION_AUTH_URL,
                         INSTITUTION_AUTH_JWE_SECRET,
                         INSTITUTION_AUTH_JWT_SECRET
                 )

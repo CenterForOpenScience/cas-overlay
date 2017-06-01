@@ -62,6 +62,7 @@
           p:apiEndpointHandler-ref="apiEndpointHandler" />
     <bean id="apiEndpointHandler" class="io.cos.cas.api.handler.ApiEndpointHandler"
           c:casLoginUrl="${cas.osf.login.absolute.url}"
+          c:casCreateOrLinkOsfAccountUrl="${cas.osf.createOrLinkOsfAccount.absolute.url}"
           c:apiCasEndpointUrl="${osf.api.cas.endpoint.url}"
           c:apiCasEndpointJweSecret="${osf.api.cas.endpoint.jweSecret}"
           c:apiCasEndpointJwtSecret="${osf.api.cas.endpoint.jwtSecret}" />

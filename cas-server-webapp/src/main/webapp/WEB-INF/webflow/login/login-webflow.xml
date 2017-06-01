@@ -98,7 +98,10 @@
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="authenticationFailure" to="handleAuthenticationFailure" />
         <transition on="error" to="beforeLogin" />
+        <transition on="createOrLink" to="viewCreateOrLinkOsfAccountRedirect" />
     </action-state>
+
+    <end-state id="viewCreateOrLinkOsfAccountRedirect" view="externalRedirect:#{flowScope.createOrLinkOsfAccountUrl}" />
 
     <action-state id="beforeLogin">
         <evaluate expression="loginHandler.beforeLogin(flowRequestContext)" />
