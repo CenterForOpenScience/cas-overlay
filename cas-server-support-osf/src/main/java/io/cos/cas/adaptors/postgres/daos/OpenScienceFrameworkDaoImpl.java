@@ -22,6 +22,7 @@ package io.cos.cas.adaptors.postgres.daos;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkEmail;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
@@ -30,7 +31,6 @@ import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -58,8 +58,13 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         this.entityManager = entityManager;
     }
 
-    @Override
-    public OpenScienceFrameworkUser findOneUserByUsername(final String username) {
+    /**
+     * Find one OSF User by username (primary email).
+     *
+     * @param username the username
+     * @return OpenScienceFrameworkUser or null
+     */
+    private OpenScienceFrameworkUser findOneUserByUsername(final String username) {
         try {
             final TypedQuery<OpenScienceFrameworkUser> query = entityManager.createQuery(
                     "select u from OpenScienceFrameworkUser u where u.username = :username",
@@ -72,27 +77,38 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
         }
     }
 
+    /**
+     * Find one OSF Email by email address.
+     *
+     * @param address the address
+     * @return OpenScienceFrameworkEmail or null
+     */
+    private OpenScienceFrameworkEmail findOneEmailByAddress(final String address) {
+
+        try {
+            final TypedQuery<OpenScienceFrameworkEmail> query = entityManager.createQuery(
+                    "select e from OpenScienceFrameworkEmail e where e.address = :address",
+                    OpenScienceFrameworkEmail.class
+            );
+            query.setParameter("address", address);
+            return query.getSingleResult();
+        } catch (final PersistenceException e) {
+            return null;
+        }
+    }
+
     @Override
-    public OpenScienceFrameworkUser findOneUserByEmail(final String email) {
+    public OpenScienceFrameworkUser findOneUserByEmail(final String address) {
 
         // check username (primary email) first
-        final OpenScienceFrameworkUser user = findOneUserByUsername(email);
+        final OpenScienceFrameworkUser user = findOneUserByUsername(address);
         if (user != null) {
             return user;
         }
 
-        // check emails
-        try {
-            // JPA Hibernate does not support postgres query array operations, use postgres native queries
-            // `query.setParameter()` does not work, use string concatenation instead
-            final Query query= entityManager.createNativeQuery(
-                    "select u.* from osf_osfuser u where u.emails @> '{" + email + "}'\\:\\:varchar[]",
-                    OpenScienceFrameworkUser.class
-            );
-            return (OpenScienceFrameworkUser) query.getSingleResult();
-        } catch (final PersistenceException e) {
-            return null;
-        }
+        // check osf email
+        final OpenScienceFrameworkEmail email = findOneEmailByAddress(address);
+        return email != null ? email.getUser() : null;
     }
 
     @Override

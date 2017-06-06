@@ -19,8 +19,6 @@
 
 package io.cos.cas.adaptors.postgres.models;
 
-import org.hibernate.annotations.Type;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -54,13 +52,6 @@ public final class OpenScienceFrameworkUser {
 
     @Column(name = "verification_key")
     private String verificationKey;
-
-    // JPA Hibernate does not have built-in type support for postgres arrays
-    // Use customized user type, must specify @Type and "columnDefinition" in @Column
-    // Type of return class is flexible, use String[] here.
-    @Type(type="io.cos.cas.adaptors.postgres.types.StringArrayUserType")
-    @Column(name = "emails", columnDefinition = "varchar[]", nullable = false)
-    private String[] emails;
 
     @OneToOne
     @JoinColumn(name = "merged_by_id")

@@ -38,14 +38,6 @@ import java.util.List;
 public interface OpenScienceFrameworkDao {
 
     /**
-     * Find one user by username (primary email).
-     *
-     * @param username the username
-     * @return OpenScienceFrameworkUser or null
-     */
-    OpenScienceFrameworkUser findOneUserByUsername(final String username);
-
-    /**
      * Find one user by user's emails, including username.
      *
      * @param email the user's email
