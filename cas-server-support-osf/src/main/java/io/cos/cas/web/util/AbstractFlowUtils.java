@@ -1,12 +1,16 @@
 package io.cos.cas.web.util;
 
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.web.flow.LoginManager;
 
 import org.jasig.cas.services.RegexRegisteredService;
 import org.jasig.cas.services.RegisteredServiceProperty;
 
+import org.jasig.cas.web.support.WebUtils;
 import org.springframework.webflow.execution.RequestContext;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -46,6 +50,43 @@ public abstract class AbstractFlowUtils {
     public static void putLoginManagerToRequestContext(final RequestContext context, final LoginManager manager) {
         if (manager != null) {
             context.getFlowScope().put(LoginManager.ATTRIBUTE_NAME, manager.toJson());
+        }
+    }
+
+    /**
+     * Get the OSF Credential From Session Scope in Request Context.
+     *
+     * @param context the request context
+     * @return an instance of Open Science Framework Credential
+     */
+    public static OpenScienceFrameworkCredential getCredentialFromSessionScope(final RequestContext context) {
+        final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
+        if (request != null) {
+            final HttpSession session = request.getSession();
+            if (session != null) {
+                return (OpenScienceFrameworkCredential) session.getAttribute("credential");
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Put the OSF Credential To Session Scope in Request Context.
+     *
+     * @param context the request context
+     * @param credential the OSF credential
+     */
+    public static void clearAndPutCredentialToSessionScope(
+            final RequestContext context,
+            final OpenScienceFrameworkCredential credential
+    ) {
+        final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
+        if (request != null) {
+            final HttpSession session = request.getSession();
+            if (session != null) {
+                session.removeAttribute("credential");
+                session.setAttribute("credential", credential);
+            }
         }
     }
 

@@ -25,6 +25,7 @@ import io.cos.cas.api.util.AbstractApiEndpointUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.types.DelegationProtocol;
+import io.cos.cas.web.util.AbstractFlowUtils;
 import io.cos.pac4j.oauth.client.OrcidClient;
 
 import org.apache.http.HttpStatus;
@@ -37,6 +38,7 @@ import org.jasig.cas.authentication.principal.DefaultPrincipalFactory;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.PrincipalFactory;
 import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketException;
@@ -106,21 +108,40 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
     public static class PrincipalAuthenticationResult {
 
         private String username;
+        private String institutionProvider;
+        private String externalIdProvider;
         private String externalId;
 
         /**
          * Instantiate Principal Authentication Result.
          *
          * @param username the username
-         * @param externalId the external id, either the institution id or non-institution external id (e.g. ORCiD ID)
+         * @param institutionProvider the institution provider id
+         * @param externalIdProvider the external provider id
+         * @param externalId the external id
          */
-        public PrincipalAuthenticationResult(final String username, final String externalId) {
+        public PrincipalAuthenticationResult(
+                final String username,
+                final String institutionProvider,
+                final String externalIdProvider,
+                final String externalId
+        ) {
             this.username = username;
+            this.institutionProvider = institutionProvider;
+            this.externalIdProvider = externalIdProvider;
             this.externalId = externalId;
         }
 
         public String getUsername() {
             return username;
+        }
+
+        public String getInstitutionProvider() {
+            return institutionProvider;
+        }
+
+        public String getExternalIdProvider() {
+            return externalIdProvider;
         }
 
         public String getExternalId() {
@@ -194,8 +215,13 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         // For external IdPs such as ORCiD which use OAUTH_PAC4J and do not release email, credential.isRemotePrincipal()
         // is false. Redirect to account flow for user to submit their email.
         if (DelegationProtocol.OAUTH_PAC4J.equals(credential.getDelegationProtocol()) && !credential.isRemotePrincipal()) {
-            context.getFlowScope().put("credential", credential);
-            context.getFlowScope().put("createOrLinkOsfAccountUrl", apiEndpointHandler.getCasCreateOrLinkOsfAccountUrl());
+            final String originalServiceUrl = ((SimpleWebApplicationServiceImpl) context.getFlowScope().get("service")).getOriginalUrl();
+            final String createOrLinkOsfAccountUrl = apiEndpointHandler.getCasCreateOrLinkOsfAccountUrl()
+                    + "service="
+                    + originalServiceUrl;
+
+            AbstractFlowUtils.clearAndPutCredentialToSessionScope(context, credential);
+            context.getFlowScope().put("createOrLinkOsfAccountUrl", createOrLinkOsfAccountUrl);
             return new Event(this, "createOrLink");
         }
 
@@ -299,7 +325,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             final PrincipalAuthenticationResult remoteUserInfo
                     = notifyRemotePrincipalAuthenticated(credential);
             credential.setUsername(remoteUserInfo.getUsername());
-            credential.setInstitutionId(remoteUserInfo.getExternalId());
+            credential.setInstitutionId(remoteUserInfo.getInstitutionProvider());
             return credential;
         } else if (ticketGrantingTicketId != null) {
             // pac4j login
@@ -341,6 +367,8 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                     credential.setUsername(remoteUserInfo.getUsername());
                     credential.setRemotePrincipal(Boolean.TRUE);
                 } else {
+                    credential.setNonInstitutionExternalIdProvider("ORCID");
+                    credential.setNonInstitutionExternalId(credential.getNonInstitutionExternalId().split("#")[1].trim());
                     credential.setRemotePrincipal(Boolean.FALSE);
                 }
                 // clean up the tgt from pac4j
@@ -362,7 +390,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                     = notifyRemotePrincipalAuthenticated(credential);
 
             credential.setUsername(remoteUserInfo.getUsername());
-            credential.setInstitutionId(remoteUserInfo.getExternalId());
+            credential.setInstitutionId(remoteUserInfo.getInstitutionProvider());
 
             // We create a new tgt w/ the osf specific credential, cleanup the existing one from pac4j.
             this.centralAuthenticationService.destroyTicketGrantingTicket(ticketGrantingTicketId);
@@ -411,7 +439,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                             username,
                             credential.getNonInstitutionExternalId()
                     );
-                    return new PrincipalAuthenticationResult(username, credential.getNonInstitutionExternalId());
+                    return new PrincipalAuthenticationResult(
+                            username,
+                            null,
+                            credential.getNonInstitutionExternalIdProvider(),
+                            credential.getNonInstitutionExternalId()
+                    );
                 }
             } else if (statusCode == HttpStatus.SC_FORBIDDEN || statusCode == HttpStatus.SC_UNAUTHORIZED) {
                 final String errorDetail = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
@@ -464,7 +497,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                          statusCode
                  );
                  if (statusCode == HttpStatus.SC_NO_CONTENT) {
-                     return new PrincipalAuthenticationResult(username, institutionId);
+                     return new PrincipalAuthenticationResult(username, institutionId, null, null);
                  }
              }
              throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");

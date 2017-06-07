@@ -5,6 +5,7 @@ import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.type.ApiEndpoint;
 
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import org.apache.http.HttpStatus;
 
 import org.json.JSONObject;
@@ -48,13 +49,23 @@ public class FindAccountAction {
         final String serviceUrl = AbstractAccountFlowUtils.getEncodedServiceUrl(requestContext);
         final String target = AbstractAccountFlowUtils.getTargetFromRequestContext(requestContext);
         final String campaign = AbstractAccountFlowUtils.getCampaignFromRegisteredService(requestContext);
+        final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
+        final boolean externalIdRegisterEmail = credential != null
+                && credential.getNonInstitutionExternalIdProvider() != null
+                && credential.getNonInstitutionExternalId() != null
+                && !credential.isRemotePrincipal();
 
-        if (verifyTargetAction(target)) {
+        if (externalIdRegisterEmail) {
             final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
             requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
             return new Event(this, "success");
+        } else if (verifyTargetAction(target)) {
+            final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
+            requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
+            return new Event(this, "success");
+        } else {
+            return new Event(this, "error");
         }
-        return new Event(this, "error");
     }
 
     /**
@@ -71,26 +82,43 @@ public class FindAccountAction {
             final MessageContext messageContext
     ) {
         final AccountManager accountManager = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
+        final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
+        final boolean externalIdRegisterEmail = credential != null
+                && credential.getNonInstitutionExternalIdProvider() != null
+                && credential.getNonInstitutionExternalId() != null
+                && !credential.isRemotePrincipal();
         String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
-        if (accountManager != null && verifyTargetAction(accountManager.getTarget())) {
+        if (accountManager != null && (externalIdRegisterEmail || verifyTargetAction(accountManager.getTarget()))) {
 
+            ApiEndpoint endpoint;
             final JSONObject user = new JSONObject();
             final JSONObject data = new JSONObject();
-
             user.put("email", findAccountForm.getEmail());
-            data.put("type", NAME + "_FOR_" + accountManager.getTarget().toUpperCase());
+
+            if (externalIdRegisterEmail) {
+                endpoint = ApiEndpoint.AUTH_EXTERNAL_CREATE_OR_LINK;
+                user.put("externalIdProvider", credential.getNonInstitutionExternalIdProvider());
+                user.put("externalId", credential.getNonInstitutionExternalId());
+                user.put("delegationAttributes", credential.getDelegationAttributes());
+                data.put("type", "EXTERNAL_AUTHENTICATE_CREATE_OR_LINK");
+                findAccountForm.setExternalIdProvider(credential.getNonInstitutionExternalIdProvider());
+                findAccountForm.setExternalId(credential.getNonInstitutionExternalId());
+            } else {
+                endpoint = ApiEndpoint.SERVICE_FIND_ACCOUNT;
+                data.put("type", NAME + "_FOR_" + accountManager.getTarget().toUpperCase());
+            }
             data.put("user", user);
 
             final JSONObject response = apiEndpointHandler.handle(
-                    ApiEndpoint.SERVICE_FIND_ACCOUNT,
+                    endpoint,
                     apiEndpointHandler.encryptPayload("data", data.toString())
             );
 
             if (response != null) {
                 final int status = response.getInt("status");
                 if (status == HttpStatus.SC_NO_CONTENT) {
-                    if (VerifyEmailAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
+                    if (externalIdRegisterEmail || VerifyEmailAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
                         accountManager.setAction(VerifyEmailAction.NAME);
                         accountManager.setEmailToVerify(findAccountForm.getEmail());
                     } else if (ResetPasswordAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {

@@ -16,6 +16,10 @@ public class FindAccountFormBean implements Serializable {
 
     private String email;
 
+    private String externalIdProvider;
+
+    private String externalId;
+
     public String getAction() {
         return action;
     }
@@ -30,5 +34,21 @@ public class FindAccountFormBean implements Serializable {
 
     public void setEmail(final String email) {
         this.email = email.trim().toLowerCase();
+    }
+
+    public String getExternalIdProvider() {
+        return externalIdProvider;
+    }
+
+    public void setExternalIdProvider(final String externalIdProvider) {
+        this.externalIdProvider = externalIdProvider;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(final String externalId) {
+        this.externalId = externalId;
     }
 }
