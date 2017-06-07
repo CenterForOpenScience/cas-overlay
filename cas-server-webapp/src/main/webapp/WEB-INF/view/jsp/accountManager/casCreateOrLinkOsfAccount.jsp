@@ -26,6 +26,10 @@
         <c:set var="externalIdP" value="${credential.getNonInstitutionExternalIdProvider()}"/>
         <c:set var="externalId" value="${credential.getNonInstitutionExternalId()}" />
 
+        <div id="msg" class="success">
+            <p><spring:message code="screen.externalAuthRegister.success.message" arguments="${externalIdP}" /></p>
+        </div>
+
         <h2><spring:message code="screen.externalAuthRegister.header" arguments="${externalIdP}" /></h2>
         <p><spring:message code="screen.externalAuthRegister.message" arguments="${externalIdP}" /></p>
 
