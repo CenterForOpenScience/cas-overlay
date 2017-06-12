@@ -40,7 +40,7 @@ public enum ApiEndpoint {
     AUTH_EXTERNAL(ApiEndpoint.AUTH + "/external"),
 
     /** OSF Non-institution External Login: Create Or Link OSF Account. */
-    AUTH_EXTERNAL_CREATE_OR_LINK(ApiEndpoint.AUTH_EXTERNAL + "/createOrLink"),
+    AUTH_EXTERNAL_CREATE_OR_LINK(ApiEndpoint.AUTH_EXTERNAL.getId() + "/createOrLink"),
 
     /** Verify Email. */
     AUTH_VERIFY_EMAIL(ApiEndpoint.AUTH + "/verifyEmail"),

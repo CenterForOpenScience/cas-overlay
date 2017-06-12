@@ -100,8 +100,9 @@ public class FindAccountAction {
                 endpoint = ApiEndpoint.AUTH_EXTERNAL_CREATE_OR_LINK;
                 user.put("externalIdProvider", credential.getNonInstitutionExternalIdProvider());
                 user.put("externalId", credential.getNonInstitutionExternalId());
-                user.put("delegationAttributes", credential.getDelegationAttributes());
-                data.put("type", "EXTERNAL_AUTHENTICATE_CREATE_OR_LINK");
+                user.put("campaign", accountManager.getCampaign());
+                user.put("attributes", credential.getDelegationAttributes());
+                data.put("type", "CREATE_OR_LINK_OSF_ACCOUNT");
                 findAccountForm.setExternalIdProvider(credential.getNonInstitutionExternalIdProvider());
                 findAccountForm.setExternalId(credential.getNonInstitutionExternalId());
             } else {
@@ -124,6 +125,16 @@ public class FindAccountAction {
                     } else if (ResetPasswordAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
                         accountManager.setAction(ResetPasswordAction.NAME);
                         accountManager.setUsername(findAccountForm.getEmail());
+                    }
+                    AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
+                    return new Event(this, accountManager.getAction());
+                } else if (status == HttpStatus.SC_OK) {
+                    final JSONObject responseBody = response.getJSONObject("body");
+                    if (responseBody != null && responseBody.has("createOrLink")) {
+                       final String createOrLink = responseBody.getString("createOrLink");
+                        accountManager.setAction(VerifyEmailAction.NAME);
+                        accountManager.setEmailToVerify(findAccountForm.getEmail());
+                        accountManager.setTarget(createOrLink);
                     }
                     AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
                     return new Event(this, accountManager.getAction());

@@ -38,7 +38,7 @@
 
     <action-state id="registerEmail">
         <evaluate expression="findAccountAction.submitForm(flowRequestContext, flowScope.findAccountFormBean, messageContext)" />
-        <transition on="success" to="viewVerifyEmailPage"/>
+        <transition on="VERIFY_EMAIL" to="viewVerifyEmailPage"/>
         <transition on="error" to="viewManagerException"/>
     </action-state>
 

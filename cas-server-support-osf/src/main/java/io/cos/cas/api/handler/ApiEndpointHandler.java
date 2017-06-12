@@ -162,8 +162,6 @@ public class ApiEndpointHandler {
     public JSONObject handle(final ApiEndpoint endpoint, final String payload) {
 
         final String url = apiCasEndpointUrl + endpoint.getId() + '/';
-        LOGGER.info("Making API Request {}.", url);
-
         final HttpResponse response = makeApiRequest(url, payload);
         if (response != null) {
             final JSONObject parsedResponse = parseApiResponse(url, response);

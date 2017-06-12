@@ -23,12 +23,23 @@
 <div id="login" style="width: 100%;">
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
+        <c:set var="externalIdP" value="${credential.getNonInstitutionExternalIdProvider()}"/>
+        <c:set var="externalId" value="${credential.getNonInstitutionExternalId()}" />
+
         <div id="msg" class="success">
             <c:if test="${flowExecutionUrl.contains('/account/register?')}">
                 <p><spring:message code="screen.verifyEmail.register.success.message" /></p>
             </c:if>
             <c:if test="${flowExecutionUrl.contains('/account/findAccount?')}">
                 <p><spring:message code="screen.verifyEmail.resend.success.message" /></p>
+            </c:if>
+            <c:if test="${flowExecutionUrl.contains('/account/createOrLinkOsfAccount?')}">
+                <c:if test="${accountManagerContext.getTarget() == 'CREATE'}">
+                    <p><spring:message code="screen.verifyEmail.externalAuthCreate.success.message" arguments="${externalIdP}" /></p>
+                </c:if>
+                <c:if test="${accountManagerContext.getTarget() == 'LINK'}">
+                    <p><spring:message code="screen.verifyEmail.externalAuthLink.success.message" arguments="${externalIdP}"/></p>
+                </c:if>
             </c:if>
         </div>
 

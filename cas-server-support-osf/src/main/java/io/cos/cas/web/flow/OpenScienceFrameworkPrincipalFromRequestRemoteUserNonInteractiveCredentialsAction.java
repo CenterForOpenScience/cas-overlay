@@ -420,7 +420,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         final JSONObject data = new JSONObject();
 
         user.put("externalIdWithProvider", credential.getNonInstitutionExternalId());
-        data.put("type", "NON_INSTITUTION_EXTERNAL_AUTHENTICATE");
+        data.put("type", "EXTERNAL_AUTHENTICATE");
         data.put("user", user);
 
         final JSONObject response = apiEndpointHandler.handle(
