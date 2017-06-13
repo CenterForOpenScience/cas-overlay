@@ -61,7 +61,11 @@ public class VerifyEmailAction {
 
             user.put("email", verifyEmailForm.getEmailToVerify());
             user.put("verificationCode", verifyEmailForm.getVerificationCode());
-            data.put("type", NAME);
+            if (accountManager.getTarget() != null) {
+                data.put("type", NAME + "_EXTERNAL");
+            } else {
+                data.put("type", NAME);
+            }
             data.put("user", user);
 
             final JSONObject response = apiEndpointHandler.handle(

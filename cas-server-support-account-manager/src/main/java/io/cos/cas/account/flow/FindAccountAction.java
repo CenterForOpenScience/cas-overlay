@@ -122,9 +122,11 @@ public class FindAccountAction {
                     if (externalIdRegisterEmail || VerifyEmailAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
                         accountManager.setAction(VerifyEmailAction.NAME);
                         accountManager.setEmailToVerify(findAccountForm.getEmail());
+                        accountManager.setTarget(null);
                     } else if (ResetPasswordAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
                         accountManager.setAction(ResetPasswordAction.NAME);
                         accountManager.setUsername(findAccountForm.getEmail());
+                        accountManager.setTarget(null);
                     }
                     AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
                     return new Event(this, accountManager.getAction());
@@ -138,7 +140,7 @@ public class FindAccountAction {
                     }
                     AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
                     return new Event(this, accountManager.getAction());
-                } else if (status == HttpStatus.SC_FORBIDDEN) {
+                } else if (status == HttpStatus.SC_FORBIDDEN || status == HttpStatus.SC_UNAUTHORIZED) {
                     errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
                 }
             }

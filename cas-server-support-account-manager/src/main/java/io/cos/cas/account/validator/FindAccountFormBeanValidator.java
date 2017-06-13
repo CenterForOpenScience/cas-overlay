@@ -45,4 +45,34 @@ public class FindAccountFormBeanValidator {
             );
         }
     }
+
+    /**
+     * The Validator for View State: viewExternalAuthRegisterPage.
+     *
+     * @param findAccountForm the find account form
+     * @param context the validation context
+     */
+    public void validateViewExternalAuthRegisterPage(
+            final FindAccountFormBean findAccountForm,
+            final ValidationContext context
+    ) {
+        final MessageContext messageContext = context.getMessageContext();
+        final EmailValidator emailValidator = new EmailValidator();
+
+        if (findAccountForm.getAction() == null || !findAccountForm.getAction().equalsIgnoreCase(FindAccountAction.NAME)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("action").defaultText(AbstractAccountFlowUtils.DEFAULT_CLIENT_ERROR_MESSAGE).build()
+            );
+        }
+
+        if (findAccountForm.getEmail() == null || findAccountForm.getEmail().isEmpty()) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("email").defaultText("Please enter your email.").build()
+            );
+        } else if (!emailValidator.isValid(findAccountForm.getEmail(), null)) {
+            messageContext.addMessage(
+                    new MessageBuilder().error().source("email").defaultText("Please enter a valid email.").build()
+            );
+        }
+    }
 }
