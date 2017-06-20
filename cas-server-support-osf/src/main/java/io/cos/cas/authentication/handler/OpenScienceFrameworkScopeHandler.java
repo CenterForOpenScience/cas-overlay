@@ -42,6 +42,8 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkScopeHandler.class);
 
+    private static final String SERVICE_TYPE = "OAUTH_SCOPE";
+
     @NotNull
     private ApiEndpointHandler apiEndpointHandler;
 
@@ -54,9 +56,11 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
     @Override
     public Scope getScope(final String scopeName) {
 
-        final JSONObject data = new JSONObject().put("scopeName", scopeName);
+        final JSONObject data = new JSONObject();
+        data.put("serviceType", SERVICE_TYPE);
+        data.put("scopeName", scopeName);
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.SERVICE_CHECK_OAUTH_SCOPE,
+                ApiEndpoint.SERVICE_OAUTH_SCOPE,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 

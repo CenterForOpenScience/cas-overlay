@@ -27,46 +27,55 @@ package io.cos.cas.api.type;
  */
 public enum ApiEndpoint {
 
-    /** OSF Default Login. */
-    AUTH_LOGIN(ApiEndpoint.AUTH + "/login"),
+    /** Default Login through OSF. */
+    LOGIN_OSF(ApiEndpoint.LOGIN + "/osf"),
 
-    /** OSF Account Creation. */
-    AUTH_REGISTER(ApiEndpoint.AUTH + "/register"),
+    /** Login through Institution. */
+    LOGIN_INSTITUTION(ApiEndpoint.LOGIN + "/institution"),
 
-    /** OSF Institution Login. */
-    AUTH_INSTITUTION(ApiEndpoint.AUTH + "/institution"),
+    /** Login through External IdP. */
+    LOGIN_EXTERNAL(ApiEndpoint.LOGIN + "/external"),
 
-    /** OSF Non-institution External Login. */
-    AUTH_EXTERNAL(ApiEndpoint.AUTH + "/external"),
+    /** Account Creation through OSF. */
+    ACCOUNT_REGISTER_OSF(ApiEndpoint.ACCOUNT + "/register/osf"),
 
-    /** OSF Non-institution External Login: Create Or Link OSF Account. */
-    AUTH_EXTERNAL_CREATE_OR_LINK(ApiEndpoint.AUTH_EXTERNAL.getId() + "/createOrLink"),
+    /** Default Account Verification. */
+    ACCOUNT_VERIFY_OSF(ApiEndpoint.ACCOUNT + "/verify/osf"),
 
-    /** Verify Email. */
-    AUTH_VERIFY_EMAIL(ApiEndpoint.AUTH + "/verifyEmail"),
+    /** Default Account Verification: Resend Email. */
+    ACCOUNT_VERIFY_OSF_RESEND(ApiEndpoint.ACCOUNT + "/verify/resend"),
 
-    /** Reset Password. */
-    AUTH_RESET_PASSWORD(ApiEndpoint.AUTH + "/resetPassword"),
+    /** Account Creation Or Link through External IdP. */
+    ACCOUNT_REGISTER_EXTERNAL(ApiEndpoint.ACCOUNT + "/register/external"),
 
-    /** Load Developer Applications as Registered Services. */
-    SERVICE_LOAD_DEVELOPER_APPS(ApiEndpoint.SERVICE + "/loadDeveloperApps"),
+    /** Account Verification: Create Or Link OSF Account. */
+    ACCOUNT_VERIFY_EXTERNAL(ApiEndpoint.ACCOUNT + "/verify/external"),
+
+    /** Account Password Manager: Forgot Password. */
+    ACCOUNT_PASSWORD_FORGOT(ApiEndpoint.ACCOUNT + "/password/forgot"),
+
+    /** Account Password Manager: Reset Password. */
+    ACCOUNT_PASSWORD_RESET(ApiEndpoint.ACCOUNT + "/password/reset"),
 
     /** Load OSF Institutions as Registered Services. */
-    SERVICE_LOAD_INSTITUTIONS(ApiEndpoint.SERVICE + "/loadInstitutions"),
+    SERVICE_INSTITUTIONS(ApiEndpoint.SERVICE + "/institutions"),
 
-    /** Find OSF Account by Email. */
-    SERVICE_FIND_ACCOUNT(ApiEndpoint.SERVICE + "/findAccount"),
+    /** Load Developer Applications as Registered Services. */
+    SERVICE_OAUTH_APPS(ApiEndpoint.SERVICE + "/oauth/apps"),
 
     /** Personal Access Token. */
-    SERVICE_CHECK_PERSONAL_ACCESS_TOKEN(ApiEndpoint.SERVICE + "/checkPAT"),
+    SERVICE_OAUTH_TOKEN(ApiEndpoint.SERVICE + "/oauth/token"),
 
     /** OAuth Scopes. */
-    SERVICE_CHECK_OAUTH_SCOPE(ApiEndpoint.SERVICE + "/checkOauthScope");
+    SERVICE_OAUTH_SCOPE(ApiEndpoint.SERVICE + "/oauth/scope");
 
-    /** Prefix for Authentication Endpoints. */
-    private static final String AUTH = "auth";
+    /** Prefix for Login Endpoints. */
+    private static final String LOGIN = "login";
 
-    /** Prefix for Service (Non-authentication) Endpoints. */
+    /** Prefix for Account Endpoints. */
+    private static final String ACCOUNT = "account";
+
+    /** Prefix for Service Endpoints. */
     private static final String SERVICE = "service";
 
     /** The id of the API Endpoint as a String. */

@@ -60,14 +60,14 @@ public class ResetPasswordAction {
             final JSONObject user = new JSONObject();
             final JSONObject data = new JSONObject();
 
+            data.put("accountAction", "PASSWORD_RESET");
             user.put("email", resetPasswordForm.getUsername());
             user.put("verificationCode", resetPasswordForm.getVerificationCode());
             user.put("password", resetPasswordForm.getNewPassword());
-            data.put("type", NAME);
             data.put("user", user);
 
             final JSONObject response = apiEndpointHandler.handle(
-                    ApiEndpoint.AUTH_RESET_PASSWORD,
+                    ApiEndpoint.ACCOUNT_PASSWORD_RESET,
                     apiEndpointHandler.encryptPayload("data", data.toString())
             );
 

@@ -420,11 +420,11 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         final JSONObject data = new JSONObject();
 
         user.put("externalIdWithProvider", credential.getNonInstitutionExternalId());
-        data.put("type", "EXTERNAL_AUTHENTICATE");
+        data.put("loginType", "EXTERNAL");
         data.put("user", user);
 
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.AUTH_EXTERNAL,
+                ApiEndpoint.LOGIN_EXTERNAL,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 
@@ -477,7 +477,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      ) throws AccountException {
          try {
              final JSONObject normalizedPayload = this.normalizeRemotePrincipal(credential);
-             normalizedPayload.put("type", "INSTITUTION_AUTHENTICATE");
+             normalizedPayload.put("loginType", "INSTITUTION");
 
              final JSONObject provider = normalizedPayload.getJSONObject("provider");
              final String institutionId = provider.getString("id");
@@ -487,7 +487,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
              final String encryptedPayload
                      = apiEndpointHandler.encryptPayload("data", normalizedPayload.toString());
              final JSONObject response
-                     = apiEndpointHandler.handle(ApiEndpoint.AUTH_INSTITUTION, encryptedPayload);
+                     = apiEndpointHandler.handle(ApiEndpoint.LOGIN_INSTITUTION, encryptedPayload);
 
              if (response != null) {
                  final int statusCode = response.getInt("status");

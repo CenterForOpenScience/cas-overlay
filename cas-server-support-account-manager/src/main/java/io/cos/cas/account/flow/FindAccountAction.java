@@ -92,22 +92,29 @@ public class FindAccountAction {
         if (accountManager != null && (externalIdRegisterEmail || verifyTargetAction(accountManager.getTarget()))) {
 
             ApiEndpoint endpoint;
+            final String targetAction = accountManager.getTarget();
             final JSONObject user = new JSONObject();
             final JSONObject data = new JSONObject();
             user.put("email", findAccountForm.getEmail());
 
             if (externalIdRegisterEmail) {
-                endpoint = ApiEndpoint.AUTH_EXTERNAL_CREATE_OR_LINK;
+                endpoint = ApiEndpoint.ACCOUNT_REGISTER_EXTERNAL;
+                data.put("accountAction", "REGISTER_EXTERNAL");
                 user.put("externalIdProvider", credential.getNonInstitutionExternalIdProvider());
                 user.put("externalId", credential.getNonInstitutionExternalId());
                 user.put("campaign", accountManager.getCampaign());
                 user.put("attributes", credential.getDelegationAttributes());
-                data.put("type", "CREATE_OR_LINK_OSF_ACCOUNT");
                 findAccountForm.setExternalIdProvider(credential.getNonInstitutionExternalIdProvider());
                 findAccountForm.setExternalId(credential.getNonInstitutionExternalId());
+            } else if (ResetPasswordAction.NAME.equalsIgnoreCase(targetAction)){
+                endpoint = ApiEndpoint.ACCOUNT_PASSWORD_FORGOT;
+                data.put("accountAction", "PASSWORD_FORGOT");
+            } else if (VerifyEmailAction.NAME.equalsIgnoreCase(targetAction)) {
+                endpoint = ApiEndpoint.ACCOUNT_VERIFY_OSF_RESEND;
+                data.put("accountAction", "VERIFY_OSF_RESEND");
             } else {
-                endpoint = ApiEndpoint.SERVICE_FIND_ACCOUNT;
-                data.put("type", NAME + "_FOR_" + accountManager.getTarget().toUpperCase());
+                messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
+                return new Event(this, "error");
             }
             data.put("user", user);
 
@@ -119,21 +126,26 @@ public class FindAccountAction {
             if (response != null) {
                 final int status = response.getInt("status");
                 if (status == HttpStatus.SC_NO_CONTENT) {
-                    if (externalIdRegisterEmail || VerifyEmailAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
+                    if (VerifyEmailAction.NAME.equalsIgnoreCase(targetAction)) {
                         accountManager.setAction(VerifyEmailAction.NAME);
                         accountManager.setEmailToVerify(findAccountForm.getEmail());
                         accountManager.setTarget(null);
-                    } else if (ResetPasswordAction.NAME.equalsIgnoreCase(accountManager.getTarget())) {
+                    } else if (ResetPasswordAction.NAME.equalsIgnoreCase(targetAction)) {
                         accountManager.setAction(ResetPasswordAction.NAME);
                         accountManager.setUsername(findAccountForm.getEmail());
                         accountManager.setTarget(null);
+                    } else {
+                        messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
+                        return new Event(this, "error");
                     }
                     AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
                     return new Event(this, accountManager.getAction());
                 } else if (status == HttpStatus.SC_OK) {
                     final JSONObject responseBody = response.getJSONObject("body");
-                    if (responseBody != null && responseBody.has("createOrLink")) {
-                       final String createOrLink = responseBody.getString("createOrLink");
+                    if (responseBody != null && responseBody.has("username") && responseBody.has("createOrLink")) {
+                        final String username = responseBody.getString("username");
+                        final String createOrLink = responseBody.getString("createOrLink");
+                        accountManager.setUsername(username);
                         accountManager.setAction(VerifyEmailAction.NAME);
                         accountManager.setEmailToVerify(findAccountForm.getEmail());
                         accountManager.setTarget(createOrLink);

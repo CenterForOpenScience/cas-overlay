@@ -113,12 +113,12 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         user.put("verificationKey", verificationKey);
         user.put("remoteAuthenticated", credential.isRemotePrincipal());
         user.put("oneTimePassword", oneTimePassword);
-        data.put("type", "LOGIN");
+        data.put("loginType", "OSF");
         data.put("user", user);
         payload.put("data", data);
 
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.AUTH_LOGIN,
+                ApiEndpoint.LOGIN_OSF,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 

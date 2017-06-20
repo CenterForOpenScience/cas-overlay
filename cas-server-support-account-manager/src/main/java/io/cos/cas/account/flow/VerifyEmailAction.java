@@ -58,18 +58,22 @@ public class VerifyEmailAction {
 
             final JSONObject user = new JSONObject();
             final JSONObject data = new JSONObject();
+            ApiEndpoint endpoint;
 
+            if (accountManager.getTarget() != null) {
+                endpoint = ApiEndpoint.ACCOUNT_VERIFY_EXTERNAL;
+                data.put("accountAction", "VERIFY_EXTERNAL");
+            } else {
+
+                endpoint = ApiEndpoint.ACCOUNT_VERIFY_OSF;
+                data.put("accountAction", "VERIFY_OSF");
+            }
             user.put("email", verifyEmailForm.getEmailToVerify());
             user.put("verificationCode", verifyEmailForm.getVerificationCode());
-            if (accountManager.getTarget() != null) {
-                data.put("type", NAME + "_EXTERNAL");
-            } else {
-                data.put("type", NAME);
-            }
             data.put("user", user);
 
             final JSONObject response = apiEndpointHandler.handle(
-                    ApiEndpoint.AUTH_VERIFY_EMAIL,
+                    endpoint,
                     apiEndpointHandler.encryptPayload("data", data.toString())
             );
 

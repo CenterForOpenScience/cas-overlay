@@ -45,6 +45,8 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkPersonalAccessTokenHandler.class);
 
+    private static final String SERVICE_TYPE = "OAUTH_TOKEN";
+
     @NotNull
     private ApiEndpointHandler apiEndpointHandler;
 
@@ -58,9 +60,11 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
     @Override
     public PersonalAccessToken getToken(final String tokenId) {
 
-        final JSONObject data = new JSONObject().put("tokenId", tokenId);
+        final JSONObject data = new JSONObject();
+        data.put("serviceType", SERVICE_TYPE);
+        data.put("tokenId", tokenId);
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.SERVICE_CHECK_PERSONAL_ACCESS_TOKEN,
+                ApiEndpoint.SERVICE_OAUTH_TOKEN,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 

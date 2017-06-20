@@ -64,15 +64,15 @@ public class RegisterAction {
         final JSONObject user = new JSONObject();
         final JSONObject data = new JSONObject();
 
+        data.put("accountAction", "REGISTER_OSF");
         user.put("fullname", registerForm.getFullname());
         user.put("email", registerForm.getEmail());
         user.put("password", registerForm.getPassword());
         user.put("campaign", registerForm.getCampaign());
-        data.put("type", NAME.toUpperCase());
         data.put("user", user);
 
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.AUTH_REGISTER,
+                ApiEndpoint.ACCOUNT_REGISTER_OSF,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 
