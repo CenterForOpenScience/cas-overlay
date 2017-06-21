@@ -68,6 +68,9 @@ public class ApiEndpointHandler {
     private static final int SIXTY_SECONDS = 60 * 1000;
 
     @NotNull
+    private String osfCasActionUrl;
+
+    @NotNull
     private String casLoginUrl;
 
     @NotNull
@@ -85,6 +88,7 @@ public class ApiEndpointHandler {
     /**
      * Instantiates an instance of Open Science Framework API CAS Endpoint and set endpoint url.
      *
+     * @param osfCasActionUrl the OSF CAS Action URL
      * @param casLoginUrl the CAS login URL
      * @param casCreateOrLinkOsfAccountUrl the CAS account manager URL for create or link OSF account with external id
      * @param apiCasEndpointUrl the API CAS Endpoint URL
@@ -92,17 +96,23 @@ public class ApiEndpointHandler {
      * @param apiCasEndpointJwtSecret the Jwt Secret
      */
     public ApiEndpointHandler(
+            final String osfCasActionUrl,
             final String casLoginUrl,
             final String casCreateOrLinkOsfAccountUrl,
             final String apiCasEndpointUrl,
             final String apiCasEndpointJweSecret,
             final String apiCasEndpointJwtSecret
     ) {
+        this.osfCasActionUrl = osfCasActionUrl;
         this.casLoginUrl = casLoginUrl;
         this.casCreateOrLinkOsfAccountUrl = casCreateOrLinkOsfAccountUrl;
         this.apiCasEndpointUrl = apiCasEndpointUrl;
         this.apiCasEndpointJweSecret = apiCasEndpointJweSecret;
         this.apiCasEndpointJwtSecret = apiCasEndpointJwtSecret;
+    }
+
+    public String getOsfCasActionUrl() {
+        return osfCasActionUrl;
     }
 
     public String getCasLoginUrl() {

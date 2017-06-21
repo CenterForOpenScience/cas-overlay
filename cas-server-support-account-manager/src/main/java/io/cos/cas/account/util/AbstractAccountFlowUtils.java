@@ -53,6 +53,7 @@ public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
      * @param requestContext the request context
      * @param responseBody the response body
      * @param casLoginUrl the cas login url
+     * @param osfCasActionUrl the osf cas action url
      * @param username the username
      * @return <code>true</code> if response is valid, <code>false</code> otherwise
      */
@@ -60,15 +61,31 @@ public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
             final RequestContext requestContext,
             final JSONObject responseBody,
             final String casLoginUrl,
+            final String osfCasActionUrl,
             final String username
     ) {
-        if (responseBody != null && responseBody.has("verificationKey") && responseBody.has("serviceUrl")) {
+        if (responseBody != null
+                && responseBody.has("verificationKey")
+                && responseBody.has("userId")
+                && responseBody.has("casAction")
+                && responseBody.has("nextUrl")
+        ) {
+            final boolean nextUrl = responseBody.getBoolean("nextUrl");
+            String serviceUrl = String.format(
+                    "%s%s/?action=%s",
+                    osfCasActionUrl,
+                    responseBody.getString("userId"),
+                    responseBody.getString("casAction")
+            );
+            if (nextUrl) {
+                serviceUrl += String.format("&next=%s", getEncodedServiceUrl(requestContext));
+            }
             final String redirectUrl = String.format(
-                    "%sservice=%s&username=%s&verification_key=%s",
+                    "%susername=%s&verification_key=%s&service=%s",
                     casLoginUrl,
-                    encodeUrlParameter(responseBody.getString("serviceUrl")),
                     encodeUrlParameter(username),
-                    encodeUrlParameter(responseBody.getString("verificationKey"))
+                    encodeUrlParameter(responseBody.getString("verificationKey")),
+                    encodeUrlParameter(serviceUrl)
             );
             requestContext.getFlowScope().put("loginRedirectUrl", redirectUrl);
             return true;

@@ -78,6 +78,7 @@ public class ResetPasswordAction {
                             requestContext,
                             response.getJSONObject("body"),
                             apiEndpointHandler.getCasLoginUrl(),
+                            apiEndpointHandler.getOsfCasActionUrl(),
                             accountManager.getUsername()
                     )) {
                         return new Event(this, "redirect");
