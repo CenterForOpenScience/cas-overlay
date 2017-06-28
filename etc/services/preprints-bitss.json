@@ -5,7 +5,7 @@
   "description" : "",
   "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)(localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)bitss($|%2F|/).*",
   "evaluationOrder" : "1000",
-  "logo": "http://localhost:8080/images/preprints-bitss-logo.png",
+  "logo": "https://staging-cdn.osf.io/preprints-assets/bitss/square_color_no_transparent.png",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
     "allowedAttributes" : [
