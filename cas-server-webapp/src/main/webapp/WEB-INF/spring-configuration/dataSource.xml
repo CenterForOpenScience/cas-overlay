@@ -74,7 +74,6 @@
 
     <!-- Custom User Types -->
     <bean id="openScienceFrameWorkTypesStringList" class="io.cos.cas.adaptors.postgres.types.StringListUserType" />
-    <bean id="openScienceFrameWorkTypesStringArray" class="io.cos.cas.adaptors.postgres.types.StringArrayUserType" />
 
     <!-- OSF DAOS -->
     <bean id="openScienceFrameworkDao" class="io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl" />
