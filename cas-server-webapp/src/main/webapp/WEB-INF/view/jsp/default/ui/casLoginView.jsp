@@ -41,8 +41,8 @@
                         <td><span class="service-name">${registeredService.name}</span></td>
                     </c:if>
                     <c:if test="${not empty registeredService.logo && not empty registeredService.name}">
-                        <td><img id="service-logo" class="service-logo-${registeredService.name}" src="${registeredService.logo}"> </td>
-                        <td>&nbsp;&nbsp;&nbsp;</td>
+                        <td><img id="service-logo" src="${registeredService.logo}"> </td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                         <td><span class="service-name">${registeredService.name} Preprints</span></td>
                     </c:if>
                 </tr>
@@ -116,9 +116,8 @@
         <c:if test="${not empty registeredService}">
             <c:if test="${not empty registeredService.id &&
              registeredService.id == 983450982340993434 ||
-             registeredService.id == 203948234207230 || registeredService.id == 203948234207231 || registeredService.id == 203948234207232 || registeredService.id == 203948234207240 ||
-             registeredService.id == 203948234207241 || registeredService.id == 203948234207242 || registeredService.id == 203948234207243 || registeredService.id == 203948234207244 ||
-             registeredService.id == 203948234207245 || registeredService.id == 203948234207246}">
+             registeredService.id == 203948234207230 || registeredService.id == 203948234207231 || registeredService.id == 203948234207232 ||
+             ( registeredService.id >= 203948234207240 && registeredService.id <= 203948234207253 ) || registeredService.id == 203948234207340}">
                 <hr/>
 
                 <section class="row">
