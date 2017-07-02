@@ -396,29 +396,15 @@ footer a:link, footer a:visited {
 }
 
 #service-logo {
-  width: 75px;
+  width: 50px;
   text-align: center;
   vertical-align: middle;
 }
 
-#service-logo.service-logo-SocArXiv {
-  background: #e14b5a;
-}
-
-#service-logo.service-logo-engrXiv {
-  background: #222F38;
-}
-
-#service-logo.service-logo-PsyArXiv {
-  padding: 0 10px 0 10px;
-}
-
-#service-logo.service-logo-AgriXiv {
-  padding: 0 10px 0 10px;
-}
-
 #service-ui .service-logo-full {
-  width: 270px;
+  width: 250px;
+  text-align: center;
+  vertical-align: middle;
 }
 
 #service-ui table {
@@ -430,7 +416,7 @@ footer a:link, footer a:visited {
 }
 
 #service-ui .service-name {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: lighter;
   text-align: center;
   vertical-align: middle;
