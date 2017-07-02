@@ -21,8 +21,8 @@
                             <!--  Each institution has customized mapping of attributes  -->
                             <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
                             <fullname><xsl:value-of select="//attribute[@name='displayedName']/@value"/></fullname>
-                            <familyName><xsl:value-of select="//attribute[@name='givenName']/@value"/></familyName>
-                            <givenName><xsl:value-of select="//attribute[@name='sn']/@value"/></givenName>
+                            <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
+                            <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
                             <middleNames/>
                             <suffix/>
                         </user>
@@ -45,8 +45,8 @@
                             <!--  Each institution has customized mapping of attributes  -->
                             <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
                             <fullname><xsl:value-of select="//attribute[@name='displayedName']/@value"/></fullname>
-                            <familyName><xsl:value-of select="//attribute[@name='givenName']/@value"/></familyName>
-                            <givenName><xsl:value-of select="//attribute[@name='sn']/@value"/></givenName>
+                            <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
+                            <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
                             <middleNames/>
                             <suffix/>
                         </user>
