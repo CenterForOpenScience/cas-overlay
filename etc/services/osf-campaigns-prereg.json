@@ -1,11 +1,11 @@
 {
   "@class" : "org.jasig.cas.services.RegexRegisteredService",
   "id" : 203948234207231,
-  "name" : "Preregistration Challenge",
+  "name" : "",
   "description" : "",
   "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/prereg/.*",
   "evaluationOrder": "1000",
-  "logo": "",
+  "logo": "http://localhost:8080/images/registries-osf-prereg-logo.png",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
     "allowedAttributes" : [

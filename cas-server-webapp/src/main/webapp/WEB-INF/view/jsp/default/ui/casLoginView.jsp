@@ -41,8 +41,8 @@
                         <td><span class="service-name">${registeredService.name}</span></td>
                     </c:if>
                     <c:if test="${not empty registeredService.logo && not empty registeredService.name}">
-                        <td><img id="service-logo" class="service-logo-${registeredService.name}" src="${registeredService.logo}"> </td>
-                        <td>&nbsp;&nbsp;&nbsp;</td>
+                        <td><img id="service-logo" src="${registeredService.logo}"> </td>
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                         <td><span class="service-name">${registeredService.name} Preprints</span></td>
                     </c:if>
                 </tr>
@@ -114,11 +114,19 @@
         </section>
 
         <%-- TODO: Only display OAuth Client options for the OSF service, due to a limitation of our OAuth Provider implementation as it does not support non-existing OSF accounts. --%>
-        <c:if test="${not empty registeredService and not empty loginManagerContext.getServiceUrl()}">
-            <hr/>
-            <section class="row">
-                <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo" src="../images/orcid-logo.png"><spring:message code="screen.welcome.button.login.orcid" /></a>
-            </section>
+        <c:if test="${not empty registeredService && (not empty registeredService.id || not empty loginManagerContext.getServiceUrl())}">
+            <c:if test="${
+                registeredService.id == 983450982340993434 || registeredService.id == 203948234207230 ||
+                registeredService.id == 203948234207231 || registeredService.id == 203948234207232 ||
+                ( registeredService.id >= 203948234207240 && registeredService.id <= 203948234207253 ) ||
+                registeredService.id == 203948234207340
+            }">
+                <hr/>
+
+                <section class="row">
+                    <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo" src="../images/orcid-logo.png"><spring:message code="screen.welcome.button.login.orcid" /></a>
+                </section>
+            </c:if>
         </c:if>
 
     </form:form>
