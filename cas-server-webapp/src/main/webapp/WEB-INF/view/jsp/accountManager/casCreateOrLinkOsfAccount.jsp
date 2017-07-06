@@ -45,6 +45,11 @@
             <form:input cssClass="required" cssErrorClass="error" id="email" size="25" tabindex="1" accesskey="${emailAccessKey}" path="email" autocomplete="off" htmlEscape="true" />
         </section>
 
+        <section class="row check">
+            <input type="checkbox" name="consent" id="consent" value="true" tabindex="5" onchange="checkConsent(this)" />
+            <label for="consent"><spring:message code="screen.register.checkbox.consent.title" /></label>
+        </section>
+
         <form:errors path="email" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         <form:errors path="action" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
@@ -53,7 +58,7 @@
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
-            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.externalAuthRegister.button.createOrLink" />" tabindex="4" type="submit" />
+            <input id="register-submit" class="btn-submit" name="submit" disabled accesskey="l" value="<spring:message code="screen.externalAuthRegister.button.createOrLink" />" tabindex="4" type="submit" />
         </section>
 
     </form:form>

@@ -51,6 +51,11 @@
             <form:errors path="password" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
 
+        <section class="row check">
+            <input type="checkbox" name="consent" id="consent" value="true" tabindex="5" onchange="checkConsent(this)" />
+            <label for="consent"><spring:message code="screen.register.checkbox.consent.title" /></label>
+        </section>
+
         <form:errors path="action" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
         <section class="row">
@@ -59,7 +64,7 @@
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
             <input type="hidden" name="_eventId" value="submit" />
-            <input type="submit" class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.register.button.createAccount" />" tabindex="4"  />
+            <input id="register-submit" type="submit" name="submit" disabled class="btn-submit" accesskey="l" value="<spring:message code="screen.register.button.createAccount" />" tabindex="4"  />
         </section>
 
         <c:if test="${not empty registeredService and not empty accountManagerContext.getServiceUrl()}">

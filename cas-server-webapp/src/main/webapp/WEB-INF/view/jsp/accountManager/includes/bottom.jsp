@@ -72,6 +72,13 @@
             email.focus();
         }
     }
+
+    function checkConsent(checkbox) {
+        var registerSubmit = document.getElementById('register-submit');
+        if (registerSubmit) {
+            registerSubmit.disabled = !checkbox.checked;
+        }
+    }
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>

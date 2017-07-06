@@ -26,25 +26,29 @@
         <div class="heading">
             <span><spring:message code="screen.institution.login.heading" /></span>
         </div>
-    </section>
-    <br>
+    </section><br>
+
     <section class="row">
         <div class="select">
             <label for="select-institution">Select Your Institution</label>
         </div>
     </section>
+
     <section class="row">
         <div class="select">
-            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" />
+            <form:select class="select" id="institution-form-select" disabled="true" name="select-institution" path="institutions" items="${institutions}" />
         </div>
     </section>
-    <br>
+
+    <section class="row check">
+        <input type="checkbox" name="consent" id="consent" value="true" tabindex="5" onchange="checkConsent(this)" />
+        <label for="consent"><spring:message code="screen.register.checkbox.consent.title" /></label>
+    </section><br>
+
     <section class="row">
-        <div class="btn-submit">
-            <input type="button" name="submit" value="<spring:message code="screen.welcome.button.login" />" onclick="institutionLogin()">
-        </div>
-    </section>
-    <br>
+        <input id="inst-submit" type="button" class="btn-submit" name="submit" disabled value="<spring:message code="screen.welcome.button.login"/>" onclick="institutionLogin()">
+    </section><br>
+
     <script>
         function institutionLogin () {
             var form = document.getElementById('institution-form-select');
@@ -55,6 +59,13 @@
                 login_url = "${okstateUrl}";
             }
             window.location = login_url;
+        }
+
+        function checkConsent(checkbox) {
+            var selectForm = document.getElementById('institution-form-select');
+            var submitButton = document.getElementById('inst-submit');
+            selectForm.disabled = !checkbox.checked;
+            submitButton.disabled = !checkbox.checked;
         }
     </script>
 </div>

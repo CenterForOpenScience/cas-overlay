@@ -228,7 +228,7 @@ header h1 {
   border-radius: 4px;
 }
 
-#login .btn-oauth-submit:hover {
+#login .btn-oauth-submit:hover:enabled {
   cursor: pointer;
 }
 
@@ -318,12 +318,6 @@ footer a:link, footer a:visited {
   text-align: center;
 }
 
-#fm1 .row .btn-oauth:hover {
-  -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 128, 255, 0.67);
-  -moz-box-shadow:    0px 0px 5px 0px rgba(0, 128, 255, 0.67);
-  box-shadow:         0px 0px 5px 0px rgba(0, 128, 255, 0.67);
-}
-
 #fm1 .row .btn-oauth:active {
   background-image: linear-gradient(to top, #fff 0, #e0e0e0 100%);
 }
@@ -374,7 +368,7 @@ footer a:link, footer a:visited {
   width: 100%;
 }
 
-#inst-login .btn-submit input[type=button],
+#inst-login .btn-submit,
 #fm1 .row .btn-submit {
   outline: none;
   border-radius: 3px;
@@ -390,14 +384,12 @@ footer a:link, footer a:visited {
   -moz-border-radius: 3px;
 }
 
-#inst-login .btn-submit:hover input[type=button],
-#fm1 .row .btn-submit:hover {
-  -webkit-box-shadow: 0px 0px 7px 0px rgba(0, 191, 255, 0.75);
-  -moz-box-shadow:    0px 0px 7px 0px rgba(0, 191, 255, 0.75);
-  box-shadow:         0px 0px 7px 0px rgba(0, 191, 255, 0.75);
+#inst-login .btn-submit:hover:enabled,
+#fm1 .row .btn-submit:hover:enabled {
+  cursor: pointer;
 }
 
-#inst-login .btn-submit:active input[type=button],
+#inst-login .btn-submit:active,
 #fm1 .row .btn-submit:active {
   background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
 }
