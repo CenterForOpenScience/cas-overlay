@@ -412,7 +412,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      * @return if user found, return the username and external ID, otherwise return null
      * @throws AccountException if API request fails
      */
-    private PrincipalAuthenticationResult notifyNonInstitutionRemotePrincipalAuthenticated(
+    protected PrincipalAuthenticationResult notifyNonInstitutionRemotePrincipalAuthenticated(
             final OpenScienceFrameworkCredential credential
     ) throws AccountException {
 
