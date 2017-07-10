@@ -399,6 +399,16 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             final String username = provider.getJSONObject("user").getString("username");
             final String payload = normalizedPayload.toString();
 
+            if (institutionId == null || institutionId.trim().isEmpty()) {
+                logger.error("Notify Remote Principal Authenticated Exception: Institution Provider ID Required");
+                throw new RemoteUserFailedLoginException("Institution Provider ID Required");
+            }
+
+            if (username == null || username.trim().isEmpty()) {
+                logger.error("Notify Remote Principal Authenticated Exception: username=null, institution={}", institutionId);
+                throw new RemoteUserFailedLoginException("Username (Email) Required");
+            }
+
             logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
             logger.debug("Notify Remote Principal Authenticated [{}, {}] Normalized Payload '{}'", username, institutionId, payload);
 
