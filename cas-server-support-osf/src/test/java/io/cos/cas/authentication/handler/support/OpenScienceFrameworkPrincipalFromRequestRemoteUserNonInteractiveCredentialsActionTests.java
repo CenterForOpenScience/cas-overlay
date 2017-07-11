@@ -3,7 +3,9 @@ package io.cos.cas.authentication.handler.support;
 import io.cos.cas.AbstractTestUtils;
 import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.mock.MockOsfRemoteAuthenticateAction;
+import io.cos.cas.authentication.RemoteUserFailedLoginException;
+import io.cos.cas.mock.MockNormalizeRemotePrincipal;
+import io.cos.cas.mock.MockNotifyRemotePrincipalAuthenticated;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.ticket.TicketGrantingTicket;
@@ -12,6 +14,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.test.MockRequestContext;
 
+import javax.security.auth.login.AccountException;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -39,6 +42,44 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
     private static final String CONST_ORCID_CLIENT_NAME = "OrcidClient";
 
+    @Test (expected = RemoteUserFailedLoginException.class)
+    public void handleInstitutionMissingUsername() throws Exception {
+        final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
+        final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
+        final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
+        final MockNormalizeRemotePrincipal osfRemoteAuthenticate
+                = new MockNormalizeRemotePrincipal(centralAuthenticationService);
+
+        final OpenScienceFrameworkCredential osfCredential = new OpenScienceFrameworkCredential();
+        osfCredential.setUsername("");
+        osfCredential.setInstitutionId(AbstractTestUtils.CONST_INSTITUTION_ID);
+        try {
+            osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
+        } catch (final AccountException e) {
+            assertEquals(e.getMessage(), "Username (Email) Required");
+            throw e;
+        }
+    }
+
+    @Test (expected = RemoteUserFailedLoginException.class)
+    public void handleInstitutionMissingInstitutionId() throws Exception {
+        final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
+        final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
+        final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
+        final MockNormalizeRemotePrincipal osfRemoteAuthenticate
+                = new MockNormalizeRemotePrincipal(centralAuthenticationService);
+
+        final OpenScienceFrameworkCredential osfCredential = new OpenScienceFrameworkCredential();
+        osfCredential.setUsername(AbstractTestUtils.CONST_MAIL);
+        osfCredential.setInstitutionId("");
+        try {
+            osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
+        } catch (final AccountException e) {
+            assertEquals(e.getMessage(), "Institution Provider ID Required");
+            throw e;
+        }
+    }
+
     @Test
     public void verifyInstitutionSamlShibbolethFlow() throws Exception {
 
@@ -46,8 +87,8 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
 
         final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
-        final MockOsfRemoteAuthenticateAction osfRemoteAuthenticate
-                = new MockOsfRemoteAuthenticateAction(centralAuthenticationService);
+        final MockNotifyRemotePrincipalAuthenticated osfRemoteAuthenticate
+                = new MockNotifyRemotePrincipalAuthenticated(centralAuthenticationService);
         final Event event = osfRemoteAuthenticate.doExecute(mockContext);
 
         final OpenScienceFrameworkCredential credential
@@ -80,8 +121,8 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 any(TicketGrantingTicket.class.getClass())
         )).thenReturn(tgt);
 
-        final MockOsfRemoteAuthenticateAction osfRemoteAuthenticate
-                = new MockOsfRemoteAuthenticateAction(centralAuthenticationService);
+        final MockNotifyRemotePrincipalAuthenticated osfRemoteAuthenticate
+                = new MockNotifyRemotePrincipalAuthenticated(centralAuthenticationService);
 
         final MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest, tgt.getId());
@@ -119,8 +160,8 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 any(TicketGrantingTicket.class.getClass())
         )).thenReturn(tgt);
 
-        final MockOsfRemoteAuthenticateAction osfRemoteAuthenticate
-                = new MockOsfRemoteAuthenticateAction(centralAuthenticationService);
+        final MockNotifyRemotePrincipalAuthenticated osfRemoteAuthenticate
+                = new MockNotifyRemotePrincipalAuthenticated(centralAuthenticationService);
 
         final MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest, tgt.getId());
@@ -143,8 +184,8 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithUsernameAndVerificationKey();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
         final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
-        final MockOsfRemoteAuthenticateAction osfRemoteAuthenticate
-                = new MockOsfRemoteAuthenticateAction(centralAuthenticationService);
+        final MockNotifyRemotePrincipalAuthenticated osfRemoteAuthenticate
+                = new MockNotifyRemotePrincipalAuthenticated(centralAuthenticationService);
         final Event event = osfRemoteAuthenticate.doExecute(mockContext);
 
         final OpenScienceFrameworkCredential credential
