@@ -469,7 +469,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      * @throws ParserConfigurationException a parser configuration exception
      * @throws TransformerException a transformer exception
      */
-    private JSONObject normalizeRemotePrincipal(final OpenScienceFrameworkCredential credential)
+    protected JSONObject normalizeRemotePrincipal(final OpenScienceFrameworkCredential credential)
             throws ParserConfigurationException, TransformerException {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         final DocumentBuilder builder = factory.newDocumentBuilder();
