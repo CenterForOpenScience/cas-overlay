@@ -19,6 +19,7 @@ public class AccountManager {
     private String username;
     private String emailToVerify;
     private String campaign;
+    private String recaptchaSiteKey;
 
     /**
      * Instantiate an Account Manager with Service URL, Action, Target and Campaign.
@@ -83,6 +84,14 @@ public class AccountManager {
 
     public void setCampaign(final String campaign) {
         this.campaign = campaign;
+    }
+
+    public String getRecaptchaSiteKey() {
+        return recaptchaSiteKey;
+    }
+
+    public void setRecaptchaSiteKey(final String recaptchaSiteKey) {
+        this.recaptchaSiteKey = recaptchaSiteKey;
     }
 
     /**

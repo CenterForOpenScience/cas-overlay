@@ -20,6 +20,7 @@
 --%>
 <jsp:directive.include file="./includes/top.jsp" />
 
+
 <div class="box" id="login">
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
@@ -56,6 +57,12 @@
             <label for="consent"><spring:message code="screen.register.checkbox.consent.title" /></label>
         </section>
 
+        <c:if test="${not empty accountManagerContext.getRecaptchaSiteKey()}">
+            <section class="row">
+                <div class="g-recaptcha" data-sitekey="${accountManagerContext.getRecaptchaSiteKey()}"></div>
+            </section>
+        </c:if>
+
         <form:errors path="action" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
         <section class="row">
@@ -75,6 +82,9 @@
         </c:if>
 
     </form:form>
+    <c:if test="${not empty accountManagerContext.getRecaptchaSiteKey()}">
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    </c:if>
 </div>
 
 <jsp:directive.include file="./includes/bottom.jsp" />

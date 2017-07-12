@@ -50,6 +50,7 @@
 
     <bean id="registerAction" class="io.cos.cas.account.flow.RegisterAction">
         <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+        <constructor-arg name="recaptchaUtils" ref="recaptchaUtils" />
     </bean>
 
     <bean id="verifyEmailAction" class="io.cos.cas.account.flow.VerifyEmailAction">
@@ -71,5 +72,11 @@
     <bean id="findAccountFormBeanValidator" class="io.cos.cas.account.validator.FindAccountFormBeanValidator" />
 
     <bean id="resetPasswordFormBeanValidator" class="io.cos.cas.account.validator.ResetPasswordFormBeanValidator" />
+
+    <bean id="recaptchaUtils" class="io.cos.cas.account.util.RecaptchaUtils">
+        <constructor-arg name="verifyUrl" value="${cas.recaptcha.verify.url}" />
+        <constructor-arg name="siteKey" value="${cas.recaptcha.siteKey}" />
+        <constructor-arg name="secretKey" value="${cas.recaptcha.secretKey}" />
+    </bean>
 
 </beans>

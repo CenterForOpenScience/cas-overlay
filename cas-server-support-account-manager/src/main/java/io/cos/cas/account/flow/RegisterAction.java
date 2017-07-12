@@ -2,6 +2,7 @@ package io.cos.cas.account.flow;
 
 import io.cos.cas.account.model.RegisterFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
+import io.cos.cas.account.util.RecaptchaUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.type.ApiEndpoint;
 
@@ -28,13 +29,18 @@ public class RegisterAction {
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;
 
+    /** The Recaptcha Utility. */
+    private RecaptchaUtils recaptchaUtils;
+
     /**
      * Constructor.
      *
      * @param apiEndpointHandler the API Endpoint Handler
+     * @param recaptchaUtils the reCAPTCHA Utility
      */
-    public RegisterAction(final ApiEndpointHandler apiEndpointHandler) {
+    public RegisterAction(final ApiEndpointHandler apiEndpointHandler, final RecaptchaUtils recaptchaUtils) {
         this.apiEndpointHandler = apiEndpointHandler;
+        this.recaptchaUtils = recaptchaUtils;
     }
 
     /**
@@ -47,6 +53,7 @@ public class RegisterAction {
         final String serviceUrl = AbstractAccountFlowUtils.getEncodedServiceUrl(requestContext);
         final String campaign = AbstractAccountFlowUtils.getCampaignFromRegisteredService(requestContext);
         final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, null, campaign);
+        accountPageContext.setRecaptchaSiteKey(recaptchaUtils.getSiteKey());
         requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
         return new Event(this, "success");
     }
@@ -64,33 +71,34 @@ public class RegisterAction {
         final JSONObject user = new JSONObject();
         final JSONObject data = new JSONObject();
 
-        data.put("accountAction", "REGISTER_OSF");
-        user.put("fullname", registerForm.getFullname());
-        user.put("email", registerForm.getEmail());
-        user.put("password", registerForm.getPassword());
-        user.put("campaign", registerForm.getCampaign());
-        data.put("user", user);
-
-        final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.ACCOUNT_REGISTER_OSF,
-                apiEndpointHandler.encryptPayload("data", data.toString())
-        );
-
         String errorMessage = AbstractAccountFlowUtils.DEFAULT_CLIENT_ERROR_MESSAGE;
 
-        if (response != null) {
-            final int status = response.getInt("status");
-            if (status == HttpStatus.SC_NO_CONTENT) {
-                final AccountManager accountManager
-                        = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
-                if (accountManager != null) {
-                    accountManager.setAction(VerifyEmailAction.NAME);
-                    accountManager.setEmailToVerify(registerForm.getEmail());
-                    AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
-                    return new Event(this, "success");
+        if (!recaptchaUtils.verifyRecaptcha(requestContext)) {
+            errorMessage = "Invalid Captcha";
+        } else {
+            user.put("fullname", registerForm.getFullname())
+                    .put("email", registerForm.getEmail())
+                    .put("password", registerForm.getPassword())
+                    .put("campaign", registerForm.getCampaign());
+            data.put("accountAction", "REGISTER_OSF").put("user", user);
+            final JSONObject response = apiEndpointHandler.handle(
+                    ApiEndpoint.ACCOUNT_REGISTER_OSF,
+                    apiEndpointHandler.encryptPayload("data", data.toString())
+            );
+            if (response != null) {
+                final int status = response.getInt("status");
+                if (status == HttpStatus.SC_NO_CONTENT) {
+                    final AccountManager accountManager
+                            = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
+                    if (accountManager != null) {
+                        accountManager.setAction(VerifyEmailAction.NAME);
+                        accountManager.setEmailToVerify(registerForm.getEmail());
+                        AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
+                        return new Event(this, "success");
+                    }
+                } else if (status == HttpStatus.SC_UNAUTHORIZED || status == HttpStatus.SC_FORBIDDEN) {
+                    errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
                 }
-            } else if (status == HttpStatus.SC_UNAUTHORIZED || status == HttpStatus.SC_FORBIDDEN) {
-                errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
             }
         }
 
