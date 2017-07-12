@@ -2,6 +2,7 @@ package io.cos.cas.account.flow;
 
 import io.cos.cas.account.model.FindAccountFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
+import io.cos.cas.account.util.RecaptchaUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.type.ApiEndpoint;
 
@@ -29,13 +30,18 @@ public class FindAccountAction {
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;
 
+    /** The Recaptcha Utility. */
+    private RecaptchaUtils recaptchaUtils;
+
     /**
      * Constructor.
      *
      * @param apiEndpointHandler the API Endpoint Handler
+     * @param recaptchaUtils the reCAPTCHA Utility
      */
-    public FindAccountAction(final ApiEndpointHandler apiEndpointHandler) {
+    public FindAccountAction(final ApiEndpointHandler apiEndpointHandler, final RecaptchaUtils recaptchaUtils) {
         this.apiEndpointHandler = apiEndpointHandler;
+        this.recaptchaUtils = recaptchaUtils;
     }
 
     /**
@@ -57,6 +63,7 @@ public class FindAccountAction {
 
         if (externalIdRegisterEmail) {
             final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
+            accountPageContext.setRecaptchaSiteKey(recaptchaUtils.getSiteKey());
             requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
             return new Event(this, "success");
         } else if (verifyTargetAction(target)) {
@@ -98,25 +105,29 @@ public class FindAccountAction {
             user.put("email", findAccountForm.getEmail());
 
             if (externalIdRegisterEmail) {
+                if (!recaptchaUtils.verifyRecaptcha(requestContext)) {
+                    errorMessage = "Invalid Captcha";
+                    messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
+                    return new Event(this, "error");
+                }
                 endpoint = ApiEndpoint.ACCOUNT_REGISTER_EXTERNAL;
-                data.put("accountAction", "REGISTER_EXTERNAL");
-                user.put("externalIdProvider", credential.getNonInstitutionExternalIdProvider());
-                user.put("externalId", credential.getNonInstitutionExternalId());
-                user.put("campaign", accountManager.getCampaign());
-                user.put("attributes", credential.getDelegationAttributes());
+                user.put("externalIdProvider", credential.getNonInstitutionExternalIdProvider())
+                        .put("externalId", credential.getNonInstitutionExternalId())
+                        .put("campaign", accountManager.getCampaign())
+                        .put("attributes", credential.getDelegationAttributes());
+                data.put("accountAction", "REGISTER_EXTERNAL").put("user", user);
                 findAccountForm.setExternalIdProvider(credential.getNonInstitutionExternalIdProvider());
                 findAccountForm.setExternalId(credential.getNonInstitutionExternalId());
             } else if (ResetPasswordAction.NAME.equalsIgnoreCase(targetAction)){
                 endpoint = ApiEndpoint.ACCOUNT_PASSWORD_FORGOT;
-                data.put("accountAction", "PASSWORD_FORGOT");
+                data.put("accountAction", "PASSWORD_FORGOT").put("user", user);
             } else if (VerifyEmailAction.NAME.equalsIgnoreCase(targetAction)) {
                 endpoint = ApiEndpoint.ACCOUNT_VERIFY_OSF_RESEND;
-                data.put("accountAction", "VERIFY_OSF_RESEND");
+                data.put("accountAction", "VERIFY_OSF_RESEND").put("user", user);
             } else {
                 messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
                 return new Event(this, "error");
             }
-            data.put("user", user);
 
             final JSONObject response = apiEndpointHandler.handle(
                     endpoint,

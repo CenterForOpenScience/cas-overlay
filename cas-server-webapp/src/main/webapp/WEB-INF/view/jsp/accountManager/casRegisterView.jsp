@@ -82,6 +82,7 @@
         </c:if>
 
     </form:form>
+
     <c:if test="${not empty accountManagerContext.getRecaptchaSiteKey()}">
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     </c:if>

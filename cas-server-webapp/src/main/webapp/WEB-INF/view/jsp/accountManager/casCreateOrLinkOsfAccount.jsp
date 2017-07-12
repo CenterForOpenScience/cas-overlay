@@ -50,6 +50,12 @@
             <label for="consent"><spring:message code="screen.register.checkbox.consent.title" /></label>
         </section>
 
+        <c:if test="${not empty accountManagerContext.getRecaptchaSiteKey()}">
+            <section class="row">
+                <div class="g-recaptcha" data-sitekey="${accountManagerContext.getRecaptchaSiteKey()}"></div>
+            </section>
+        </c:if>
+
         <form:errors path="email" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         <form:errors path="action" id="msg" cssClass="errors" element="div" htmlEscape="false" />
 
@@ -62,6 +68,10 @@
         </section>
 
     </form:form>
+
+    <c:if test="${not empty accountManagerContext.getRecaptchaSiteKey()}">
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    </c:if>
 </div>
 
 <c:set var="alternativeBottomLogin" value="true"/>
