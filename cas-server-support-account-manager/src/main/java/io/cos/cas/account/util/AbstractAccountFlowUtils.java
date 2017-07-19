@@ -3,6 +3,7 @@ package io.cos.cas.account.util;
 import io.cos.cas.account.flow.AccountManager;
 import io.cos.cas.web.util.AbstractFlowUtils;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -16,6 +17,12 @@ public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
 
     /** The Request Parameter Name of the Target Action for Find Account Flow. */
     private static final String PARAM_TARGET = "target";
+
+    /** The Request Parameter Name of the User's GUID for Find Account Flow. */
+    private static final String PARAM_USER_ID = "user";
+
+    /** The Request Parameter Name of the OSF4Meeting flag for Find Account Flow. */
+    private static final String PARAM_MEETINGS = "osf4Meetings";
 
     /**
      * Get the Account Manager from Flow Scope in Request Context.
@@ -44,7 +51,27 @@ public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
      * @return the target action
      */
     public static String getTargetFromRequestContext(final RequestContext context) {
-        return context.getRequestParameters().get(PARAM_TARGET);
+        return context.getRequestParameters().get(PARAM_TARGET, StringUtils.EMPTY);
+    }
+
+    /**
+     * Get the user's GUID from the Request Context.
+     *
+     * @param context the request context
+     * @return the user's GUID
+     */
+    public static String getUserIdFromRequestContext(final RequestContext context) {
+        return context.getRequestParameters().get(PARAM_USER_ID, StringUtils.EMPTY);
+    }
+
+    /**
+     * Get the OSF4Meetings flag from the Request Context.
+     *
+     * @param context the request context
+     * @return the boolean flag
+     */
+    public static boolean getOsf4MeetingsFromRequestContext(final RequestContext context) {
+        return context.getRequestParameters().getBoolean(PARAM_MEETINGS, Boolean.FALSE);
     }
 
     /**
@@ -54,41 +81,41 @@ public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
      * @param responseBody the response body
      * @param casLoginUrl the cas login url
      * @param osfCasActionUrl the osf cas action url
-     * @param username the username
      * @return <code>true</code> if response is valid, <code>false</code> otherwise
      */
     public static boolean verifyResponseAndPutLoginRedirectUrlToRequestContext(
             final RequestContext requestContext,
             final JSONObject responseBody,
             final String casLoginUrl,
-            final String osfCasActionUrl,
-            final String username
+            final String osfCasActionUrl
     ) {
-        if (responseBody != null
-                && responseBody.has("verificationKey")
-                && responseBody.has("userId")
-                && responseBody.has("casAction")
-                && responseBody.has("nextUrl")
-        ) {
-            final boolean nextUrl = responseBody.getBoolean("nextUrl");
-            String serviceUrl = String.format(
-                    "%s%s/?action=%s",
-                    osfCasActionUrl,
-                    responseBody.getString("userId"),
-                    responseBody.getString("casAction")
-            );
-            if (nextUrl) {
-                serviceUrl += String.format("&next=%s", getEncodedServiceUrl(requestContext));
+        if (responseBody != null) {
+            if (responseBody.has("verificationKey")
+                    && responseBody.has("userId")
+                    && responseBody.has("casAction")
+                    && responseBody.has("nextUrl")
+                    && responseBody.has("username")
+                    ) {
+                final boolean nextUrl = responseBody.getBoolean("nextUrl");
+                String serviceUrl = String.format(
+                        "%s%s/?action=%s",
+                        osfCasActionUrl,
+                        responseBody.getString("userId"),
+                        responseBody.getString("casAction")
+                );
+                if (nextUrl) {
+                    serviceUrl += String.format("&next=%s", getEncodedServiceUrl(requestContext));
+                }
+                final String redirectUrl = String.format(
+                        "%susername=%s&verification_key=%s&service=%s",
+                        casLoginUrl,
+                        encodeUrlParameter(responseBody.getString("username")),
+                        encodeUrlParameter(responseBody.getString("verificationKey")),
+                        encodeUrlParameter(serviceUrl)
+                );
+                requestContext.getFlowScope().put("loginRedirectUrl", redirectUrl);
+                return true;
             }
-            final String redirectUrl = String.format(
-                    "%susername=%s&verification_key=%s&service=%s",
-                    casLoginUrl,
-                    encodeUrlParameter(username),
-                    encodeUrlParameter(responseBody.getString("verificationKey")),
-                    encodeUrlParameter(serviceUrl)
-            );
-            requestContext.getFlowScope().put("loginRedirectUrl", redirectUrl);
-            return true;
         }
         return false;
     }

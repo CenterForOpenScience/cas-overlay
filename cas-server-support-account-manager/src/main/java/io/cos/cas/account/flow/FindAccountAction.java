@@ -55,6 +55,9 @@ public class FindAccountAction {
         final String serviceUrl = AbstractAccountFlowUtils.getEncodedServiceUrl(requestContext);
         final String target = AbstractAccountFlowUtils.getTargetFromRequestContext(requestContext);
         final String campaign = AbstractAccountFlowUtils.getCampaignFromRegisteredService(requestContext);
+        final String userId = AbstractAccountFlowUtils.getUserIdFromRequestContext(requestContext);
+        final Boolean osf4Meetings = AbstractAccountFlowUtils.getOsf4MeetingsFromRequestContext(requestContext);
+
         final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
         final boolean externalIdRegisterEmail = credential != null
                 && credential.getNonInstitutionExternalIdProvider() != null
@@ -65,9 +68,18 @@ public class FindAccountAction {
             final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
             accountPageContext.setRecaptchaSiteKey(recaptchaUtils.getSiteKey());
             requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
+
             return new Event(this, "success");
         } else if (verifyTargetAction(target)) {
             final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
+            if (ResetPasswordAction.NAME.equalsIgnoreCase(target) && !userId.isEmpty() && osf4Meetings) {
+                accountPageContext.setUserId(userId);
+                accountPageContext.setOsf4Meetings(Boolean.TRUE);
+                accountPageContext.setAction(ResetPasswordAction.NAME);
+                accountPageContext.setTarget(null);
+                requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
+                return new Event(this, "reset");
+            }
             requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
             return new Event(this, "success");
         } else {

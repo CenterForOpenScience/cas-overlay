@@ -84,8 +84,7 @@ public class VerifyEmailAction {
                             requestContext,
                             response.getJSONObject("body"),
                             apiEndpointHandler.getCasLoginUrl(),
-                            apiEndpointHandler.getOsfCasActionUrl(),
-                            accountManager.getEmailToVerify()
+                            apiEndpointHandler.getOsfCasActionUrl()
                     )) {
                         return new Event(this, "redirect");
                     }

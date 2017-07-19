@@ -24,25 +24,42 @@
     <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
 
         <div id="msg" class="success">
-            <p><spring:message code="screen.resetPassword.emailSent.success.message" /></p>
+            <c:choose>
+                <c:when test="${accountManagerContext.getOsf4Meetings()}">
+                    <p><spring:message code="screen.resetPassword.osf4Meetings.success.message" /></p>
+                </c:when>
+                <c:otherwise>
+                    <p><spring:message code="screen.resetPassword.emailSent.success.message" /></p>
+                </c:otherwise>
+            </c:choose>
         </div>
 
         <h2><spring:message code="screen.challenge.header" /></h2>
 
-        <section class="row">
-            <label for="username"><spring:message code="screen.challenge.label.primaryEmail" /></label><br/>
-            <spring:message code="screen.challenge.label.email.primary.accesskey" var="emailAccessKey" />
-            <form:input disabled="true" value="${accountManagerContext.getUsername()}" cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${emailAccessKey}" path="username" autocomplete="off" htmlEscape="true" />
-        </section>
+        <c:if test="${not empty accountManagerContext.getUsername()}">
+            <section class="row">
+                <label for="username"><spring:message code="screen.challenge.label.primaryEmail" /></label><br/>
+                <spring:message code="screen.challenge.label.email.primary.accesskey" var="emailAccessKey" />
+                <form:input disabled="true" value="${accountManagerContext.getUsername()}" cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${emailAccessKey}" path="username" autocomplete="off" htmlEscape="true" />
+                <label for="verificationCode"><spring:message code="screen.challenge.label.verificationCode" /></label><br/></section>
+        </c:if>
 
         <section class="row">
-            <label for="verificationCode"><spring:message code="screen.challenge.label.verificationCode" /></label><br/>
             <spring:message code="screen.challenge.label.verificationCode.accesskey" var="verificationCodeAccessKey" />
             <form:input cssClass="required" cssErrorClass="error" id="verificationCode" size="25" tabindex="1" accesskey="${verificationCodeAccessKey}" path="verificationCode" autocomplete="off" htmlEscape="true" />
             <form:errors path="verificationCode" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
 
-        <br/><h2><spring:message code="screen.resetPassword.header" /></h2>
+
+        <br/>
+        <c:choose>
+            <c:when test="${accountManagerContext.getOsf4Meetings()}">
+                <h2><spring:message code="screen.resetPassword.osf4Meetings.header" /></h2>
+            </c:when>
+            <c:otherwise>
+                <h2><spring:message code="screen.resetPassword.header" /></h2>
+            </c:otherwise>
+        </c:choose>
 
         <section class="row">
             <label for="newPassword"><spring:message code="screen.resetPassword.label.newPassword" /></label><br/>

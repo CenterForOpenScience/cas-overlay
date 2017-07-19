@@ -53,17 +53,27 @@ public class ResetPasswordAction {
         final AccountManager accountManager = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
         String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
-        if (accountManager != null && accountManager.getUsername() != null) {
-
-            resetPasswordForm.setUsername(accountManager.getUsername());
+        if (accountManager != null) {
 
             final JSONObject user = new JSONObject();
             final JSONObject data = new JSONObject();
 
-            data.put("accountAction", "PASSWORD_RESET");
-            user.put("email", resetPasswordForm.getUsername());
+            if (accountManager.getUserId() != null) {
+                resetPasswordForm.setUserId(accountManager.getUserId());
+                user.put("userId", resetPasswordForm.getUserId());
+            }
+
+            if (accountManager.getUsername() != null) {
+                resetPasswordForm.setUsername(accountManager.getUsername());
+                user.put("email", resetPasswordForm.getUsername());
+            }
+
+            if (accountManager.getOsf4Meetings()) {
+                data.put("meetings", accountManager.getOsf4Meetings());
+            }
             user.put("verificationCode", resetPasswordForm.getVerificationCode());
             user.put("password", resetPasswordForm.getNewPassword());
+            data.put("accountAction", "PASSWORD_RESET");
             data.put("user", user);
 
             final JSONObject response = apiEndpointHandler.handle(
@@ -78,8 +88,7 @@ public class ResetPasswordAction {
                             requestContext,
                             response.getJSONObject("body"),
                             apiEndpointHandler.getCasLoginUrl(),
-                            apiEndpointHandler.getOsfCasActionUrl(),
-                            accountManager.getUsername()
+                            apiEndpointHandler.getOsfCasActionUrl()
                     )) {
                         return new Event(this, "redirect");
                     }

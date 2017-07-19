@@ -19,6 +19,8 @@ public class AccountManager {
     private String username;
     private String emailToVerify;
     private String campaign;
+    private String userId;
+    private Boolean osf4Meetings;
     private String recaptchaSiteKey;
 
     /**
@@ -84,6 +86,22 @@ public class AccountManager {
 
     public void setCampaign(final String campaign) {
         this.campaign = campaign;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(final String userId) {
+        this.userId = userId;
+    }
+
+    public Boolean getOsf4Meetings() {
+        return osf4Meetings;
+    }
+
+    public void setOsf4Meetings(final Boolean osf4Meetings) {
+        this.osf4Meetings = osf4Meetings;
     }
 
     public String getRecaptchaSiteKey() {

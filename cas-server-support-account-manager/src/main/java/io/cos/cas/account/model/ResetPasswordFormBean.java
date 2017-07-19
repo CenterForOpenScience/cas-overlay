@@ -16,6 +16,8 @@ public class ResetPasswordFormBean implements Serializable {
 
     private String username;
 
+    private String userId;
+
     private String verificationCode;
 
     private String newPassword;
@@ -36,6 +38,14 @@ public class ResetPasswordFormBean implements Serializable {
 
     public void setUsername(final String username) {
         this.username = username;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(final String userId) {
+        this.userId = userId;
     }
 
     public String getVerificationCode() {
