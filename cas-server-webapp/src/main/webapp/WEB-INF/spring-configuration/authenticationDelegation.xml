@@ -42,6 +42,12 @@ under the License.
         <property name="name" value="${cas.okstate.client.name}" />
         <property name="casProtocol" value="${cas.okstate.cas.protocol}" />
     </bean>
+    <!-- Ferris State University -->
+    <bean id="fsu" class="org.pac4j.cas.client.CasClient">
+        <property name="casLoginUrl" value="${cas.fsu.login.url}" />
+        <property name="name" value="${cas.fsu.client.name}" />
+        <property name="casProtocol" value="${cas.fsu.cas.protocol}" />
+    </bean>
 
     <!-- General Configuration for All Clients -->
     <bean id="clients" class="org.pac4j.core.client.Clients">
@@ -50,6 +56,7 @@ under the License.
             <list>
                 <ref bean="orcid" />
                 <ref bean="okstate" />
+                <ref bean="fsu" />
             </list>
         </property>
     </bean>

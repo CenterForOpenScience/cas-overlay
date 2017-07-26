@@ -44,6 +44,10 @@
         </div>
     </section>
     <br>
+    <section>
+        <a href="${fsuUrl}">Login Through Ferris State University</a>
+    </section>
+    <br>
     <script>
         function institutionLogin () {
             var form = document.getElementById('institution-form-select');
