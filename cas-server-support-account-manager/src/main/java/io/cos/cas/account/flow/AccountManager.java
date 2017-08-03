@@ -39,7 +39,7 @@ public class AccountManager {
         this.emailToVerify = null;
         this.campaign = campaign;
         this.userId = null;
-        this.osf4Meetings = false;
+        this.osf4Meetings = Boolean.FALSE;
     }
 
     public String getServiceUrl() {

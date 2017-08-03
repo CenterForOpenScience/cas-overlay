@@ -25,10 +25,10 @@ import org.springframework.webflow.execution.RequestContext;
  */
 public class ResetPasswordAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResetPasswordAction.class);
-
     /** The Name of the Action. */
     public static final String NAME = "RESET_PASSWORD";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResetPasswordAction.class);
 
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;
@@ -98,7 +98,7 @@ public class ResetPasswordAction {
                         return new Event(this, "redirect");
                     }
                 } else if (status == HttpStatus.SC_BAD_REQUEST) {
-                    APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                    final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
                     if (error != null) {
                         errorMessage = error.getDetail();
                         LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());

@@ -47,13 +47,23 @@ public class APIErrors {
     /** Institution Login Failed. */
     public static final int INSTITUTION_LOGIN_FAILED_ERROR = 40107;
 
+    /** API Request Failed. */
+    public static final int REQUEST_FAILED = 50001;
+
+    private static final int DENOMINATOR = 100;
+
     private int status;
     private int code;
     private String detail;
 
-    /** Constructor. */
-    public APIErrors(int code, String detail) {
-        this.status = code / 100;
+    /**
+     * Constructor.
+     *
+     * @param code the error code
+     * @param detail the error detail
+     */
+    public APIErrors(final int code, final String detail) {
+        this.status = code / DENOMINATOR;
         this.code = code;
         this.detail = detail;
     }

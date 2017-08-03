@@ -24,10 +24,10 @@ import org.springframework.webflow.execution.RequestContext;
  */
 public class VerifyEmailAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VerifyEmailAction.class);
-
     /** The Name of the Action. */
     public static final String NAME = "VERIFY_EMAIL";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VerifyEmailAction.class);
 
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;
@@ -94,7 +94,7 @@ public class VerifyEmailAction {
                         return new Event(this, "redirect");
                     }
                 }  else if (status == HttpStatus.SC_BAD_REQUEST) {
-                    APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                    final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
                     if (error != null) {
                         errorMessage = error.getDetail();
                         LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());

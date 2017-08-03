@@ -83,7 +83,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
                         new HashSet<>(Arrays.asList(tokenScopes.split(" ")))
                 );
             } else if (status == HttpStatus.SC_BAD_REQUEST) {
-                APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
                 LOGGER.error("API Request Failed: code={}, detail='{}'", error.getCode(), error.getDetail());
             }
         }

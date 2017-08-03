@@ -447,7 +447,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                     );
                 }
             } else if (statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_BAD_REQUEST) {
-                final APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
                 if (error != null) {
                     logger.error(
                             "External Login Failed: code={}, detail={}, externalIdWithProvider = {}",
@@ -507,7 +507,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                  if (statusCode == HttpStatus.SC_NO_CONTENT) {
                      return new PrincipalAuthenticationResult(username, institutionId, null, null);
                  } else if (statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_BAD_REQUEST) {
-                     APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                     final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
                      if (error != null) {
                          logger.error("Institution Login Failed. code={}, detail={}", error.getCode(), error.getDetail());
                      } else {

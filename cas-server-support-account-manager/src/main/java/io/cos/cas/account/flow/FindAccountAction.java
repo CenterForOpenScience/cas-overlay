@@ -27,10 +27,10 @@ import org.springframework.webflow.execution.RequestContext;
  */
 public class FindAccountAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FindAccountAction.class);
-
     /** The Name of the Action. */
     public static final String NAME = "FIND_ACCOUNT";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FindAccountAction.class);
 
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;
@@ -181,7 +181,7 @@ public class FindAccountAction {
                     AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
                     return new Event(this, accountManager.getAction());
                 } else if (status == HttpStatus.SC_BAD_REQUEST) {
-                    APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                    final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
                     if (error != null) {
                         errorMessage = error.getDetail();
                         LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());

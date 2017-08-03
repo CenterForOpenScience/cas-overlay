@@ -145,8 +145,9 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
         // login failure
         if (statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_BAD_REQUEST) {
-            final APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+            final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
             if (error != null) {
+                logger.info("OSF Login Failed: {} ({})", error.getCode(), error.getDetail());
                 switch (error.getCode()) {
                     case APIErrors.ACCOUNT_NOT_FOUND:
                         throw new AccountNotFoundException();

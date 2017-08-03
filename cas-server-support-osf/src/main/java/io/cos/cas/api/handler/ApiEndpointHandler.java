@@ -186,40 +186,23 @@ public class ApiEndpointHandler {
     }
 
     /**
-     * Get the error message from HTTP 400s response.
+     * Get the error code from HTTP 400s and 500s response.
      *
-     * @param responseBody the 400s response body
-     * @return the error detail in 400s response
+     * @param responseBody the HTTP response body
+     * @return the APIError with error code and detail
      */
-    public String getErrorMessageFromResponseBody(final JSONObject responseBody) {
+    public APIErrors getAPIErrorFromResponse(final JSONObject responseBody) {
         if (responseBody != null && responseBody.has("errors")) {
             final JSONArray errorList = responseBody.getJSONArray("errors");
-            if (errorList.length() == 1 && errorList.getJSONObject(0).has("detail")) {
-                return errorList.getJSONObject(0).getString("detail");
-            }
-        }
-        LOGGER.error("Invalid HTTP 403/401 response.");
-        return AbstractFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
-    }
-
-    /**
-     * Get the error code from HTTP 400s response.
-     *
-     * @param responseBody the 400s response body
-     * @return the error code
-     */
-    public APIErrors getAPIErrorsFromResponse(final JSONObject responseBody) {
-        if (responseBody != null && responseBody.has("errors")) {
-            final JSONArray errorList = responseBody.getJSONArray("errors");
-            if (errorList.length() == 1) {
+            if (errorList.length() > 0) {
                 final JSONObject error = errorList.getJSONObject(0);
                 if (error.has("code") && error.has("detail")) {
                     return new APIErrors(error.getInt("code"), error.getString("detail"));
                 }
             }
         }
-        LOGGER.error("Invalid Response for API Exceptions");
-        return null;
+        LOGGER.error("Invalid/Malformed/Unexpected API 400s/500s Response.");
+        return new APIErrors(APIErrors.REQUEST_FAILED, AbstractFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE);
     }
 
     /**

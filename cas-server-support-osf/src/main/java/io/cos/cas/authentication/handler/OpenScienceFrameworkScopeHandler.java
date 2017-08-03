@@ -72,7 +72,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
                 }
                 return new Scope(scopeName, (String) responseBody.get("scopeDescription"), Boolean.FALSE);
             } else if (status == HttpStatus.SC_BAD_REQUEST) {
-                final APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
                 LOGGER.error("API Request Failed: code={}, detail='{}'", error.getCode(), error.getDetail());
             }
         }
