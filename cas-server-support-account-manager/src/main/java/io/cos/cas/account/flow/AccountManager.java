@@ -38,6 +38,8 @@ public class AccountManager {
         this.username = null;
         this.emailToVerify = null;
         this.campaign = campaign;
+        this.userId = null;
+        this.osf4Meetings = false;
     }
 
     public String getServiceUrl() {

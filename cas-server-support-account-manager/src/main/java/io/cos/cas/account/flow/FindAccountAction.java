@@ -4,6 +4,7 @@ import io.cos.cas.account.model.FindAccountFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.account.util.RecaptchaUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.api.type.ApiEndpoint;
 
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
@@ -11,6 +12,8 @@ import org.apache.http.HttpStatus;
 
 import org.json.JSONObject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.Event;
@@ -23,6 +26,8 @@ import org.springframework.webflow.execution.RequestContext;
  * @since 4.1.5
  */
 public class FindAccountAction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FindAccountAction.class);
 
     /** The Name of the Action. */
     public static final String NAME = "FIND_ACCOUNT";
@@ -175,8 +180,14 @@ public class FindAccountAction {
                     }
                     AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
                     return new Event(this, accountManager.getAction());
-                } else if (status == HttpStatus.SC_FORBIDDEN || status == HttpStatus.SC_UNAUTHORIZED) {
-                    errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
+                } else if (status == HttpStatus.SC_BAD_REQUEST) {
+                    APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                    if (error != null) {
+                        errorMessage = error.getDetail();
+                        LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());
+                    }
+                } else {
+                    LOGGER.error("API Request Failed: unexpected HTTP status {}", status);
                 }
             }
         }

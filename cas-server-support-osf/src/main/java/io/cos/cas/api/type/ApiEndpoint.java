@@ -43,7 +43,7 @@ public enum ApiEndpoint {
     ACCOUNT_VERIFY_OSF(ApiEndpoint.ACCOUNT + "/verify/osf"),
 
     /** Default Account Verification: Resend Email. */
-    ACCOUNT_VERIFY_OSF_RESEND(ApiEndpoint.ACCOUNT + "/verify/resend"),
+    ACCOUNT_VERIFY_OSF_RESEND(ApiEndpoint.ACCOUNT + "/verify/osf/resend"),
 
     /** Account Creation Or Link through External IdP. */
     ACCOUNT_REGISTER_EXTERNAL(ApiEndpoint.ACCOUNT + "/register/external"),

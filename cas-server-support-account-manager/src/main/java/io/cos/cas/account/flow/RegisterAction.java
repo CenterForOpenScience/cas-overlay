@@ -4,12 +4,15 @@ import io.cos.cas.account.model.RegisterFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.account.util.RecaptchaUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.api.type.ApiEndpoint;
 
 import org.apache.http.HttpStatus;
 
 import org.json.JSONObject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.Event;
@@ -22,6 +25,8 @@ import org.springframework.webflow.execution.RequestContext;
  * @since 4.1.5
  */
 public class RegisterAction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterAction.class);
 
     /** The Name of the Action. */
     public static final String NAME = "REGISTER";
@@ -71,7 +76,7 @@ public class RegisterAction {
         final JSONObject user = new JSONObject();
         final JSONObject data = new JSONObject();
 
-        String errorMessage = AbstractAccountFlowUtils.DEFAULT_CLIENT_ERROR_MESSAGE;
+        String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
         if (!recaptchaUtils.verifyRecaptcha(requestContext)) {
             errorMessage = "Invalid Captcha";
@@ -96,8 +101,14 @@ public class RegisterAction {
                         AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
                         return new Event(this, "success");
                     }
-                } else if (status == HttpStatus.SC_UNAUTHORIZED || status == HttpStatus.SC_FORBIDDEN) {
-                    errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
+                } else if (status == HttpStatus.SC_BAD_REQUEST) {
+                    APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                    if (error != null) {
+                        errorMessage = error.getDetail();
+                        LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());
+                    }
+                } else {
+                    LOGGER.error("API Request Failed: unexpected HTTP status {}", status);
                 }
             }
         }

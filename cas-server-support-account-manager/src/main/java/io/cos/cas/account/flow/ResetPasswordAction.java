@@ -3,12 +3,15 @@ package io.cos.cas.account.flow;
 import io.cos.cas.account.model.ResetPasswordFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.api.type.ApiEndpoint;
 
 import org.apache.http.HttpStatus;
 
 import org.json.JSONObject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.execution.Event;
@@ -21,6 +24,8 @@ import org.springframework.webflow.execution.RequestContext;
  * @since 4.1.5
  */
 public class ResetPasswordAction {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResetPasswordAction.class);
 
     /** The Name of the Action. */
     public static final String NAME = "RESET_PASSWORD";
@@ -92,8 +97,14 @@ public class ResetPasswordAction {
                     )) {
                         return new Event(this, "redirect");
                     }
-                } else if (status == HttpStatus.SC_FORBIDDEN || status == HttpStatus.SC_UNAUTHORIZED) {
-                    errorMessage = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
+                } else if (status == HttpStatus.SC_BAD_REQUEST) {
+                    APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                    if (error != null) {
+                        errorMessage = error.getDetail();
+                        LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());
+                    }
+                } else {
+                    LOGGER.error("API Request Failed: unexpected HTTP status {}", status);
                 }
             }
         }
