@@ -20,8 +20,8 @@
 package io.cos.cas.web.flow;
 
 import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.api.type.ApiEndpoint;
-import io.cos.cas.api.util.AbstractApiEndpointUtils;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.types.DelegationProtocol;
@@ -446,15 +446,23 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                             credential.getNonInstitutionExternalId()
                     );
                 }
-            } else if (statusCode == HttpStatus.SC_FORBIDDEN || statusCode == HttpStatus.SC_UNAUTHORIZED) {
-                final String errorDetail = apiEndpointHandler.getErrorMessageFromResponseBody(response.getJSONObject("body"));
-                if (AbstractApiEndpointUtils.ACCOUNT_NOT_FOUND.equals(errorDetail)) {
-                    logger.info(
-                            "External Identity Not Found in OSF: externalIdWithProvider = {}",
+            } else if (statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_BAD_REQUEST) {
+                final APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                if (error != null) {
+                    logger.error(
+                            "External Login Failed: code={}, detail={}, externalIdWithProvider = {}",
+                            error.getCode(),
+                            error.getDetail(),
                             credential.getNonInstitutionExternalId()
                     );
-                    return null;
+                    if (error.getCode() == APIErrors.ACCOUNT_NOT_FOUND) {
+                        return null;
+                    }
+                } else {
+                    logger.error("External Login Failed. Missing Error Code and Detail");
                 }
+            } else {
+                logger.error("External Login Failed. Unexpected HTTP Status {}", statusCode);
             }
         }
         logger.error(
@@ -498,9 +506,18 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                  );
                  if (statusCode == HttpStatus.SC_NO_CONTENT) {
                      return new PrincipalAuthenticationResult(username, institutionId, null, null);
+                 } else if (statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_BAD_REQUEST) {
+                     APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                     if (error != null) {
+                         logger.error("Institution Login Failed. code={}, detail={}", error.getCode(), error.getDetail());
+                     } else {
+                         logger.error("Institution Login Failed. Missing Error Code and Detail");
+                     }
+                 } else {
+                     logger.error("Institution Login Failed. Unexpected HTTP Status {}", statusCode);
                  }
              }
-             throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");
+             throw new RemoteUserFailedLoginException();
          } catch (final ParserConfigurationException | TransformerException e) {
             logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
             logger.trace("Notify Remote Principal Authenticated Exception: {}", e);

@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import io.cos.cas.api.handler.ApiEndpointHandler;
-import io.cos.cas.api.util.AbstractApiEndpointUtils;
+import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.InvalidVerificationKeyException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
@@ -144,32 +144,37 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             return createHandlerResult(credential, this.principalFactory.createPrincipal(userId, attributesMap), null);
         }
         // login failure
-        if (statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_FORBIDDEN) {
-            final JSONObject responseBody = response.getJSONObject("body");
-            final String errorDetail = apiEndpointHandler.getErrorMessageFromResponseBody(responseBody);
-            if (errorDetail == null) {
-                throw new ShouldNotHappenException("Invalid" + statusCode +  "response body from API login endpoint");
-            }
-
-            if (AbstractApiEndpointUtils.ACCOUNT_NOT_FOUND.equals(errorDetail)) {
-                throw new AccountNotFoundException();
-            } else if (AbstractApiEndpointUtils.TFA_REQUIRED.equals(errorDetail)) {
-                throw new OneTimePasswordRequiredException();
-            } else if (AbstractApiEndpointUtils.INVALID_PASSWORD.equals(errorDetail)) {
-                throw new FailedLoginException();
-            } else if (AbstractApiEndpointUtils.INVALID_KEY.equals(errorDetail)) {
-                throw new InvalidVerificationKeyException();
-            } else if (AbstractApiEndpointUtils.INVALID_TOTP.equals(errorDetail)) {
-                throw new OneTimePasswordFailedLoginException();
-            } else if (AbstractApiEndpointUtils.ACCOUNT_NOT_VERIFIED.equals(errorDetail)) {
-                throw new AccountNotVerifiedException();
-            } else if (AbstractApiEndpointUtils.ACCOUNT_DISABLED.equals(errorDetail)) {
-                throw new AccountDisabledException();
-            } else if (AbstractApiEndpointUtils.INVALID_ACCOUNT_STATUS.equals(errorDetail)) {
-                throw new ShouldNotHappenException();
+        if (statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_BAD_REQUEST) {
+            final APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+            if (error != null) {
+                switch (error.getCode()) {
+                    case APIErrors.ACCOUNT_NOT_FOUND:
+                        throw new AccountNotFoundException();
+                    case APIErrors.INVALID_PASSWORD:
+                        throw new FailedLoginException();
+                    case APIErrors.INVALID_VERIFICATION_KEY:
+                        throw new InvalidVerificationKeyException();
+                    case APIErrors.TWO_FACTOR_REQUIRED:
+                        throw new OneTimePasswordRequiredException();
+                    case APIErrors.TWO_FACTOR_FAILED:
+                        throw new OneTimePasswordFailedLoginException();
+                    case APIErrors.ACCOUNT_NOT_CONFIRMED:
+                        throw new AccountNotVerifiedException();
+                    case APIErrors.ACCOUNT_DISABLED:
+                        throw new AccountDisabledException();
+                    case APIErrors.INVALID_REQUEST:
+                    case APIErrors.ACCOUNT_NOT_CLAIMED:
+                    case APIErrors.ACCOUNT_MERGED:
+                    case APIErrors.ACCOUNT_INVALID:
+                        throw new ShouldNotHappenException();
+                    default:
+                        logger.error("OSF Login Failed. Unexpected Error Code {}", error.getCode());
+                }
+            } else {
+                logger.error("OSF Login Failed. Missing Error Code and Detail");
             }
         }
-
+        logger.error("OSF Login Failed. Unexpected HTTP Status {}", statusCode);
         throw new ShouldNotHappenException();
     }
 
