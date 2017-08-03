@@ -56,8 +56,6 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
 
     private static final int HEX_RADIX = 16;
 
-    private static final String SERVICE_TYPE = "OAUTH_APPS";
-
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
     @NotNull
@@ -93,7 +91,7 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
         final ArrayList<String> allowedAttributes = new ArrayList<>();
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
 
-        final JSONObject data = new JSONObject().put("serviceType", SERVICE_TYPE);
+        final JSONObject data = new JSONObject().put("description", "load OSF developer apps as registered services");
         final JSONObject response = apiEndpointHandler.handle(
                 ApiEndpoint.SERVICE_OAUTH_APPS,
                 apiEndpointHandler.encryptPayload("data", data.toString())

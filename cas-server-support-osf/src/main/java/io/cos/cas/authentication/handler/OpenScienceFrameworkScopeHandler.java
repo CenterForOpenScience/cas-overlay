@@ -20,6 +20,7 @@
 package io.cos.cas.authentication.handler;
 
 import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.api.type.ApiEndpoint;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.scope.Scope;
@@ -42,8 +43,6 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkScopeHandler.class);
 
-    private static final String SERVICE_TYPE = "OAUTH_SCOPE";
-
     @NotNull
     private ApiEndpointHandler apiEndpointHandler;
 
@@ -57,22 +56,25 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
     public Scope getScope(final String scopeName) {
 
         final JSONObject data = new JSONObject();
-        data.put("serviceType", SERVICE_TYPE);
         data.put("scopeName", scopeName);
         final JSONObject response = apiEndpointHandler.handle(
                 ApiEndpoint.SERVICE_OAUTH_SCOPE,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 
-        if (response != null && response.getInt("status") == HttpStatus.SC_OK) {
-            final JSONObject responseBody = response.getJSONObject("body");
-            if (responseBody == null || !responseBody.has("scopeDescription")) {
-                LOGGER.debug("Invalid Response");
-                return null;
+        if (response != null) {
+            final int status = response.getInt("status");
+            if (status == HttpStatus.SC_OK) {
+                final JSONObject responseBody = response.getJSONObject("body");
+                if (responseBody == null || !responseBody.has("scopeDescription")) {
+                    LOGGER.error("Invalid API Response: missing scope description");
+                    return null;
+                }
+                return new Scope(scopeName, (String) responseBody.get("scopeDescription"), Boolean.FALSE);
+            } else if (status == HttpStatus.SC_BAD_REQUEST) {
+                final APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                LOGGER.error("API Request Failed: code={}, detail='{}'", error.getCode(), error.getDetail());
             }
-
-            final String scopeDescription = (String) responseBody.get("scopeDescription");
-            return new Scope(scopeName, scopeDescription, Boolean.FALSE);
         }
 
         return null;

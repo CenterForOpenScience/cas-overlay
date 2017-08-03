@@ -20,6 +20,7 @@
 package io.cos.cas.authentication.handler;
 
 import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.api.type.ApiEndpoint;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
@@ -45,8 +46,6 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkPersonalAccessTokenHandler.class);
 
-    private static final String SERVICE_TYPE = "OAUTH_TOKEN";
-
     @NotNull
     private ApiEndpointHandler apiEndpointHandler;
 
@@ -61,27 +60,32 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
     public PersonalAccessToken getToken(final String tokenId) {
 
         final JSONObject data = new JSONObject();
-        data.put("serviceType", SERVICE_TYPE);
         data.put("tokenId", tokenId);
         final JSONObject response = apiEndpointHandler.handle(
                 ApiEndpoint.SERVICE_OAUTH_TOKEN,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 
-        if (response != null && response.getInt("status") == HttpStatus.SC_OK) {
-            final JSONObject responseBody = response.getJSONObject("body");
-            if (responseBody == null || !responseBody.has("ownerId") || !responseBody.has("tokenScopes")) {
-                LOGGER.debug("Invalid Response");
-                return null;
-            }
-            final String ownerGuid = (String) responseBody.get("ownerId");
-            final String tokenScopes = (String) responseBody.get("tokenScopes");
+        if (response != null) {
+            final int status = response.getInt("status");
+            if (status == HttpStatus.SC_OK) {
+                final JSONObject responseBody = response.getJSONObject("body");
+                if (responseBody == null || !responseBody.has("ownerId") || !responseBody.has("tokenScopes")) {
+                    LOGGER.debug("Invalid Response");
+                    return null;
+                }
+                final String ownerGuid = (String) responseBody.get("ownerId");
+                final String tokenScopes = (String) responseBody.get("tokenScopes");
 
-            return new PersonalAccessToken(
-                    tokenId,
-                    ownerGuid,
-                    new HashSet<>(Arrays.asList(tokenScopes.split(" ")))
-            );
+                return new PersonalAccessToken(
+                        tokenId,
+                        ownerGuid,
+                        new HashSet<>(Arrays.asList(tokenScopes.split(" ")))
+                );
+            } else if (status == HttpStatus.SC_BAD_REQUEST) {
+                APIErrors error = apiEndpointHandler.getAPIErrorsFromResponse(response.getJSONObject("body"));
+                LOGGER.error("API Request Failed: code={}, detail='{}'", error.getCode(), error.getDetail());
+            }
         }
 
         return null;

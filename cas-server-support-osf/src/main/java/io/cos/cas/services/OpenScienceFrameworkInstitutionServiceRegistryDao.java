@@ -50,8 +50,6 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkInstitutionServiceRegistryDao.class);
 
-    private static final String SERVICE_TYPE = "INSTITUTIONS";
-
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
     @NotNull
@@ -83,7 +81,7 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
 
         final Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
-        final JSONObject data = new JSONObject().put("serviceType", SERVICE_TYPE);
+        final JSONObject data = new JSONObject().put("description", "load institutions as registered services");
         final JSONObject response = apiEndpointHandler.handle(
                 ApiEndpoint.SERVICE_INSTITUTIONS,
                 apiEndpointHandler.encryptPayload("data", data.toString())

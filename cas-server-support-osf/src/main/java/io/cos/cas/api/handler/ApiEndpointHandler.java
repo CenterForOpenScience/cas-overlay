@@ -33,6 +33,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.api.type.ApiEndpoint;
 import io.cos.cas.web.util.AbstractFlowUtils;
 
@@ -202,6 +203,26 @@ public class ApiEndpointHandler {
     }
 
     /**
+     * Get the error code from HTTP 400s response.
+     *
+     * @param responseBody the 400s response body
+     * @return the error code
+     */
+    public APIErrors getAPIErrorsFromResponse(final JSONObject responseBody) {
+        if (responseBody != null && responseBody.has("errors")) {
+            final JSONArray errorList = responseBody.getJSONArray("errors");
+            if (errorList.length() == 1) {
+                final JSONObject error = errorList.getJSONObject(0);
+                if (error.has("code") && error.has("detail")) {
+                    return new APIErrors(error.getInt("code"), error.getString("detail"));
+                }
+            }
+        }
+        LOGGER.error("Invalid Response for API Exceptions");
+        return null;
+    }
+
+    /**
      * Make HTTP POST Request to API CAS Endpoint.
      *
      * @param url the full request URL
@@ -240,7 +261,7 @@ public class ApiEndpointHandler {
             return parsedResponse.put("status", statusCode);
         }
 
-        if (statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_FORBIDDEN) {
+        if (statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_BAD_REQUEST) {
             try {
                 parsedResponse.put("status", statusCode);
                 parsedResponse.put("body", new JSONObject(new BasicResponseHandler().handleEntity(response.getEntity())));
@@ -252,7 +273,12 @@ public class ApiEndpointHandler {
             }
         }
 
-        LOGGER.error("API Request Failed: {} {}", url, statusCode);
+        if (statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+            LOGGER.error("API Request Failed. Server Error: {} {}", url, statusCode);
+        } else {
+            LOGGER.error("API Request Failed. Unexpected HTTP Status: {} {}", url, statusCode);
+        }
+
         return null;
     }
 }
