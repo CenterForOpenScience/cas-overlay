@@ -412,7 +412,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      * @return if user found, return the username and external ID, otherwise return null
      * @throws AccountException if API request fails
      */
-    protected PrincipalAuthenticationResult notifyNonInstitutionRemotePrincipalAuthenticated(
+    private PrincipalAuthenticationResult notifyNonInstitutionRemotePrincipalAuthenticated(
             final OpenScienceFrameworkCredential credential
     ) throws AccountException {
 
@@ -485,17 +485,28 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      ) throws AccountException {
          try {
              final JSONObject normalizedPayload = this.normalizeRemotePrincipal(credential);
-             normalizedPayload.put("loginType", "INSTITUTION");
-
              final JSONObject provider = normalizedPayload.getJSONObject("provider");
-             final String institutionId = provider.getString("id");
-             final String username = provider.getJSONObject("user").getString("username");
-             logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
 
-             final String encryptedPayload
-                     = apiEndpointHandler.encryptPayload("data", normalizedPayload.toString());
-             final JSONObject response
-                     = apiEndpointHandler.handle(ApiEndpoint.LOGIN_INSTITUTION, encryptedPayload);
+             final String institutionId = provider.getString("id");
+             if (institutionId == null || institutionId.trim().isEmpty()) {
+                 logger.error("Notify Remote Principal Authenticated Exception: Institution Provider ID Required");
+                 throw new RemoteUserFailedLoginException("Institution Provider ID Required");
+             }
+
+             final String username = provider.getJSONObject("user").getString("username");
+             if (username == null || username.trim().isEmpty()) {
+                 logger.error("Notify Remote Principal Authenticated Exception: username=null, institution={}", institutionId);
+                 throw new RemoteUserFailedLoginException("Username (Email) Required");
+             }
+
+             final String payload = normalizedPayload.toString();
+             logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
+             logger.debug("Notify Remote Principal Authenticated [{}, {}] Normalized Payload '{}'", username, institutionId, payload);
+
+             final JSONObject response = apiEndpointHandler.handle(
+                     ApiEndpoint.LOGIN_INSTITUTION,
+                     apiEndpointHandler.encryptPayload("data", payload)
+             );
 
              if (response != null) {
                  final int statusCode = response.getInt("status");
@@ -533,7 +544,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      * @throws ParserConfigurationException a parser configuration exception
      * @throws TransformerException a transformer exception
      */
-    private JSONObject normalizeRemotePrincipal(final OpenScienceFrameworkCredential credential)
+    protected JSONObject normalizeRemotePrincipal(final OpenScienceFrameworkCredential credential)
             throws ParserConfigurationException, TransformerException {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         final DocumentBuilder builder = factory.newDocumentBuilder();

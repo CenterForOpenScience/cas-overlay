@@ -122,7 +122,6 @@
                 registeredService.id == 203948234207340
             }">
                 <hr/>
-
                 <section class="row">
                     <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo" src="../images/orcid-logo.png"><spring:message code="screen.welcome.button.login.orcid" /></a>
                 </section>

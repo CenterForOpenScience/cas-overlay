@@ -1,13 +1,9 @@
 package io.cos.cas.mock;
 
-import io.cos.cas.AbstractTestUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
-import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.web.flow.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
 
 import org.jasig.cas.CentralAuthenticationService;
-
-import javax.security.auth.login.AccountException;
 
 /**
  * This class mocks the {@link OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction} class.
@@ -27,7 +23,7 @@ public class MockOsfRemoteAuthenticateAction
     private static final String INSTITUTION_AUTH_XSL_LOCATION = "file:mock-institutions-auth.xsl";
 
     /** Constructor. */
-    public MockOsfRemoteAuthenticateAction(
+    protected MockOsfRemoteAuthenticateAction(
             final CentralAuthenticationService centralAuthenticationService
     ) {
 
@@ -43,29 +39,5 @@ public class MockOsfRemoteAuthenticateAction
                 )
         );
         this.setInstitutionsAuthXslLocation(INSTITUTION_AUTH_XSL_LOCATION);
-    }
-
-    @Override
-    protected PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
-            final OpenScienceFrameworkCredential credential
-    ) throws AccountException {
-        return new PrincipalAuthenticationResult(
-                AbstractTestUtils.CONST_MAIL,
-                AbstractTestUtils.CONST_INSTITUTION_ID,
-                null,
-                null
-        );
-    }
-
-    @Override
-    protected PrincipalAuthenticationResult notifyNonInstitutionRemotePrincipalAuthenticated(
-            final OpenScienceFrameworkCredential credential
-    ) throws AccountException {
-        return new PrincipalAuthenticationResult(
-                AbstractTestUtils.CONST_MAIL,
-                null,
-                AbstractTestUtils.CONST_EXTERNAL_IDENTITY,
-                AbstractTestUtils.CONST_EXTERNAL_IDENTITY_PROVIDER
-        );
     }
 }
