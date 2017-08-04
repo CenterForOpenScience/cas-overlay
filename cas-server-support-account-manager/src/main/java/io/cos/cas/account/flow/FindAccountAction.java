@@ -77,9 +77,11 @@ public class FindAccountAction {
             return new Event(this, "success");
         } else if (verifyTargetAction(target)) {
             final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
-            if (ResetPasswordAction.NAME.equalsIgnoreCase(target) && !userId.isEmpty() && osf4Meetings) {
+            if (ResetPasswordAction.NAME.equalsIgnoreCase(target) && !userId.isEmpty()) {
                 accountPageContext.setUserId(userId);
-                accountPageContext.setOsf4Meetings(Boolean.TRUE);
+                if (osf4Meetings) {
+                    accountPageContext.setOsf4Meetings(Boolean.TRUE);
+                }
                 accountPageContext.setAction(ResetPasswordAction.NAME);
                 accountPageContext.setTarget(null);
                 requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
