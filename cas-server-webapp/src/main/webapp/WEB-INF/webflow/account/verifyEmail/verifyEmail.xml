@@ -30,6 +30,7 @@
     <view-state id="viewVerifyEmailPage" view="/WEB-INF/view/jsp/accountManager/casVerifyEmailView.jsp" model="verifyEmailFormBean">
         <binder>
             <binding property="action" />
+            <binding property="userId" />
             <binding property="emailToVerify" />
             <binding property="verificationCode" />
         </binder>

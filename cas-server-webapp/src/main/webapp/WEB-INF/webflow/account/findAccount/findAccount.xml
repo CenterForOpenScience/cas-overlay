@@ -22,6 +22,7 @@
         <evaluate expression="findAccountAction.preparePage(flowRequestContext)" />
         <transition on="success" to="viewFindAccountPage" />
         <transition on="reset" to="viewResetPasswordPage" />
+        <transition on="verify" to="viewVerifyEmailPage" />
         <transition on="error" to="viewManagerException" />
     </action-state>
 

@@ -86,6 +86,12 @@ public class FindAccountAction {
                 accountPageContext.setTarget(null);
                 requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
                 return new Event(this, "reset");
+            } else if (VerifyEmailAction.NAME.equalsIgnoreCase(target) && !userId.isEmpty()) {
+                accountPageContext.setUserId(userId);
+                accountPageContext.setAction(VerifyEmailAction.NAME);
+                accountPageContext.setTarget(null);
+                requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
+                return new Event(this, "verify");
             }
             requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
             return new Event(this, "success");

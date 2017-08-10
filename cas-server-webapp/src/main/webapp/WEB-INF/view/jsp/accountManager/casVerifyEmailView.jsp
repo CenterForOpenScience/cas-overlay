@@ -45,11 +45,13 @@
 
         <h2><spring:message code="screen.challenge.header" /></h2>
 
-        <section class="row">
-            <label for="emailToVerify"><spring:message code="screen.challenge.label.primaryEmail" /></label><br/>
-            <spring:message code="screen.challenge.label.email.primary.accesskey" var="emailAccessKey" />
-            <form:input disabled="true" value="${accountManagerContext.getEmailToVerify()}" cssClass="required" cssErrorClass="error" id="emailToVerify" size="25" tabindex="1" accesskey="${emailAccessKey}" path="emailToVerify" autocomplete="off" htmlEscape="true" />
-        </section>
+        <c:if test="${not empty accountManagerContext.getUsername()}">
+            <section class="row">
+                <label for="emailToVerify"><spring:message code="screen.challenge.label.primaryEmail" /></label><br/>
+                <spring:message code="screen.challenge.label.email.primary.accesskey" var="emailAccessKey" />
+                <form:input disabled="true" value="${accountManagerContext.getEmailToVerify()}" cssClass="required" cssErrorClass="error" id="emailToVerify" size="25" tabindex="1" accesskey="${emailAccessKey}" path="emailToVerify" autocomplete="off" htmlEscape="true" />
+            </section>
+        </c:if>
 
         <section class="row">
             <label for="verificationCode"><spring:message code="screen.challenge.label.verificationCode" /></label><br/>

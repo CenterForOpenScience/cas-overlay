@@ -57,9 +57,7 @@ public class VerifyEmailAction {
         final AccountManager accountManager = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
         String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
-        if (accountManager != null && accountManager.getEmailToVerify() != null) {
-
-            verifyEmailForm.setEmailToVerify(accountManager.getEmailToVerify());
+        if (accountManager != null) {
 
             final JSONObject user = new JSONObject();
             final JSONObject data = new JSONObject();
@@ -69,11 +67,20 @@ public class VerifyEmailAction {
                 endpoint = ApiEndpoint.ACCOUNT_VERIFY_EXTERNAL;
                 data.put("accountAction", "VERIFY_EXTERNAL");
             } else {
-
                 endpoint = ApiEndpoint.ACCOUNT_VERIFY_OSF;
                 data.put("accountAction", "VERIFY_OSF");
             }
-            user.put("email", verifyEmailForm.getEmailToVerify());
+
+            if (accountManager.getUserId() != null) {
+                verifyEmailForm.setUserId(accountManager.getUserId());
+                user.put("userId", verifyEmailForm.getUserId());
+            }
+
+            if (accountManager.getEmailToVerify() != null) {
+                verifyEmailForm.setEmailToVerify(accountManager.getEmailToVerify());
+                user.put("email", verifyEmailForm.getEmailToVerify());
+            }
+
             user.put("verificationCode", verifyEmailForm.getVerificationCode());
             data.put("user", user);
 
