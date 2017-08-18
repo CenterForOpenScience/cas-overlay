@@ -114,7 +114,7 @@
 
         <%-- TODO: Only display OAuth Client options for the OSF service, due to a limitation of our OAuth Provider implementation as it does not support non-existing OSF accounts. --%>
         <c:if test="${not empty registeredService}">
-            <c:if test="${not empty registeredService.id && ( registeredService.id == 203948234207230 || registeredService.id == 203948234207231 || registeredService.id == 203948234207232 || ( registeredService.id >= 203948234207240 && registeredService.id <= 203948234207256 ) || registeredService.id == 203948234207340 ) }">
+            <c:if test="${not empty registeredService.id && ( registeredService.id == 203948234207230 || registeredService.id == 203948234207231 || registeredService.id == 203948234207232 || ( registeredService.id >= 203948234207240 && registeredService.id <= 203948234207257 ) || registeredService.id == 203948234207340 ) }">
                 <hr/>
                 <section class="row">
                     <a class="btn-oauth" href="${OrcidClientUrl}"><img class="orcid-logo" src="../images/orcid-logo.png"><spring:message code="screen.welcome.button.login.orcid" /></a>
