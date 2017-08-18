@@ -1,6 +1,6 @@
 package io.cos.cas.mock;
 
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 import io.cos.cas.web.flow.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
 
 import org.jasig.cas.CentralAuthenticationService;
@@ -29,7 +29,7 @@ public class MockOsfRemoteAuthenticateAction
 
         this.setCentralAuthenticationService(centralAuthenticationService);
         this.setApiEndpointHandler(
-                new ApiEndpointHandler(
+                new APIEndpointHandler(
                         OSF_CAS_ACTION_URL,
                         CAS_LOGIN_URL,
                         CAS_CREATE_OR_LINK_ACCOUNT_URL,

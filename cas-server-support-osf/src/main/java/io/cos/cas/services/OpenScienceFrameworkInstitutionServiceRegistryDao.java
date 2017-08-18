@@ -19,8 +19,8 @@
 
 package io.cos.cas.services;
 
-import io.cos.cas.api.handler.ApiEndpointHandler;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.handler.APIEndpointHandler;
+import io.cos.cas.api.type.APIEndpoint;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServiceRegistryDao;
@@ -53,14 +53,14 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
     @NotNull
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /**
      * Instantiates a new Open Science Framework Institution Service Registry Dao.
      *
      * @param apiEndpointHandler the API Endpoint Handler
      */
-    public OpenScienceFrameworkInstitutionServiceRegistryDao(final ApiEndpointHandler apiEndpointHandler) {
+    public OpenScienceFrameworkInstitutionServiceRegistryDao(final APIEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }
 
@@ -83,7 +83,7 @@ public class OpenScienceFrameworkInstitutionServiceRegistryDao implements Servic
 
         final JSONObject data = new JSONObject().put("description", "load institutions as registered services");
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.SERVICE_INSTITUTIONS,
+                APIEndpoint.SERVICE_INSTITUTIONS,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 

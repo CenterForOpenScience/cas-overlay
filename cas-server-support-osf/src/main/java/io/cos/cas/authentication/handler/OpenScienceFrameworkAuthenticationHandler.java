@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.InvalidVerificationKeyException;
@@ -33,7 +33,7 @@ import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 
 import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 import io.cos.cas.authentication.exceptions.AccountNotVerifiedException;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
@@ -64,7 +64,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     private PrincipalNameTransformer principalNameTransformer = new NoOpPrincipalNameTransformer();
 
     @NotNull
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /** Default Constructor. */
     public OpenScienceFrameworkAuthenticationHandler() {}
@@ -118,7 +118,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         payload.put("data", data);
 
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.LOGIN_OSF,
+                APIEndpoint.LOGIN_OSF,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 
@@ -183,7 +183,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         this.principalNameTransformer = principalNameTransformer;
     }
 
-    public void setApiEndpointHandler(final ApiEndpointHandler apiEndpointHandler) {
+    public void setApiEndpointHandler(final APIEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }
 

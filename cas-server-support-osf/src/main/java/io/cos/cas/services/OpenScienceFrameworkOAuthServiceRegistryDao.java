@@ -19,8 +19,8 @@
 
 package io.cos.cas.services;
 
-import io.cos.cas.api.handler.ApiEndpointHandler;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.handler.APIEndpointHandler;
+import io.cos.cas.api.type.APIEndpoint;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
@@ -59,14 +59,14 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
 
     @NotNull
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /**
      * Instantiates a new Open Science Framework OAuth Registry DAO.
      *
      * @param apiEndpointHandler the API Endpoint Handler
      */
-    public OpenScienceFrameworkOAuthServiceRegistryDao(final ApiEndpointHandler apiEndpointHandler) {
+    public OpenScienceFrameworkOAuthServiceRegistryDao(final APIEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }
 
@@ -93,7 +93,7 @@ public class OpenScienceFrameworkOAuthServiceRegistryDao implements ServiceRegis
 
         final JSONObject data = new JSONObject().put("description", "load OSF developer apps as registered services");
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.SERVICE_OAUTH_APPS,
+                APIEndpoint.SERVICE_OAUTH_APPS,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 

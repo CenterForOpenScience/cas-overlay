@@ -19,9 +19,9 @@
 
 package io.cos.cas.web.flow;
 
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 import io.cos.cas.api.type.APIErrors;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import io.cos.cas.types.DelegationProtocol;
@@ -168,7 +168,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
     protected PrincipalFactory principalFactory = new DefaultPrincipalFactory();
 
     @NotNull
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     @NotNull
     private String institutionsAuthXslLocation;
@@ -423,7 +423,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         data.put("user", user);
 
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.LOGIN_EXTERNAL,
+                APIEndpoint.LOGIN_EXTERNAL,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 
@@ -503,7 +503,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
              logger.debug("Notify Remote Principal Authenticated [{}, {}] Normalized Payload '{}'", username, institutionId, payload);
 
              final JSONObject response = apiEndpointHandler.handle(
-                     ApiEndpoint.LOGIN_INSTITUTION,
+                     APIEndpoint.LOGIN_INSTITUTION,
                      apiEndpointHandler.encryptPayload("data", payload)
              );
 
@@ -576,7 +576,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         return XML.toJSONObject(writer.getBuffer().toString());
     }
 
-    public void setApiEndpointHandler(final ApiEndpointHandler apiEndpointHandler) {
+    public void setApiEndpointHandler(final APIEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }
 

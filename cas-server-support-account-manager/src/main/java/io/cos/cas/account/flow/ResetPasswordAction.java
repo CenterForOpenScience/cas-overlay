@@ -2,9 +2,9 @@ package io.cos.cas.account.flow;
 
 import io.cos.cas.account.model.ResetPasswordFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 import io.cos.cas.api.type.APIErrors;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 
 import org.apache.http.HttpStatus;
 
@@ -31,14 +31,14 @@ public class ResetPasswordAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResetPasswordAction.class);
 
     /** The API Endpoint Handler. */
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /**
      * Constructor.
      *
      * @param apiEndpointHandler the API Endpoint Handler
      */
-    public ResetPasswordAction(final ApiEndpointHandler apiEndpointHandler) {
+    public ResetPasswordAction(final APIEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }
 
@@ -82,7 +82,7 @@ public class ResetPasswordAction {
             data.put("user", user);
 
             final JSONObject response = apiEndpointHandler.handle(
-                    ApiEndpoint.ACCOUNT_PASSWORD_RESET,
+                    APIEndpoint.ACCOUNT_PASSWORD_RESET,
                     apiEndpointHandler.encryptPayload("data", data.toString())
             );
 

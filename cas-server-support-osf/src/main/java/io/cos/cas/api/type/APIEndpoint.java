@@ -25,49 +25,49 @@ package io.cos.cas.api.type;
  * @author Longze
  * @since 4.1.5
  */
-public enum ApiEndpoint {
+public enum APIEndpoint {
 
     /** Default Login through OSF. */
-    LOGIN_OSF(ApiEndpoint.LOGIN + "/osf"),
+    LOGIN_OSF(APIEndpoint.LOGIN + "/osf"),
 
     /** Login through Institution. */
-    LOGIN_INSTITUTION(ApiEndpoint.LOGIN + "/institution"),
+    LOGIN_INSTITUTION(APIEndpoint.LOGIN + "/institution"),
 
     /** Login through External IdP. */
-    LOGIN_EXTERNAL(ApiEndpoint.LOGIN + "/external"),
+    LOGIN_EXTERNAL(APIEndpoint.LOGIN + "/external"),
 
     /** Account Creation through OSF. */
-    ACCOUNT_REGISTER_OSF(ApiEndpoint.ACCOUNT + "/register/osf"),
+    ACCOUNT_REGISTER_OSF(APIEndpoint.ACCOUNT + "/register/osf"),
 
     /** Default Account Verification. */
-    ACCOUNT_VERIFY_OSF(ApiEndpoint.ACCOUNT + "/verify/osf"),
+    ACCOUNT_VERIFY_OSF(APIEndpoint.ACCOUNT + "/verify/osf"),
 
     /** Default Account Verification: Resend Email. */
-    ACCOUNT_VERIFY_OSF_RESEND(ApiEndpoint.ACCOUNT + "/verify/osf/resend"),
+    ACCOUNT_VERIFY_OSF_RESEND(APIEndpoint.ACCOUNT + "/verify/osf/resend"),
 
     /** Account Creation Or Link through External IdP. */
-    ACCOUNT_REGISTER_EXTERNAL(ApiEndpoint.ACCOUNT + "/register/external"),
+    ACCOUNT_REGISTER_EXTERNAL(APIEndpoint.ACCOUNT + "/register/external"),
 
     /** Account Verification: Create Or Link OSF Account. */
-    ACCOUNT_VERIFY_EXTERNAL(ApiEndpoint.ACCOUNT + "/verify/external"),
+    ACCOUNT_VERIFY_EXTERNAL(APIEndpoint.ACCOUNT + "/verify/external"),
 
     /** Account Password Manager: Forgot Password. */
-    ACCOUNT_PASSWORD_FORGOT(ApiEndpoint.ACCOUNT + "/password/forgot"),
+    ACCOUNT_PASSWORD_FORGOT(APIEndpoint.ACCOUNT + "/password/forgot"),
 
     /** Account Password Manager: Reset Password. */
-    ACCOUNT_PASSWORD_RESET(ApiEndpoint.ACCOUNT + "/password/reset"),
+    ACCOUNT_PASSWORD_RESET(APIEndpoint.ACCOUNT + "/password/reset"),
 
     /** Load OSF Institutions as Registered Services. */
-    SERVICE_INSTITUTIONS(ApiEndpoint.SERVICE + "/institutions"),
+    SERVICE_INSTITUTIONS(APIEndpoint.SERVICE + "/institutions"),
 
     /** Load Developer Applications as Registered Services. */
-    SERVICE_OAUTH_APPS(ApiEndpoint.SERVICE + "/oauth/apps"),
+    SERVICE_OAUTH_APPS(APIEndpoint.SERVICE + "/oauth/apps"),
 
     /** Personal Access Token. */
-    SERVICE_OAUTH_TOKEN(ApiEndpoint.SERVICE + "/oauth/token"),
+    SERVICE_OAUTH_TOKEN(APIEndpoint.SERVICE + "/oauth/token"),
 
     /** OAuth Scopes. */
-    SERVICE_OAUTH_SCOPE(ApiEndpoint.SERVICE + "/oauth/scope");
+    SERVICE_OAUTH_SCOPE(APIEndpoint.SERVICE + "/oauth/scope");
 
     /** Prefix for Login Endpoints. */
     private static final String LOGIN = "login";
@@ -86,7 +86,7 @@ public enum ApiEndpoint {
      *
      * @param id the id of the API Endpoint
      */
-    ApiEndpoint(final String id) {
+    APIEndpoint(final String id) {
         this.id = id;
     }
 
@@ -97,12 +97,12 @@ public enum ApiEndpoint {
      * @return the specific API Endpoint enumeration or null
      * @throws IllegalArgumentException if API Endpoint does not match
      */
-    public static ApiEndpoint getType(final String id) throws IllegalArgumentException {
+    public static APIEndpoint getType(final String id) throws IllegalArgumentException {
         if (id == null) {
             return null;
         }
 
-        for (final ApiEndpoint type : ApiEndpoint.values()) {
+        for (final APIEndpoint type : APIEndpoint.values()) {
             if (id.equals(type.getId())) {
                 return type;
             }

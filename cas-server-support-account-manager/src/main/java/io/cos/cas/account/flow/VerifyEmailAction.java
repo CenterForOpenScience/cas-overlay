@@ -2,10 +2,10 @@ package io.cos.cas.account.flow;
 
 import io.cos.cas.account.model.VerifyEmailFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 
 import io.cos.cas.api.type.APIErrors;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
@@ -30,14 +30,14 @@ public class VerifyEmailAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(VerifyEmailAction.class);
 
     /** The API Endpoint Handler. */
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /**
      * Constructor.
      *
      * @param apiEndpointHandler the API Endpoint Handler
      */
-    public VerifyEmailAction(final ApiEndpointHandler apiEndpointHandler) {
+    public VerifyEmailAction(final APIEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }
 
@@ -61,13 +61,13 @@ public class VerifyEmailAction {
 
             final JSONObject user = new JSONObject();
             final JSONObject data = new JSONObject();
-            ApiEndpoint endpoint;
+            APIEndpoint endpoint;
 
             if (accountManager.getTarget() != null) {
-                endpoint = ApiEndpoint.ACCOUNT_VERIFY_EXTERNAL;
+                endpoint = APIEndpoint.ACCOUNT_VERIFY_EXTERNAL;
                 data.put("accountAction", "VERIFY_EXTERNAL");
             } else {
-                endpoint = ApiEndpoint.ACCOUNT_VERIFY_OSF;
+                endpoint = APIEndpoint.ACCOUNT_VERIFY_OSF;
                 data.put("accountAction", "VERIFY_OSF");
             }
 

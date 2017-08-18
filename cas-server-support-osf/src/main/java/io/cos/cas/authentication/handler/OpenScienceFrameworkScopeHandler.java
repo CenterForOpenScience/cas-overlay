@@ -19,9 +19,9 @@
 
 package io.cos.cas.authentication.handler;
 
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 import io.cos.cas.api.type.APIErrors;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.scope.Scope;
 import org.jasig.cas.support.oauth.scope.handler.support.AbstractScopeHandler;
@@ -44,7 +44,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkScopeHandler.class);
 
     @NotNull
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /** Default Constructor. */
     public OpenScienceFrameworkScopeHandler() {}
@@ -58,7 +58,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
         final JSONObject data = new JSONObject();
         data.put("scopeName", scopeName);
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.SERVICE_OAUTH_SCOPE,
+                APIEndpoint.SERVICE_OAUTH_SCOPE,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 
@@ -80,7 +80,7 @@ public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler imple
         return null;
     }
 
-    public void setApiEndpointHandler(final ApiEndpointHandler apiEndpointHandler) {
+    public void setApiEndpointHandler(final APIEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }
 }

@@ -2,9 +2,9 @@ package io.cos.cas.account.flow;
 
 import io.cos.cas.account.model.FindAccountFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 import io.cos.cas.api.type.APIErrors;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import org.apache.http.HttpStatus;
@@ -32,14 +32,14 @@ public class FindAccountAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(FindAccountAction.class);
 
     /** The API Endpoint Handler. */
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /**
      * Constructor.
      *
      * @param apiEndpointHandler the API Endpoint Handler
      */
-    public FindAccountAction(final ApiEndpointHandler apiEndpointHandler) {
+    public FindAccountAction(final APIEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }
 
@@ -114,7 +114,7 @@ public class FindAccountAction {
         if (accountManager != null) {
 
             final String targetAction = accountManager.getTarget();
-            final ApiEndpoint endpoint = getAPIEndpointByTargetAction(targetAction);
+            final APIEndpoint endpoint = getAPIEndpointByTargetAction(targetAction);
 
             if (endpoint != null) {
 
@@ -164,12 +164,12 @@ public class FindAccountAction {
      * @param target the target action
      * @return the API Endpoint if valid
      */
-    private ApiEndpoint getAPIEndpointByTargetAction(final String target) {
+    private APIEndpoint getAPIEndpointByTargetAction(final String target) {
 
         if (ResetPasswordAction.NAME.equalsIgnoreCase(target)){
-            return ApiEndpoint.ACCOUNT_PASSWORD_FORGOT;
+            return APIEndpoint.ACCOUNT_PASSWORD_FORGOT;
         } else if (VerifyEmailAction.NAME.equalsIgnoreCase(target)) {
-            return ApiEndpoint.ACCOUNT_VERIFY_OSF_RESEND;
+            return APIEndpoint.ACCOUNT_VERIFY_OSF_RESEND;
         } else {
             LOGGER.error("Find Account Action Failed: target={} is invalid", target);
             return null;

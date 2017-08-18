@@ -19,9 +19,9 @@
 
 package io.cos.cas.authentication.handler;
 
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 import io.cos.cas.api.type.APIErrors;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 import org.apache.http.HttpStatus;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.personal.handler.support.AbstractPersonalAccessTokenHandler;
@@ -47,7 +47,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkPersonalAccessTokenHandler.class);
 
     @NotNull
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /** Default Constructor. */
     public OpenScienceFrameworkPersonalAccessTokenHandler() {}
@@ -62,7 +62,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
         final JSONObject data = new JSONObject();
         data.put("tokenId", tokenId);
         final JSONObject response = apiEndpointHandler.handle(
-                ApiEndpoint.SERVICE_OAUTH_TOKEN,
+                APIEndpoint.SERVICE_OAUTH_TOKEN,
                 apiEndpointHandler.encryptPayload("data", data.toString())
         );
 
@@ -90,7 +90,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
 
         return null;
     }
-    public void setApiEndpointHandler(final ApiEndpointHandler apiEndpointHandler) {
+    public void setApiEndpointHandler(final APIEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
     }
 }

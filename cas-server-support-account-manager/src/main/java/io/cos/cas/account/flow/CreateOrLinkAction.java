@@ -3,9 +3,9 @@ package io.cos.cas.account.flow;
 import io.cos.cas.account.model.CreateOrLinkFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.account.util.RecaptchaUtils;
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 import io.cos.cas.api.type.APIErrors;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import org.apache.http.HttpStatus;
@@ -33,7 +33,7 @@ public class CreateOrLinkAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateOrLinkAction.class);
 
     /** The API Endpoint Handler. */
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /** The Recaptcha Utility. */
     private RecaptchaUtils recaptchaUtils;
@@ -44,7 +44,7 @@ public class CreateOrLinkAction {
      * @param apiEndpointHandler the API Endpoint Handler
      * @param recaptchaUtils the reCAPTCHA Utility
      */
-    public CreateOrLinkAction(final ApiEndpointHandler apiEndpointHandler, final RecaptchaUtils recaptchaUtils) {
+    public CreateOrLinkAction(final APIEndpointHandler apiEndpointHandler, final RecaptchaUtils recaptchaUtils) {
         this.apiEndpointHandler = apiEndpointHandler;
         this.recaptchaUtils = recaptchaUtils;
     }
@@ -97,7 +97,7 @@ public class CreateOrLinkAction {
                 return new Event(this, "error");
             }
 
-            final ApiEndpoint endpoint = ApiEndpoint.ACCOUNT_REGISTER_EXTERNAL;
+            final APIEndpoint endpoint = APIEndpoint.ACCOUNT_REGISTER_EXTERNAL;
             final JSONObject user = new JSONObject();
             final JSONObject data = new JSONObject();
             user.put("email", createOrLinkFormBean.getEmail())

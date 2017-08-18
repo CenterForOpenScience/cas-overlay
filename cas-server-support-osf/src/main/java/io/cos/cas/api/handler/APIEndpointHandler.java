@@ -34,7 +34,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.cos.cas.api.type.APIErrors;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 import io.cos.cas.web.util.AbstractFlowUtils;
 
 import org.apache.http.HttpResponse;
@@ -62,9 +62,9 @@ import java.util.Date;
  * @author Longze Chen
  * @since 4.1.5
  */
-public class ApiEndpointHandler {
+public class APIEndpointHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiEndpointHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(APIEndpointHandler.class);
 
     private static final int SIXTY_SECONDS = 60 * 1000;
 
@@ -96,7 +96,7 @@ public class ApiEndpointHandler {
      * @param apiCasEndpointJweSecret the Jwe Secret
      * @param apiCasEndpointJwtSecret the Jwt Secret
      */
-    public ApiEndpointHandler(
+    public APIEndpointHandler(
             final String osfCasActionUrl,
             final String casLoginUrl,
             final String casCreateOrLinkOsfAccountUrl,
@@ -170,7 +170,7 @@ public class ApiEndpointHandler {
      * @param payload the payload
      * @return JSONObject
      */
-    public JSONObject handle(final ApiEndpoint endpoint, final String payload) {
+    public JSONObject handle(final APIEndpoint endpoint, final String payload) {
 
         final String url = apiCasEndpointUrl + endpoint.getId() + '/';
         final HttpResponse response = makeApiRequest(url, payload);

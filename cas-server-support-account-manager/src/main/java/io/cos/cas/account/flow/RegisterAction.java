@@ -3,9 +3,9 @@ package io.cos.cas.account.flow;
 import io.cos.cas.account.model.RegisterFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
 import io.cos.cas.account.util.RecaptchaUtils;
-import io.cos.cas.api.handler.ApiEndpointHandler;
+import io.cos.cas.api.handler.APIEndpointHandler;
 import io.cos.cas.api.type.APIErrors;
-import io.cos.cas.api.type.ApiEndpoint;
+import io.cos.cas.api.type.APIEndpoint;
 
 import org.apache.http.HttpStatus;
 
@@ -32,7 +32,7 @@ public class RegisterAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegisterAction.class);
 
     /** The API Endpoint Handler. */
-    private ApiEndpointHandler apiEndpointHandler;
+    private APIEndpointHandler apiEndpointHandler;
 
     /** The Recaptcha Utility. */
     private RecaptchaUtils recaptchaUtils;
@@ -43,7 +43,7 @@ public class RegisterAction {
      * @param apiEndpointHandler the API Endpoint Handler
      * @param recaptchaUtils the reCAPTCHA Utility
      */
-    public RegisterAction(final ApiEndpointHandler apiEndpointHandler, final RecaptchaUtils recaptchaUtils) {
+    public RegisterAction(final APIEndpointHandler apiEndpointHandler, final RecaptchaUtils recaptchaUtils) {
         this.apiEndpointHandler = apiEndpointHandler;
         this.recaptchaUtils = recaptchaUtils;
     }
@@ -87,7 +87,7 @@ public class RegisterAction {
                     .put("campaign", registerForm.getCampaign());
             data.put("accountAction", "REGISTER_OSF").put("user", user);
             final JSONObject response = apiEndpointHandler.handle(
-                    ApiEndpoint.ACCOUNT_REGISTER_OSF,
+                    APIEndpoint.ACCOUNT_REGISTER_OSF,
                     apiEndpointHandler.encryptPayload("data", data.toString())
             );
             if (response != null) {
