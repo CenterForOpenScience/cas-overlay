@@ -20,7 +20,7 @@ public class AccountManager {
     private String emailToVerify;
     private String campaign;
     private String userId;
-    private Boolean osf4Meetings;
+    private Boolean meetings;
     private String recaptchaSiteKey;
 
     /**
@@ -39,7 +39,8 @@ public class AccountManager {
         this.emailToVerify = null;
         this.campaign = campaign;
         this.userId = null;
-        this.osf4Meetings = Boolean.FALSE;
+        this.meetings = Boolean.FALSE;
+        this.recaptchaSiteKey = null;
     }
 
     public String getServiceUrl() {
@@ -98,12 +99,12 @@ public class AccountManager {
         this.userId = userId;
     }
 
-    public Boolean getOsf4Meetings() {
-        return osf4Meetings;
+    public Boolean getMeetings() {
+        return meetings;
     }
 
-    public void setOsf4Meetings(final Boolean osf4Meetings) {
-        this.osf4Meetings = osf4Meetings;
+    public void setMeetings(final Boolean meetings) {
+        this.meetings = meetings;
     }
 
     public String getRecaptchaSiteKey() {

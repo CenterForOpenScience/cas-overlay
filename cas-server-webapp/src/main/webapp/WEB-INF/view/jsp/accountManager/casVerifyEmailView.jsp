@@ -28,10 +28,22 @@
 
         <div id="msg" class="success">
             <c:if test="${flowExecutionUrl.contains('/account/register?')}">
-                <p><spring:message code="screen.verifyEmail.register.success.message" /></p>
+                    <c:when test="${not empty accountManagerContext.getUserId()}">
+                        <p><spring:message code="screen.verifyEmail.fromEmail.success.message" /></p>
+                    </c:when>
+                    <c:otherwise>
+                        <p><spring:message code="screen.verifyEmail.register.success.message" /></p>
+                    </c:otherwise>
             </c:if>
             <c:if test="${flowExecutionUrl.contains('/account/findAccount?')}">
-                <p><spring:message code="screen.verifyEmail.resend.success.message" /></p>
+                <c:choose>
+                    <c:when test="${not empty accountManagerContext.getUserId()}">
+                        <p><spring:message code="screen.verifyEmail.fromEmail.success.message" /></p>
+                    </c:when>
+                    <c:otherwise>
+                        <p><spring:message code="screen.verifyEmail.resend.success.message" /></p>
+                    </c:otherwise>
+                </c:choose>
             </c:if>
             <c:if test="${flowExecutionUrl.contains('/account/createOrLinkOsfAccount?')}">
                 <c:if test="${accountManagerContext.getTarget() == 'CREATE'}">

@@ -59,7 +59,6 @@
 
     <bean id="findAccountAction" class="io.cos.cas.account.flow.FindAccountAction">
         <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
-        <constructor-arg name="recaptchaUtils" ref="recaptchaUtils" />
     </bean>
 
     <bean id="resetPasswordAction" class="io.cos.cas.account.flow.ResetPasswordAction">

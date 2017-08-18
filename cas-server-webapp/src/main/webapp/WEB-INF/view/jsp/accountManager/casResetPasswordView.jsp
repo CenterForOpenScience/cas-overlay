@@ -25,8 +25,15 @@
 
         <div id="msg" class="success">
             <c:choose>
-                <c:when test="${accountManagerContext.getOsf4Meetings()}">
-                    <p><spring:message code="screen.resetPassword.osf4Meetings.success.message" /></p>
+                <c:when test="${not empty accountManagerContext.getUserId()}">
+                    <c:choose>
+                        <c:when test="${accountManagerContext.getMeetings()}">
+                            <p><spring:message code="screen.resetPassword.meetings.success.message" /></p>
+                        </c:when>
+                        <c:otherwise>
+                            <p><spring:message code="screen.resetPassword.fromEmail.success.message" /></p>
+                        </c:otherwise>
+                    </c:choose>
                 </c:when>
                 <c:otherwise>
                     <p><spring:message code="screen.resetPassword.emailSent.success.message" /></p>
@@ -50,11 +57,10 @@
             <form:errors path="verificationCode" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
 
-
         <br/>
         <c:choose>
-            <c:when test="${accountManagerContext.getOsf4Meetings()}">
-                <h2><spring:message code="screen.resetPassword.osf4Meetings.header" /></h2>
+            <c:when test="${accountManagerContext.getMeetings()}">
+                <h2><spring:message code="screen.resetPassword.meetings.header" /></h2>
             </c:when>
             <c:otherwise>
                 <h2><spring:message code="screen.resetPassword.header" /></h2>

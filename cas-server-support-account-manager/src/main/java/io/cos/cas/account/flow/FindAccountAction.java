@@ -2,7 +2,6 @@ package io.cos.cas.account.flow;
 
 import io.cos.cas.account.model.FindAccountFormBean;
 import io.cos.cas.account.util.AbstractAccountFlowUtils;
-import io.cos.cas.account.util.RecaptchaUtils;
 import io.cos.cas.api.handler.ApiEndpointHandler;
 import io.cos.cas.api.type.APIErrors;
 import io.cos.cas.api.type.ApiEndpoint;
@@ -35,18 +34,13 @@ public class FindAccountAction {
     /** The API Endpoint Handler. */
     private ApiEndpointHandler apiEndpointHandler;
 
-    /** The Recaptcha Utility. */
-    private RecaptchaUtils recaptchaUtils;
-
     /**
      * Constructor.
      *
      * @param apiEndpointHandler the API Endpoint Handler
-     * @param recaptchaUtils the reCAPTCHA Utility
      */
-    public FindAccountAction(final ApiEndpointHandler apiEndpointHandler, final RecaptchaUtils recaptchaUtils) {
+    public FindAccountAction(final ApiEndpointHandler apiEndpointHandler) {
         this.apiEndpointHandler = apiEndpointHandler;
-        this.recaptchaUtils = recaptchaUtils;
     }
 
     /**
@@ -60,44 +54,44 @@ public class FindAccountAction {
         final String serviceUrl = AbstractAccountFlowUtils.getEncodedServiceUrl(requestContext);
         final String target = AbstractAccountFlowUtils.getTargetFromRequestContext(requestContext);
         final String campaign = AbstractAccountFlowUtils.getCampaignFromRegisteredService(requestContext);
+        final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
+
         final String userId = AbstractAccountFlowUtils.getUserIdFromRequestContext(requestContext);
-        final Boolean osf4Meetings = AbstractAccountFlowUtils.getOsf4MeetingsFromRequestContext(requestContext);
+        final Boolean meetings = AbstractAccountFlowUtils.getMeetingsFromRequestContext(requestContext);
 
-        final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
-        final boolean externalIdRegisterEmail = credential != null
-                && credential.getNonInstitutionExternalIdProvider() != null
-                && credential.getNonInstitutionExternalId() != null
-                && !credential.isRemotePrincipal();
-
-        if (externalIdRegisterEmail) {
-            final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
-            accountPageContext.setRecaptchaSiteKey(recaptchaUtils.getSiteKey());
-            requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
-
-            return new Event(this, "success");
-        } else if (verifyTargetAction(target)) {
-            final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
-            if (ResetPasswordAction.NAME.equalsIgnoreCase(target) && !userId.isEmpty()) {
+        String event;
+        if (ResetPasswordAction.NAME.equalsIgnoreCase(target)) {
+            if (!userId.isEmpty()) {
+                // skip find account action and go to reset action directly
                 accountPageContext.setUserId(userId);
-                if (osf4Meetings) {
-                    accountPageContext.setOsf4Meetings(Boolean.TRUE);
+                if (meetings) {
+                    accountPageContext.setMeetings(Boolean.TRUE);
                 }
                 accountPageContext.setAction(ResetPasswordAction.NAME);
                 accountPageContext.setTarget(null);
-                requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
-                return new Event(this, "reset");
-            } else if (VerifyEmailAction.NAME.equalsIgnoreCase(target) && !userId.isEmpty()) {
+                event = "reset";
+            } else {
+                // land on find account page for sending password reset email
+                event = "success";
+            }
+        } else if (VerifyEmailAction.NAME.equalsIgnoreCase(target)) {
+            if (!userId.isEmpty()) {
+                // skip find account action and go to verify email direction directly
                 accountPageContext.setUserId(userId);
                 accountPageContext.setAction(VerifyEmailAction.NAME);
                 accountPageContext.setTarget(null);
-                requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
-                return new Event(this, "verify");
+                event = "verify";
+            } else {
+                // land on find account page for resending confirmation email
+                event = "success";
             }
-            requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
-            return new Event(this, "success");
         } else {
-            return new Event(this, "error");
+            LOGGER.error("Find Account Action Failed: target={} is invalid", target);
+            event = "error";
         }
+
+        requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
+        return new Event(this, event);
     }
 
     /**
@@ -115,87 +109,47 @@ public class FindAccountAction {
     ) {
         final AccountManager accountManager = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
         final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
-        final boolean externalIdRegisterEmail = credential != null
-                && credential.getNonInstitutionExternalIdProvider() != null
-                && credential.getNonInstitutionExternalId() != null
-                && !credential.isRemotePrincipal();
         String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
-        if (accountManager != null && (externalIdRegisterEmail || verifyTargetAction(accountManager.getTarget()))) {
+        if (accountManager != null) {
 
-            ApiEndpoint endpoint;
             final String targetAction = accountManager.getTarget();
-            final JSONObject user = new JSONObject();
-            final JSONObject data = new JSONObject();
-            user.put("email", findAccountForm.getEmail());
+            final ApiEndpoint endpoint = getAPIEndpointByTargetAction(targetAction);
 
-            if (externalIdRegisterEmail) {
-                if (!recaptchaUtils.verifyRecaptcha(requestContext)) {
-                    errorMessage = "Invalid Captcha";
-                    messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
-                    return new Event(this, "error");
-                }
-                endpoint = ApiEndpoint.ACCOUNT_REGISTER_EXTERNAL;
-                user.put("externalIdProvider", credential.getNonInstitutionExternalIdProvider())
-                        .put("externalId", credential.getNonInstitutionExternalId())
-                        .put("campaign", accountManager.getCampaign())
-                        .put("attributes", credential.getDelegationAttributes());
-                data.put("accountAction", "REGISTER_EXTERNAL").put("user", user);
-                findAccountForm.setExternalIdProvider(credential.getNonInstitutionExternalIdProvider());
-                findAccountForm.setExternalId(credential.getNonInstitutionExternalId());
-            } else if (ResetPasswordAction.NAME.equalsIgnoreCase(targetAction)){
-                endpoint = ApiEndpoint.ACCOUNT_PASSWORD_FORGOT;
-                data.put("accountAction", "PASSWORD_FORGOT").put("user", user);
-            } else if (VerifyEmailAction.NAME.equalsIgnoreCase(targetAction)) {
-                endpoint = ApiEndpoint.ACCOUNT_VERIFY_OSF_RESEND;
-                data.put("accountAction", "VERIFY_OSF_RESEND").put("user", user);
-            } else {
-                messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
-                return new Event(this, "error");
-            }
+            if (endpoint != null) {
 
-            final JSONObject response = apiEndpointHandler.handle(
-                    endpoint,
-                    apiEndpointHandler.encryptPayload("data", data.toString())
-            );
+                final JSONObject user = new JSONObject();
+                final JSONObject data = new JSONObject();
+                user.put("email", findAccountForm.getEmail());
+                data.put("user", user);
+                final JSONObject response = apiEndpointHandler.handle(
+                        endpoint,
+                        apiEndpointHandler.encryptPayload("data", data.toString())
+                );
 
-            if (response != null) {
-                final int status = response.getInt("status");
-                if (status == HttpStatus.SC_NO_CONTENT) {
-                    if (VerifyEmailAction.NAME.equalsIgnoreCase(targetAction)) {
-                        accountManager.setAction(VerifyEmailAction.NAME);
-                        accountManager.setEmailToVerify(findAccountForm.getEmail());
-                        accountManager.setTarget(null);
-                    } else if (ResetPasswordAction.NAME.equalsIgnoreCase(targetAction)) {
-                        accountManager.setAction(ResetPasswordAction.NAME);
-                        accountManager.setUsername(findAccountForm.getEmail());
-                        accountManager.setTarget(null);
+                if (response != null) {
+                    final int status = response.getInt("status");
+                    if (status == HttpStatus.SC_NO_CONTENT) {
+                        if (VerifyEmailAction.NAME.equalsIgnoreCase(targetAction)) {
+                            accountManager.setAction(VerifyEmailAction.NAME);
+                            accountManager.setEmailToVerify(findAccountForm.getEmail());
+                            accountManager.setTarget(null);
+                        } else if (ResetPasswordAction.NAME.equalsIgnoreCase(targetAction)) {
+                            accountManager.setAction(ResetPasswordAction.NAME);
+                            accountManager.setUsername(findAccountForm.getEmail());
+                            accountManager.setTarget(null);
+                        }
+                        AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
+                        return new Event(this, accountManager.getAction());
+                    } else if (status == HttpStatus.SC_BAD_REQUEST) {
+                        final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
+                        if (error != null) {
+                            errorMessage = error.getDetail();
+                            LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());
+                        }
                     } else {
-                        messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
-                        return new Event(this, "error");
+                        LOGGER.error("API Request Failed: unexpected HTTP status {}", status);
                     }
-                    AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
-                    return new Event(this, accountManager.getAction());
-                } else if (status == HttpStatus.SC_OK) {
-                    final JSONObject responseBody = response.getJSONObject("body");
-                    if (responseBody != null && responseBody.has("username") && responseBody.has("createOrLink")) {
-                        final String username = responseBody.getString("username");
-                        final String createOrLink = responseBody.getString("createOrLink");
-                        accountManager.setUsername(username);
-                        accountManager.setAction(VerifyEmailAction.NAME);
-                        accountManager.setEmailToVerify(findAccountForm.getEmail());
-                        accountManager.setTarget(createOrLink);
-                    }
-                    AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
-                    return new Event(this, accountManager.getAction());
-                } else if (status == HttpStatus.SC_BAD_REQUEST) {
-                    final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
-                    if (error != null) {
-                        errorMessage = error.getDetail();
-                        LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());
-                    }
-                } else {
-                    LOGGER.error("API Request Failed: unexpected HTTP status {}", status);
                 }
             }
         }
@@ -205,12 +159,20 @@ public class FindAccountAction {
     }
 
     /**
-     * Verify the Target Action.
+     * Verify the Target Action and Return the API Endpoint.
      *
      * @param target the target action
-     * @return <code>true</code> if target is valid, <code>false</code> otherwise
+     * @return the API Endpoint if valid
      */
-    private boolean verifyTargetAction(final String target) {
-        return ResetPasswordAction.NAME.equalsIgnoreCase(target) || VerifyEmailAction.NAME.equalsIgnoreCase(target);
+    private ApiEndpoint getAPIEndpointByTargetAction(final String target) {
+
+        if (ResetPasswordAction.NAME.equalsIgnoreCase(target)){
+            return ApiEndpoint.ACCOUNT_PASSWORD_FORGOT;
+        } else if (VerifyEmailAction.NAME.equalsIgnoreCase(target)) {
+            return ApiEndpoint.ACCOUNT_VERIFY_OSF_RESEND;
+        } else {
+            LOGGER.error("Find Account Action Failed: target={} is invalid", target);
+            return null;
+        }
     }
 }

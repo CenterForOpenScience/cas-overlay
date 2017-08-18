@@ -73,8 +73,8 @@ public class ResetPasswordAction {
                 user.put("email", resetPasswordForm.getUsername());
             }
 
-            if (accountManager.getOsf4Meetings()) {
-                data.put("meetings", accountManager.getOsf4Meetings());
+            if (accountManager.getMeetings()) {
+                data.put("meetings", accountManager.getMeetings());
             }
             user.put("verificationCode", resetPasswordForm.getVerificationCode());
             user.put("password", resetPasswordForm.getNewPassword());

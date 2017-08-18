@@ -70,7 +70,7 @@ public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
      * @param context the request context
      * @return the boolean flag
      */
-    public static boolean getOsf4MeetingsFromRequestContext(final RequestContext context) {
+    public static boolean getMeetingsFromRequestContext(final RequestContext context) {
         return context.getRequestParameters().getBoolean(PARAM_MEETINGS, Boolean.FALSE);
     }
 

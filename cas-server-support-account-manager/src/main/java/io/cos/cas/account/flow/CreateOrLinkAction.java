@@ -58,14 +58,12 @@ public class CreateOrLinkAction {
     public Event preparePage(final RequestContext requestContext) {
 
         final String serviceUrl = AbstractAccountFlowUtils.getEncodedServiceUrl(requestContext);
-        final String target = AbstractAccountFlowUtils.getTargetFromRequestContext(requestContext);
         final String campaign = AbstractAccountFlowUtils.getCampaignFromRegisteredService(requestContext);
 
         final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
 
         if (verifyExternalCredential(credential)) {
-            LOGGER.info("target = {}, campaign = {}, serviceUrl = {}", target, campaign, serviceUrl);
-            final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, target, campaign);
+            final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, null, campaign);
             accountPageContext.setRecaptchaSiteKey(recaptchaUtils.getSiteKey());
             requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
             return new Event(this, "success");
