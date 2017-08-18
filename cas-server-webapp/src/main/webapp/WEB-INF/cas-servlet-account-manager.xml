@@ -66,6 +66,11 @@
         <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
     </bean>
 
+    <bean id="createOrLinkAction" class="io.cos.cas.account.flow.CreateOrLinkAction">
+        <constructor-arg name="apiEndpointHandler" ref="apiEndpointHandler" />
+        <constructor-arg name="recaptchaUtils" ref="recaptchaUtils" />
+    </bean>
+
     <bean id="registerFormBeanValidator" class="io.cos.cas.account.validator.RegisterFormBeanValidator" />
 
     <bean id="verifyEmailFormBeanValidator" class="io.cos.cas.account.validator.VerifyEmailFormBeanValidator" />
@@ -73,6 +78,8 @@
     <bean id="findAccountFormBeanValidator" class="io.cos.cas.account.validator.FindAccountFormBeanValidator" />
 
     <bean id="resetPasswordFormBeanValidator" class="io.cos.cas.account.validator.ResetPasswordFormBeanValidator" />
+
+    <bean id="createOrLinkFormBeanValidator" class="io.cos.cas.account.validator.CreateOrLinkFormBeanValidator" />
 
     <bean id="recaptchaUtils" class="io.cos.cas.account.util.RecaptchaUtils">
         <constructor-arg name="verifyUrl" value="${cas.recaptcha.verify.url}" />
