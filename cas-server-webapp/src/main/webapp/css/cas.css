@@ -421,6 +421,8 @@ footer a:link, footer a:visited {
   text-align: center;
   vertical-align: middle;
   white-space: nowrap;
+  word-wrap: normal;
+  white-space: normal;
 }
 
 #fm1 .oauth-confirm-header {
