@@ -1,11 +1,11 @@
 {
   "@class" : "org.jasig.cas.services.RegexRegisteredService",
-  "id" : 203948234207245,
-  "name" : "BITSS",
+  "id" : 203948234207258,
+  "name" : "Experimental Protocols",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)((local\\.bitss\\.(org|com)(%3A|:)4200)|((localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)bitss))($|%2F|/).*",
+  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)((local\\.experimentalprotocols\\.(org|com)(%3A|:)4200)|((localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)experimentalprotocols))($|%2F|/).*",
   "evaluationOrder" : "1000",
-  "logo": "http://localhost:8080/images/preprints-bitss-logo.png",
+  "logo": "http://localhost:8080/images/preprints-experimentalprotocols-logo.png",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
     "allowedAttributes" : [
@@ -36,7 +36,7 @@
       "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
       "values" : [
         "java.util.HashSet", [
-          "?campaign=bitss-preprints"
+          "?campaign=experimentalprotocols-preprints"
         ]
       ]
     }
