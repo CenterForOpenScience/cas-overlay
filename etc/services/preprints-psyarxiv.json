@@ -3,7 +3,7 @@
   "id" : 203948234207243,
   "name" : "PsyArXiv",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)((local\\.psyarxiv\\.(org|com)(%3A|:)4200)|((localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)psyarxiv))($|%2F|/).*",
+  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)((local\\.psyarxiv\\.com(%3A|:)4200)|((localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)psyarxiv))($|%2F|/).*",
   "evaluationOrder" : "1000",
   "logo" : "http://localhost:8080/images/preprints-psyarxiv-logo.png",
   "attributeReleasePolicy" : {
