@@ -42,7 +42,7 @@
                     <c:if test="${not empty registeredService.logo && not empty registeredService.name}">
                         <td><img id="service-logo" class="service-logo-${registeredService.name}" src="${registeredService.logo}"> </td>
                         <td>&nbsp;&nbsp;&nbsp;</td>
-                        <td><span class="service-name">${registeredService.name} Preprints</span></td>
+                        <td><span class="service-name">${registeredService.name}</span></td>
                     </c:if>
                 </tr>
             </table>
