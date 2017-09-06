@@ -43,7 +43,7 @@
                     <c:if test="${not empty registeredService.logo && not empty registeredService.name}">
                         <td><img id="service-logo" src="${registeredService.logo}"> </td>
                         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td><span class="service-name">${registeredService.name} Preprints</span></td>
+                        <td><span class="service-name">${registeredService.name}</span></td>
                     </c:if>
                 </tr>
             </table>
@@ -118,7 +118,7 @@
             <c:if test="${
                 registeredService.id == 983450982340993434 || registeredService.id == 203948234207230 ||
                 registeredService.id == 203948234207231 || registeredService.id == 203948234207232 ||
-                ( registeredService.id >= 203948234207240 && registeredService.id <= 203948234207257 ) ||
+                ( registeredService.id >= 203948234207240 && registeredService.id <= 203948234207258 ) ||
                 registeredService.id == 203948234207340
             }">
                 <hr/>

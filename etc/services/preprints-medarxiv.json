@@ -1,9 +1,9 @@
 {
   "@class" : "org.jasig.cas.services.RegexRegisteredService",
   "id" : 203948234207256,
-  "name" : "MedArXiv",
+  "name" : "MedArXiv Preprints",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)((local\\.nutrixiv\\.(org|com)(%3A|:)4200)|((localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)medarxiv))($|%2F|/).*",
+  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)((local\\.medarxiv\\.(org|com)(%3A|:)4200)|((localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)medarxiv))($|%2F|/).*",
   "evaluationOrder" : "1000",
   "logo": "http://localhost:8080/images/preprints-medarxiv-logo.png",
   "attributeReleasePolicy" : {

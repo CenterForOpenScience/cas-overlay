@@ -1,11 +1,11 @@
 {
   "@class" : "org.jasig.cas.services.RegexRegisteredService",
-  "id" : 203948234207248,
-  "name" : "FocUS Archive Preprints",
+  "id" : 203948234207258,
+  "name" : "Experimental Protocols Preprints",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)((local\\.focusarchive\\.(org|com)(%3A|:)4200)|((localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)focusarchive))($|%2F|/).*",
+  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/(login|logout)/?\\?next=https?(%3A|:)(%2F|/)(%2F|/)((local\\.experimentalprotocols\\.org(%3A|:)4200)|((localhost|127\\.0\\.0\\.1)(%3A|:)5000(%2F|/)preprints(%2F|/)experimentalprotocols))($|%2F|/).*",
   "evaluationOrder" : "1000",
-  "logo": "http://localhost:8080/images/preprints-focusarchive-logo.png",
+  "logo": "http://localhost:8080/images/preprints-experimentalprotocols-logo.png",
   "attributeReleasePolicy" : {
     "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
     "allowedAttributes" : [
@@ -32,11 +32,11 @@
         ]
       ]
     },
-    "campaign" : {
+    "registerUrl" : {
       "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
       "values" : [
         "java.util.HashSet", [
-          "focusarchive-preprints"
+          "?campaign=experimentalprotocols-preprints"
         ]
       ]
     }
