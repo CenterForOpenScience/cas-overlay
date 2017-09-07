@@ -62,7 +62,7 @@ public class CreateOrLinkAction {
 
         final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
 
-        if (verifyExternalCredential(credential)) {
+        if (verifyCredential(credential)) {
             final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, null, campaign);
             accountPageContext.setRecaptchaSiteKey(recaptchaUtils.getSiteKey());
             requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
@@ -89,13 +89,23 @@ public class CreateOrLinkAction {
         final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
         String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
-        if (accountManager != null && credential != null && verifyExternalCredential(credential)) {
+        // Invalid Login Ticket
+        if (!AbstractAccountFlowUtils.checkLoginTicketIfExists(requestContext)) {
+            errorMessage = "Invalid Login Ticket.";
+            LOGGER.error(errorMessage);
+            messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
+            return new Event(this, "error");
+        }
 
-            if (!recaptchaUtils.verifyRecaptcha(requestContext)) {
-                errorMessage = "Invalid Captcha";
-                messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
-                return new Event(this, "error");
-            }
+        // Invalid Captcha
+        if (recaptchaUtils.isEnabled() && !recaptchaUtils.verifyRecaptcha(requestContext)) {
+            errorMessage = "Invalid Captcha";
+            LOGGER.error(errorMessage);
+            messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
+            return new Event(this, "error");
+        }
+
+        if (accountManager != null && credential != null && verifyCredential(credential)) {
 
             final APIEndpoint endpoint = APIEndpoint.ACCOUNT_REGISTER_EXTERNAL;
             final JSONObject user = new JSONObject();
@@ -156,25 +166,30 @@ public class CreateOrLinkAction {
 
 
     /**
-     * Verify that the External Credential.
+     * Verify the Credential which contains external identity.
      *
      * @param credential the open science framework credential in the session scope
      * @return true if credential contains users' external identity
      */
-    private boolean verifyExternalCredential(final OpenScienceFrameworkCredential credential) {
+    private boolean verifyCredential(final OpenScienceFrameworkCredential credential) {
 
-        if (credential.getNonInstitutionExternalIdProvider() == null || credential.getNonInstitutionExternalId() == null) {
-            LOGGER.error("External Authentication Failed: Missing external id or idp in credential.");
+        if (credential.getNonInstitutionExternalIdProvider() == null) {
+            LOGGER.error("External Authentication Exception: Missing external identity provider.");
+            return false;
+        }
+
+        if (credential.getNonInstitutionExternalId() == null) {
+            LOGGER.error("External Authentication Exception: Missing external identity.");
             return false;
         }
 
         if (credential.isRemotePrincipal()) {
-            LOGGER.error("External Authentication Failed: Remote principal is true.");
+            LOGGER.error("External Authentication Exception: Remote principal flag should not be set.");
             return false;
         }
 
-        LOGGER.info(
-                "External Authentication Succeeds: idp={}, id={}",
+        LOGGER.debug(
+                "External Identity from Credential: idp={}, id={}",
                 credential.getNonInstitutionExternalIdProvider(),
                 credential.getNonInstitutionExternalId()
         );

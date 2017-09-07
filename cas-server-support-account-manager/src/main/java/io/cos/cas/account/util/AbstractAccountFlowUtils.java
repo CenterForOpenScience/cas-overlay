@@ -4,7 +4,14 @@ import io.cos.cas.account.flow.AccountManager;
 import io.cos.cas.web.util.AbstractFlowUtils;
 
 import org.apache.commons.lang.StringUtils;
+
+import org.jasig.cas.web.support.WebUtils;
+
 import org.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.webflow.execution.RequestContext;
 
 /**
@@ -14,6 +21,8 @@ import org.springframework.webflow.execution.RequestContext;
  * @since 4.1.5
  */
 public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAccountFlowUtils.class);
 
     /** The Request Parameter Name of the Target Action for Find Account Flow. */
     private static final String PARAM_TARGET = "target";
@@ -118,5 +127,24 @@ public abstract class AbstractAccountFlowUtils extends AbstractFlowUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * Tries to to determine if the login ticket in the request flow scope matches the login ticket provided by the
+     * request. The comparison is case-sensitive.
+     *
+     * @param context the context
+     * @return true if valid
+     */
+    public static boolean checkLoginTicketIfExists(final RequestContext context) {
+        final String loginTicketFromFlowScope = WebUtils.getLoginTicketFromFlowScope(context);
+        final String loginTicketFromRequest = WebUtils.getLoginTicketFromRequest(context);
+
+        LOGGER.trace(
+                "Comparing login ticket in the flow scope [{}] with login ticket in the request [{}]",
+                loginTicketFromFlowScope,
+                loginTicketFromRequest
+        );
+        return StringUtils.equals(loginTicketFromFlowScope, loginTicketFromRequest);
     }
 }

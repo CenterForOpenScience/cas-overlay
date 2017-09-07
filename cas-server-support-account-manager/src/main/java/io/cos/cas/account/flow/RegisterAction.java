@@ -78,38 +78,50 @@ public class RegisterAction {
 
         String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
-        if (!recaptchaUtils.verifyRecaptcha(requestContext)) {
+        // Invalid Login Ticket
+        if (!AbstractAccountFlowUtils.checkLoginTicketIfExists(requestContext)) {
+            errorMessage = "Invalid Login Ticket.";
+            LOGGER.error(errorMessage);
+            messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
+            return new Event(this, "error");
+        }
+
+        // Invalid Captcha
+        if (recaptchaUtils.isEnabled() && !recaptchaUtils.verifyRecaptcha(requestContext)) {
             errorMessage = "Invalid Captcha";
-        } else {
-            user.put("fullname", registerForm.getFullname())
-                    .put("email", registerForm.getEmail())
-                    .put("password", registerForm.getPassword())
-                    .put("campaign", registerForm.getCampaign());
-            data.put("accountAction", "REGISTER_OSF").put("user", user);
-            final JSONObject response = apiEndpointHandler.handle(
-                    APIEndpoint.ACCOUNT_REGISTER_OSF,
-                    apiEndpointHandler.encryptPayload("data", data.toString())
-            );
-            if (response != null) {
-                final int status = response.getInt("status");
-                if (status == HttpStatus.SC_NO_CONTENT) {
-                    final AccountManager accountManager
-                            = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
-                    if (accountManager != null) {
-                        accountManager.setAction(VerifyEmailAction.NAME);
-                        accountManager.setEmailToVerify(registerForm.getEmail());
-                        AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
-                        return new Event(this, "success");
-                    }
-                } else if (status == HttpStatus.SC_BAD_REQUEST) {
-                    final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
-                    if (error != null) {
-                        errorMessage = error.getDetail();
-                        LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());
-                    }
-                } else {
-                    LOGGER.error("API Request Failed: unexpected HTTP status {}", status);
+            LOGGER.error(errorMessage);
+            messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
+            return new Event(this, "error");
+        }
+
+        user.put("fullname", registerForm.getFullname())
+                .put("email", registerForm.getEmail())
+                .put("password", registerForm.getPassword())
+                .put("campaign", registerForm.getCampaign());
+        data.put("accountAction", "REGISTER_OSF").put("user", user);
+        final JSONObject response = apiEndpointHandler.handle(
+                APIEndpoint.ACCOUNT_REGISTER_OSF,
+                apiEndpointHandler.encryptPayload("data", data.toString())
+        );
+        if (response != null) {
+            final int status = response.getInt("status");
+            if (status == HttpStatus.SC_NO_CONTENT) {
+                final AccountManager accountManager
+                        = AbstractAccountFlowUtils.getAccountManagerFromRequestContext(requestContext);
+                if (accountManager != null) {
+                    accountManager.setAction(VerifyEmailAction.NAME);
+                    accountManager.setEmailToVerify(registerForm.getEmail());
+                    AbstractAccountFlowUtils.putAccountManagerToRequestContext(requestContext, accountManager);
+                    return new Event(this, "success");
                 }
+            } else if (status == HttpStatus.SC_BAD_REQUEST) {
+                final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
+                if (error != null) {
+                    errorMessage = error.getDetail();
+                    LOGGER.error("API Request Failed: status={}, code={}, detail='{}'", status, error.getCode(), error.getDetail());
+                }
+            } else {
+                LOGGER.error("API Request Failed: unexpected HTTP status {}", status);
             }
         }
 
