@@ -111,6 +111,14 @@ public class FindAccountAction {
         final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
         String errorMessage = AbstractAccountFlowUtils.DEFAULT_SERVER_ERROR_MESSAGE;
 
+        // Invalid Login Ticket
+        if (!AbstractAccountFlowUtils.checkLoginTicketIfExists(requestContext)) {
+            errorMessage = "Invalid Login Ticket.";
+            LOGGER.error(errorMessage);
+            messageContext.addMessage(new MessageBuilder().error().source("action").defaultText(errorMessage).build());
+            return new Event(this, "error");
+        }
+
         if (accountManager != null) {
 
             final String targetAction = accountManager.getTarget();
