@@ -28,12 +28,14 @@
 
         <div id="msg" class="success">
             <c:if test="${flowExecutionUrl.contains('/account/register?')}">
+                <c:choose>
                     <c:when test="${not empty accountManagerContext.getUserId()}">
                         <p><spring:message code="screen.verifyEmail.fromEmail.success.message" /></p>
                     </c:when>
                     <c:otherwise>
                         <p><spring:message code="screen.verifyEmail.register.success.message" /></p>
                     </c:otherwise>
+                </c:choose>
             </c:if>
             <c:if test="${flowExecutionUrl.contains('/account/findAccount?')}">
                 <c:choose>
