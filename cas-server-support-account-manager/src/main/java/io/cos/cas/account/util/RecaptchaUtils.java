@@ -33,21 +33,30 @@ public class RecaptchaUtils {
 
     private String secretKey;
 
+    private boolean enabled;
+
     /**
      * Constructor.
      *
      * @param verifyUrl the recaptcha api verification url
      * @param siteKey the site key
      * @param secretKey the secret key
+     * @param enabled whether recaptcha is enabled or not
      */
-    public RecaptchaUtils(final String verifyUrl, final String siteKey, final String secretKey) {
+    public RecaptchaUtils(final String verifyUrl, final String siteKey, final String secretKey, final boolean enabled) {
         this.verifyUrl = verifyUrl;
         this.siteKey = siteKey;
         this.secretKey = secretKey;
+        this.enabled = enabled;
     }
     
     public String getSiteKey() {
         return siteKey;
+    }
+
+    /**  @return whether recaptcha is enabled. */
+    public boolean isEnabled() {
+        return enabled;
     }
 
     /**
@@ -70,7 +79,7 @@ public class RecaptchaUtils {
         }
 
         try {
-            LOGGER.info("Verifying Recaptcha: remoteAddress={}, responseValue={}", remoteAddress, responseValue);
+            LOGGER.debug("Verifying Recaptcha: remoteAddress={}, responseValue={}", remoteAddress, responseValue);
             final HttpResponse response = Request.Post(verifyUrl)
                     .addHeader(new BasicHeader("Content-Type", "application/x-www-form-urlencoded"))
                     .bodyForm(parameters)
@@ -78,15 +87,15 @@ public class RecaptchaUtils {
                     .returnResponse();
             if (response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 final JSONObject responseBody = new JSONObject(new BasicResponseHandler().handleEntity(response.getEntity()));
-                LOGGER.debug("Response: {}", response.toString());
+                LOGGER.trace("Response: {}", response.toString());
                 if (responseBody.getBoolean("success")) {
                     return true;
                 } else {
-                    LOGGER.error("Invalid Captcha! errors={}", responseBody.get("error-codes"));
+                    LOGGER.debug("Invalid Captcha! errors={}", responseBody.get("error-codes"));
                 }
             }
         } catch (final IOException e) {
-            LOGGER.error("An exception has occurred during recaptcha verification.");
+            LOGGER.error("An IO exception has occurred during recaptcha verification.");
             LOGGER.debug(e.getMessage());
         }
 

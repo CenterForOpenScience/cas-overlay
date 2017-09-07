@@ -84,6 +84,7 @@
         <constructor-arg name="verifyUrl" value="${cas.recaptcha.verify.url}" />
         <constructor-arg name="siteKey" value="${cas.recaptcha.siteKey}" />
         <constructor-arg name="secretKey" value="${cas.recaptcha.secretKey}" />
+        <constructor-arg name="enabled" value="${cas.recaptcha.enabled}" />
     </bean>
 
 </beans>
