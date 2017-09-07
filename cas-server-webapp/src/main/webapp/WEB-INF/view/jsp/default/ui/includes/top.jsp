@@ -50,6 +50,12 @@
     </head>
 
     <body id="cas" onload="selectFocus()">
+        <div>
+            <h3>All About Flow</h3>
+            <span>CAS Flow Execution Key = ${flowExecutionKey}</span><br>
+            <span>Login Ticket = ${loginTicket}</span><br>
+            <span>Login Manager = ${loginManagerContext.toJson()}</span>
+        </div>
         <div id="container">
             <br>
             <header>
