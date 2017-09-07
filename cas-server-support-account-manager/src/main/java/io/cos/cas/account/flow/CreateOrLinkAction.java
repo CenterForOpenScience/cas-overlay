@@ -62,7 +62,7 @@ public class CreateOrLinkAction {
 
         final OpenScienceFrameworkCredential credential = AbstractAccountFlowUtils.getCredentialFromSessionScope(requestContext);
 
-        if (verifyCredential(credential)) {
+        if (credential != null && verifyCredential(credential)) {
             final AccountManager accountPageContext = new AccountManager(serviceUrl, NAME, null, campaign);
             accountPageContext.setRecaptchaSiteKey(recaptchaUtils.getSiteKey());
             requestContext.getFlowScope().put(AccountManager.ATTRIBUTE_NAME, accountPageContext.toJson());
