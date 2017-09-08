@@ -19,7 +19,7 @@
 
 package io.cos.cas.web.flow;
 
-import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
+import io.cos.cas.authentication.handler.OpenScienceFrameworkInstitutionHandler;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
@@ -39,7 +39,7 @@ import javax.validation.constraints.NotNull;
  * The Open Science Framework Terminate Session Action.
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkTerminateSessionAction {
 

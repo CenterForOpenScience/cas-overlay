@@ -1,0 +1,86 @@
+/*
+ * Licensed to Jasig under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work
+ * for additional information regarding copyright ownership.
+ * Jasig licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License.  You may obtain a
+ * copy of the License at the following location:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package io.cos.cas.authentication.handler;
+
+import io.cos.cas.api.handler.APIEndpointHandler;
+import io.cos.cas.api.type.APIErrors;
+import io.cos.cas.api.type.APIEndpoint;
+import org.apache.http.HttpStatus;
+import org.jasig.cas.support.oauth.scope.Scope;
+import org.jasig.cas.support.oauth.scope.handler.support.AbstractScopeHandler;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
+import javax.validation.constraints.NotNull;
+
+/**
+ * The Open Science Framework Scope handler.
+ *
+ * @author Michael Haselton
+ * @author Longze Chen
+ * @since 4.1.5
+ */
+public class OpenScienceFrameworkScopeHandler extends AbstractScopeHandler implements InitializingBean {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkScopeHandler.class);
+
+    @NotNull
+    private APIEndpointHandler apiEndpointHandler;
+
+    /** Default Constructor. */
+    public OpenScienceFrameworkScopeHandler() {}
+
+    @Override
+    public void afterPropertiesSet() throws Exception {}
+
+    @Override
+    public Scope getScope(final String scopeName) {
+
+        final JSONObject data = new JSONObject();
+        data.put("scopeName", scopeName);
+        final JSONObject response = apiEndpointHandler.handle(
+                APIEndpoint.SERVICE_OAUTH_SCOPE,
+                apiEndpointHandler.encryptPayload("data", data.toString())
+        );
+
+        if (response != null) {
+            final int status = response.getInt("status");
+            if (status == HttpStatus.SC_OK) {
+                final JSONObject responseBody = response.getJSONObject("body");
+                if (responseBody == null || !responseBody.has("scopeDescription")) {
+                    LOGGER.error("Invalid API Response: missing scope description");
+                    return null;
+                }
+                return new Scope(scopeName, (String) responseBody.get("scopeDescription"), Boolean.FALSE);
+            } else if (status == HttpStatus.SC_BAD_REQUEST) {
+                final APIErrors error = apiEndpointHandler.getAPIErrorFromResponse(response.getJSONObject("body"));
+                LOGGER.error("API Request Failed: code={}, detail='{}'", error.getCode(), error.getDetail());
+            }
+        }
+
+        return null;
+    }
+
+    public void setApiEndpointHandler(final APIEndpointHandler apiEndpointHandler) {
+        this.apiEndpointHandler = apiEndpointHandler;
+    }
+}

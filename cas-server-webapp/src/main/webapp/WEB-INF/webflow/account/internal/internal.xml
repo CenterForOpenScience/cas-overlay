@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<flow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://www.springframework.org/schema/webflow"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+
+    <action-state id="clientAction">
+        <evaluate expression="pac4jClientAction" />
+        <transition on="error" to="ticketGrantingTicketCheck" />
+    </action-state>
+
+    <action-state id="ticketGrantingTicketCheck">
+        <evaluate expression="ticketGrantingTicketCheckAction"/>
+        <transition on="notExists" to="serviceAuthorizationCheck"/>
+        <transition on="invalid" to="terminateSession"/>
+        <transition on="valid" to="terminateSession"/>
+    </action-state>
+
+    <action-state id="terminateSession">
+        <evaluate expression="terminateSessionAction.terminate(flowRequestContext)"/>
+        <transition to="serviceAuthorizationCheck"/>
+    </action-state>
+
+    <action-state id="serviceAuthorizationCheck">
+        <evaluate expression="serviceAuthorizationCheck"/>
+        <transition to="generateLoginTicket"/>
+    </action-state>
+
+    <decision-state id="finishLogin">
+        <if test="flowScope.loginRedirectUrl != null" then="viewLoginRedirect" else="viewManagerException" />
+    </decision-state>
+
+    <end-state id="viewLoginRedirect" view="externalRedirect:#{flowScope.loginRedirectUrl}" />
+
+    <end-state id="viewManagerException" view="/WEB-INF/view/jsp/accountManager/casManagerExceptionView.jsp" />
+
+</flow>

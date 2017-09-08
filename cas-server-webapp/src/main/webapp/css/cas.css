@@ -158,7 +158,13 @@ header h1 {
   /*background: url(../../../images/error.png) no-repeat 20px center;*/
 }
 
-#msg.success { /*border: 1px dotted #390;*/ color: #390; /*padding-left: 100px; background: url(../../../images/success.png) no-repeat 20px center;*/ }
+#msg.success {
+  /*border: 1px dotted #390;*/
+  color: #390;
+  /*padding-left: 100px;*/
+  /*background: url(../../../images/success.png) no-repeat 20px center;*/
+}
+
 #msg.info { /*border: 1px dotted #008;*/ color: #008; /*padding-left: 100px; background: url(../../../images/info.png) no-repeat 20px center;*/ }
 #msg.question { /*border: 1px dotted #390;*/ color: #390; /*padding-left: 100px; background: url(../../../images/question.png) no-repeat 20px center;*/ }
 #msg.warn { /*border: 1px dotted #960;*/ color: #960; /*padding-left: 100px; background: #ffbc8f url(../../../images/info.png) no-repeat 20px center;*/ background: #ffbc8f; }
@@ -222,7 +228,7 @@ header h1 {
   border-radius: 4px;
 }
 
-#login .btn-oauth-submit:hover {
+#login .btn-oauth-submit:hover:enabled {
   cursor: pointer;
 }
 
@@ -312,12 +318,6 @@ footer a:link, footer a:visited {
   text-align: center;
 }
 
-#fm1 .row .btn-oauth:hover {
-  -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 128, 255, 0.67);
-  -moz-box-shadow:    0px 0px 5px 0px rgba(0, 128, 255, 0.67);
-  box-shadow:         0px 0px 5px 0px rgba(0, 128, 255, 0.67);
-}
-
 #fm1 .row .btn-oauth:active {
   background-image: linear-gradient(to top, #fff 0, #e0e0e0 100%);
 }
@@ -335,6 +335,7 @@ footer a:link, footer a:visited {
   text-align: Left;
 }
 
+#login .heading,
 #inst-login .heading {
   font-size: 20px;
   font-weight: lighter;
@@ -367,7 +368,7 @@ footer a:link, footer a:visited {
   width: 100%;
 }
 
-#inst-login .btn-submit input[type=button],
+#inst-login .btn-submit,
 #fm1 .row .btn-submit {
   outline: none;
   border-radius: 3px;
@@ -383,14 +384,12 @@ footer a:link, footer a:visited {
   -moz-border-radius: 3px;
 }
 
-#inst-login .btn-submit:hover input[type=button],
-#fm1 .row .btn-submit:hover {
-  -webkit-box-shadow: 0px 0px 7px 0px rgba(0, 191, 255, 0.75);
-  -moz-box-shadow:    0px 0px 7px 0px rgba(0, 191, 255, 0.75);
-  box-shadow:         0px 0px 7px 0px rgba(0, 191, 255, 0.75);
+#inst-login .btn-submit:hover:enabled,
+#fm1 .row .btn-submit:hover:enabled {
+  cursor: pointer;
 }
 
-#inst-login .btn-submit:active input[type=button],
+#inst-login .btn-submit:active,
 #fm1 .row .btn-submit:active {
   background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
 }
@@ -430,3 +429,39 @@ footer a:link, footer a:visited {
   font-weight: lighter;
   white-space: nowrap;
 }
+
+meter {
+  /* Reset the default appearance */
+
+  /* Need to comment out -webkit-appearance for a bug in chrome. See: https://stackoverflow.com/questions/38891254/meter-not-working-properly-in-chrome */
+  /*-webkit-appearance: none;*/
+  -moz-appearance: none;
+  appearance: none;
+
+  margin: 0 auto 1em;
+  width: 100%;
+  height: 0.5em;
+
+  /* Applicable only to Firefox */
+  background: none;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+meter::-webkit-meter-bar {
+  background: none;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Webkit based browsers */
+meter[value="1"]::-webkit-meter-optimum-value { background: red; }
+meter[value="2"]::-webkit-meter-optimum-value { background: red; }
+meter[value="3"]::-webkit-meter-optimum-value { background: orange; }
+meter[value="4"]::-webkit-meter-optimum-value { background: green; }
+meter[value="5"]::-webkit-meter-optimum-value { background: green; }
+
+/* Gecko based browsers */
+meter[value="1"]::-moz-meter-bar { background: red; }
+meter[value="2"]::-moz-meter-bar { background: red; }
+meter[value="3"]::-moz-meter-bar { background: orange; }
+meter[value="4"]::-moz-meter-bar { background: green; }
+meter[value="5"]::-moz-meter-bar { background: green; }

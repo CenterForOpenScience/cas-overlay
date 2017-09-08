@@ -1,0 +1,105 @@
+'<%--
+
+    Licensed to Apereo under one or more contributor license
+    agreements. See the NOTICE file distributed with this work
+    for additional information regarding copyright ownership.
+    Apereo licenses this file to you under the Apache License,
+    Version 2.0 (the "License"); you may not use this file
+    except in compliance with the License.  You may obtain a
+    copy of the License at the following location:
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+--%>
+<jsp:directive.include file="./includes/top.jsp" />
+
+<div id="login" style="width: 100%;">
+    <form:form method="post" id="fm1" commandName="${commandName}" htmlEscape="true">
+
+        <div id="msg" class="success">
+            <c:choose>
+                <c:when test="${not empty accountManagerContext.getUserId()}">
+                    <c:choose>
+                        <c:when test="${accountManagerContext.getMeetings()}">
+                            <p><spring:message code="screen.resetPassword.meetings.success.message" /></p>
+                        </c:when>
+                        <c:otherwise>
+                            <p><spring:message code="screen.resetPassword.fromEmail.success.message" /></p>
+                        </c:otherwise>
+                    </c:choose>
+                </c:when>
+                <c:otherwise>
+                    <p><spring:message code="screen.resetPassword.emailSent.success.message" /></p>
+                </c:otherwise>
+            </c:choose>
+        </div>
+
+        <h2><spring:message code="screen.challenge.header" /></h2>
+
+        <c:if test="${not empty accountManagerContext.getUsername()}">
+            <section class="row">
+                <label for="username"><spring:message code="screen.challenge.label.primaryEmail" /></label><br/>
+                <spring:message code="screen.challenge.label.email.primary.accesskey" var="emailAccessKey" />
+                <form:input disabled="true" value="${accountManagerContext.getUsername()}" cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${emailAccessKey}" path="username" autocomplete="off" htmlEscape="true" />
+                <label for="verificationCode"><spring:message code="screen.challenge.label.verificationCode" /></label><br/></section>
+        </c:if>
+
+        <section class="row">
+            <spring:message code="screen.challenge.label.verificationCode.accesskey" var="verificationCodeAccessKey" />
+            <form:input cssClass="required" cssErrorClass="error" id="verificationCode" size="25" tabindex="1" accesskey="${verificationCodeAccessKey}" path="verificationCode" autocomplete="off" htmlEscape="true" />
+            <form:errors path="verificationCode" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+        </section>
+
+        <br/>
+        <c:choose>
+            <c:when test="${accountManagerContext.getMeetings()}">
+                <h2><spring:message code="screen.resetPassword.meetings.header" /></h2>
+            </c:when>
+            <c:otherwise>
+                <h2><spring:message code="screen.resetPassword.header" /></h2>
+            </c:otherwise>
+        </c:choose>
+
+        <section class="row">
+            <label for="newPassword"><spring:message code="screen.resetPassword.label.newPassword" /></label><br/>
+            <spring:message code="screen.resetPassword.label.newPassword.accesskey" var="newPasswordAccessKey" />
+            <form:input type="password" cssClass="required" cssErrorClass="error" id="newPassword" size="25" tabindex="1" accesskey="${newPasswordAccessKey}" path="newPassword" autocomplete="off" htmlEscape="true" />
+            <meter max="5" id="password-strength-meter"></meter>
+            <p id="password-strength-text"></p>
+            <form:errors path="newPassword" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+        </section>
+
+        <section class="row">
+            <label for="confirmPassword"><spring:message code="screen.resetPassword.label.confirmPassword" /></label><br/>
+            <spring:message code="screen.resetPassword.label.newPassword.accesskey" var="confirmPasswordAccessKey" />
+            <form:input type="password" cssClass="required" cssErrorClass="error" id="confirmPassword" size="25" tabindex="1" accesskey="${confirmPasswordAccessKey}" path="confirmPassword" autocomplete="off" htmlEscape="true" />
+            <form:errors path="confirmPassword" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+        </section>
+
+        <form:errors path="action" id="msg" cssClass="errors" element="div" htmlEscape="false" />
+
+        <section class="row btn-row">
+            <input type="hidden" name="action" value="${accountManagerContext.getAction()}" />
+            <input type="hidden" name="lt" value="${loginTicket}" />
+            <input type="hidden" name="execution" value="${flowExecutionKey}" />
+            <input type="hidden" name="_eventId" value="submit" />
+            <input class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.challenge.button.submit" />" tabindex="4" type="submit" />
+        </section>
+
+    </form:form>
+
+    <%-- For security and performance concern, use a local copy of the library https://github.com/dropbox/zxcvbn over https. --%>
+    <script type="text/javascript" src="../../../../js/zxcvbn.js"></script>
+    <script type="text/javascript" src="../../../../js/password-strength.js"></script>
+</div>
+
+<c:set var="alternativeBottomLogin" value="true"/>
+
+<jsp:directive.include file="includes/bottom.jsp" />

@@ -25,6 +25,7 @@
                           http://www.springframework.org/schema/webflow/spring-webflow.xsd">
 
     <var name="credential" class="io.cos.cas.authentication.OpenScienceFrameworkCredential"/>
+
     <on-start>
         <evaluate expression="initialFlowSetupAction"/>
     </on-start>
@@ -97,7 +98,10 @@
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="authenticationFailure" to="handleAuthenticationFailure" />
         <transition on="error" to="beforeLogin" />
+        <transition on="createOrLink" to="viewCreateOrLinkOsfAccountRedirect" />
     </action-state>
+
+    <end-state id="viewCreateOrLinkOsfAccountRedirect" view="externalRedirect:#{flowScope.createOrLinkOsfAccountUrl}" />
 
     <action-state id="beforeLogin">
         <evaluate expression="loginHandler.beforeLogin(flowRequestContext)" />
@@ -110,7 +114,7 @@
         <transition on="success" to="viewInstitutionLoginForm" />
     </action-state>
 
-    <view-state id="viewInstitutionLoginForm" view="casInstitutionLoginView" model="credential">
+    <view-state id="viewInstitutionLoginForm" view="casInstitutionLoginView">
     </view-state>
 
     <view-state id="viewLoginForm" view="casLoginView" model="credential">
@@ -118,8 +122,6 @@
             <binding property="username" required="true"/>
             <binding property="password" required="true"/>
             <binding property="rememberMe" />
-            <binding property="verificationKey" />
-            <binding property="oneTimePassword" />
         </binder>
         <on-entry>
             <set name="viewScope.commandName" value="'credential'"/>
@@ -184,23 +186,31 @@
     </view-state>
 
     <action-state id="handleAuthenticationFailure">
-        <evaluate expression="authenticationExceptionHandler.handle(currentEvent.attributes.error, messageContext)"/>
-        <transition on="AccountDisabledException" to="casAccountDisabledView"/>
+        <evaluate expression="authenticationExceptionHandler.preHandle(flowRequestContext, currentEvent.attributes.error, messageContext)"/>
+
+        <!-- Built-in excpetions that are not explicitly used. -->
         <transition on="AccountLockedException" to="casAccountLockedView"/>
         <transition on="AccountPasswordMustChangeException" to="casMustChangePassView"/>
         <transition on="CredentialExpiredException" to="casExpiredPassView"/>
         <transition on="InvalidLoginLocationException" to="casBadWorkstationView"/>
         <transition on="InvalidLoginTimeException" to="casBadHoursView"/>
-        <transition on="FailedLoginException" to="generateLoginTicket"/>
+        <transition on="UNKNOWN" to="generateLoginTicket"/>
+
+        <!-- Open Science Framework Login -->
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
-        <!-- Open Science Framework -->
-        <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
+        <transition on="AccountNotVerifiedException" to="casAccountNotVerifiedView" />
+        <transition on="AccountDisabledException" to="casAccountDisabledView"/>
+        <transition on="FailedLoginException" to="generateLoginTicket"/>
+        <transition on="InvalidVerificationKeyException" to="generateLoginTicket"/>
         <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
+
+        <!-- Open Science Framework Remote Login -->
         <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
-        <!-- One Time Password -->
+
+        <!-- Open Science Framework Two Factor Login -->
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
         <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
-        <transition on="UNKNOWN" to="generateLoginTicket"/>
+
     </action-state>
 
     <action-state id="sendTicketGrantingTicket">
@@ -248,7 +258,6 @@
         </on-entry>
     </end-state>
 
-
     <!--
     The "showWarningView" end state is the end state for when the user has requested privacy settings (to be "warned") to be turned on.  It delegates to a
     view defines in default_views.properties that display the "Please click here to go to the service." message.
@@ -262,13 +271,16 @@
             <set name="flowScope.passwordPolicyUrl" value="passwordPolicy.passwordPolicyUrl"/>
         </on-entry>
     </end-state>
-    <end-state id="casExpiredPassView" view="casExpiredPassView" parent="#abstactPasswordChangeView"/>
-    <end-state id="casMustChangePassView" view="casMustChangePassView" parent="#abstactPasswordChangeView"/>
-    <end-state id="casAccountDisabledView" view="casAccountDisabledView"/>
-    <end-state id="casAccountLockedView" view="casAccountLockedView"/>
-    <end-state id="casBadHoursView" view="casBadHoursView"/>
-    <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
-    <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
+    <end-state id="casExpiredPassView" view="casExpiredPassView" parent="#abstactPasswordChangeView" />
+    <end-state id="casMustChangePassView" view="casMustChangePassView" parent="#abstactPasswordChangeView" />
+    <end-state id="casAccountLockedView" view="casAccountLockedView" />
+    <end-state id="casBadHoursView" view="casBadHoursView" />
+    <end-state id="casBadWorkstationView" view="casBadWorkstationView" />
+
+    <!-- Open Science Framework Login Exceptions View -->
+    <end-state id="casAccountDisabledView" view="casAccountDisabledView" />
+    <end-state id="casAccountNotVerifiedView" view="casAccountNotVerifiedView" />
+    <end-state id="casInvalidVerificationKeyView" view="casInvalidVerificationKeyView" />
     <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
 

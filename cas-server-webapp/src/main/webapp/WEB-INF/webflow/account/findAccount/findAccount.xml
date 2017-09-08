@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<flow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://www.springframework.org/schema/webflow"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+              http://www.springframework.org/schema/webflow/spring-webflow.xsd"
+      parent="account/internal,account/verifyEmail,account/resetPassword">
+
+    <var name="findAccountFormBean" class="io.cos.cas.account.model.FindAccountFormBean" />
+
+    <action-state id="onStart">
+        <evaluate expression="initialFlowSetupAction" />
+        <transition on="success" to="ticketGrantingTicketCheck" />
+    </action-state>
+
+    <action-state id="generateLoginTicket">
+        <evaluate expression="generateLoginTicketAction.generate(flowRequestContext)"/>
+        <transition on="generated" to="showFindAccountPage"/>
+    </action-state>
+
+    <action-state id="showFindAccountPage">
+        <evaluate expression="findAccountAction.preparePage(flowRequestContext)" />
+        <transition on="success" to="viewFindAccountPage" />
+        <transition on="reset" to="viewResetPasswordPage" />
+        <transition on="verify" to="viewVerifyEmailPage" />
+        <transition on="error" to="viewManagerException" />
+    </action-state>
+
+    <view-state id="viewFindAccountPage" view="/WEB-INF/view/jsp/accountManager/casFindAccountView.jsp" model="findAccountFormBean">
+        <binder>
+            <binding property="action" />
+            <binding property="email" />
+        </binder>
+        <on-entry>
+            <set name="viewScope.commandName" value="'findAccountFormBean'"/>
+        </on-entry>
+        <transition on="submit" bind="true" validate="true" to="findAccount"/>
+    </view-state>
+
+    <action-state id="findAccount">
+        <evaluate expression="findAccountAction.submitForm(flowRequestContext, flowScope.findAccountFormBean, messageContext)" />
+        <transition on="VERIFY_EMAIL" to="viewVerifyEmailPage"/>
+        <transition on="RESET_PASSWORD" to="viewResetPasswordPage" />
+        <transition on="error" to="generateLoginTicket"/>
+    </action-state>
+
+</flow>

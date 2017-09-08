@@ -32,11 +32,11 @@
         ]
       ]
     },
-    "registerUrl" : {
+    "campaign": {
       "@class" : "org.jasig.cas.services.DefaultRegisteredServiceProperty",
       "values" : [
         "java.util.HashSet", [
-          "?campaign=scielo-preprints"
+          "scielo-preprints"
         ]
       ]
     }

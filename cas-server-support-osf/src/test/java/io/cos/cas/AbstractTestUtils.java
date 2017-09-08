@@ -33,6 +33,10 @@ public abstract class AbstractTestUtils {
 
     public static final String CONST_INSTITUTION_IDP = "http://institutionidp/";
 
+    public static final String CONST_EXTERNAL_IDENTITY = "0001-1234-5678";
+
+    public static final String CONST_EXTERNAL_IDENTITY_PROVIDER = "MockProfile";
+
     public static final String CONST_NOT_EMPTY_STRING = "a_string_that_is_not_empty";
 
     private static final String REMOTE_USER = "REMOTE_USER";

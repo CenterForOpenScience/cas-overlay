@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<flow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://www.springframework.org/schema/webflow"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+              http://www.springframework.org/schema/webflow/spring-webflow.xsd"
+      parent="account/internal,account/verifyEmail">
+
+    <var name="registerFormBean" class="io.cos.cas.account.model.RegisterFormBean" />
+
+    <action-state id="onStart">
+        <evaluate expression="initialFlowSetupAction" />
+        <transition on="success" to="clientAction" />
+    </action-state>
+
+    <action-state id="generateLoginTicket">
+        <evaluate expression="generateLoginTicketAction.generate(flowRequestContext)"/>
+        <transition on="generated" to="showRegisterPage"/>
+    </action-state>
+
+    <action-state id="showRegisterPage">
+        <evaluate expression="registerAction.preparePage(flowRequestContext)" />
+        <transition on="success" to="viewRegisterPage" />
+    </action-state>
+
+    <view-state id="viewRegisterPage" view="/WEB-INF/view/jsp/accountManager/casRegisterView.jsp" model="registerFormBean">
+        <binder>
+            <binding property="fullname" />
+            <binding property="email" />
+            <binding property="confirmEmail" />
+            <binding property="password" />
+            <binding property="action" />
+            <binding property="campaign" />
+        </binder>
+        <on-entry>
+            <set name="viewScope.commandName" value="'registerFormBean'"/>
+        </on-entry>
+        <transition on="submit" bind="true" validate="true" to="registerUser"/>
+    </view-state>
+
+    <action-state id="registerUser">
+        <evaluate expression="registerAction.submitForm(flowRequestContext, flowScope.registerFormBean, messageContext)" />
+        <transition on="success" to="viewVerifyEmailPage"/>
+        <transition on="error" to="generateLoginTicket"/>
+    </action-state>
+
+</flow>

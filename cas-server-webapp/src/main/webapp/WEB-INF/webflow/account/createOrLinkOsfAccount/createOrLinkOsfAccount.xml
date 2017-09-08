@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<flow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://www.springframework.org/schema/webflow"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+              http://www.springframework.org/schema/webflow/spring-webflow.xsd"
+      parent="account/internal,account/verifyEmail">
+
+    <var name="createOrLinkFormBean" class="io.cos.cas.account.model.CreateOrLinkFormBean" />
+
+    <action-state id="onStart">
+        <evaluate expression="initialFlowSetupAction" />
+        <transition on="success" to="ticketGrantingTicketCheck" />
+    </action-state>
+
+    <action-state id="generateLoginTicket">
+        <evaluate expression="generateLoginTicketAction.generate(flowRequestContext)"/>
+        <transition on="generated" to="showExternalAuthRegisterPage"/>
+    </action-state>
+
+    <action-state id="showExternalAuthRegisterPage">
+        <evaluate expression="createOrLinkAction.preparePage(flowRequestContext)" />
+        <transition on="success" to="viewExternalAuthRegisterPage" />
+        <transition on="error" to="viewManagerException" />
+    </action-state>
+
+    <view-state id="viewExternalAuthRegisterPage" view="/WEB-INF/view/jsp/accountManager/casCreateOrLinkOsfAccount.jsp" model="createOrLinkFormBean">
+        <binder>
+            <binding property="action" />
+            <binding property="externalId" />
+            <binding property="email" />
+        </binder>
+        <on-entry>
+            <set name="viewScope.commandName" value="'createOrLinkFormBean'"/>
+        </on-entry>
+        <transition on="submit" bind="true" validate="true" to="registerEmail"/>
+    </view-state>
+
+    <action-state id="registerEmail">
+        <evaluate expression="createOrLinkAction.submitForm(flowRequestContext, flowScope.createOrLinkFormBean, messageContext)" />
+        <transition on="VERIFY_EMAIL" to="viewVerifyEmailPage"/>
+        <transition on="error" to="generateLoginTicket"/>
+    </action-state>
+
+</flow>
