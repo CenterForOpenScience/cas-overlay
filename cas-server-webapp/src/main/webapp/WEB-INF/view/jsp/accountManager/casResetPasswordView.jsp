@@ -71,6 +71,8 @@
             <label for="newPassword"><spring:message code="screen.resetPassword.label.newPassword" /></label><br/>
             <spring:message code="screen.resetPassword.label.newPassword.accesskey" var="newPasswordAccessKey" />
             <form:input type="password" cssClass="required" cssErrorClass="error" id="newPassword" size="25" tabindex="1" accesskey="${newPasswordAccessKey}" path="newPassword" autocomplete="off" htmlEscape="true" />
+            <meter max="5" id="password-strength-meter"></meter>
+            <p id="password-strength-text"></p>
             <form:errors path="newPassword" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
 
@@ -92,6 +94,10 @@
         </section>
 
     </form:form>
+
+    <%-- For security and performance concern, use a local copy of the library https://github.com/dropbox/zxcvbn over https. --%>
+    <script type="text/javascript" src="../../../../js/zxcvbn.js"></script>
+    <script type="text/javascript" src="../../../../js/password-strength.js"></script>
 </div>
 
 <c:set var="alternativeBottomLogin" value="true"/>

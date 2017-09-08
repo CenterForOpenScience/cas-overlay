@@ -429,3 +429,39 @@ footer a:link, footer a:visited {
   font-weight: lighter;
   white-space: nowrap;
 }
+
+meter {
+  /* Reset the default appearance */
+
+  /* Need to comment out -webkit-appearance for a bug in chrome. See: https://stackoverflow.com/questions/38891254/meter-not-working-properly-in-chrome */
+  /*-webkit-appearance: none;*/
+  -moz-appearance: none;
+  appearance: none;
+
+  margin: 0 auto 1em;
+  width: 100%;
+  height: 0.5em;
+
+  /* Applicable only to Firefox */
+  background: none;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+meter::-webkit-meter-bar {
+  background: none;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Webkit based browsers */
+meter[value="1"]::-webkit-meter-optimum-value { background: red; }
+meter[value="2"]::-webkit-meter-optimum-value { background: red; }
+meter[value="3"]::-webkit-meter-optimum-value { background: orange; }
+meter[value="4"]::-webkit-meter-optimum-value { background: green; }
+meter[value="5"]::-webkit-meter-optimum-value { background: green; }
+
+/* Gecko based browsers */
+meter[value="1"]::-moz-meter-bar { background: red; }
+meter[value="2"]::-moz-meter-bar { background: red; }
+meter[value="3"]::-moz-meter-bar { background: orange; }
+meter[value="4"]::-moz-meter-bar { background: green; }
+meter[value="5"]::-moz-meter-bar { background: green; }

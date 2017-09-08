@@ -49,6 +49,8 @@
             <label for="password"><spring:message code="screen.welcome.label.password" />
             </label><spring:message code="screen.welcome.label.password.accesskey" var="passwordAccessKey" />
             <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password"  accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
+            <meter max="5" id="password-strength-meter"></meter>
+            <p id="password-strength-text"></p>
             <form:errors path="password" id="msg" cssClass="errors" element="div" htmlEscape="false" />
         </section>
 
@@ -86,6 +88,10 @@
     <c:if test="${not empty accountManagerContext.getRecaptchaSiteKey()}">
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     </c:if>
+
+    <%-- For security and performance concern, use a local copy of the library https://github.com/dropbox/zxcvbn over https. --%>
+    <script type="text/javascript" src="../../../../js/zxcvbn.js"></script>
+    <script type="text/javascript" src="../../../../js/password-strength.js"></script>
 </div>
 
 <jsp:directive.include file="./includes/bottom.jsp" />
