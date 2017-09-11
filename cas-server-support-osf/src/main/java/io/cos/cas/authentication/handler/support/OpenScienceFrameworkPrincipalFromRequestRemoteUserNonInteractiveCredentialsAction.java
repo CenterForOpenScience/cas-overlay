@@ -357,7 +357,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             credential.setRemotePrincipal(Boolean.TRUE);
             credential.getDelegationAttributes().put("Cas-Identity-Provider", clientName);
             for (final Map.Entry<String, Object> entry : principal.getAttributes().entrySet()) {
-                logger.debug("Remote User [{}] Auth Header '{}': '{}'", principal.getId(), entry.getKey(), entry.getValue());
+                logger.info("Remote User [{}] Auth Header '{}': '{}'", principal.getId(), entry.getKey(), entry.getValue());
                 credential.getDelegationAttributes().put(entry.getKey(), (String) entry.getValue());
             }
 
