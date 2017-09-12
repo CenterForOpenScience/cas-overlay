@@ -356,9 +356,14 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             credential.setDelegationProtocol(DelegationProtocol.CAS_PAC4J);
             credential.setRemotePrincipal(Boolean.TRUE);
             credential.getDelegationAttributes().put("Cas-Identity-Provider", clientName);
-            for (final Map.Entry<String, Object> entry : principal.getAttributes().entrySet()) {
-                logger.info("Remote User [{}] Auth Header '{}': '{}'", principal.getId(), entry.getKey(), entry.getValue());
-                credential.getDelegationAttributes().put(entry.getKey(), (String) entry.getValue());
+            if (principal.getAttributes().size() > 0) {
+                for (final Map.Entry<String, Object> entry : principal.getAttributes().entrySet()) {
+                    logger.debug("Remote User [{}] Auth Header '{}': '{}'", principal.getId(), entry.getKey(), entry.getValue());
+                    credential.getDelegationAttributes().put(entry.getKey(), (String) entry.getValue());
+                }
+            } else {
+                // CAS servers must provide required attributes such as user's email and one valid type of name
+                logger.error("Empty Attributes Map for Remote User [{}] with Client [{}]", principal.getId(), clientName);
             }
 
             // Notify the OSF of the remote principal authentication.
