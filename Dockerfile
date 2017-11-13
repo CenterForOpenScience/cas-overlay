@@ -7,6 +7,8 @@ COPY ./ /code
 ARG GIT_COMMIT=
 ENV GIT_COMMIT ${GIT_COMMIT}
 
+# Artifact caching for Multi-stage Builds : https://github.com/carlossg/docker-maven/issues/36
+ENV MAVEN_OPTS=-Dmaven.repo.local=/root/.m2repo/
 RUN mvn clean package -P nocheck
 
 ### Dist
@@ -101,10 +103,9 @@ FROM app AS dev
 
 RUN mvn install -P nocheck
 
-# Forces all jetty dependancies to install
-#RUN mvn jetty:help
+# WOKRAROUND: Force maven to install jetty/build dependencies
+RUN mvn jetty:help
 
-ENTRYPOINT ["/usr/bin/mvn", "-pl", "cas-server-webapp"]
+ENTRYPOINT []
 
-# ENV MAVEN_OPTS=# "-Xms256m -Xmx512m"
-CMD ["jetty:run"]
+CMD ["/usr/bin/mvn", "-pl", "cas-server-webapp", "jetty:run"]
