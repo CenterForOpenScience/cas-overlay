@@ -366,6 +366,11 @@
           <!--p:successView="casSamlServiceSuccessView"-->
           <!--p:failureView="casSamlServiceFailureView"/>-->
 
+  <!-- Synchronize Session Data -->
+  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+    <property name="synchronizeOnSession" value="true" />
+  </bean>
+
   <!-- OAuth2 -->
   <bean id="oauth20WrapperController" class="org.jasig.cas.support.oauth.web.OAuth20WrapperController"
         p:loginUrl="${oauth.loginUrl:https://localhost:8443/cas/login}"
