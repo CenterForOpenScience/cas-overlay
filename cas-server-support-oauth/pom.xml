@@ -36,19 +36,14 @@
     <dependency>
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-server-webapp-support</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.jasig.cas</groupId>
       <artifactId>cas-server-support-oauth</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 
