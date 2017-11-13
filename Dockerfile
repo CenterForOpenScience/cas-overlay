@@ -16,10 +16,8 @@ FROM jetty:9.3-jre8-alpine AS dist
 
 USER root
 
-COPY ./etc/cas.properties /etc/cas/
-COPY ./etc/institutions-auth.xsl /etc/cas/
-COPY ./etc/log4j2.xml /etc/cas/
-COPY ./etc/services/ /etc/cas/services/
+COPY ./etc/cas.properties ./etc/institutions-auth.xsl ./etc/log4j2.xml /etc/cas/
+COPY ./etc/services /etc/cas/services
 RUN chown -R jetty:jetty /etc/cas
 
 USER jetty
