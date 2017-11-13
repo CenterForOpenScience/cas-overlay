@@ -114,7 +114,7 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
                     OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
-        if (!redirectUri.matches(service.getServiceId())) {
+        if (!redirectUri.equalsIgnoreCase(service.getServiceId())) {
             LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
                     OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);

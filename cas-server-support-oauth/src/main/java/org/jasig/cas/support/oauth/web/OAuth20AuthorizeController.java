@@ -93,7 +93,7 @@ public final class OAuth20AuthorizeController extends AbstractController {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
             throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
-        if (!redirectUri.matches(service.getServiceId())) {
+        if (!redirectUri.equalsIgnoreCase(service.getServiceId())) {
             LOGGER.error("Unmatched {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
             throw new InvalidParameterException(OAuthConstants.REDIRECT_URI);
         }
