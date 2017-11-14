@@ -41,7 +41,8 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Jerome Leleu
  * @author Michael Haselton
- * @since 3.5.2
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20AuthorizeControllerTests {
 
@@ -58,6 +59,10 @@ public final class OAuth20AuthorizeControllerTests {
     private static final String REDIRECT_URI = "http://someurl";
 
     private static final String OTHER_REDIRECT_URI = "http://someotherurl";
+
+    private static final String REGEX_REDIRECT_URI = "http://someurl/?*";
+
+    private static final String OTHER_REGEX_REDIRECT_URI = "http://someurl/?somequery=somevalue";
 
     private static final String ACCESS_TYPE = "offline";
 
@@ -253,6 +258,77 @@ public final class OAuth20AuthorizeControllerTests {
         assertEquals(RESPONSE_TYPE, session.getAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE));
         assertEquals(CLIENT_ID, session.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID));
         assertEquals(REDIRECT_URI, session.getAttribute(OAuthConstants.OAUTH20_REDIRECT_URI));
+        assertEquals(SERVICE_NAME, session.getAttribute(OAuthConstants.OAUTH20_SERVICE_NAME));
+        assertEquals(SCOPE, session.getAttribute(OAuthConstants.OAUTH20_SCOPE));
+        assertEquals(STATE, session.getAttribute(OAuthConstants.OAUTH20_STATE));
+    }
+
+    /**
+     * Verify that attempts to use regex for redirect URI matching fails with expected exception.
+     */
+    @Test
+    public void verifyRegexRedirectUriDoesNotStartWithServiceId() throws Exception {
+        final OAuthRegisteredService service = getRegisteredService(REGEX_REDIRECT_URI, CLIENT_ID);
+
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
+                + OAuthConstants.AUTHORIZE_URL);
+        mockRequest.setParameter(OAuthConstants.RESPONSE_TYPE, RESPONSE_TYPE);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, OTHER_REGEX_REDIRECT_URI);
+        mockRequest.setParameter(OAuthConstants.ACCESS_TYPE, ACCESS_TYPE);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertEquals(OAuthConstants.ERROR_VIEW, modelAndView.getViewName());
+    }
+
+    /**
+     * Verify that regex-like redirect URI matches if an only if the two string are equal (case-insensitive).
+     */
+    @Test
+    public void verifyOKRegexRedirectUri() throws Exception {
+        final OAuthRegisteredService service = getRegisteredService(REGEX_REDIRECT_URI, SERVICE_NAME);
+
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
+                + OAuthConstants.AUTHORIZE_URL);
+        mockRequest.setParameter(OAuthConstants.RESPONSE_TYPE, RESPONSE_TYPE);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REGEX_REDIRECT_URI);
+        mockRequest.setParameter(OAuthConstants.ACCESS_TYPE, ACCESS_TYPE);
+        mockRequest.setParameter(OAuthConstants.STATE, STATE);
+        mockRequest.setParameter(OAuthConstants.SCOPE, SCOPE);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.setLoginUrl(CAS_URL);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertTrue(modelAndView.getView() instanceof RedirectView);
+        final RedirectView redirectView = (RedirectView) modelAndView.getView();
+        assertTrue(redirectView.getUrl().contains("?service=http"));
+        assertTrue(redirectView.getUrl().endsWith(OAuthConstants.CALLBACK_AUTHORIZE_URL));
+
+        final HttpSession session = mockRequest.getSession();
+        assertEquals(Boolean.FALSE, session.getAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT));
+        assertEquals(OAuthConstants.APPROVAL_PROMPT_AUTO, session.getAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT));
+        assertEquals(TokenType.OFFLINE, session.getAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE));
+        assertEquals(RESPONSE_TYPE, session.getAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE));
+        assertEquals(CLIENT_ID, session.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID));
+        assertEquals(REGEX_REDIRECT_URI, session.getAttribute(OAuthConstants.OAUTH20_REDIRECT_URI));
         assertEquals(SERVICE_NAME, session.getAttribute(OAuthConstants.OAUTH20_SERVICE_NAME));
         assertEquals(SCOPE, session.getAttribute(OAuthConstants.OAUTH20_SCOPE));
         assertEquals(STATE, session.getAttribute(OAuthConstants.OAUTH20_STATE));

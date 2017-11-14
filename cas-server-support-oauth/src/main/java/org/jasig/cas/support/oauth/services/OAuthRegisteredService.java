@@ -25,11 +25,13 @@ import org.jasig.cas.services.OSFRegisteredService;
 import org.jasig.cas.services.RegisteredService;
 
 /**
- * An extension of the {@link OSFRegisteredService} that defines the
- * OAuth client id and secret for a given registered service.
+ * An extension of the {@link OSFRegisteredService} that defines
+ * the OAuth client id and secret for a given registered service.
+ *
  * @author Misagh Moayyed
  * @author Michael Haselton
- * @since 4.0.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuthRegisteredService extends OSFRegisteredService {
 
@@ -109,5 +111,3 @@ public final class OAuthRegisteredService extends OSFRegisteredService {
                 .toHashCode();
     }
 }
-
-
