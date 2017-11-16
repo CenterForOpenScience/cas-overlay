@@ -21,7 +21,9 @@ package org.jasig.cas.support.oauth;
 import com.codahale.metrics.annotation.Counted;
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.principal.Principal;
@@ -52,11 +54,14 @@ import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.util.UniqueTicketIdGenerator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.util.Assert;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,7 +71,7 @@ import java.util.Set;
  * Central OAuth Service implementation.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @since 4.1.5
  */
 public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
@@ -288,29 +293,23 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     public Boolean revokeClientTokens(final String clientId, final String clientSecret) {
-        final OAuthRegisteredService service = getRegisteredService(clientId);
-        if (service == null) {
-            LOGGER.error("OAuth Registered Service could not be found for clientId : {}", clientId);
-            return Boolean.FALSE;
-        }
-        if (!service.getClientSecret().equals(clientSecret)) {
-            LOGGER.error("Invalid client secret");
-            return Boolean.FALSE;
-        }
 
         final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientTokens(clientId, RefreshToken.class);
-        for (final RefreshToken token : refreshTokens) {
-            LOGGER.debug("Revoking refresh token : {}", token.getId());
-            ticketRegistry.deleteTicket(token.getTicket().getId());
-        }
-
         final Collection<AccessToken> accessTokens = tokenRegistry.getClientTokens(clientId, AccessToken.class);
-        for (final AccessToken token : accessTokens) {
-            LOGGER.debug("Revoking access token : {}", token.getId());
-            ticketRegistry.deleteTicket(token.getTicket().getId());
-        }
 
-        return Boolean.TRUE;
+        Token token;
+        if (!refreshTokens.isEmpty()) {
+            token = refreshTokens.iterator().next();
+            LOGGER.debug("Revoking refresh token : {}", token.getId());
+        } else if (!accessTokens.isEmpty()) {
+            token = accessTokens.iterator().next();
+            LOGGER.info("Revoking access token : {}", token.getId());
+        } else {
+            // all tokens are cleared
+            return Boolean.TRUE;
+        }
+        ticketRegistry.deleteTicket(token.getTicket().getId());
+        return Boolean.FALSE;
     }
 
     @Override
