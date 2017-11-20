@@ -18,7 +18,8 @@ USER root
 
 COPY ./etc/cas.properties ./etc/institutions-auth.xsl ./etc/log4j2.xml /etc/cas/
 COPY ./etc/services /etc/cas/services
-RUN chown -R jetty:jetty /etc/cas
+RUN mkdir -p /home/jetty \
+    && chown -R jetty:jetty /home/jetty /etc/cas
 
 USER jetty
 
