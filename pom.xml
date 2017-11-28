@@ -45,10 +45,48 @@
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.getsentry.raven</groupId>
+      <artifactId>raven-log4j2</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jasig.inspektr</groupId>
+      <artifactId>inspektr-aspects</artifactId>
+      <version>${inspektr.version}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.validation</groupId>
+          <artifactId>validation-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
     <dependencies>
+
+      <!-- CAS -->
       <dependency>
         <groupId>org.jasig.cas</groupId>
         <artifactId>cas-server-core</artifactId>
@@ -56,9 +94,8 @@
       </dependency>
       <dependency>
         <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-support-generic</artifactId>
+        <artifactId>cas-server-support-pac4j</artifactId>
         <version>${project.version}</version>
-        <scope>runtime</scope>
       </dependency>
       <dependency>
         <groupId>org.jasig.cas</groupId>
@@ -71,65 +108,27 @@
         <groupId>org.jasig.cas</groupId>
         <artifactId>cas-server-webapp-support</artifactId>
         <version>${project.version}</version>
-        <type>jar</type>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-support-jdbc</artifactId>
-        <version>${project.version}</version>
-        <type>jar</type>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-management-webapp</artifactId>
-        <version>${project.version}</version>
-        <type>war</type>
-        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.jasig.cas</groupId>
         <artifactId>cas-server-support-oauth</artifactId>
         <version>${project.version}</version>
-        <type>jar</type>
-        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jasig.cas</groupId>
+        <artifactId>cas-server-support-jdbc</artifactId>
+        <version>${project.version}</version>
       </dependency>
 
+      <!-- Spring Framework -->
       <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${apache.httpclient.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>fluent-hc</artifactId>
-        <version>${apache.httpclient.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.nimbusds</groupId>
-        <artifactId>nimbus-jose-jwt</artifactId>
-        <version>${nimbus.jose.version}</version>
-      </dependency>
-      <!--<dependency>-->
-        <!--<groupId>org.bouncycastle</groupId>-->
-        <!--<artifactId>bcprov-jdk15on</artifactId>-->
-        <!--<version>${bouncycastle.provider.version}</version>-->
-      <!--</dependency>-->
-
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>jstl</artifactId>
-        <version>${jstl.version}</version>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${spring.version}</version>
         <scope>test</scope>
       </dependency>
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>${servlet.api.version}</version>
-        <scope>provided</scope>
-      </dependency>
 
+      <!-- cas-server-support-osf -->
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-core</artifactId>
@@ -150,185 +149,6 @@
         <artifactId>pac4j-http</artifactId>
         <version>${pac4j.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-security-filter</artifactId>
-        <version>${cas-server-security-filter.version}</version>
-      </dependency>
-
-      <!-- Spring Security Dependencies -->
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-core</artifactId>
-        <version>${spring.security.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-web</artifactId>
-        <version>${spring.security.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-config</artifactId>
-        <version>${spring.security.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-crypto</artifactId>
-        <version>${spring.security.version}</version>
-      </dependency>
-
-      <!-- Spring Managed Dependencies -->
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-aop</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-aspects</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-beans</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context-support</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-core</artifactId>
-        <version>${spring.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-instrument</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jdbc</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jms</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-orm</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-oxm</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
-        <version>${spring.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-tx</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-expression</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-webmvc</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.webflow</groupId>
-        <artifactId>spring-webflow</artifactId>
-        <version>${spring.webflow.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>${hibernate.core.version}</version>
-        <type>jar</type>
-        <exclusions>
-          <exclusion>
-            <artifactId>jboss-logging-annotations</artifactId>
-            <groupId>org.jboss.logging</groupId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>com.mchange</groupId>
-        <artifactId>c3p0</artifactId>
-        <version>${c3p0.version}</version>
-        <scope>runtime</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-entitymanager</artifactId>
-        <version>${hibernate.core.version}</version>
-        <type>jar</type>
-        <exclusions>
-          <exclusion>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
@@ -336,17 +156,33 @@
         <scope>compile</scope>
       </dependency>
       <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${postgresql.version}</version>
-        <type>jar</type>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${apache.httpclient.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>fluent-hc</artifactId>
+        <version>${apache.httpclient.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>nimbus-jose-jwt</artifactId>
+        <version>${nimbus.jose.version}</version>
       </dependency>
 
-      <!-- Sentry -->
+      <!-- javax -->
       <dependency>
-        <groupId>com.getsentry.raven</groupId>
-        <artifactId>raven-log4j2</artifactId>
-        <version>${raven.log4j2.version}</version>
+        <groupId>javax.servlet</groupId>
+        <artifactId>jstl</artifactId>
+        <version>${jstl.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${servlet.api.version}</version>
+        <scope>provided</scope>
       </dependency>
 
       <!-- XSL -->
@@ -359,6 +195,90 @@
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>${json.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>${google.gson.version}</version>
+      </dependency>
+
+      <!-- cas-server-webapp -->
+      <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <version>${aspectj.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjrt</artifactId>
+        <version>${aspectj.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
+      </dependency>
+
+      <!-- Sentry -->
+      <dependency>
+        <groupId>com.getsentry.raven</groupId>
+        <artifactId>raven-log4j2</artifactId>
+        <version>${raven.log4j2.version}</version>
+      </dependency>
+
+      <!-- Inspektr Dependencies -->
+      <dependency>
+        <groupId>org.jasig.inspektr</groupId>
+        <artifactId>inspektr-audit</artifactId>
+        <version>${inspektr.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <artifactId>validation-api</artifactId>
+            <groupId>javax.validation</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.jasig.inspektr</groupId>
+        <artifactId>inspektr-common</artifactId>
+        <version>${inspektr.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <artifactId>validation-api</artifactId>
+            <groupId>javax.validation</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.jasig.inspektr</groupId>
+        <artifactId>inspektr-support-spring</artifactId>
+        <version>${inspektr.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <artifactId>validation-api</artifactId>
+            <groupId>javax.validation</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <!-- REQUIRED for Legacy Object Deserialization -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-jdk14</artifactId>
+        <version>${slf4j.version}</version>
       </dependency>
 
       <!-- CRaSH -->
@@ -396,6 +316,7 @@
           <artifactId>jetty-maven-plugin</artifactId>
           <version>${maven-jetty-plugin.version}</version>
           <configuration>
+            <jettyXml>${cs.dir}/etc/jetty/jetty.xml,${cs.dir}/etc/jetty/jetty-ssl.xml,${cs.dir}/etc/jetty/jetty-https.xml</jettyXml>
             <systemProperties>
               <systemProperty>
                 <name>org.eclipse.jetty.annotations.maxWait</name>
@@ -411,7 +332,6 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
           <configuration>
-            <skipTests>${skipTests}</skipTests>
             <forkMode>once</forkMode>
             <includes>
               <include>**/*Tests.java</include>
@@ -423,22 +343,6 @@
               <additionalClasspathElement>${project.build.directory}/test-lib/jdbc-driver.jar
               </additionalClasspathElement>
             </additionalClasspathElements>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.eluder.coveralls</groupId>
-          <artifactId>coveralls-maven-plugin</artifactId>
-          <version>${coveralls-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>cobertura-maven-plugin</artifactId>
-          <version>${cobertura-maven-plugin.version}</version>
-          <configuration>
-            <format>xml</format>
-            <maxmem>256m</maxmem>
-            <!-- aggregated reports for multi-module projects -->
-            <aggregate>true</aggregate>
           </configuration>
         </plugin>
       </plugins>
@@ -474,7 +378,6 @@
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>${maven-findbugs-plugin.version}</version>
         <configuration>
-          <skip>${skipTests}</skip>
           <plugins>
             <plugin>
               <groupId>com.mebigfatguy.fb-contrib</groupId>
@@ -494,7 +397,7 @@
         <executions>
           <execution>
             <id>findbugs-check</id>
-            <phase>test</phase>
+            <phase>compile</phase>
             <goals>
               <goal>check</goal>
             </goals>
@@ -506,7 +409,6 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>${maven-checkstyle-plugin.version}</version>
         <configuration>
-          <skip>${skipTests}</skip>
           <consoleOutput>true</consoleOutput>
           <configLocation>${cs.dir}/checkstyle-rules.xml</configLocation>
           <suppressionsLocation>${cs.dir}/checkstyle-suppressions.xml</suppressionsLocation>
@@ -519,7 +421,7 @@
             <goals>
               <goal>checkstyle</goal>
             </goals>
-            <phase>test</phase>
+            <phase>compile</phase>
           </execution>
         </executions>
         <dependencies>
@@ -570,6 +472,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
           <source>${project.build.sourceVersion}</source>
           <target>${project.build.targetVersion}</target>
@@ -590,13 +493,14 @@
         <configuration>
           <doCheck>false</doCheck>
           <doUpdate>false</doUpdate>
-          <timestampFormat>EEE, d MMM yyyy HH:mm:ss Z</timestampFormat>
+          <timestampFormat>yyyy-MM-dd HH:mm:ssa</timestampFormat>
           <timestampPropertyName>timestamp</timestampPropertyName>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar-plugin.version}</version>
         <configuration>
           <archive>
             <manifest>
@@ -647,16 +551,16 @@
           <sources />
           <complianceLevel>${project.build.sourceVersion}</complianceLevel>
           <forceAjcCompile>true</forceAjcCompile>
-          <!--<aspectLibraries>-->
-            <!--<aspectLibrary>-->
-              <!--<groupId>org.jasig.inspektr</groupId>-->
-              <!--<artifactId>inspektr-aspects</artifactId>-->
-            <!--</aspectLibrary>-->
-          <!--</aspectLibraries>-->
+          <aspectLibraries>
+            <aspectLibrary>
+              <groupId>org.jasig.inspektr</groupId>
+              <artifactId>inspektr-aspects</artifactId>
+            </aspectLibrary>
+          </aspectLibraries>
           <weaveDirectories>
             <weaveDirectory>${project.build.directory}/classes</weaveDirectory>
           </weaveDirectories>
-          <skip>false</skip>
+          <skip>${maven.compiler.aspectj.skip}</skip>
           <showWeaveInfo />
         </configuration>
         <dependencies>
@@ -696,10 +600,39 @@
     <module>cas-server-webapp</module>
   </modules>
 
+  <profiles>
+    <profile>
+      <id>nocheck</id>
+      <properties>
+        <skipTests>true</skipTests>
+        <checkstyle.skip>true</checkstyle.skip>
+        <license.skip>true</license.skip>
+        <notice.skip>true</notice.skip>
+        <versions.skip>true</versions.skip>
+        <findbugs.skip>true</findbugs.skip>
+        <cobertura.skip>true</cobertura.skip>
+      </properties>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <log4j.configuration>file:noLogs.xml</log4j.configuration>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <properties>
     <!-- Dependency Versions -->
     <spring.webflow.version>2.4.1.RELEASE</spring.webflow.version>
-    <spring.version>4.1.6.RELEASE</spring.version>
+    <spring.version>4.1.8.RELEASE</spring.version>
     <spring.security.version>4.0.1.RELEASE</spring.security.version>
     <spring.data.version>1.7.0.RELEASE</spring.data.version>
     <cas-server-security-filter.version>2.0.3</cas-server-security-filter.version>
@@ -709,8 +642,9 @@
     <hibernate.core.version>4.3.10.Final</hibernate.core.version>
     <junit.version>4.12</junit.version>
     <mockito.version>1.10.19</mockito.version>
+    <inspektr.version>1.3.GA</inspektr.version>
     <slf4j.version>1.7.12</slf4j.version>
-    <postgresql.version>9.4-1201-jdbc41</postgresql.version>
+    <postgresql.version>42.1.4</postgresql.version>
     <jstl.version>1.2</jstl.version>
     <servlet.api.version>3.0.1</servlet.api.version>
     <raven.log4j2.version>7.8.2</raven.log4j2.version>
@@ -722,6 +656,7 @@
     <json.version>20160212</json.version>
     <crash.version>1.3.2</crash.version>
     <pac4j.version>1.7.1</pac4j.version>
+    <google.gson.version>2.7</google.gson.version>
 
     <!-- Plugin Versions -->
     <maven-buildnumber-plugin-version>1.3</maven-buildnumber-plugin-version>
@@ -736,10 +671,13 @@
     <maven-findbugs-security-plugin.version>1.4.1</maven-findbugs-security-plugin.version>
     <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
     <maven-jetty-plugin.version>9.3.0.v20150612</maven-jetty-plugin.version>
+    <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+    <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
 
     <!-- Project configuration -->
     <cs.dir>${project.basedir}</cs.dir>
     <cas.properties.filepath>/WEB-INF/cas.properties</cas.properties.filepath>
+    <maven.compiler.aspectj.skip>false</maven.compiler.aspectj.skip>
     <project.build.sourceVersion>1.7</project.build.sourceVersion>
     <project.build.targetVersion>1.7</project.build.targetVersion>
   </properties>
