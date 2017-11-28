@@ -613,6 +613,12 @@
         <cobertura.skip>true</cobertura.skip>
       </properties>
 
+      <!-- WORKAROUND: Temporarily disable checks for legacy production environment. -->
+      <!-- see: https://maven.apache.org/guides/introduction/introduction-to-profiles.html-->
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
       <build>
         <plugins>
           <plugin>
