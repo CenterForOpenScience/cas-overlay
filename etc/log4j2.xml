@@ -86,7 +86,7 @@
             <!--<AppenderRef ref="Console" />-->
         <!--</Logger>-->
 
-        <Logger name="perfStatsLogger" level="error" additivity="false">
+        <Logger name="perfStatsLogger" level="off" additivity="false">
             <AppenderRef ref="Console" />
         </Logger>
         <Root level="warn">
