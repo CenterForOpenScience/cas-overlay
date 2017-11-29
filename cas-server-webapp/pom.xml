@@ -11,12 +11,12 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.cos.cas</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>cas-server-support-oauth</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.cos.cas</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>cas-server-support-osf</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -48,10 +48,41 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>cas-server-support-oauth</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>cas-server-support-osf</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <version>2.6</version>
         <configuration>
           <warName>cas</warName>
+          <packagingExcludes>WEB-INF/lib/io.cos.cas-cas-server-support-oauth-4.1.5.jar,WEB-INF/lib/cas-server-support-osf-4.1.5.jar</packagingExcludes>
           <overlays>
             <overlay>
               <groupId>org.jasig.cas</groupId>
