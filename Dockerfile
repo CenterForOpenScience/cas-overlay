@@ -1,4 +1,4 @@
-FROM maven:3-jdk-8 AS app
+FROM maven:3.3-jdk-8 AS app
 
 RUN mkdir -p /code
 WORKDIR /code
