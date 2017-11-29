@@ -30,7 +30,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.cos.cas</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>cas-server-support-oauth</artifactId>
       <version>${project.version}</version>
     </dependency>
