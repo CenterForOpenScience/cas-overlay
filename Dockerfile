@@ -10,11 +10,7 @@ ENV GIT_COMMIT ${GIT_COMMIT}
 # Artifact caching for Multi-stage Builds : https://github.com/carlossg/docker-maven/issues/36
 ENV MAVEN_OPTS=-Dmaven.repo.local=/root/.m2repo/
 
-# WORKAROUND: Multi module release creates empty directories in war file instead of jars (v3.5.2)
-# see: https://issues.apache.org/jira/browse/MNG-6300
-#
-# RUN mvn clean package -P nocheck
-RUN mvn clean install -P nocheck
+RUN mvn clean package -P nocheck
 
 ### Dist
 FROM jetty:9.3-jre8-alpine AS dist
