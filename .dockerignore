@@ -1,5 +1,7 @@
 .DS_Store
+.dockerignore
 .git
+.gitignore
 .classpath
 .project
 .env
@@ -15,3 +17,4 @@
 **/overlays
 serialization*/*
 etc/cas-local.properties
+Dockerfile
