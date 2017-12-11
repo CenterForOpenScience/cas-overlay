@@ -35,13 +35,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * This controller is in charge of responding to the authorize
- * call in OAuth protocol. It stores the callback url and redirects user to the
+ * This controller is in charge of responding to the authorize call in
+ * OAuth protocol. It stores the callback url and redirects user to the
  * login page with the callback service.
  *
  * @author Jerome Leleu
  * @author Michael Haselton
- * @since 3.5.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20AuthorizeController extends AbstractController {
 
@@ -93,7 +94,8 @@ public final class OAuth20AuthorizeController extends AbstractController {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
             throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
-        if (!redirectUri.matches(service.getServiceId())) {
+        // Redirect URI is a literal string (not regex) and the match is done by case-insensitive equality check.
+        if (!redirectUri.equalsIgnoreCase(service.getServiceId())) {
             LOGGER.error("Unmatched {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
             throw new InvalidParameterException(OAuthConstants.REDIRECT_URI);
         }
