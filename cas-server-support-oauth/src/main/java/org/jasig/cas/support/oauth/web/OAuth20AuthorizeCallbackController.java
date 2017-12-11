@@ -142,7 +142,7 @@ public final class OAuth20AuthorizeCallbackController extends AbstractController
 
         // we use the scope map rather than scope set as the oauth service has the potential to add default scopes(s).
         final Map<String, Scope> scopeMap = centralOAuthService.getScopes(requestedScopeSet);
-        session.setAttribute(OAuthConstants.OAUTH20_SCOPE_SET, scopeMap.keySet());
+        session.setAttribute(OAuthConstants.OAUTH20_SCOPE_SET, new HashSet<>(scopeMap.keySet()));
 
         final String allowCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION,
                 OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
