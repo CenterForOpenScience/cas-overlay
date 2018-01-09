@@ -48,6 +48,7 @@ public class OpenScienceFrameworkLoginHandler {
     public static final class OpenScienceFrameworkLoginContext {
         private String serviceUrl;
         private boolean institutionLogin;
+        private String handleErrorName;
 
         /**
          * Construct an instance of `OpenScienceFrameworkLoginContext` with given settings.
@@ -55,13 +56,33 @@ public class OpenScienceFrameworkLoginHandler {
          * @param serviceUrl the service url
          * @param institutionLogin login through institutions
          */
-        private OpenScienceFrameworkLoginContext(final String serviceUrl, final boolean institutionLogin) {
+        private OpenScienceFrameworkLoginContext(
+                final String serviceUrl,
+                final boolean institutionLogin
+        ) {
             this.serviceUrl = serviceUrl;
             this.institutionLogin = institutionLogin;
+            this.handleErrorName = null;
         }
 
         public String getServiceUrl() {
             return serviceUrl;
+        }
+
+        public String getHandleErrorName() {
+            return handleErrorName;
+        }
+
+        private void setInstitutionLogin(final Boolean institutionLogin) {
+            this.institutionLogin = institutionLogin;
+        }
+
+        private void setServiceUrl(final String serviceUrl) {
+            this.serviceUrl = serviceUrl;
+        }
+
+        public void setHandleErrorName(final String handleErrorName) {
+            this.handleErrorName =handleErrorName;
         }
 
         /**
@@ -82,13 +103,12 @@ public class OpenScienceFrameworkLoginHandler {
             return serviceUrl != null;
         }
 
-
         /**
          * Convert class instance to a JSON string, which will be passed to the flow context.
          *
          * @return JSON string
          */
-        private String toJson() {
+        public String toJson() {
             final Gson gson = new Gson();
             return gson.toJson(this);
         }
@@ -106,17 +126,29 @@ public class OpenScienceFrameworkLoginHandler {
     }
 
     /**
-     * Decision making action that handles OSF login: osf, institution, campaign.
+     * Decision making action that handles OSF login.
      *
      * @param context The request context
-     * @return Event "osf", "institution" or "campaigns
+     * @return Event "osfDefaultLogin", "institutionLogin"
      */
     public Event beforeLogin(final RequestContext context) {
 
         final String serviceUrl = getEncodedServiceUrl(context);
         final boolean institutionLogin = isInstitutionLogin(context);
 
-        final OpenScienceFrameworkLoginContext osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin);
+        final String jsonLoginContext = (String) context.getFlowScope().get("jsonLoginContext");
+        final OpenScienceFrameworkLoginContext osfLoginContext;
+
+        if (jsonLoginContext == null) {
+            // Create a new Login Context with service URL and institution flag
+            osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin);
+        } else {
+            // Use current Login Context which contains information of Authentication Exceptions
+            // Update and override the service URL and the institution flag
+            osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(jsonLoginContext);
+            osfLoginContext.setServiceUrl(serviceUrl);
+            osfLoginContext.setInstitutionLogin(institutionLogin);
+        }
         context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
 
         if (osfLoginContext.isInstitutionLogin()) {
@@ -143,9 +175,9 @@ public class OpenScienceFrameworkLoginHandler {
      *
      * @param context The request context
      * @return the encoded service url
-     * @throws AssertionError
+     * @throws AssertionError if fails to encode the URL
      */
-    private String getEncodedServiceUrl(final RequestContext context) {
+    private String getEncodedServiceUrl(final RequestContext context) throws AssertionError {
 
         final String serviceUrl = context.getRequestParameters().get("service");
         if (serviceUrl == null) {
