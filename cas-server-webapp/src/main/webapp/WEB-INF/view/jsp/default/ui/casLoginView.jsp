@@ -57,8 +57,8 @@
 
         <%-- <h2><spring:message code="screen.welcome.instructions" /></h2> --%>
 
-        <section class="row">
-            <label for="username"><spring:message code="screen.welcome.label.netid" /></label>
+        <section class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <label class="mdl-textfield__label" for="username"><spring:message code="screen.welcome.label.netid" /></label>
             <c:choose>
                 <c:when test="${not empty sessionScope.openIdLocalId}">
                     <strong><c:out value="${sessionScope.openIdLocalId}" /></strong>
@@ -66,13 +66,13 @@
                 </c:when>
                 <c:otherwise>
                     <spring:message code="screen.welcome.label.netid.accesskey" var="userNameAccessKey" />
-                    <form:input cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true" />
+                    <form:input cssClass="required mdl-textfield__input" cssErrorClass="error mdl-textfield__input" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true" />
                 </c:otherwise>
             </c:choose>
         </section>
 
-        <section class="row">
-            <label for="password"><spring:message code="screen.welcome.label.password" /></label>
+        <section class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <label class="mdl-textfield__label" for="password"><spring:message code="screen.welcome.label.password" /></label>
                 <%--
                 NOTE: Certain browsers will offer the option of caching passwords for a user.  There is a non-standard attribute,
                 "autocomplete" that when set to "off" will tell certain browsers not to prompt to cache credentials.  For more
@@ -80,7 +80,7 @@
                 http://www.technofundo.com/tech/web/ie_autocomplete.html
                 --%>
             <spring:message code="screen.welcome.label.password.accesskey" var="passwordAccessKey" />
-            <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password"  accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
+            <form:password cssClass="required  mdl-textfield__input" cssErrorClass="error mdl-textfield__input" id="password" size="25" tabindex="2" path="password"  accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" />
             <span id="capslock-on" style="display:none;"><p><img src="images/warning.png" valign="top"> <spring:message code="screen.capslock.on" /></p></span>
         </section>
 
@@ -90,7 +90,18 @@
         </section> --%>
 
         <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false" />
-
+        <section class="row check">
+                <%-- <input id="warn" name="warn" value="true" tabindex="3" accesskey="<spring:message code="screen.welcome.label.warn.accesskey" />" type="checkbox" />
+                <label for="warn"><spring:message code="screen.welcome.label.warn" /></label>
+                <br/>
+                <input id="publicWorkstation" name="publicWorkstation" value="false" tabindex="4" type="checkbox" />
+                <label for="publicWorkstation"><spring:message code="screen.welcome.label.publicstation" /></label>
+                <br/> --%>
+            <input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked tabindex="5" />
+            <label for="rememberMe"><spring:message code="screen.rememberme.checkbox.title" /></label>
+            <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')" />
+            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
+        </section>
         <section class="row btn-row">
             <input type="hidden" name="lt" value="${loginTicket}" />
             <input type="hidden" name="execution" value="${flowExecutionKey}" />
@@ -98,18 +109,6 @@
 
             <input type="submit" class="btn-submit" name="submit" accesskey="l" value="<spring:message code="screen.welcome.button.login" />" tabindex="4"  />
             <%-- <input class="btn-reset" name="reset" accesskey="c" value="<spring:message code="screen.welcome.button.clear" />" tabindex="5" type="reset" /> --%>
-        </section>
-        <section class="row check">
-            <%-- <input id="warn" name="warn" value="true" tabindex="3" accesskey="<spring:message code="screen.welcome.label.warn.accesskey" />" type="checkbox" />
-            <label for="warn"><spring:message code="screen.welcome.label.warn" /></label>
-            <br/>
-            <input id="publicWorkstation" name="publicWorkstation" value="false" tabindex="4" type="checkbox" />
-            <label for="publicWorkstation"><spring:message code="screen.welcome.label.publicstation" /></label>
-            <br/> --%>
-            <input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked tabindex="5" />
-            <label for="rememberMe"><spring:message code="screen.rememberme.checkbox.title" /></label>
-            <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')" />
-            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />">Forgot Your Password?</a>
         </section>
 
         <%-- TODO: Only display OAuth Client options for the OSF service, due to a limitation of our OAuth Provider implementation as it does not support non-existing OSF accounts. --%>
