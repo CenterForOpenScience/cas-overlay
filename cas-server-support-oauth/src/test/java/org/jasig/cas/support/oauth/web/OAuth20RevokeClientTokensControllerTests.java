@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 
+import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -179,6 +180,11 @@ public final class OAuth20RevokeClientTokensControllerTests {
     public void verifyOK() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
+
+        final OAuthRegisteredService service = new OAuthRegisteredService();
+        service.setClientId(CLIENT_ID);
+        service.setClientSecret(CLIENT_SECRET);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
 
         final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
                 + OAuthConstants.REVOKE_URL);
