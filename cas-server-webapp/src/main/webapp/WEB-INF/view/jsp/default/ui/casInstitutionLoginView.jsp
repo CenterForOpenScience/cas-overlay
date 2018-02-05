@@ -71,6 +71,8 @@
                 return;
             } else if (login_url == "okstate") {
                 login_url = "${okstateUrl}";
+            } else if (login_url == "ferris") {
+                login_url = "${ferrisUrl}";
             }
             window.location = login_url;
         }
