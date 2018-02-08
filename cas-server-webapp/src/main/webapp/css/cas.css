@@ -29,7 +29,7 @@ abbr[title], dfn[title] { border-bottom: 1px dotted; cursor: help; }
 table { border-collapse: collapse; border-spacing: 0; }
 hr { display: block; height: 1px; border: 0; border-top: 1px solid #cccccc; margin: 0; padding: 0; }
 input, select { vertical-align: middle; }
-body { font-family: 'Open Sans'; font-size: 12px; line-height: 1.4em; background: #eee; }
+body { font-family: 'Open Sans'; font-size: 12px; line-height: 1.4em; background: #eee; min-width: 255px}
 
 h2 {
  font-size: 16px;
@@ -67,25 +67,6 @@ h2 {
 
 .center {
   text-align: center;
-}
-
-.title-abbr {
-  display: none;
-}
-
-.title-full {
-  display: inline;
-  white-space: nowrap;
-}
-
-@media screen and (max-width: 450px) {
-  .title-abbr {
-    display: inline;
-    white-space: nowrap;
-  }
-  .title-full {
-    display: none;
-  }
 }
 
 @media screen and (max-width: 420px) {
@@ -201,8 +182,11 @@ header h1 {
 }
 
 #login .btn-oauth-submit {
+  display: inline-block;
+  outline: none;
+  -webkit-appearance: none;
   background-image: linear-gradient(to bottom, #5cb85c 0, #419641 100%);
-  border: 0;
+  border: 1px solid #419641;
   padding: 10px 20px;
   font-weight: bold;
   color: white;
@@ -212,8 +196,11 @@ header h1 {
 }
 
 #login .btn-oauth-reset {
-  background-image: linear-gradient(to bottom, #d4d4d4 0, #c4c4c4 100%);
-  border: 0;
+  outline: none;
+  display: inline-block;
+  -webkit-appearance: none;
+  background-image: linear-gradient(to bottom, #c4c4c4 0, #ababab 100%);
+  border: 1px solid #ababab;
   padding: 10px 20px;
   font-weight: bold;
   color: black;
@@ -224,6 +211,9 @@ header h1 {
 
 #login .btn-oauth-submit:hover {
   cursor: pointer;
+  -webkit-box-shadow: 0px 0px 5px 0px #419641;
+  -moz-box-shadow:    0px 0px 5px 0px #419641;
+  box-shadow:         0px 0px 5px 0px #419641;
 }
 
 #login .btn-oauth-submit:active {
@@ -232,10 +222,13 @@ header h1 {
 
 #login .btn-oauth-reset:hover {
    cursor: pointer;
+  -webkit-box-shadow: 0px 0px 5px 0px #ababab;
+  -moz-box-shadow:    0px 0px 5px 0px #ababab;
+  box-shadow:         0px 0px 5px 0px #ababab;
  }
 
 #login .btn-oauth-reset:active {
-  background-image: linear-gradient(to top, #d4d4d4 0, #c4c4c4 100%);
+  background-image: linear-gradient(to top, #c4c4c4 0, #ababab 100%);
 }
 
 #sidebar {
@@ -316,6 +309,7 @@ footer a:link, footer a:visited {
 }
 
 .row .btn-alt-login:hover {
+  cursor: pointer;
   -webkit-box-shadow: 0px 0px 5px 0px #ababab;
   -moz-box-shadow:    0px 0px 5px 0px #ababab;
   box-shadow:         0px 0px 5px 0px #ababab;
@@ -388,6 +382,7 @@ footer a:link, footer a:visited {
 
 #inst-login .btn-submit:hover input[type=button],
 #fm1 .row .btn-submit:hover {
+  cursor: pointer;
   -webkit-box-shadow: 0px 0px 5px 0px #419641;
   -moz-box-shadow:    0px 0px 5px 0px #419641;
   box-shadow:         0px 0px 5px 0px #419641;

@@ -19,20 +19,16 @@
 
 --%>
 
-<%-- OSF Login Exception Page -- Account Not Confirmed --%>
+<%-- OSF CAS login exception page for: account not confirmed --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
 <div id="msg" class="errors">
-
     <h2><spring:message code="screen.loginnotallowed.heading"/></h2>
     <p><spring:message code="screen.loginnotallowed.message"/></p>
-
-    <hr/>
-    <br/>
+    <hr/><br/>
     <section class="row">
-        <spring:eval var="osfResendConfirmationUrl"
-                     expression="@casProperties.getProperty('osf.resendConfirmation.url')"/>
+        <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')"/>
         <a id="alt-login-inst" class="btn-alt-login" href="${osfResendConfirmationUrl}">
             <img class="osf-alt-logo" src="../images/osf-alt-logo.png">
             <span class="label-login"><spring:message code="screen.loginnotallowed.button.resendConfirmation"/></span>

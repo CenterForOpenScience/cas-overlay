@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF Two-factor Authentication Page --%>
+<%-- OSF CAS Two-factor authententication page --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
@@ -62,21 +62,18 @@
         <section class="row">
             <label for="oneTimePassword"><spring:message code="screen.welcome.label.passcode"/></label>
             <spring:message code="screen.welcome.label.passcode.accesskey" var="passcodeAccessKey"/>
-            <form:input cssClass="required" cssErrorClass="error" id="oneTimePassword" size="25" tabindex="1"
-                        accesskey="${passcodeAccessKey}" path="oneTimePassword" autocomplete="off" htmlEscape="true"/>
+            <form:input cssClass="required" cssErrorClass="error" id="oneTimePassword" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="oneTimePassword" autocomplete="off" htmlEscape="true"/>
         </section>
         <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false"/>
         <section class="row btn-row">
             <input type="hidden" name="lt" value="${loginTicket}"/>
             <input type="hidden" name="execution" value="${flowExecutionKey}"/>
             <input type="hidden" name="_eventId" value="submit"/>
-            <input class="btn-submit" name="submit" accesskey="l" tabindex="4" type="submit"
-                   value="<spring:message code="screen.welcome.button.verify" />"/>
+            <input class="btn-submit" name="submit" accesskey="l" tabindex="4" type="submit" value="<spring:message code="screen.2fa.button.verify" />"/>
         </section>
 
         <%-- Cancel 2FA and Return to OSF --%>
-        <c:set var="serviceParam"
-               value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
+        <c:set var="serviceParam" value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
         <section class="row">
             <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')"/>
             <a id="alt-login-cancel" class="btn-alt-login" href="${osfLoginUrl}${serviceParam}">

@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF Default Login Page --%>
+<%-- OSF CAS default login page --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
@@ -63,48 +63,38 @@
             <c:choose>
                 <c:when test="${not empty sessionScope.openIdLocalId}">
                     <strong><c:out value="${sessionScope.openIdLocalId}"/></strong>
-                    <input type="hidden" id="username" name="username"
-                           value="<c:out value="${sessionScope.openIdLocalId}"/>"/>
+                    <input type="hidden" id="username" name="username" value="<c:out value="${sessionScope.openIdLocalId}"/>"/>
                 </c:when>
                 <c:otherwise>
                     <spring:message code="screen.welcome.label.netid.accesskey" var="userNameAccessKey"/>
-                    <form:input cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1"
-                                accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true"/>
+                    <form:input cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true"/>
                 </c:otherwise>
             </c:choose>
         </section>
         <section class="row">
             <label for="password"><spring:message code="screen.welcome.label.password"/></label>
             <spring:message code="screen.welcome.label.password.accesskey" var="passwordAccessKey"/>
-            <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2"
-                           path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off"/>
-            <span id="capslock-on" style="display:none;">
-                <p><img src="images/warning.png" valign="top"><spring:message code="screen.capslock.on"/></p>
-            </span>
+            <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off"/>
+            <span id="capslock-on" style="display:none;"> <p><img src="images/warning.png" valign="top"><spring:message code="screen.capslock.on"/></p></span>
         </section>
         <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false"/>
         <section class="row btn-row">
             <input type="hidden" name="lt" value="${loginTicket}"/>
             <input type="hidden" name="execution" value="${flowExecutionKey}"/>
             <input type="hidden" name="_eventId" value="submit"/>
-            <input type="submit" class="btn-submit" name="submit" accesskey="l" tabindex="4"
-                   value="<spring:message code="screen.welcome.button.login"/>"/>
+            <input type="submit" class="btn-submit" name="submit" accesskey="l" tabindex="4" value="<spring:message code="screen.welcome.button.login"/>"/>
         </section>
         <section class="row check">
             <input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked tabindex="5"/>
             <label for="rememberMe"><spring:message code="screen.rememberme.checkbox.title"/></label>
             <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')"/>
-            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}"
-               title="<spring:message code="logo.title" />">Forgot Your Password?</a>
+            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />"><spring:message code="screen.general.link.forgotPassword"/></a>
         </section>
 
         <%-- Institution Login --%>
-        <br/>
-        <hr/>
-        <br/>
+        <br/><hr/><br/>
         <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')"/>
-        <c:set var="serviceParam"
-               value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
+        <c:set var="serviceParam" value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
         <section class="row">
             <a id="alt-login-inst" class="btn-alt-login" href="${institutionLoginUrl}${serviceParam}">
                 <img class="osf-alt-logo" src="../images/osf-alt-logo.png">

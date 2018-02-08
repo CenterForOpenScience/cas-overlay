@@ -21,37 +21,33 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-</div> <!-- END #content -->
+</div>  <!-- END #content -->
 
 <c:if test="${empty serviceParam}">
-    <c:set var="serviceParam" value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
+    <c:set var="serviceParam"
+           value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
 </c:if>
 
 <div class="bottom-link">
     <br/>
     <c:if test="${linkSignIn}">
         <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')"/>
-        <a id="link-sign-in" href="${osfLoginUrl}${serviceParam}"><spring:message
-                code="screen.general.link.signIn"/></a>
+        <a id="link-sign-in" href="${osfLoginUrl}${serviceParam}"><spring:message code="screen.general.link.signIn"/></a>
         <span style="padding: 25px"></span>
     </c:if>
     <c:if test="${linkSignOut}">
         <spring:eval var="casLogoutUrl" expression="@casProperties.getProperty('cas.logout.url')"/>
-        <a id="link-sign-out" href="${casLogoutUrl}?${serviceParam}"><spring:message
-                code="screen.general.link.signOut"/></a>
+        <a id="link-sign-out" href="${casLogoutUrl}?${serviceParam}"><spring:message code="screen.general.link.signOut"/></a>
         <span style="padding: 25px"></span>
     </c:if>
     <c:if test="${linkCreateAccount}">
         <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')"/>
-        <span><a id="link-create-account"
-                 href="${createAccountUrl}${registeredService.properties.registerUrl.getValue()}"><spring:message
-                code="screen.general.link.createAccount"/></a></span>
+        <span><a id="link-create-account" href="${createAccountUrl}${registeredService.properties.registerUrl.getValue()}"><spring:message code="screen.general.link.createAccount"/></a></span>
         <span style="padding: 25px"></span>
     </c:if>
     <c:if test="${linkBackToOsf}">
         <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')"/>
-        <span><a id="link-back-to-osf" href="${osfUrl}"><spring:message
-                code="screen.general.link.backToOsf"/></a></span>
+        <span><a id="link-back-to-osf" href="${osfUrl}"><spring:message code="screen.general.link.backToOsf"/></a></span>
     </c:if>
     <br/>
 </div>
@@ -59,25 +55,20 @@
 <footer>
     <div class="copyright">
         <div class="row">
-            <p>Copyright &copy; 2011-2018 <a href="https://cos.io">Center for Open Science</a> |
-                <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/TERMS_OF_USE.md">Terms
-                    of Use</a> |
-                <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/PRIVACY_POLICY.md">Privacy
-                    Policy</a>
-            </p>
+            <p><spring:message code="screen.general.osf.copyright"/></p>
         </div>
     </div>
 </footer>
 
-</div> <!-- END #container -->
+</div>  <!-- END #container -->
 
 <script>
     function selectFocus() {
-        var username = document.getElementById("username")
+        var username = document.getElementById("username");
         if (username) {
             username.focus();
         }
-        var institutionSelect = document.getElementById("institution-form-select")
+        var institutionSelect = document.getElementById("institution-form-select");
         if (institutionSelect) {
             institutionSelect.focus();
         }

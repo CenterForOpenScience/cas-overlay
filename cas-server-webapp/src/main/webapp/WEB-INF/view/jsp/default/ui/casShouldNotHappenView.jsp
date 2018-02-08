@@ -21,7 +21,7 @@
 
 <%--
 
-    OSF Login Exception Page -- Account with Inactive or Invalid Status:
+    OSF CAS login exception page for:
 
     - Contributor not claimed
     - Account already merged

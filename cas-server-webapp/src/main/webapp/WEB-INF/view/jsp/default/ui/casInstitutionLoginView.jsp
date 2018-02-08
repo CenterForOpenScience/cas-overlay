@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF Institution Login Page --%>
+<%-- OSF CAS institution login page --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
@@ -32,30 +32,25 @@
     <br>
     <section class="row">
         <div class="select">
-            <label for="select-institution">Select Your Institution</label>
+            <label for="select-institution"><spring:message code="screen.institution.login.select" /></label>
         </div>
     </section>
     <section class="row">
         <div class="select">
-            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions"
-                         items="${institutions}"/>
+            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}"/>
         </div>
     </section>
     <br>
     <section class="row">
         <div class="btn-submit">
-            <input type="button" name="submit" value="<spring:message code="screen.welcome.button.login" />"
-                   onclick="institutionLogin()">
+            <input type="button" name="submit" value="<spring:message code="screen.welcome.button.login" />" onclick="institutionLogin()">
         </div>
     </section>
 
     <%-- OSF Username and Password Login --%>
-    <br/>
-    <hr/>
-    <br/>
+    <br/><hr/><br/>
     <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')"/>
-    <c:set var="serviceParam"
-           value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
+    <c:set var="serviceParam" value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
     <section class="row">
         <a id="alt-login-osf" class="btn-alt-login" href="${osfLoginUrl}${serviceParam}">
             <img class="osf-alt-logo" src="../images/osf-alt-logo.png">
