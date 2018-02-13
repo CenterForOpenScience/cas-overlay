@@ -6,6 +6,14 @@ COPY ./ /code
 
 ARG GIT_COMMIT=
 ENV GIT_COMMIT ${GIT_COMMIT}
+ENV OSF_URL="jdbc:postgresql://postgres:5432/osf?targetServerType=master"
+ENV OSF_USER="postgres"
+ENV OSF_PASSWORD=""
+ENV DB_HOST="postgres"
+ENV DB_PORT="5432"
+ENV DB_NAME="cas"
+ENV DB_USER="postgres"
+ENV DB_PASSWORD=""
 
 # Artifact caching for Multi-stage Builds : https://github.com/carlossg/docker-maven/issues/36
 ENV MAVEN_OPTS=-Dmaven.repo.local=/root/.m2repo/
@@ -62,4 +70,4 @@ RUN mvn install jetty:help
 
 ENTRYPOINT []
 
-CMD ["/usr/bin/mvn", "-pl", "cas-server-webapp", "jetty:run"]
+CMD ["/usr/bin/mvn", "-pl", "cas-server-webapp", "jetty:run", "-DOSF_DB_URL=${OSF_URL}", "-DOSF_DB_USER=${OSF_USER}", "-DOSF_DB_PASSWORD=${OSF_PASSWORD}", "-DDATABASE_HOST=${DB_HOST}", "-DDATABASE_PORT=${DB_PORT}", "-DDATABASE_NAME=${DB_NAME}", "-DDATABASE_USER=${DB_USER}", "-DDATABASE_PASSWORD=${DB_PASSWORD}"]
