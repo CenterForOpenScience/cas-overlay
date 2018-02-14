@@ -52,9 +52,6 @@
                                 <c:when test="${osfLoginContext.isServiceUrl()}">
                                     <a id="alternative-institution" href="${institutionLoginUrl}&service=${osfLoginContext.getServiceUrl()}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
                                 </c:when>
-                                <c:otherwise>
-                                    <a id="alternative-institution" href="${institutionLoginUrl}" hidden>Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                                </c:otherwise>
                             </c:choose>
                         </c:otherwise>
                     </c:choose>
@@ -82,12 +79,9 @@
         <p><spring:message code="copyright" /></p>
         <p>Powered by <a href="http://www.apereo.org/cas">Apereo Central Authentication Service <%=org.jasig.cas.CasVersion.getVersion()%></a></p>
     </div> --%>
-    <div class="copyright hide-links">
+    <div class="copyright">
         <div class="row">
-            <p>Copyright &copy; 2011-2018 <a href="https://cos.io">Center for Open Science</a>
-                <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/TERMS_OF_USE.md">Terms of Use</a>
-                <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/PRIVACY_POLICY.md">Privacy Policy</a>
-            </p>
+            <p>Copyright &copy; 2011-2018</p>
         </div>
     </div>
 </footer>

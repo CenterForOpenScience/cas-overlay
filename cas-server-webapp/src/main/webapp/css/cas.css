@@ -431,7 +431,3 @@ footer a:link, footer a:visited {
   font-weight: lighter;
   white-space: nowrap;
 }
-
-.hide-links a{
-  display: none;
-}
