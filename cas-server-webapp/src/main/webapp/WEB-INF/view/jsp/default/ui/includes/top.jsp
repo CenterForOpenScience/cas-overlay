@@ -73,7 +73,7 @@
                                 <span class="title-abbr">${registeredService.properties.titleAbbr.getValue()}</span>
                             </c:when>
                             <c:otherwise>
-                                <span class="title-full">Open Science Framework</span>
+                                <span class="title-full">BUILDING THE LEDGER OF RECORD FOR RESEARCH</span>
                                 <span class="title-abbr">OSF CAS</span>
                             </c:otherwise>
                         </c:choose>

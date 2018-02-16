@@ -38,10 +38,10 @@ h2 {
 
 #logo {
   display: block;
-  width: 110px;
-  height: 110px;
+  width: 486px;
+  height: 95px;
   margin: 0 auto;
-  background: url(../images/osf-logo.png) no-repeat;
+  background: url(../images/artifacts-logo.png) no-repeat;
   background-size: 100%;
   text-indent: -999em;
   border-right: 1px solid rgba(255,255,255,0.25);
@@ -76,6 +76,7 @@ h2 {
 .title-full {
   display: inline;
   white-space: nowrap;
+  font-size: 0.6em;
 }
 
 @media screen and (max-width: 450px) {

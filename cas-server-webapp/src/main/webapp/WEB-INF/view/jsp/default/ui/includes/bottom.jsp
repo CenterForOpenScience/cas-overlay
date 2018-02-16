@@ -52,16 +52,13 @@
                                 <c:when test="${osfLoginContext.isServiceUrl()}">
                                     <a id="alternative-institution" href="${institutionLoginUrl}&service=${osfLoginContext.getServiceUrl()}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
                                 </c:when>
-                                <c:otherwise>
-                                    <a id="alternative-institution" href="${institutionLoginUrl}">Login through Your Institution</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                                </c:otherwise>
                             </c:choose>
                         </c:otherwise>
                     </c:choose>
                 </c:otherwise>
             </c:choose>
             <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
-            <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;OSF</a><br>
+            <a id="back-to-osf" href="${osfUrl}">Back&nbsp;to&nbsp;ARTiFACTS</a><br>
         </div>
     </c:if>
 
@@ -84,10 +81,7 @@
     </div> --%>
     <div class="copyright">
         <div class="row">
-            <p>Copyright &copy; 2011-2018 <a href="https://cos.io">Center for Open Science</a> |
-                <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/TERMS_OF_USE.md">Terms of Use</a> |
-                <a href="https://github.com/CenterForOpenScience/centerforopenscience.org/blob/master/PRIVACY_POLICY.md">Privacy Policy</a>
-            </p>
+            <p>Copyright &copy; 2011-2018</p>
         </div>
     </div>
 </footer>
