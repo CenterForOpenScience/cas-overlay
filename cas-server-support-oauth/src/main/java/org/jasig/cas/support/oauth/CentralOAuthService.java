@@ -31,7 +31,6 @@ import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.Token;
 import org.jasig.cas.support.oauth.token.TokenType;
-import org.jasig.cas.support.oauth.token.registry.TokenRegistry;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 
@@ -224,7 +223,18 @@ public interface CentralOAuthService {
     Map<String, Scope> getScopes(Set<String> scopeSet) throws InvalidScopeException;
 
     /**
-     * @return the token registry.
+     * Get a list of all the refresh tokens for a given client of the id specified.
+     *
+     * @param clientId the client id
+     * @return a list of refresh tokens
      */
-    TokenRegistry getTokenRegistry();
+    Collection<RefreshToken> getClientRefreshTokens(String clientId);
+
+    /**
+     * Get a list of all the access tokens for a given client of the id specified.
+     *
+     * @param clientId the client id
+     * @return a list of access tokens
+     */
+    Collection<AccessToken> getClientAccessTokens(String clientId);
 }

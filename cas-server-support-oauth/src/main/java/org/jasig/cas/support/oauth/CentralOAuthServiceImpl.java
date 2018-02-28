@@ -493,7 +493,12 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    public TokenRegistry getTokenRegistry() {
-        return this.tokenRegistry;
+    public Collection<RefreshToken> getClientRefreshTokens(String clientId) {
+        return tokenRegistry.getClientTokens(clientId, RefreshToken.class);
+    }
+
+    @Override
+    public Collection<AccessToken> getClientAccessTokens(String clientId) {
+        return tokenRegistry.getClientTokens(clientId, AccessToken.class);
     }
 }

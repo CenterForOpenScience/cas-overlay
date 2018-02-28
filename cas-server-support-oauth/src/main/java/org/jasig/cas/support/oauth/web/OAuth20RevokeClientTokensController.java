@@ -27,7 +27,6 @@ import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.RefreshToken;
-import org.jasig.cas.support.oauth.token.registry.TokenRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -74,7 +73,7 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
-        // Verify that the client service has a valid client_id and client_secret
+        // Verify that the client service has a valid client id and client secret
         final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
         if (service == null || !service.getClientSecret().equals(clientSecret)) {
             LOGGER.error("Could not revoke client tokens, mismatched client id or client secret");
@@ -86,14 +85,14 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
             );
         }
 
-        // Retrieve the tokens from the registry and remove all of them
-        TokenRegistry tokenRegistry = centralOAuthService.getTokenRegistry();
-        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientTokens(clientId, RefreshToken.class);
+        // Remove all refresh tokens for the client of the specified id
+        final Collection<RefreshToken> refreshTokens = centralOAuthService.getClientRefreshTokens(clientId);
         for (RefreshToken token: refreshTokens) {
             LOGGER.debug("Revoking refresh token : {}", token.getId());
             centralOAuthService.revokeToken(token);
         }
-        final Collection<AccessToken> accessTokens = tokenRegistry.getClientTokens(clientId, AccessToken.class);
+        // Remove all access tokens for the client of the specified id
+        final Collection<AccessToken> accessTokens = centralOAuthService.getClientAccessTokens(clientId);
         for (AccessToken token: accessTokens) {
             LOGGER.info("Revoking access token : {}", token.getId());
             centralOAuthService.revokeToken(token);
