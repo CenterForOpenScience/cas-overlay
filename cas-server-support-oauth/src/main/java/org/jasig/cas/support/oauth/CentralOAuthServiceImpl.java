@@ -71,6 +71,7 @@ import java.util.Set;
  * Central OAuth Service implementation.
  *
  * @author Michael Haselton
+ * @author Longze Chen
  * @since 4.1.5
  */
 public final class CentralOAuthServiceImpl implements CentralOAuthService {
