@@ -124,18 +124,16 @@ public interface CentralOAuthService {
      */
     Boolean revokeToken(Token token);
 
-//    /**
-//     * Revoke all Tokens associated with the specified client id, authorized by the client secret.
-//     *
-//     * Note: This method is deprecated. Please avoid implementing it or using its implementations.
-//     *       The functionality is now performed by the `OAuth20RevokeClientTokensController`.
-//     * TODO: Remove this method and its implementations
-//     *
-//     * @param clientId the client id
-//     * @param clientSecret the client secret
-//     * @return a Boolean status if tokens were successfully revoked.
-//     */
-//    Boolean revokeClientTokens(String clientId, String clientSecret);
+    /**
+     * Revoke all Tokens associated with the specified client id, authorized by the client secret.
+     *
+     * Note: This method is deprecated. Please avoid implementing it or using its implementations.
+     *       The functionality is and should be performed by the controller directly.
+     *
+     * @param clientId the client id
+     * @param clientSecret the client secret
+     */
+     void revokeClientTokens(String clientId, String clientSecret);
 
     /**
      * Revoke all Tokens associated with the access token principal id and the client id specified.
