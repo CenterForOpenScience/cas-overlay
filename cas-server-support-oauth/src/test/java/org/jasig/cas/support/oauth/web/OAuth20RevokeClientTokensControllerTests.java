@@ -59,10 +59,9 @@ public final class OAuth20RevokeClientTokensControllerTests {
     @Test
     public void verifyNoClientId() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, "");
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -89,10 +88,9 @@ public final class OAuth20RevokeClientTokensControllerTests {
     @Test
     public void verifyNoClientSecret() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, "");
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -119,10 +117,9 @@ public final class OAuth20RevokeClientTokensControllerTests {
     @Test
     public void verifyNoSuchClientId() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, NO_SUCH_CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -149,10 +146,9 @@ public final class OAuth20RevokeClientTokensControllerTests {
     @Test
     public void verifyWrongClientSecret() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(false);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, WRONG_CLIENT_SECRET);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -179,15 +175,14 @@ public final class OAuth20RevokeClientTokensControllerTests {
     @Test
     public void verifyOK() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
 
         final OAuthRegisteredService service = new OAuthRegisteredService();
         service.setClientId(CLIENT_ID);
         service.setClientSecret(CLIENT_SECRET);
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();

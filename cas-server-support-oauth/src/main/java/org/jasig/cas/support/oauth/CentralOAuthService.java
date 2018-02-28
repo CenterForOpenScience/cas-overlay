@@ -31,6 +31,7 @@ import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.Token;
 import org.jasig.cas.support.oauth.token.TokenType;
+import org.jasig.cas.support.oauth.token.registry.TokenRegistry;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 
@@ -42,7 +43,8 @@ import java.util.Set;
  * Central OAuth Service.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public interface CentralOAuthService {
 
@@ -123,14 +125,18 @@ public interface CentralOAuthService {
      */
     Boolean revokeToken(Token token);
 
-    /**
-     * Revoke all Tokens associated with the specified client id, authorized by the client secret.
-     *
-     * @param clientId the client id
-     * @param clientSecret the client secret
-     * @return a Boolean status if tokens were successfully revoked.
-     */
-    Boolean revokeClientTokens(String clientId, String clientSecret);
+//    /**
+//     * Revoke all Tokens associated with the specified client id, authorized by the client secret.
+//     *
+//     * Note: This method is deprecated. Please avoid implementing it or using its implementations.
+//     *       The functionality is now performed by the `OAuth20RevokeClientTokensController`.
+//     * TODO: Remove this method and its implementations
+//     *
+//     * @param clientId the client id
+//     * @param clientSecret the client secret
+//     * @return a Boolean status if tokens were successfully revoked.
+//     */
+//    Boolean revokeClientTokens(String clientId, String clientSecret);
 
     /**
      * Revoke all Tokens associated with the access token principal id and the client id specified.
@@ -216,4 +222,9 @@ public interface CentralOAuthService {
      * @throws InvalidScopeException the invalid scope exception
      */
     Map<String, Scope> getScopes(Set<String> scopeSet) throws InvalidScopeException;
+
+    /**
+     * @return the token registry.
+     */
+    TokenRegistry getTokenRegistry();
 }

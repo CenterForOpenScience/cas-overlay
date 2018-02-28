@@ -291,26 +291,33 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
         return ticketRegistry.deleteTicket(token.getTicket().getId());
     }
 
-    @Override
-    public Boolean revokeClientTokens(final String clientId, final String clientSecret) {
-
-        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientTokens(clientId, RefreshToken.class);
-        final Collection<AccessToken> accessTokens = tokenRegistry.getClientTokens(clientId, AccessToken.class);
-
-        Token token;
-        if (!refreshTokens.isEmpty()) {
-            token = refreshTokens.iterator().next();
-            LOGGER.debug("Revoking refresh token : {}", token.getId());
-        } else if (!accessTokens.isEmpty()) {
-            token = accessTokens.iterator().next();
-            LOGGER.info("Revoking access token : {}", token.getId());
-        } else {
-            // all tokens are cleared
-            return Boolean.TRUE;
-        }
-        ticketRegistry.deleteTicket(token.getTicket().getId());
-        return Boolean.FALSE;
-    }
+//    TODO: Deprecated. Please remove.
+//    @Override
+//    public Boolean revokeClientTokens(final String clientId, final String clientSecret) {
+//        final OAuthRegisteredService service = getRegisteredService(clientId);
+//        if (service == null) {
+//            LOGGER.error("OAuth Registered Service could not be found for clientId : {}", clientId);
+//            return Boolean.FALSE;
+//        }
+//        if (!service.getClientSecret().equals(clientSecret)) {
+//            LOGGER.error("Invalid client secret");
+//            return Boolean.FALSE;
+//        }
+//
+//        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientTokens(clientId, RefreshToken.class);
+//        for (final RefreshToken token : refreshTokens) {
+//            LOGGER.debug("Revoking refresh token : {}", token.getId());
+//            ticketRegistry.deleteTicket(token.getTicket().getId());
+//        }
+//
+//        final Collection<AccessToken> accessTokens = tokenRegistry.getClientTokens(clientId, AccessToken.class);
+//        for (final AccessToken token : accessTokens) {
+//            LOGGER.debug("Revoking access token : {}", token.getId());
+//            ticketRegistry.deleteTicket(token.getTicket().getId());
+//        }
+//
+//        return Boolean.TRUE;
+//    }
 
     @Override
     public Boolean revokeClientPrincipalTokens(final AccessToken accessToken, final String clientId) {
@@ -484,6 +491,9 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
         return scopeMap;
     }
+
+    @Override
+    public TokenRegistry getTokenRegistry() {
+        return this.tokenRegistry;
+    }
 }
-
-

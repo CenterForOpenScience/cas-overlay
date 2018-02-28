@@ -25,6 +25,9 @@ import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
+import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.RefreshToken;
+import org.jasig.cas.support.oauth.token.registry.TokenRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,6 +35,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
 
 /**
  * This controller handles requests to revoke all tokens associated with a client id.
@@ -43,8 +47,6 @@ import javax.servlet.http.HttpServletResponse;
 public final class OAuth20RevokeClientTokensController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20RevokeClientTokensController.class);
-
-    private static final int MAX_NUM_OF_ATTEMPTS = 15;
 
     private final CentralOAuthService centralOAuthService;
 
@@ -72,7 +74,7 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
-        // verify that the client service has a valid client_id and client_secret
+        // Verify that the client service has a valid client_id and client_secret
         final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
         if (service == null || !service.getClientSecret().equals(clientSecret)) {
             LOGGER.error("Could not revoke client tokens, mismatched client id or client secret");
@@ -84,20 +86,17 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
             );
         }
 
-        // the MAX_NUM_OF_ATTEMPTS prevents potential deadlock
-        for (int i = 0; i <= MAX_NUM_OF_ATTEMPTS; i++) {
-            if (i == MAX_NUM_OF_ATTEMPTS) {
-                LOGGER.error("Could not revoke client tokens, there are too many of them.");
-                return OAuthUtils.writeJsonError(
-                        response,
-                        OAuthConstants.ERROR,
-                        OAuthConstants.FAILED_TOKEN_REVOCATION_DESCRIPTION,
-                        HttpStatus.SC_INTERNAL_SERVER_ERROR
-                );
-            }
-            if (centralOAuthService.revokeClientTokens(clientId, clientSecret)) {
-                break;
-            }
+        // Retrieve the tokens from the registry and remove all of them
+        TokenRegistry tokenRegistry = centralOAuthService.getTokenRegistry();
+        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientTokens(clientId, RefreshToken.class);
+        for (RefreshToken token: refreshTokens) {
+            LOGGER.debug("Revoking refresh token : {}", token.getId());
+            centralOAuthService.revokeToken(token);
+        }
+        final Collection<AccessToken> accessTokens = tokenRegistry.getClientTokens(clientId, AccessToken.class);
+        for (AccessToken token: accessTokens) {
+            LOGGER.info("Revoking access token : {}", token.getId());
+            centralOAuthService.revokeToken(token);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);
