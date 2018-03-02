@@ -13,9 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package io.cos.scribe.builder.api;
+package org.scribe.builder.api;
 
-import org.scribe.builder.api.DefaultApi20;
 import org.scribe.extractors.AccessTokenExtractor;
 import org.scribe.extractors.OrcidJsonExtractor;
 import org.scribe.model.OAuthConfig;
@@ -28,7 +27,7 @@ import org.scribe.utils.OAuthEncoder;
  * @author Jens Tinglev
  * @author Michael Haselton
  * @author Longze Chen
- * @since 1.7.0
+ * @since 1.7.1
  */
 public class OrcidApi20 extends DefaultApi20 {
 
