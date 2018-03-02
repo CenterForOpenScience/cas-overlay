@@ -25,6 +25,8 @@ import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.TicketGrantingTicketImpl;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
@@ -39,6 +41,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name="REFRESHTOKEN")
+@Access(AccessType.FIELD)
 public final class RefreshTokenImpl extends AbstractToken implements RefreshToken {
 
     /** Unique Id for serialization. */

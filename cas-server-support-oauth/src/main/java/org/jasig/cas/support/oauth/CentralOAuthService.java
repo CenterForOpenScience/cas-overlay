@@ -42,7 +42,8 @@ import java.util.Set;
  * Central OAuth Service.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public interface CentralOAuthService {
 
@@ -126,11 +127,13 @@ public interface CentralOAuthService {
     /**
      * Revoke all Tokens associated with the specified client id, authorized by the client secret.
      *
+     * Note: This method is deprecated. Please avoid implementing it or using its implementations.
+     *       The functionality is and should be performed by the controller directly.
+     *
      * @param clientId the client id
      * @param clientSecret the client secret
-     * @return a Boolean status if tokens were successfully revoked.
      */
-    Boolean revokeClientTokens(String clientId, String clientSecret);
+     void revokeClientTokens(String clientId, String clientSecret);
 
     /**
      * Revoke all Tokens associated with the access token principal id and the client id specified.
@@ -216,4 +219,20 @@ public interface CentralOAuthService {
      * @throws InvalidScopeException the invalid scope exception
      */
     Map<String, Scope> getScopes(Set<String> scopeSet) throws InvalidScopeException;
+
+    /**
+     * Get a list of all the refresh tokens for a given client of the id specified.
+     *
+     * @param clientId the client id
+     * @return a list of refresh tokens
+     */
+    Collection<RefreshToken> getClientRefreshTokens(String clientId);
+
+    /**
+     * Get a list of all the access tokens for a given client of the id specified.
+     *
+     * @param clientId the client id
+     * @return a list of access tokens
+     */
+    Collection<AccessToken> getClientAccessTokens(String clientId);
 }
