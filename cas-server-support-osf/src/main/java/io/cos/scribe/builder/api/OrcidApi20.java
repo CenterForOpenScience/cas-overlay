@@ -28,7 +28,7 @@ import org.scribe.utils.OAuthEncoder;
  * @author Jens Tinglev
  * @author Michael Haselton
  * @author Longze Chen
- * @since 1.7.0
+ * @since 1.7.1
  */
 public class OrcidApi20 extends DefaultApi20 {
 
