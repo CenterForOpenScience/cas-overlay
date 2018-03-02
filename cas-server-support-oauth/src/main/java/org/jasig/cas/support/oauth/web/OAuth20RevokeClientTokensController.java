@@ -87,13 +87,13 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
 
         // Remove all refresh tokens for the client of the specified id
         final Collection<RefreshToken> refreshTokens = centralOAuthService.getClientRefreshTokens(clientId);
-        for (RefreshToken token: refreshTokens) {
+        for (final RefreshToken token: refreshTokens) {
             LOGGER.debug("Revoking refresh token : {}", token.getId());
             centralOAuthService.revokeToken(token);
         }
         // Remove all access tokens for the client of the specified id
         final Collection<AccessToken> accessTokens = centralOAuthService.getClientAccessTokens(clientId);
-        for (AccessToken token: accessTokens) {
+        for (final AccessToken token: accessTokens) {
             LOGGER.info("Revoking access token : {}", token.getId());
             centralOAuthService.revokeToken(token);
         }
