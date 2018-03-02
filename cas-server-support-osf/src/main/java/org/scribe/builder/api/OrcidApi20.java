@@ -13,9 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package io.cos.scribe.builder.api;
+package org.scribe.builder.api;
 
-import org.scribe.builder.api.DefaultApi20;
 import org.scribe.extractors.AccessTokenExtractor;
 import org.scribe.extractors.OrcidJsonExtractor;
 import org.scribe.model.OAuthConfig;

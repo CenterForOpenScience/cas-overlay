@@ -13,17 +13,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package io.cos.pac4j.oauth.client;
+package org.pac4j.oauth.client;
 
-import io.cos.scribe.builder.api.OrcidApi20;
 import org.apache.http.HttpStatus;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.oauth.client.BaseOAuth20Client;
+import org.pac4j.core.exception.HttpCommunicationException;
 import org.pac4j.oauth.client.exception.OAuthCredentialsException;
 import org.pac4j.oauth.profile.OAuthAttributesDefinitions;
 import org.pac4j.oauth.profile.XmlHelper;
 import org.pac4j.oauth.profile.orcid.OrcidAttributesDefinition;
 import org.pac4j.oauth.profile.orcid.OrcidProfile;
+import org.scribe.builder.api.OrcidApi20;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthConfig;
 import org.scribe.model.SignatureType;
@@ -32,7 +32,6 @@ import org.scribe.oauth.ProxyOAuth20ServiceImpl;
 import org.scribe.tokens.OrcidToken;
 import org.scribe.model.ProxyOAuthRequest;
 import org.scribe.model.Response;
-import org.pac4j.core.exception.HttpCommunicationException;
 
 
 /**
