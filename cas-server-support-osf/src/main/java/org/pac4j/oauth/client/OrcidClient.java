@@ -13,17 +13,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  */
-package io.cos.pac4j.oauth.client;
+package org.pac4j.oauth.client;
 
-import io.cos.scribe.builder.api.OrcidApi20;
 import org.apache.http.HttpStatus;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.oauth.client.BaseOAuth20Client;
+import org.pac4j.core.exception.HttpCommunicationException;
 import org.pac4j.oauth.client.exception.OAuthCredentialsException;
 import org.pac4j.oauth.profile.OAuthAttributesDefinitions;
 import org.pac4j.oauth.profile.XmlHelper;
 import org.pac4j.oauth.profile.orcid.OrcidAttributesDefinition;
 import org.pac4j.oauth.profile.orcid.OrcidProfile;
+import org.scribe.builder.api.OrcidApi20;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthConfig;
 import org.scribe.model.SignatureType;
@@ -32,7 +32,6 @@ import org.scribe.oauth.ProxyOAuth20ServiceImpl;
 import org.scribe.tokens.OrcidToken;
 import org.scribe.model.ProxyOAuthRequest;
 import org.scribe.model.Response;
-import org.pac4j.core.exception.HttpCommunicationException;
 
 
 /**
@@ -44,7 +43,7 @@ import org.pac4j.core.exception.HttpCommunicationException;
  * @author Michael Haselton
  * @author Longze Chen
  * @see org.pac4j.oauth.profile.orcid.OrcidProfile
- * @since 1.7.0
+ * @since 1.7.1
  */
 public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
 
@@ -108,7 +107,7 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     @Override
     protected String getProfileUrl(final Token accessToken) {
         if (accessToken instanceof OrcidToken) {
-            return String.format("https://%s.orcid.org/v1.2/%s/orcid-profile",
+            return String.format("https://%s.orcid.org/v2.0/%s/record",
                     (this.getMember() ? "api" : "pub"), ((OrcidToken) accessToken).getOrcid());
         } else {
             throw new OAuthException("Token in getProfileUrl is not an OrcidToken");
@@ -168,7 +167,22 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
         final OrcidProfile profile = new OrcidProfile();
         profile.setId(XmlHelper.get(body, OrcidAttributesDefinition.ORCID));
         for(final String attribute : OAuthAttributesDefinitions.orcidDefinition.getAllAttributes()) {
-            profile.addAttribute(attribute, XmlHelper.get(body, attribute));
+            final String value = XmlHelper.get(body, attribute);
+            switch (attribute) {
+                case OrcidAttributesDefinition.NORMALIZED_FAMILY_NAME:
+                    break;
+                case OrcidAttributesDefinition.NORMALIZED_GIVEN_NAME:
+                    break;
+                case OrcidAttributesDefinition.FAMILY_NAME:
+                    profile.addAttribute(OrcidAttributesDefinition.NORMALIZED_FAMILY_NAME, value);
+                    break;
+                case OrcidAttributesDefinition.GIVEN_NAME:
+                    profile.addAttribute(OrcidAttributesDefinition.NORMALIZED_GIVEN_NAME, value);
+                    break;
+                default:
+                    profile.addAttribute(attribute, value);
+                    break;
+            }
         }
         return profile;
     }
