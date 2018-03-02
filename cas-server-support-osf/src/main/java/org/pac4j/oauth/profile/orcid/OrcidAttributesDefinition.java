@@ -28,18 +28,29 @@ import org.pac4j.oauth.profile.OAuthAttributesDefinition;
  */
 public class OrcidAttributesDefinition extends OAuthAttributesDefinition {
 
+    /** The XML tag name for the attribute: path. */
     public static final String ORCID = "common:path";
+    /** The XML tag name for the attribute: given-names. */
     public static final String GIVEN_NAME = "personal-details:given-names";
+    /** The XML tag name for the attribute: family-name. */
     public static final String FAMILY_NAME = "personal-details:family-name";
+    /** The XML tag name for the attribute: uri. */
     public static final String URI = "common:uri";
+    /** The XML tag name for the attribute: creation-method. */
     public static final String CREATION_METHOD = "history:creation-method";
+    /** The XML tag name for the attribute: claimed. */
     public static final String CLAIMED = "history:claimed";
+    /** The XML tag name for the attribute: locale. */
     public static final String LOCALE = "preferences:locale";
 
+    /** The normalized name for the attribute: given-names. */
     public static final String NORMALIZED_GIVEN_NAME = "given-names";
+
+    /** The normalized name for the attribute: family-name. */
     public static final String NORMALIZED_FAMILY_NAME = "family-name";
 
 
+    /** The defualt constructor. */
     public OrcidAttributesDefinition() {
 
         addAttribute(ORCID, Converters.stringConverter);
