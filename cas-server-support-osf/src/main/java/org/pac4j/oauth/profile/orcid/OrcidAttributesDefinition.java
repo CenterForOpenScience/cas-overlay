@@ -22,27 +22,35 @@ import org.pac4j.oauth.profile.OAuthAttributesDefinition;
  * This class defines the attributes of the {@link OrcidProfile}.
  *
  * @author Jens Tinglev
+ * @author Michael Haselton
  * @author Longze Chen
  * @since 1.7.1
  */
 public class OrcidAttributesDefinition extends OAuthAttributesDefinition {
 
     public static final String ORCID = "common:path";
-    public static final String FIRST_NAME = "personal-details:given-names";
+    public static final String GIVEN_NAME = "personal-details:given-names";
     public static final String FAMILY_NAME = "personal-details:family-name";
     public static final String URI = "common:uri";
     public static final String CREATION_METHOD = "history:creation-method";
     public static final String CLAIMED = "history:claimed";
     public static final String LOCALE = "preferences:locale";
 
+    public static final String NORMALIZED_GIVEN_NAME = "given-names";
+    public static final String NORMALIZED_FAMILY_NAME = "family-name";
+
 
     public OrcidAttributesDefinition() {
+
         addAttribute(ORCID, Converters.stringConverter);
-        addAttribute(FIRST_NAME, Converters.stringConverter);
+        addAttribute(GIVEN_NAME, Converters.stringConverter);
         addAttribute(FAMILY_NAME, Converters.stringConverter);
         addAttribute(URI, Converters.stringConverter);
         addAttribute(CREATION_METHOD, Converters.stringConverter);
         addAttribute(CLAIMED, Converters.booleanConverter);
         addAttribute(LOCALE, Converters.localeConverter);
+
+        addAttribute(NORMALIZED_GIVEN_NAME, Converters.stringConverter);
+        addAttribute(NORMALIZED_FAMILY_NAME, Converters.stringConverter);
     }
 }

@@ -43,7 +43,7 @@ import org.scribe.model.Response;
  * @author Michael Haselton
  * @author Longze Chen
  * @see org.pac4j.oauth.profile.orcid.OrcidProfile
- * @since 1.7.0
+ * @since 1.7.1
  */
 public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
 
@@ -167,7 +167,22 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
         final OrcidProfile profile = new OrcidProfile();
         profile.setId(XmlHelper.get(body, OrcidAttributesDefinition.ORCID));
         for(final String attribute : OAuthAttributesDefinitions.orcidDefinition.getAllAttributes()) {
-            profile.addAttribute(attribute, XmlHelper.get(body, attribute));
+            final String value = XmlHelper.get(body, attribute);
+            switch (attribute) {
+                case OrcidAttributesDefinition.NORMALIZED_FAMILY_NAME:
+                    break;
+                case OrcidAttributesDefinition.NORMALIZED_GIVEN_NAME:
+                    break;
+                case OrcidAttributesDefinition.FAMILY_NAME:
+                    profile.addAttribute(OrcidAttributesDefinition.NORMALIZED_FAMILY_NAME, value);
+                    break;
+                case OrcidAttributesDefinition.GIVEN_NAME:
+                    profile.addAttribute(OrcidAttributesDefinition.NORMALIZED_GIVEN_NAME, value);
+                    break;
+                default:
+                    profile.addAttribute(attribute, value);
+                    break;
+            }
         }
         return profile;
     }
