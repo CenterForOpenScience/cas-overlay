@@ -32,6 +32,6 @@ before_install:
   - unzip -j -o /tmp/policy.zip *.jar -d $JAVA_HOME/jre/lib/security
   - rm /tmp/policy.zip
 install:
-  - mvn install -P nocheck -B -V -q
+  - mvn install -P nocheck
 script:
-  - mvn clean install -P !nocheck -B -V
+  - mvn test -P !nocheck
