@@ -66,6 +66,8 @@
                 return;
             } else if (login_url == "okstate") {
                 login_url = "${okstateUrl}";
+            } else if (login_url == "callutheran") {
+                login_url = "${callutheranUrl}";
             } else if (login_url == "ferris") {
                 login_url = "${ferrisUrl}";
             }
