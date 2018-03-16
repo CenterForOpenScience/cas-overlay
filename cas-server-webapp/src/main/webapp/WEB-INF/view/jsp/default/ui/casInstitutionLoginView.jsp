@@ -59,19 +59,19 @@
     </section>
 
     <script>
-        function institutionLogin() {
-            var form = document.getElementById('institution-form-select');
-            var login_url = form.options[form.selectedIndex].value;
-            if (login_url == null || login_url == "") {
+        function institutionLogin () {
+            var institutionForm = document.getElementById('institution-form-select');
+            var institutionLoginUrl = institutionForm.options[institutionForm.selectedIndex].value;
+            if(institutionLoginUrl == null || institutionLoginUrl === "") {
                 return;
-            } else if (login_url == "okstate") {
-                login_url = "${okstateUrl}";
-            } else if (login_url == "callutheran") {
-                login_url = "${callutheranUrl}";
-            } else if (login_url == "ferris") {
-                login_url = "${ferrisUrl}";
+            } else if (institutionLoginUrl === "callutheran") {
+                institutionLoginUrl = "${callutheranUrl}";
+            } else if (institutionLoginUrl === "ferris") {
+                institutionLoginUrl = "${ferrisUrl}";
+            } else if (institutionLoginUrl === "okstate") {
+                institutionLoginUrl = "${okstateUrl}";
             }
-            window.location = login_url;
+            window.location = institutionLoginUrl;
         }
     </script>
 </div>
