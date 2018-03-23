@@ -24,9 +24,9 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%@ page import="io.cos.cas.web.flow.OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext" %>
 <c:set var="pageLoginContext" value="${jsonLoginContext}" />
@@ -40,7 +40,7 @@
     <head>
         <meta charset="UTF-8" />
 
-        <title>Open Science Framework | Sign In </title>
+        <title>OSF | Sign In </title>
 
         <spring:theme code="standard.custom.css.file" var="customCssFile" />
         <link rel="stylesheet" href="<c:url value="${customCssFile}" />" />
@@ -55,11 +55,11 @@
 
     <body id="cas" onload="selectFocus()">
         <div id="container">
-            <br>
+            <br/>
             <header>
                 <div class="center">
                     <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')" />
-                    <a id="logo" class="center" href="${osfUrl}" title="<spring:message code="logo.title" />">Open Science Framework | Sign In</a>
+                    <a id="logo" class="center" href="${osfUrl}" title="<spring:message code="logo.title" />">OSF | Sign In</a>
                 </div>
                 <br>
                 <div class="center">
@@ -68,13 +68,8 @@
                             <c:when test="${osfLoginContext.isInstitutionLogin()}">
                                 <span>OSF Institutions</span>
                             </c:when>
-                            <c:when test="${not empty registeredService}">
-                                <span class="title-full">${registeredService.properties.title.getValue()}</span>
-                                <span class="title-abbr">${registeredService.properties.titleAbbr.getValue()}</span>
-                            </c:when>
                             <c:otherwise>
-                                <span class="title-full">Open Science Framework</span>
-                                <span class="title-abbr">OSF CAS</span>
+                                <span>OSF</span>
                             </c:otherwise>
                         </c:choose>
                     </span>
@@ -84,13 +79,10 @@
                         <br><br>
                         <c:choose>
                             <c:when test="${osfLoginContext.isInstitutionLogin()}">
-                                    <spring:message code="screen.institution.login.message" />
-                            </c:when>
-                            <c:when test="${not empty registeredService}">
-                                    <spring:message code="screen.osf.login.message" />
+                                <spring:message code="screen.institution.login.message" />
                             </c:when>
                             <c:otherwise>
-                                <spring:message code="screen.cas.login.message" />
+                                <spring:message code="screen.osf.login.message" />
                             </c:otherwise>
                         </c:choose>
                     </div>

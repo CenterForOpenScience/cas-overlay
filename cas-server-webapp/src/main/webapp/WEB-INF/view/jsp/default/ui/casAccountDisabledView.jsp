@@ -18,13 +18,19 @@
     under the License.
 
 --%>
-<jsp:directive.include file="includes/top.jsp" />
+
+<%-- OSF CAS login exception page for: account cisabled --%>
+
+<jsp:directive.include file="includes/top.jsp"/>
 
 <div id="msg" class="errors">
-    <h2><spring:message code="screen.accountdisabled.heading" /></h2>
-    <p><spring:message code="screen.accountdisabled.message" /></p>
+    <h2><spring:message code="screen.accountdisabled.heading"/></h2>
+    <p><spring:message code="screen.accountdisabled.message"/></p>
 </div>
 
-<c:set var="alternativeBottomLogin" value="true"/>
+<c:set var="linkSignIn" value="true"/>
+<c:set var="linkSignOut" value="false"/>
+<c:set var="linkCreateAccount" value="true"/>
+<c:set var="linkBackToOsf" value="true"/>
 
-<jsp:directive.include file="includes/bottom.jsp" />
+<jsp:directive.include file="includes/bottom.jsp"/>

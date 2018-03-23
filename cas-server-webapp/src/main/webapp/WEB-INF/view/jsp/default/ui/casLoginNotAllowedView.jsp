@@ -18,14 +18,27 @@
     under the License.
 
 --%>
-<jsp:directive.include file="includes/top.jsp" />
 
-  <div id="msg" class="errors">
-    <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')" />
-    <h2><spring:message code="screen.loginnotallowed.heading" /></h2>
-    <p><spring:message code="screen.loginnotallowed.message" arguments="${osfResendConfirmationUrl}" /></p>
-  </div>
+<%-- OSF CAS login exception page for: account not confirmed --%>
 
-<c:set var="alternativeBottomLogin" value="true"/>
+<jsp:directive.include file="includes/top.jsp"/>
 
-<jsp:directive.include file="includes/bottom.jsp" />
+<div id="msg" class="errors">
+    <h2><spring:message code="screen.loginnotallowed.heading"/></h2>
+    <p><spring:message code="screen.loginnotallowed.message"/></p>
+    <hr/><br/>
+    <section class="row">
+        <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')"/>
+        <a id="alt-login-inst" class="btn-alt-login" href="${osfResendConfirmationUrl}">
+            <img class="osf-alt-logo" src="../images/osf-alt-logo.png">
+            <span class="label-login"><spring:message code="screen.loginnotallowed.button.resendConfirmation"/></span>
+        </a>
+    </section>
+</div>
+
+<c:set var="linkSignIn" value="true"/>
+<c:set var="linkSignOut" value="false"/>
+<c:set var="linkCreateAccount" value="true"/>
+<c:set var="linkBackToOsf" value="true"/>
+
+<jsp:directive.include file="includes/bottom.jsp"/>
