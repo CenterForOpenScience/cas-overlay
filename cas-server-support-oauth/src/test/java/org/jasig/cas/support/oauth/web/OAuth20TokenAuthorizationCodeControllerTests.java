@@ -47,7 +47,8 @@ import java.util.Date;
  *
  * @author Jerome Leleu
  * @author Michael Haselton
- * @since 3.5.2
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20TokenAuthorizationCodeControllerTests {
 
@@ -68,6 +69,10 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
     private static final String REDIRECT_URI = "http://someurl";
 
     private static final String OTHER_REDIRECT_URI = "http://someotherurl";
+
+    private static final String REGEX_REDIRECT_URI = "http://someurl/?*";
+
+    private static final String OTHER_REGEX_REDIRECT_URI = "http://someurl/?somequery=somevalue";
 
     private static final int TIMEOUT = 7200;
 
@@ -480,6 +485,165 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals(expectedObj.get("token_type").asText(), receivedObj.get("token_type").asText());
         assertTrue("received expires_at greater or equal to expected",
                 expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt());
+        assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
+    }
+
+    /**
+     * Verify that attempts to use regex for redirect URI matching fails with expected exception.
+     */
+    @Test
+    public void verifyRegexRedirectUriDoesNotStartWithServiceId() throws Exception {
+        final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
+
+        final OAuthRegisteredService service = getRegisteredService(REGEX_REDIRECT_URI, CLIENT_SECRET);
+
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
+                + OAuthConstants.TOKEN_URL);
+        mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
+        mockRequest.setParameter(OAuthConstants.CODE, CODE);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, OTHER_REGEX_REDIRECT_URI);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
+        assertEquals("application/json", mockResponse.getContentType());
+
+        final ObjectMapper mapper = new ObjectMapper();
+
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
+                + OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
+        assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
+    }
+
+    /**
+     * Verify that regex-like redirect URI matches if an only if the two string are equal (case-insensitive).
+     *
+     * Online Mode
+     */
+    @Test
+    public void verifyOnlineOKRegexRedirectUri() throws Exception {
+        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
+        when(serviceTicket.getCreationTime()).thenReturn(new Date().getTime());
+
+        final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
+        when(authorizationCode.getTicket()).thenReturn(serviceTicket);
+        when(authorizationCode.getType()).thenReturn(TokenType.ONLINE);
+
+        final OAuthRegisteredService service = getRegisteredService(REGEX_REDIRECT_URI, CLIENT_SECRET);
+
+        final AccessToken accessToken = mock(AccessToken.class);
+        when(accessToken.getId()).thenReturn(AT_ID);
+        when(accessToken.getTicket()).thenReturn(serviceTicket);
+
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
+        when(centralOAuthService.grantOnlineAccessToken(authorizationCode)).thenReturn(accessToken);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
+                + OAuthConstants.TOKEN_URL);
+        mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
+        mockRequest.setParameter(OAuthConstants.CODE, CODE);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REGEX_REDIRECT_URI);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.setTimeout(TIMEOUT);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_OK, mockResponse.getStatus());
+        assertEquals("application/json", mockResponse.getContentType());
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final String expected = "{\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\",\"expires_in\":\"" + TIMEOUT
+                + "\",\"access_token\":\"" + AT_ID + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("token_type").asText(), receivedObj.get("token_type").asText());
+        assertTrue("received expires_at greater or equal to expected",
+                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt());
+        assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
+    }
+
+    /**
+     * Verify that regex-like redirect URI matches if an only if the two string are equal (case-insensitive).
+     *
+     * Offline Mode
+     */
+    @Test
+    public void verifyOfflineOKRegexRedirectUri() throws Exception {
+        final ServiceTicket serviceTicket = mock(ServiceTicket.class);
+        when(serviceTicket.getCreationTime()).thenReturn(new Date().getTime());
+
+        final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
+        when(authorizationCode.getTicket()).thenReturn(serviceTicket);
+        when(authorizationCode.getType()).thenReturn(TokenType.OFFLINE);
+
+        final OAuthRegisteredService service = getRegisteredService(REGEX_REDIRECT_URI, CLIENT_SECRET);
+
+        final RefreshToken refreshToken = mock(RefreshToken.class);
+        when(refreshToken.getId()).thenReturn(RT_ID);
+
+        final AccessToken accessToken = mock(AccessToken.class);
+        when(accessToken.getId()).thenReturn(AT_ID);
+        when(accessToken.getTicket()).thenReturn(serviceTicket);
+
+        final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
+        when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
+        when(centralOAuthService.grantOfflineRefreshToken(authorizationCode, REGEX_REDIRECT_URI)).thenReturn(refreshToken);
+        when(centralOAuthService.grantOfflineAccessToken(refreshToken)).thenReturn(accessToken);
+
+        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
+                + OAuthConstants.TOKEN_URL);
+        mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
+        mockRequest.setParameter(OAuthConstants.CODE, CODE);
+        mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+        mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+        mockRequest.setParameter(OAuthConstants.REDIRECT_URI, REGEX_REDIRECT_URI);
+
+        final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+        final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
+        oauth20WrapperController.setCentralOAuthService(centralOAuthService);
+        oauth20WrapperController.setTimeout(TIMEOUT);
+        oauth20WrapperController.afterPropertiesSet();
+
+        final ModelAndView modelAndView = oauth20WrapperController.handleRequest(mockRequest, mockResponse);
+        assertNull(modelAndView);
+        assertEquals(HttpStatus.SC_OK, mockResponse.getStatus());
+        assertEquals("application/json", mockResponse.getContentType());
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final String expected = "{\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\",\"expires_in\":\"" + TIMEOUT
+                + "\",\"refresh_token\":\"" + RT_ID + "\",\"access_token\":\"" + AT_ID + "\"}";
+        final JsonNode expectedObj = mapper.readTree(expected);
+        final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
+        assertEquals(expectedObj.get("token_type").asText(), receivedObj.get("token_type").asText());
+        assertTrue("received expires_at greater or equal to expected",
+                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt());
+        assertEquals(expectedObj.get("refresh_token").asText(), receivedObj.get("refresh_token").asText());
         assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
     }
 
