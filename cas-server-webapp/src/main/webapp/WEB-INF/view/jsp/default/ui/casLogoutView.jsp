@@ -18,21 +18,14 @@
     under the License.
 
 --%>
-
-<%-- CAS generic page for logged out (no service)  --%>
-
-<jsp:directive.include file="includes/top.jsp"/>
+<jsp:directive.include file="includes/top.jsp" />
 
 <div id="msg" class="success">
-    <h2><spring:message code="screen.logout.header"/></h2>
-    <br/>
-    <p><spring:message code="screen.logout.success"/></p>
-    <p><spring:message code="screen.logout.security"/></p>
+    <h2><spring:message code="screen.logout.header" /></h2>
+    <p><spring:message code="screen.logout.success" /></p>
+    <p><spring:message code="screen.logout.security" /></p>
 </div>
 
-<c:set var="linkSignIn" value="true"/>
-<c:set var="linkSignOut" value="false"/>
-<c:set var="linkCreateAccount" value="true"/>
-<c:set var="linkBackToOsf" value="true"/>
+<c:set var="alternativeBottomLogin" value="true"/>
 
-<jsp:directive.include file="includes/bottom.jsp"/>
+<jsp:directive.include file="includes/bottom.jsp" />

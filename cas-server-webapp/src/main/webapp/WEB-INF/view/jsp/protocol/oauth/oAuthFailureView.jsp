@@ -18,17 +18,14 @@
     under the License.
 
 --%>
-<jsp:directive.include file="../../default/ui/includes/top.jsp"/>
+<jsp:directive.include file="../../default/ui/includes/top.jsp" />
 
 <div id="msg" class="errors">
-    <h2><spring:message code="screen.oauth.error.header"/></h2>
-    <p><spring:message code="screen.oauth.error.message"/></p>
-    <p><spring:message code="${rootCauseException.code}"/><br/><spring:message code="${rootCauseException.message}"/></p>
+    <h2><spring:message code="screen.oauth.error.header" /></h2>
+    <p><spring:message code="${rootCauseException.code}" /></p>
+    <p><spring:message code="${rootCauseException.message}" /></p>
 </div>
 
-<c:set var="linkSignIn" value="false"/>
-<c:set var="linkSignOut" value="true"/>
-<c:set var="linkCreateAccount" value="false"/>
-<c:set var="linkBackToOsf" value="true"/>
+<c:set var="alternativeBottomLogout" value="true"/>
 
-<jsp:directive.include file="../../default/ui/includes/bottom.jsp"/>
+<jsp:directive.include file="../../default/ui/includes/bottom.jsp" />
