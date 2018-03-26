@@ -49,8 +49,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Jerome Leleu
  * @author Michael Haselton
- * @author Longze Chen
- * @since 4.1.5
+ * @since 4.1.0
  */
 public final class OAuth20TokenAuthorizationCodeController extends AbstractController {
 
@@ -115,8 +114,7 @@ public final class OAuth20TokenAuthorizationCodeController extends AbstractContr
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
                     OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
         }
-        // Redirect URI is a literal string (not regex) and the match is done by case-insensitive equality check.
-        if (!redirectUri.equalsIgnoreCase(service.getServiceId())) {
+        if (!redirectUri.matches(service.getServiceId())) {
             LOGGER.error("Unsupported {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
                     OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION, HttpStatus.SC_BAD_REQUEST);
