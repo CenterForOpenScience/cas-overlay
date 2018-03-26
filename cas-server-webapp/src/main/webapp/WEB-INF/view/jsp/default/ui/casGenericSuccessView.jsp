@@ -18,25 +18,18 @@
     under the License.
 
 --%>
-
-<%-- CAS generic page for logged in (no service) --%>
-
-<jsp:directive.include file="includes/top.jsp"/>
-
-<div id="msg" class="success">
-    <h2><spring:message code="screen.success.header"/></h2>
-    <br/>
+<jsp:directive.include file="includes/top.jsp" />
+  <div id="msg" class="success">
+    <h2><spring:message code="screen.success.header" /></h2>
     <c:set var="displayName" value="${principal.attributes.username}"/>
     <c:if test="${empty displayName}">
-        <c:set var="displayName" value="${principal.id}"/>
+      <c:set var="displayName" value="${principal.id}"/>
     </c:if>
     <p><spring:message code="screen.success.success" arguments="${displayName}"/></p>
-    <p><spring:message code="screen.success.security"/></p>
-</div>
+    <p><spring:message code="screen.success.security" /></p>
+  </div>
 
-<c:set var="linkSignIn" value="false"/>
-<c:set var="linkSignOut" value="true"/>
-<c:set var="linkCreateAccount" value="false"/>
-<c:set var="linkBackToOsf" value="true"/>
+<c:set var="alternativeBottomLogout" value="true" />
 
-<jsp:directive.include file="includes/bottom.jsp"/>
+<jsp:directive.include file="includes/bottom.jsp" />
+

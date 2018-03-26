@@ -181,7 +181,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         // Check user's status, and only ACTIVE user can sign in
         if (USER_NOT_CONFIRMED.equals(userStatus)) {
-            throw new LoginNotAllowedException(username + " is registered but not confirmed");
+            throw new LoginNotAllowedException(username + " is not registered");
         } else if (USER_DISABLED.equals(userStatus)) {
             throw new AccountDisabledException(username + " is disabled");
         } else if (USER_NOT_CLAIMED.equals(userStatus)) {

@@ -20,7 +20,6 @@ package org.jasig.cas.support.oauth.token;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.ServiceTicketImpl;
@@ -28,26 +27,22 @@ import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.TicketGrantingTicketImpl;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
+import javax.persistence.Transient;
 import java.util.Set;
 
 /**
  * Access Token Implementation class.
  *
  * @author Michael Haselton
- * @author Longze Chen
- * @since 4.1.5
+ * @since 4.1.0
  */
 @Entity
 @Table(name="ACCESSTOKEN")
-@Access(AccessType.FIELD)
 public final class AccessTokenImpl extends AbstractToken implements AccessToken {
 
     /** Unique Id for serialization. */
@@ -87,16 +82,9 @@ public final class AccessTokenImpl extends AbstractToken implements AccessToken 
      * @param serviceTicket the service ticket
      * @param scopes the granted scopes
      */
-    public AccessTokenImpl(
-            final String id,
-            final TokenType type,
-            final String clientId,
-            final String principalId,
-            final TicketGrantingTicket ticketGrantingTicket,
-            final Service service,
-            final ServiceTicket serviceTicket,
-            final Set<String> scopes
-    ) {
+    public AccessTokenImpl(final String id, final TokenType type, final String clientId, final String principalId,
+                           final TicketGrantingTicket ticketGrantingTicket, final Service service,
+                           final ServiceTicket serviceTicket, final Set<String> scopes) {
         super(id, clientId, principalId, type, scopes);
 
         this.ticketGrantingTicket = ticketGrantingTicket;
@@ -105,10 +93,12 @@ public final class AccessTokenImpl extends AbstractToken implements AccessToken 
     }
 
     @Override
+    @Transient
     public Ticket getTicket() {
         if (getType() == TokenType.OFFLINE) {
             return this.serviceTicket;
         }
+
         return this.ticketGrantingTicket;
     }
 
@@ -117,6 +107,7 @@ public final class AccessTokenImpl extends AbstractToken implements AccessToken 
         if (getType() == TokenType.OFFLINE) {
             return this.serviceTicket.getGrantingTicket();
         }
+
         return this.ticketGrantingTicket;
     }
 

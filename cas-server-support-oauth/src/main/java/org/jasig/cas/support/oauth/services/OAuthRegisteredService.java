@@ -21,19 +21,17 @@ package org.jasig.cas.support.oauth.services;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.jasig.cas.services.OSFRegisteredService;
+import org.jasig.cas.services.RegexRegisteredService;
 import org.jasig.cas.services.RegisteredService;
 
 /**
- * An extension of the {@link OSFRegisteredService} that defines
- * the OAuth client id and secret for a given registered service.
- *
+ * An extension of the {@link RegexRegisteredService} that defines the
+ * OAuth client id and secret for a given registered service.
  * @author Misagh Moayyed
  * @author Michael Haselton
- * @author Longze Chen
- * @since 4.1.5
+ * @since 4.0.0
  */
-public final class OAuthRegisteredService extends OSFRegisteredService {
+public final class OAuthRegisteredService extends RegexRegisteredService {
 
     private static final long serialVersionUID = 5318897374067731021L;
 
@@ -111,3 +109,5 @@ public final class OAuthRegisteredService extends OSFRegisteredService {
                 .toHashCode();
     }
 }
+
+
