@@ -24,6 +24,9 @@ import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
+import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
+import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -31,12 +34,14 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
 
 /**
  * This controller handles requests to revoke all tokens associated with a client id.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20RevokeClientTokensController extends AbstractController {
 
@@ -68,11 +73,29 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
         }
 
-        if (!centralOAuthService.revokeClientTokens(clientId, clientSecret)) {
+        // Verify that the client service has a valid client id and client secret
+        final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
+        if (service == null || !service.getClientSecret().equals(clientSecret)) {
             LOGGER.error("Could not revoke client tokens, mismatched client id or client secret");
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST,
+            return OAuthUtils.writeJsonError(
+                    response,
+                    OAuthConstants.INVALID_REQUEST,
                     OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION,
-                    HttpStatus.SC_BAD_REQUEST);
+                    HttpStatus.SC_BAD_REQUEST
+            );
+        }
+
+        // Remove all refresh tokens for the client of the specified id
+        final Collection<RefreshToken> refreshTokens = centralOAuthService.getClientRefreshTokens(clientId);
+        for (final RefreshToken token: refreshTokens) {
+            LOGGER.debug("Revoking refresh token : {}", token.getId());
+            centralOAuthService.revokeToken(token);
+        }
+        // Remove all access tokens for the client of the specified id
+        final Collection<AccessToken> accessTokens = centralOAuthService.getClientAccessTokens(clientId);
+        for (final AccessToken token: accessTokens) {
+            LOGGER.info("Revoking access token : {}", token.getId());
+            centralOAuthService.revokeToken(token);
         }
 
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);

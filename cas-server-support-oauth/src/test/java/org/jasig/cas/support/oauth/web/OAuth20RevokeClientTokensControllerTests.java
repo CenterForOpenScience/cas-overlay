@@ -24,10 +24,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 
+import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
+import org.jasig.cas.support.oauth.token.AccessToken;
+import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Collection;
+import java.util.LinkedList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -38,7 +44,8 @@ import static org.mockito.Mockito.when;
  * This class tests the {@link OAuth20RevokeClienTokensController} class.
  *
  * @author Fitz Elliott
- * @since 3.5.2
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20RevokeClientTokensControllerTests {
 
@@ -55,13 +62,13 @@ public final class OAuth20RevokeClientTokensControllerTests {
     private static final String CONTENT_TYPE = "application/json";
 
 
+    /** Test that no client id raises HTTP 400 Bad Request. */
     @Test
     public void verifyNoClientId() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, "");
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -85,13 +92,13 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
+    /** Test that no client secret raises HTTP 400 Bad Request. */
     @Test
     public void verifyNoClientSecret() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, "");
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -115,13 +122,13 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
+    /** Test that client id not found raises HTTP 400 Bad Request. */
     @Test
     public void verifyNoSuchClientId() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, NO_SUCH_CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -145,13 +152,13 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
+    /** Test that wrong client secret raises HTTP 400 Bad Request. */
     @Test
     public void verifyWrongClientSecret() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(false);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, WRONG_CLIENT_SECRET);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -175,13 +182,22 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
+    /* Test that valid client id and secret succeeds and returns HTTP 204 No Content. */
     @Test
     public void verifyOK() throws Exception {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
-        when(centralOAuthService.revokeClientTokens(CLIENT_ID, CLIENT_SECRET)).thenReturn(true);
+        final Collection<AccessToken> accessTokens = new LinkedList<>();
+        final Collection<RefreshToken> refreshTokens = new LinkedList<>();
+        when(centralOAuthService.getClientAccessTokens(CLIENT_ID)).thenReturn(accessTokens);
+        when(centralOAuthService.getClientRefreshTokens(CLIENT_ID)).thenReturn(refreshTokens);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final OAuthRegisteredService service = new OAuthRegisteredService();
+        service.setClientId(CLIENT_ID);
+        service.setClientSecret(CLIENT_SECRET);
+        when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -196,5 +212,4 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertNull(mockResponse.getContentType());
         assertEquals("null", mockResponse.getContentAsString());
     }
-
 }
