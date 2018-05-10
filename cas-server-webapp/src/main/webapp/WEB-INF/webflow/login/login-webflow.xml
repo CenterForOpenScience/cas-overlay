@@ -184,22 +184,24 @@
     </view-state>
 
     <action-state id="handleAuthenticationFailure">
-        <evaluate expression="authenticationExceptionHandler.handle(currentEvent.attributes.error, messageContext)"/>
-        <transition on="AccountDisabledException" to="casAccountDisabledView"/>
+        <evaluate expression="authenticationExceptionHandler.preHandle(flowRequestContext, currentEvent.attributes.error, messageContext)"/>
+        <!-- Built-in exceptions that are no used by OSF -->
         <transition on="AccountLockedException" to="casAccountLockedView"/>
         <transition on="AccountPasswordMustChangeException" to="casMustChangePassView"/>
         <transition on="CredentialExpiredException" to="casExpiredPassView"/>
         <transition on="InvalidLoginLocationException" to="casBadWorkstationView"/>
         <transition on="InvalidLoginTimeException" to="casBadHoursView"/>
+        <!-- Built-in exceptions that are explicitly used by OSF -->
         <transition on="FailedLoginException" to="generateLoginTicket"/>
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
-        <!-- Open Science Framework -->
+        <transition on="AccountDisabledException" to="casAccountDisabledView"/>
+        <!-- Customized exceptions for OSF -->
         <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
         <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
         <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
-        <!-- One Time Password -->
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
         <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
+        <!-- Unhandled Exceptions -->
         <transition on="UNKNOWN" to="generateLoginTicket"/>
     </action-state>
 
