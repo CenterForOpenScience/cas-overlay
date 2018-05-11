@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS institution and ORCiD login exception page --%>
+<%-- OSF CAS Institution and ORCiD login exception page --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
@@ -27,6 +27,14 @@
     <h2><spring:message code="screen.remoteuserfailedlogin.heading"/></h2>
     <p><spring:message code="screen.remoteuserfailedlogin.message"/></p>
 </div>
+
+<spring:message code="screen.osf.login.message.error" var="errorDescription"/>
+<script>
+    description = document.getElementById("description");
+    if (description != null) {
+        description.innerHTML = "<br><br>${errorDescription}";
+    }
+</script>
 
 <c:set var="linkSignIn" value="false"/>
 <c:set var="linkSignOut" value="false"/>

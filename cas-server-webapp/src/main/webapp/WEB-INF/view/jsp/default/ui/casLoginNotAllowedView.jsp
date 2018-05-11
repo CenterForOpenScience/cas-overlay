@@ -36,6 +36,14 @@
     </section>
 </div>
 
+<spring:message code="screen.osf.login.message.error" var="errorDescription"/>
+<script>
+    description = document.getElementById("description");
+    if (description != null) {
+        description.innerHTML = "<br><br>${errorDescription}";
+    }
+</script>
+
 <c:set var="linkSignIn" value="true"/>
 <c:set var="linkSignOut" value="false"/>
 <c:set var="linkCreateAccount" value="true"/>
