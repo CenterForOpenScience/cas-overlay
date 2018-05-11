@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS institution and ORCiD login exception page --%>
+<%-- OSF CAS Institution and ORCiD login exception page --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
