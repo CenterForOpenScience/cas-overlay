@@ -24,8 +24,8 @@
 </div>  <!-- END #content -->
 
 <c:if test="${empty serviceParam}">
-    <c:set var="serviceParam"
-           value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
+    <%-- Try to get the service from the login context first. If failed, try to get it from the request parameters. --%>
+    <c:set var="serviceParam" value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : param.service ? fn:escapeXml(param.service) : ''}"/>
 </c:if>
 
 <div class="bottom-link">
