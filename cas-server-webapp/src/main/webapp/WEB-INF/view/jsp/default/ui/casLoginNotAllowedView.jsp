@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS login exception page for: account not confirmed --%>
+<%-- Login exception page: account not confirmed --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 

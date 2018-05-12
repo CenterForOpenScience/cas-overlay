@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS login exception page for: account disabled --%>
+<%-- Login exception page: account disabled --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
