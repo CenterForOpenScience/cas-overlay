@@ -66,9 +66,6 @@
                 return;
             } else if (institutionLoginUrl === "callutheran") {
                 institutionLoginUrl = "${callutheranUrl}";
-            } else if (institutionLoginUrl === "ferris") {
-                // Disable institution login Ferris State University
-                return;
             } else if (institutionLoginUrl === "okstate") {
                 institutionLoginUrl = "${okstateUrl}";
             }
