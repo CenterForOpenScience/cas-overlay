@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS default login page --%>
+<%-- Default login page for OSF --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 

@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS institution login page --%>
+<%-- Institution login page for OSF --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 

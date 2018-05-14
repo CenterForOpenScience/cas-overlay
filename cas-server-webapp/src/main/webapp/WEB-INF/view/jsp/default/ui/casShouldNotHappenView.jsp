@@ -19,12 +19,7 @@
 
 --%>
 
-<%--
-
-    OSF CAS login exception page for unexpected exceptions including:
-    contributor not claimed, account already merged and other invalid status.
-
---%>
+<%-- Login exception page: invalid or unexpected user status --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
