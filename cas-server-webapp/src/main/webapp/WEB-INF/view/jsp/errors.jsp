@@ -36,9 +36,10 @@
     }
 </script>
 
+<c:set var="linkSignOutandBackToSignIn" value="true"/>
 <c:set var="linkSignIn" value="false"/>
-<c:set var="linkSignOut" value="true"/>
+<c:set var="linkSignOut" value="false"/>
 <c:set var="linkCreateAccount" value="false"/>
-<c:set var="linkBackToOsf" value="false"/>
+<c:set var="linkBackToOsf" value="true"/>
 
 <jsp:directive.include file="default/ui/includes/bottom.jsp" />

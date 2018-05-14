@@ -23,30 +23,45 @@
 
 </div>  <!-- END #content -->
 
+<spring:eval var="serverName" expression="@casProperties.getProperty('server.name')"/>
+<spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')"/>
+<spring:eval var="casLogoutUrl" expression="@casProperties.getProperty('cas.logout.url')"/>
+<spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')"/>
+<spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')"/>
+
 <c:if test="${empty serviceParam}">
     <%-- Try to obtain the service from the login context first. If failed, get it from the request parameters. --%>
-    <c:set var="serviceParam" value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : fn:escapeXml(param.service)}"/>
+    <c:set var="serviceUrl" value="${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : fn:escapeXml(param.service)}"/>
+    <c:set var="serviceParam" value="&service=${serviceUrl}"/>
 </c:if>
 
 <div class="bottom-link">
     <br/>
+    <c:if test="${linkSignOutandBackToSignIn}">
+        <c:set var="osfFullLoginUrl" value="${serverName}${osfLoginUrl}" />
+        <c:set var="casFullLogoutUrl" value="${serverName}${casLogoutUrl}" />
+        <c:url value="${osfFullLoginUrl}" var="osfSignInUrlWithService">
+            <c:param name="service" value="${serviceUrl}" />
+        </c:url>
+        <c:url value="${casFullLogoutUrl}" var="osfSignOutUrlWithService">
+            <c:param name="service" value="${osfSignInUrlWithService}" />
+        </c:url>
+        <a id="link-back-to-sign-in" href="${osfSignOutUrlWithService}"><spring:message code="screen.general.link.signOutandBackToSignIn"/></a>
+        <span style="padding: 25px"></span>
+    </c:if>
     <c:if test="${linkSignIn}">
-        <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')"/>
         <a id="link-sign-in" href="${osfLoginUrl}${serviceParam}"><spring:message code="screen.general.link.signIn"/></a>
         <span style="padding: 25px"></span>
     </c:if>
     <c:if test="${linkSignOut}">
-        <spring:eval var="casLogoutUrl" expression="@casProperties.getProperty('cas.logout.url')"/>
         <a id="link-sign-out" href="${casLogoutUrl}?${serviceParam}"><spring:message code="screen.general.link.signOut"/></a>
         <span style="padding: 25px"></span>
     </c:if>
     <c:if test="${linkCreateAccount}">
-        <spring:eval var="createAccountUrl" expression="@casProperties.getProperty('osf.createAccount.url')"/>
         <span><a id="link-create-account" href="${createAccountUrl}${registeredService.properties.registerUrl.getValue()}"><spring:message code="screen.general.link.createAccount"/></a></span>
         <span style="padding: 25px"></span>
     </c:if>
     <c:if test="${linkBackToOsf}">
-        <spring:eval var="osfUrl" expression="@casProperties.getProperty('osf.url')"/>
         <span><a id="link-back-to-osf" href="${osfUrl}"><spring:message code="screen.general.link.backToOsf"/></a></span>
     </c:if>
     <br/>
