@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- CAS generic page for logged out (no service)  --%>
+<%-- Generic no-service successful logout page --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 

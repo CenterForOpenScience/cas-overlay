@@ -19,15 +19,7 @@
 
 --%>
 
-<%--
-
-    OSF CAS login exception page for:
-
-    - Contributor not claimed
-    - Account already merged
-    - Other invalid status
-
- --%>
+<%-- Login exception page: invalid or unexpected user status --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
@@ -36,7 +28,13 @@
     <p><spring:message code="screen.shouldnothappen.message"/></p>
 </div>
 
-<c:set var="alternativeBottomLogin" value="true"/>
+<spring:message code="screen.osf.login.message.error" var="errorDescription"/>
+<script>
+    description = document.getElementById("description");
+    if (description != null) {
+        description.innerHTML = "<br><br>${errorDescription}";
+   }
+</script>
 
 <c:set var="linkSignIn" value="false"/>
 <c:set var="linkSignOut" value="false"/>

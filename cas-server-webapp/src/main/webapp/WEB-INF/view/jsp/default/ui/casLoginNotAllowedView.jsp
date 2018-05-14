@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS login exception page for: account not confirmed --%>
+<%-- Login exception page: account not confirmed --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
@@ -35,6 +35,14 @@
         </a>
     </section>
 </div>
+
+<spring:message code="screen.osf.login.message.error" var="errorDescription"/>
+<script>
+    description = document.getElementById("description");
+    if (description != null) {
+        description.innerHTML = "<br><br>${errorDescription}";
+    }
+</script>
 
 <c:set var="linkSignIn" value="true"/>
 <c:set var="linkSignOut" value="false"/>

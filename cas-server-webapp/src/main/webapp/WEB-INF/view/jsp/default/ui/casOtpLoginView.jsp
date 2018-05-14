@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS Two-factor authententication page --%>
+<%-- Two-factor authententication page for OSF --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 

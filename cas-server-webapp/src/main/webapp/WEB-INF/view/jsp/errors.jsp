@@ -19,24 +19,27 @@
 
 --%>
 
-<%-- Generic no-service successful login page --%>
+<%-- CAS unavailable page for 500s server errors --%>
 
-<jsp:directive.include file="includes/top.jsp"/>
+<jsp:directive.include file="default/ui/includes/top.jsp" />
 
-<div id="msg" class="success">
-    <h2><spring:message code="screen.success.header"/></h2>
-    <br/>
-    <c:set var="displayName" value="${principal.attributes.username}"/>
-    <c:if test="${empty displayName}">
-        <c:set var="displayName" value="${principal.id}"/>
-    </c:if>
-    <p><spring:message code="screen.success.success" arguments="${displayName}"/></p>
-    <p><spring:message code="screen.success.security"/></p>
+<div id="msg" class="errors">
+    <h2>${pageContext.errorData.statusCode} - <spring:message code="screen.unavailable.heading" /></h2>
+    <p><spring:message code="screen.unavailable.message" /></p>
 </div>
 
+<spring:message code="screen.osf.login.message.error" var="errorDescription"/>
+<script>
+    description = document.getElementById("description");
+    if (description != null) {
+        description.innerHTML = "<br><br>${errorDescription}";
+    }
+</script>
+
+<c:set var="linkSignOutandBackToSignIn" value="true"/>
 <c:set var="linkSignIn" value="false"/>
-<c:set var="linkSignOut" value="true"/>
+<c:set var="linkSignOut" value="false"/>
 <c:set var="linkCreateAccount" value="false"/>
 <c:set var="linkBackToOsf" value="true"/>
 
-<jsp:directive.include file="includes/bottom.jsp"/>
+<jsp:directive.include file="default/ui/includes/bottom.jsp" />

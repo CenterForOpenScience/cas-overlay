@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS institution login page --%>
+<%-- Institution login page for OSF --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
@@ -66,8 +66,6 @@
                 return;
             } else if (institutionLoginUrl === "callutheran") {
                 institutionLoginUrl = "${callutheranUrl}";
-            } else if (institutionLoginUrl === "ferris") {
-                institutionLoginUrl = "${ferrisUrl}";
             } else if (institutionLoginUrl === "okstate") {
                 institutionLoginUrl = "${okstateUrl}";
             }

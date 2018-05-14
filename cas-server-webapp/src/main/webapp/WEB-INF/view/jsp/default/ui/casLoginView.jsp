@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- OSF CAS default login page --%>
+<%-- Default login page for OSF --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
@@ -104,6 +104,8 @@
 
         <%-- ORCiD Login --%>
         <c:if test="${not empty registeredService}">
+            <%-- ORCiD login is enabled for the following services: OSF, OSF Preprints and Registries, Branded Preprints
+            with OSF or branded domains, Prereg and ERPC.  ORCiD login is disabled for CAS itself and for OAuth. --%>
             <c:if test="${not empty registeredService.id && (
                 registeredService.id == 203948234207230 || registeredService.id == 203948234207231 ||
                 registeredService.id == 203948234207232 || registeredService.id == 203948234207340 ||
