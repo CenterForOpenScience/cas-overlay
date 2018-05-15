@@ -394,12 +394,12 @@ footer a:link, footer a:visited {
 }
 
 #inst-login .inst-message {
-  font-size: 15px;
+  font-size: 12px;
   font-weight: lighter;
 }
 
 #inst-login .inst-errors {
-  font-size: 15px;
+  font-size: 12px;
   font-weight: lighter;
   color: #BB0000;
 }

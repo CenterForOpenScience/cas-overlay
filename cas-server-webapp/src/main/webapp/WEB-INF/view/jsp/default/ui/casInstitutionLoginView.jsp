@@ -25,6 +25,10 @@
 
 <div id="inst-login">
 
+    <script>
+        document.getElementById("content").style.width = "360px";
+    </script>
+
     <section class="row">
         <div class="heading">
             <span><spring:message code="screen.institution.login.heading"/></span>
@@ -51,8 +55,8 @@
 
     <section class="row">
         <div class="inst-errors">
+            <span id="select-error-message" style="display: none;"><spring:message code="screen.institution.login.select.error.message" /><br/></span>
             <span id="consent-error-message" style="display: none;"><spring:message code="screen.institution.login.consent.error.message" /></span>
-            <span id="select-error-message" style="display: none;"><br/><spring:message code="screen.institution.login.select.error.message" /></span>
         </div>
     </section><br>
 
