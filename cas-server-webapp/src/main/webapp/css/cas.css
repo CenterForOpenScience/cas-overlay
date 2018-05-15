@@ -393,6 +393,11 @@ footer a:link, footer a:visited {
   background-image: linear-gradient(to top, #5cb85c 0, #419641 100%);
 }
 
+#inst-login .inst-message {
+  font-size: 15px;
+  font-weight: lighter;
+}
+
 #inst-login .inst-errors {
   font-size: 15px;
   font-weight: lighter;

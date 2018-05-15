@@ -43,8 +43,16 @@
     </section><br/>
 
     <section class="row">
+        <div class="inst-message">
+            <input type="checkbox" id="consent-checkbox" value="true" tabindex="5" onchange="checkConsent(this)" />
+            <label for="consent-checkbox"><spring:message code="screen.institution.login.consent.checkbox" /></label>
+        </div>
+    </section><br/>
+
+    <section class="row">
         <div class="inst-errors">
-            <span id="select-error-message" style="display: none;"><spring:message code="screen.institution.login.select.error.message" /></span>
+            <span id="consent-error-message" style="display: none;"><spring:message code="screen.institution.login.consent.error.message" /></span>
+            <span id="select-error-message" style="display: none;"><br/><spring:message code="screen.institution.login.select.error.message" /></span>
         </div>
     </section><br>
 
@@ -81,13 +89,34 @@
             } else if (institutionLoginUrl === "okstate") {
                 institutionLoginUrl = "${okstateUrl}";
             }
-            window.location = institutionLoginUrl;
+
+            var consentCheckbox = document.getElementById('consent-checkbox');
+            var consentErrorMessage = document.getElementById("consent-error-message");
+            if (consentCheckbox != null && !consentCheckbox.checked) {
+                consentErrorMessage.style.display = "inline";
+            } else {
+                window.location = institutionLoginUrl;
+            }
+        }
+
+        function checkConsent(checkbox) {
+
+            var consentErrorMessage = document.getElementById("consent-error-message");
+            if (consentErrorMessage != null) {
+                consentErrorMessage.style.display = checkbox.checked ? "none" : "inline";
+            }
         }
 
         function checkSelect() {
+
             var selectErrorMessage = document.getElementById("select-error-message");
             if (selectErrorMessage != null) {
                 selectErrorMessage.style.display = "none";
+            }
+
+            var consentErrorMessage = document.getElementById("consent-error-message");
+            if (consentErrorMessage != null) {
+                consentErrorMessage.style.display = "none";
             }
         }
 
