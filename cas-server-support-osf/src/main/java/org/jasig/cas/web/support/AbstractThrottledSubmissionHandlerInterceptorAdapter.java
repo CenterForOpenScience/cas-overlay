@@ -91,9 +91,15 @@ public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter
         if (exceedsThreshold(request)) {
             recordThrottle(request);
             request.setAttribute(WebUtils.CAS_ACCESS_DENIED_REASON, "screen.blocked.message");
-            response.sendError(HttpStatus.SC_FORBIDDEN,
-                    "Access Denied for user [" + request.getParameter(usernameParameter)
-                            + "] from IP Address [" + request.getRemoteAddr() + ']');
+            final String errorMessage = "Login is temporarily disabled for the following user. "
+                    + "Please wait for a few minutes before trying again."
+                    + "<br/><span style=\"white-space: nowrap\">Email: <b>"
+                    + request.getParameter(usernameParameter)
+                    + "</b></span>"
+                    + "<br/><span style=\"white-space: nowrap\">IP Address: <b>"
+                    + request.getRemoteAddr()
+                    + "</b></span>";
+            response.sendError(HttpStatus.SC_FORBIDDEN, errorMessage);
             return false;
         }
 
