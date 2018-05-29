@@ -43,4 +43,3 @@
 <c:set var="linkBackToOsf" value="true"/>
 
 <jsp:directive.include file="default/ui/includes/bottom.jsp" />
-
