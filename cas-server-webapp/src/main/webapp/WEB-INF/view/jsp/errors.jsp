@@ -24,7 +24,7 @@
 <jsp:directive.include file="default/ui/includes/top.jsp" />
 
 <div id="msg" class="errors">
-    <h2>${pageContext.errorData.statusCode} - <spring:message code="screen.unavailable.heading" /></h2>
+    <h2><spring:message code="screen.unavailable.heading" /></h2>
     <p><spring:message code="screen.unavailable.message" /></p>
 </div>
 
@@ -43,3 +43,4 @@
 <c:set var="linkBackToOsf" value="true"/>
 
 <jsp:directive.include file="default/ui/includes/bottom.jsp" />
+
