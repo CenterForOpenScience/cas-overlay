@@ -42,6 +42,13 @@ under the License.
         <property name="name" value="${cas.callutheran.client.name}" />
         <property name="casProtocol" value="${cas.callutheran.cas.protocol}" />
     </bean>
+    <!-- Institut Teknologi Bandung -->
+    <bean id="itb" class="org.pac4j.cas.client.CasClient">
+        <property name="casLoginUrl" value="${cas.itb.login.url}" />
+        <property name="casPrefixUrl" value="${cas.itb.prefix.url}" />
+        <property name="name" value="${cas.itb.client.name}" />
+        <property name="casProtocol" value="${cas.itb.cas.protocol}" />
+    </bean>
     <!-- Oklahoma State University -->
     <bean id="okstate" class="org.pac4j.cas.client.CasClient">
         <property name="casLoginUrl" value="${cas.okstate.login.url}" />
@@ -58,6 +65,7 @@ under the License.
                 <ref bean="orcid" />
                 <!-- CAS Clients -->
                 <ref bean="callutheran" />
+                <ref bean="itb" />
                 <ref bean="okstate" />
             </list>
         </property>
