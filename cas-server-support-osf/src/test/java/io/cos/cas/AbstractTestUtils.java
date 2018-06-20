@@ -1,8 +1,10 @@
 package io.cos.cas;
 
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
+
 import org.jasig.cas.authentication.principal.DefaultPrincipalFactory;
 import org.jasig.cas.authentication.principal.Principal;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
@@ -35,6 +37,8 @@ public abstract class AbstractTestUtils {
 
     public static final String CONST_NOT_EMPTY_STRING = "a_string_that_is_not_empty";
 
+    public static final String CONST_DISPLAY_NAME = "Jimmy Steward";
+
     private static final String REMOTE_USER = "REMOTE_USER";
 
     private static final String ATTRIBUTE_PREFIX = "AUTH-";
@@ -49,8 +53,6 @@ public abstract class AbstractTestUtils {
     private static final String CONST_GIVEN_NAME = "James";
 
     private static final String CONST_FAMILY_NAME = "Steward";
-
-    private static final String CONST_DISPLAY_NAME = "Jimmy Steward";
 
     public static Principal getPrincipal(final String name) {
         return new DefaultPrincipalFactory().createPrincipal(name, generateAttributesMap(""));
