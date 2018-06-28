@@ -1,6 +1,7 @@
 package io.cos.cas.mock;
 
 import io.cos.cas.authentication.handler.support.OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction;
+
 import org.jasig.cas.CentralAuthenticationService;
 
 /**
@@ -12,7 +13,7 @@ import org.jasig.cas.CentralAuthenticationService;
 public class MockOsfRemoteAuthenticateAction
     extends OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction {
 
-    protected static final String INSTITUTION_AUTH_URL = "http://institutionauth/";
+    protected static final String INSTITUTION_AUTH_URL = "institution_auth_url";
     protected static final String INSTITUTION_AUTH_JWE_SECRET = "osf_api_cas_login_jwe_secret_32b";
     protected static final String INSTITUTION_AUTH_JWT_SECRET = "osf_api_cas_login_jwt_secret_32b";
     protected static final String INSTITUTION_AUTH_XSL_LOCATION = "file:mock-institutions-auth.xsl";
