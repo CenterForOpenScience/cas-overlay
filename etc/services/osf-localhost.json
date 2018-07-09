@@ -3,7 +3,7 @@
   "id" : 203948234207230,
   "name" : "",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):5000/.*",
+  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1|192\\.168\\.168\\.167):5000/.*",
   "evaluationOrder" : "2000",
   "logo": "",
   "attributeReleasePolicy" : {

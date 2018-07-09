@@ -3,7 +3,7 @@
   "id" : 983450982340993434,
   "name" : "",
   "description" : "",
-  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1):(8080|8443)?/oauth2/callbackAuthorize",
+  "serviceId" : "^https?://(localhost|127\\.0\\.0\\.1|192\\.168\\.168\\.167):(8080|8443)/oauth2/callbackAuthorize",
   "evaluationOrder" : "1000",
   "properties" : {
     "@class" : "java.util.HashMap",

@@ -393,52 +393,86 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      * @return the username from the idp and setup on the OSF
      * @throws AccountException a account exception
      */
-     protected PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
+    protected PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
             final OpenScienceFrameworkCredential credential
     ) throws AccountException {
+
+        // Step 1 - Normalize the remote principal
+        final JSONObject normalizedPayload;
         try {
-            final JSONObject normalizedPayload = this.normalizeRemotePrincipal(credential);
+            normalizedPayload = this.normalizeRemotePrincipal(credential);
+        } catch (final ParserConfigurationException | TransformerException e) {
+            logger.error("Failed to normalize remote principal: {}", e.getMessage());
+            logger.trace("Failed to normalize remote principal: {}", e);
+            throw new RemoteUserFailedLoginException("Failed to normalize remote principal.");
+        }
 
-            final JSONObject provider = normalizedPayload.getJSONObject("provider");
-            final String institutionId = provider.getString("id");
-            final String username = provider.getJSONObject("user").getString("username");
-            final String payload = normalizedPayload.toString();
+        // Step 2 - Verify institution and user info in the normalized payload
+        final JSONObject provider = normalizedPayload.optJSONObject("provider");
+        if (provider == null) {
+            logger.error("Invalid remote principal: provider is required");
+            throw new RemoteUserFailedLoginException("Invalid remote principal: missing provider.");
+        }
+        final String institutionId = provider.optString("id").trim();
+        if (institutionId.isEmpty()) {
+            logger.error("Invalid remote principal: institution provider ID is required");
+            throw new RemoteUserFailedLoginException("Invalid remote principal: missing institution.");
+        }
+        final JSONObject user = provider.optJSONObject("user");
+        if (user == null) {
+            logger.error("Invalid remote principal: user is required");
+            throw new RemoteUserFailedLoginException("Invalid remote principal: missing user.");
+        }
+        final String username = user.optString("username").trim();
+        final String fullname = user.optString("fullname").trim();
+        final String givenName = user.optString("givenName").trim();
+        final String familyName = user.optString("familyName").trim();
+        if (username.isEmpty()) {
+            logger.error("Invalid remote principal: username (email) is required for institution '{}'", institutionId);
+            throw new RemoteUserFailedLoginException("Invalid remote principal: missing username.");
+        }
+        if (fullname.isEmpty() && (givenName.isEmpty() || familyName.isEmpty())) {
+            logger.error("Invalid remote principal: fullname or (givenNaame, familyName) is required for institution '{}'", institutionId);
+            throw new RemoteUserFailedLoginException("Invalid remote principal: missing names.");
+        }
+        final String payload = normalizedPayload.toString();
+        logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
+        logger.debug(
+                "Notify Remote Principal Authenticated: username={}, institution={}, normalizedPayload = {}",
+                username,
+                institutionId,
+                payload
+        );
 
-            if (institutionId == null || institutionId.trim().isEmpty()) {
-                logger.error("Notify Remote Principal Authenticated Exception: Institution Provider ID Required");
-                throw new RemoteUserFailedLoginException("Institution Provider ID Required");
-            }
-
-            if (username == null || username.trim().isEmpty()) {
-                logger.error("Notify Remote Principal Authenticated Exception: username=null, institution={}", institutionId);
-                throw new RemoteUserFailedLoginException("Username (Email) Required");
-            }
-
-            logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
-            logger.debug("Notify Remote Principal Authenticated [{}, {}] Normalized Payload '{}'", username, institutionId, payload);
-
+        // Step 3 - Encrypt the payload
+        final String jweString;
+        try {
             // Build a JWT and wrap it with JWE for secure transport to the OSF API.
             final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                     .subject(username)
                     .claim("data", payload)
                     .expirationTime(new Date(new Date().getTime() + SIXTY_SECONDS))
                     .build();
-
             final SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
-
             final JWSSigner signer = new MACSigner(this.institutionsAuthJwtSecret.getBytes());
             signedJWT.sign(signer);
-
             final JWEObject jweObject = new JWEObject(
                     new JWEHeader.Builder(JWEAlgorithm.DIR, EncryptionMethod.A256GCM)
                             .contentType("JWT")
                             .build(),
                     new Payload(signedJWT));
             jweObject.encrypt(new DirectEncrypter(this.institutionsAuthJweSecret.getBytes()));
-            final String jweString = jweObject.serialize();
+            jweString = jweObject.serialize();
+        } catch (final JOSEException e) {
+            logger.error("Failed to build JWE payload: {}", e.getMessage());
+            logger.trace("Failed to build JWE payload: {}", e);
+            throw new RemoteUserFailedLoginException("Failed to build JWE payload for institution authentication");
+        }
 
-            // A call is made to the OSF CAS Institution Login Endpoint to create a registered user (if
-            // one does not already exist) and apply institutional affiliation.
+        // Step 4 - Make the API request with encrypted payload.
+        try {
+            // A call is made to the OSF CAS institution login endpoint to create a registered user (if one does not
+            // already exist) and apply institutional affiliation (if the user is not already registered).
             final HttpResponse httpResponse = Request.Post(this.institutionsAuthUrl)
                     .addHeader(new BasicHeader("Content-Type", "text/plain"))
                     .bodyString(jweString, ContentType.APPLICATION_JSON)
@@ -457,12 +491,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");
             }
 
-            // return the username for the credential build.
+            // Return the username for the credential build.
             return new PrincipalAuthenticationResult(username, institutionId);
-        } catch (final JOSEException | IOException | ParserConfigurationException | TransformerException e) {
+        } catch (final IOException e) {
             logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
             logger.trace("Notify Remote Principal Authenticated Exception: {}", e);
-            throw new RemoteUserFailedLoginException("Unable to Build Message for OSF API Endpoint");
+            throw new RemoteUserFailedLoginException("Failed to communicate with OSF API endpoint.");
         }
     }
 
