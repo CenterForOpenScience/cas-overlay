@@ -1,690 +1,735 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>io.cos.cas</groupId>
-  <artifactId>cas-server</artifactId>
-  <version>4.1.5</version>
-  <packaging>pom</packaging>
-  <name>Apereo Central Authentication Service</name>
-  <description>Apereo CAS SSO server libraries and Web application.</description>
+<!--
+  ~ Licensed to Apereo under one or more contributor license
+  ~ agreements. See the NOTICE file distributed with this work
+  ~ for additional information regarding copyright ownership.
+  ~ Apereo licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file
+  ~ except in compliance with the License.  You may obtain a
+  ~ copy of the License at the following location:
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
 
-  <repositories>
-    <repository>
-      <id>sonatype-releases</id>
-      <url>http://oss.sonatype.org/content/repositories/releases/</url>
-    </repository>
-    <repository>
-      <id>sonatype-snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    </repository>
-  </repositories>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.cos.cas</groupId>
+    <artifactId>cas-server</artifactId>
+    <version>4.1.5</version>
+    <packaging>pom</packaging>
+    <name>Apereo Central Authentication Service</name>
+    <description>Apereo CAS SSO server libraries and Web application.</description>
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    <repositories>
+        <repository>
+            <id>sonatype-releases</id>
+            <url>http://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjweaver</artifactId>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.getsentry.raven</groupId>
-      <artifactId>raven-log4j2</artifactId>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jasig.inspektr</groupId>
-      <artifactId>inspektr-aspects</artifactId>
-      <version>${inspektr.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.validation</groupId>
-          <artifactId>validation-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-  </dependencies>
-
-  <dependencyManagement>
     <dependencies>
 
-      <!-- CAS -->
-      <dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-core</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-support-pac4j</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-webapp</artifactId>
-        <version>${project.version}</version>
-        <type>war</type>
-        <scope>runtime</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-webapp-support</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-support-oauth</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jasig.cas</groupId>
-        <artifactId>cas-server-support-jdbc</artifactId>
-        <version>${project.version}</version>
-      </dependency>
+        <!-- JUnit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-      <!-- Spring Framework -->
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
-        <version>${spring.version}</version>
-        <scope>test</scope>
-      </dependency>
+        <!-- Mockito -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-      <!-- cas-server-support-osf -->
-      <dependency>
-        <groupId>org.pac4j</groupId>
-        <artifactId>pac4j-core</artifactId>
-        <version>${pac4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.pac4j</groupId>
-        <artifactId>pac4j-cas</artifactId>
-        <version>${pac4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.pac4j</groupId>
-        <artifactId>pac4j-oauth</artifactId>
-        <version>${pac4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.pac4j</groupId>
-        <artifactId>pac4j-http</artifactId>
-        <version>${pac4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons.codec.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${apache.httpclient.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>fluent-hc</artifactId>
-        <version>${apache.httpclient.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.nimbusds</groupId>
-        <artifactId>nimbus-jose-jwt</artifactId>
-        <version>${nimbus.jose.version}</version>
-      </dependency>
+        <!-- Spring Framework-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-      <!-- javax -->
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>jstl</artifactId>
-        <version>${jstl.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>${servlet.api.version}</version>
-        <scope>provided</scope>
-      </dependency>
+        <!-- Javax -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-      <!-- XSL -->
-      <dependency>
-        <groupId>org.w3c</groupId>
-        <artifactId>dom</artifactId>
-        <version>${jaxb.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.json</groupId>
-        <artifactId>json</artifactId>
-        <version>${json.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>${google.gson.version}</version>
-      </dependency>
-
-      <!-- cas-server-webapp -->
-      <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjweaver</artifactId>
-        <version>${aspectj.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjrt</artifactId>
-        <version>${aspectj.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${postgresql.version}</version>
-      </dependency>
-
-      <!-- Sentry -->
-      <dependency>
-        <groupId>com.getsentry.raven</groupId>
-        <artifactId>raven-log4j2</artifactId>
-        <version>${raven.log4j2.version}</version>
-      </dependency>
-
-      <!-- Inspektr Dependencies -->
-      <dependency>
-        <groupId>org.jasig.inspektr</groupId>
-        <artifactId>inspektr-audit</artifactId>
-        <version>${inspektr.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <artifactId>validation-api</artifactId>
-            <groupId>javax.validation</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.jasig.inspektr</groupId>
-        <artifactId>inspektr-common</artifactId>
-        <version>${inspektr.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <artifactId>validation-api</artifactId>
-            <groupId>javax.validation</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.jasig.inspektr</groupId>
-        <artifactId>inspektr-support-spring</artifactId>
-        <version>${inspektr.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <artifactId>validation-api</artifactId>
-            <groupId>javax.validation</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <!-- REQUIRED for Legacy Object Deserialization -->
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-jdk14</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-
-      <!-- CRaSH -->
-      <dependency>
-        <groupId>org.crashub</groupId>
-        <artifactId>crash.embed.spring</artifactId>
-        <version>${crash.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.crashub</groupId>
-        <artifactId>crash.shell</artifactId>
-        <version>${crash.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.crashub</groupId>
-        <artifactId>crash.packaging</artifactId>
-        <version>${crash.version}</version>
-        <type>war</type>
-        <classifier>spring</classifier>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
-  <build>
-    <testResources>
-      <testResource>
-        <directory>${basedir}/src/test/resources</directory>
-      </testResource>
-    </testResources>
-
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.jetty</groupId>
-          <artifactId>jetty-maven-plugin</artifactId>
-          <version>${maven-jetty-plugin.version}</version>
-          <configuration>
-            <jettyXml>${cs.dir}/etc/jetty/jetty.xml,${cs.dir}/etc/jetty/jetty-ssl.xml,${cs.dir}/etc/jetty/jetty-https.xml</jettyXml>
-            <systemProperties>
-              <systemProperty>
-                <name>org.eclipse.jetty.annotations.maxWait</name>
-                <value>240</value>
-              </systemProperty>
-            </systemProperties>
-            <!-- Works with remote debugging and mvn jetty:run-forked -->
-            <jvmArgs>-Xdebug -Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=n</jvmArgs>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven-surefire-plugin.version}</version>
-          <configuration>
-            <forkMode>once</forkMode>
-            <includes>
-              <include>**/*Tests.java</include>
-            </includes>
-            <excludes>
-              <exclude>**/Abstract*.java</exclude>
-            </excludes>
-            <additionalClasspathElements>
-              <additionalClasspathElement>${project.build.directory}/test-lib/jdbc-driver.jar
-              </additionalClasspathElement>
-            </additionalClasspathElements>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>${maven-resources-plugin.version}</version>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/unwoven-classes</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${basedir}</directory>
-                  <includes>
-                    <include>none</include>
-                  </includes>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${maven-findbugs-plugin.version}</version>
-        <configuration>
-          <plugins>
-            <plugin>
-              <groupId>com.mebigfatguy.fb-contrib</groupId>
-              <artifactId>fb-contrib</artifactId>
-              <version>${maven-findbugs-contrib-plugin.version}</version>
-            </plugin>
-            <plugin>
-              <groupId>com.h3xstream.findsecbugs</groupId>
-              <artifactId>findsecbugs-plugin</artifactId>
-              <version>${maven-findbugs-security-plugin.version}</version>
-            </plugin>
-          </plugins>
-          <includeFilterFile>${cs.dir}/findbugs-rules.xml</includeFilterFile>
-          <effort>Max</effort>
-          <failOnError>true</failOnError>
-        </configuration>
-        <executions>
-          <execution>
-            <id>findbugs-check</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${maven-checkstyle-plugin.version}</version>
-        <configuration>
-          <consoleOutput>true</consoleOutput>
-          <configLocation>${cs.dir}/checkstyle-rules.xml</configLocation>
-          <suppressionsLocation>${cs.dir}/checkstyle-suppressions.xml</suppressionsLocation>
-          <failsOnError>true</failsOnError>
-          <includeTestSourceDirectory>true</includeTestSourceDirectory>
-        </configuration>
-        <executions>
-          <execution>
-            <id>checkstyle</id>
-            <goals>
-              <goal>checkstyle</goal>
-            </goals>
-            <phase>compile</phase>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>com.puppycrawl.tools</groupId>
-            <artifactId>checkstyle</artifactId>
-            <version>${checkstyle.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>${maven-enforcer-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>enforce</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireMavenVersion>
-                  <version>2.0.9</version>
-                </requireMavenVersion>
-                <requireJavaVersion>
-                  <version>${project.build.sourceVersion}</version>
-                </requireJavaVersion>
-                <bannedDependencies>
-                  <excludes>
-                    <exclude>cglib:cglib</exclude>
-                    <exclude>cglib:cglib-full</exclude>
-                  </excludes>
-                  <includes>
-                    <include>cglib:cglib:provided</include>
-                    <include>cglib:cglib-full:provided</include>
-                  </includes>
-                  <searchTransitive>true</searchTransitive>
-                </bannedDependencies>
-                <evaluateBeanshell>
-                  <condition>javax.crypto.Cipher.getMaxAllowedKeyLength("AES")>256</condition>
-                </evaluateBeanshell>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <source>${project.build.sourceVersion}</source>
-          <target>${project.build.targetVersion}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>${maven-buildnumber-plugin-version}</version>
-        <executions>
-          <execution>
-            <phase>initialize</phase>
-            <goals>
-              <goal>create-timestamp</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <doCheck>false</doCheck>
-          <doUpdate>false</doUpdate>
-          <timestampFormat>yyyy-MM-dd HH:mm:ssa</timestampFormat>
-          <timestampPropertyName>timestamp</timestampPropertyName>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${maven-jar-plugin.version}</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-            </manifest>
-            <manifestEntries>
-              <Implementation-Date>${timestamp}</Implementation-Date>
-            </manifestEntries>
-          </archive>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-            <configuration>
-              <classifier>client</classifier>
-              <excludes>
-                <exclude>**/persistence.xml</exclude>
-              </excludes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>${maven-assembly-plugin.version}</version>
-        <configuration>
-          <descriptors>
-            <descriptor>${basedir}/assembly.xml</descriptor>
-          </descriptors>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>aspectj-maven-plugin</artifactId>
-        <version>${maven-aspectj-plugin.version}</version>
-        <executions>
-          <execution>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <sources />
-          <complianceLevel>${project.build.sourceVersion}</complianceLevel>
-          <forceAjcCompile>true</forceAjcCompile>
-          <aspectLibraries>
-            <aspectLibrary>
-              <groupId>org.jasig.inspektr</groupId>
-              <artifactId>inspektr-aspects</artifactId>
-            </aspectLibrary>
-          </aspectLibraries>
-          <weaveDirectories>
-            <weaveDirectory>${project.build.directory}/classes</weaveDirectory>
-          </weaveDirectories>
-          <skip>${maven.compiler.aspectj.skip}</skip>
-          <showWeaveInfo />
-        </configuration>
-        <dependencies>
-          <dependency>
+        <!-- AspectJ -->
+        <dependency>
             <groupId>org.aspectj</groupId>
-            <artifactId>aspectjtools</artifactId>
-            <version>${aspectj.version}</version>
-          </dependency>
+            <artifactId>aspectjrt</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Sentry -->
+        <dependency>
+            <groupId>com.getsentry.raven</groupId>
+            <artifactId>raven-log4j2</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Inspektr Auditing -->
+        <dependency>
+            <groupId>org.jasig.inspektr</groupId>
+            <artifactId>inspektr-aspects</artifactId>
+            <version>${inspektr.version}</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>validation-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Apereo CAS -->
+            <dependency>
+                <groupId>org.jasig.cas</groupId>
+                <artifactId>cas-server-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jasig.cas</groupId>
+                <artifactId>cas-server-support-pac4j</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jasig.cas</groupId>
+                <artifactId>cas-server-webapp</artifactId>
+                <version>${project.version}</version>
+                <type>war</type>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jasig.cas</groupId>
+                <artifactId>cas-server-webapp-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jasig.cas</groupId>
+                <artifactId>cas-server-support-oauth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jasig.cas</groupId>
+                <artifactId>cas-server-support-jdbc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Spring Framework -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- PAC4J -->
+            <dependency>
+                <groupId>org.pac4j</groupId>
+                <artifactId>pac4j-core</artifactId>
+                <version>${pac4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.pac4j</groupId>
+                <artifactId>pac4j-cas</artifactId>
+                <version>${pac4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.pac4j</groupId>
+                <artifactId>pac4j-oauth</artifactId>
+                <version>${pac4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.pac4j</groupId>
+                <artifactId>pac4j-http</artifactId>
+                <version>${pac4j.version}</version>
+            </dependency>
+
+            <!-- Apache Commons Codec -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons.codec.version}</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- Apache HttpComponents -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${apache.httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>fluent-hc</artifactId>
+                <version>${apache.httpclient.version}</version>
+            </dependency>
+
+            <!-- Nimbus JOSE+JWT -->
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus.jose.version}</version>
+            </dependency>
+
+            <!-- Javax -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>jstl</artifactId>
+                <version>${jstl.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${servlet.api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- XSL -->
+            <dependency>
+                <groupId>org.w3c</groupId>
+                <artifactId>dom</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+
+            <!-- JSON -->
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
+            </dependency>
+
+            <!-- GSON -->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${google.gson.version}</version>
+            </dependency>
+
+            <!-- AspectJ -->
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+
+            <!-- Postgres -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+
+            <!-- Sentry -->
+            <dependency>
+                <groupId>com.getsentry.raven</groupId>
+                <artifactId>raven-log4j2</artifactId>
+                <version>${raven.log4j2.version}</version>
+            </dependency>
+
+            <!-- Inspektr Auditing -->
+            <dependency>
+                <groupId>org.jasig.inspektr</groupId>
+                <artifactId>inspektr-audit</artifactId>
+                <version>${inspektr.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>validation-api</artifactId>
+                        <groupId>javax.validation</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.jasig.inspektr</groupId>
+                <artifactId>inspektr-common</artifactId>
+                <version>${inspektr.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>validation-api</artifactId>
+                        <groupId>javax.validation</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.jasig.inspektr</groupId>
+                <artifactId>inspektr-support-spring</artifactId>
+                <version>${inspektr.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>validation-api</artifactId>
+                        <groupId>javax.validation</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- SLF4J -->
+            <!-- REQUIRED for Legacy Object Deserialization -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <!-- CRaSH -->
+            <dependency>
+                <groupId>org.crashub</groupId>
+                <artifactId>crash.embed.spring</artifactId>
+                <version>${crash.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.crashub</groupId>
+                <artifactId>crash.shell</artifactId>
+                <version>${crash.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.crashub</groupId>
+                <artifactId>crash.packaging</artifactId>
+                <version>${crash.version}</version>
+                <type>war</type>
+                <classifier>spring</classifier>
+            </dependency>
+
         </dependencies>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <mavenExecutorId>forked-path</mavenExecutorId>
-          <tagNameFormat>v@{project.version}</tagNameFormat>
-          <arguments>-Psonatype-oss-release,jasig-release,nocheck</arguments>
-        </configuration>
-      </plugin>
-      <!-- CAS-988 generate hashes for assembly artifacts -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>${maven-antrun-plugin.version}</version>
-        <configuration>
-          <target>
-            <ant antfile="tasks.xml" target="genhash" />
-          </target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    </dependencyManagement>
 
-  <modules>
-    <module>cas-server-support-oauth</module>
-    <module>cas-server-support-osf</module>
-    <module>cas-server-webapp</module>
-  </modules>
+    <build>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/resources</directory>
+            </testResource>
+        </testResources>
 
-  <profiles>
-    <profile>
-      <id>nocheck</id>
-      <properties>
-        <skipTests>true</skipTests>
-        <checkstyle.skip>true</checkstyle.skip>
-        <license.skip>true</license.skip>
-        <notice.skip>true</notice.skip>
-        <versions.skip>true</versions.skip>
-        <findbugs.skip>true</findbugs.skip>
-        <cobertura.skip>true</cobertura.skip>
-      </properties>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <version>${maven-jetty-plugin.version}</version>
+                    <configuration>
+                        <jettyXml>
+                            ${cs.dir}/etc/jetty/jetty.xml,${cs.dir}/etc/jetty/jetty-ssl.xml,${cs.dir}/etc/jetty/jetty-https.xml
+                        </jettyXml>
+                        <systemProperties>
+                            <systemProperty>
+                                <name>org.eclipse.jetty.annotations.maxWait</name>
+                                <value>240</value>
+                            </systemProperty>
+                        </systemProperties>
+                        <!-- Works with remote debugging and mvn jetty:run-forked -->
+                        <jvmArgs>-Xdebug -Xrunjdwp:transport=dt_socket,address=5000,server=y,suspend=n</jvmArgs>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <forkMode>once</forkMode>
+                        <includes>
+                            <include>**/*Tests.java</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/Abstract*.java</exclude>
+                        </excludes>
+                        <additionalClasspathElements>
+                            <additionalClasspathElement>${project.build.directory}/test-lib/jdbc-driver.jar
+                            </additionalClasspathElement>
+                        </additionalClasspathElements>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
-      <!-- WORKAROUND: Temporarily disable checks for legacy production environment. -->
-      <!-- see: https://maven.apache.org/guides/introduction/introduction-to-profiles.html-->
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-
-      <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <systemPropertyVariables>
-                <log4j.configuration>file:noLogs.xml</log4j.configuration>
-              </systemPropertyVariables>
-            </configuration>
-          </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/unwoven-classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}</directory>
+                                    <includes>
+                                        <include>none</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${maven-findbugs-plugin.version}</version>
+                <configuration>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.mebigfatguy.fb-contrib</groupId>
+                            <artifactId>fb-contrib</artifactId>
+                            <version>${maven-findbugs-contrib-plugin.version}</version>
+                        </plugin>
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>${maven-findbugs-security-plugin.version}</version>
+                        </plugin>
+                    </plugins>
+                    <includeFilterFile>${cs.dir}/findbugs-rules.xml</includeFilterFile>
+                    <effort>Max</effort>
+                    <failOnError>true</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>findbugs-check</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
+                <configuration>
+                    <consoleOutput>true</consoleOutput>
+                    <configLocation>${cs.dir}/checkstyle-rules.xml</configLocation>
+                    <suppressionsLocation>${cs.dir}/checkstyle-suppressions.xml</suppressionsLocation>
+                    <failsOnError>true</failsOnError>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle</id>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>2.0.9</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>${project.build.sourceVersion}</version>
+                                </requireJavaVersion>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>cglib:cglib</exclude>
+                                        <exclude>cglib:cglib-full</exclude>
+                                    </excludes>
+                                    <includes>
+                                        <include>cglib:cglib:provided</include>
+                                        <include>cglib:cglib-full:provided</include>
+                                    </includes>
+                                    <searchTransitive>true</searchTransitive>
+                                </bannedDependencies>
+                                <evaluateBeanshell>
+                                    <condition>javax.crypto.Cipher.getMaxAllowedKeyLength("AES")>256</condition>
+                                </evaluateBeanshell>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${project.build.sourceVersion}</source>
+                    <target>${project.build.targetVersion}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>${maven-buildnumber-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>create-timestamp</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <timestampFormat>yyyy-MM-dd HH:mm:ssa</timestampFormat>
+                    <timestampPropertyName>timestamp</timestampPropertyName>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Implementation-Date>${timestamp}</Implementation-Date>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>client</classifier>
+                            <excludes>
+                                <exclude>**/persistence.xml</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven-assembly-plugin.version}</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>${basedir}/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <version>${maven-aspectj-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sources/>
+                    <complianceLevel>${project.build.sourceVersion}</complianceLevel>
+                    <forceAjcCompile>true</forceAjcCompile>
+                    <aspectLibraries>
+                        <aspectLibrary>
+                            <groupId>org.jasig.inspektr</groupId>
+                            <artifactId>inspektr-aspects</artifactId>
+                        </aspectLibrary>
+                    </aspectLibraries>
+                    <weaveDirectories>
+                        <weaveDirectory>${project.build.directory}/classes</weaveDirectory>
+                    </weaveDirectories>
+                    <skip>${maven.compiler.aspectj.skip}</skip>
+                    <showWeaveInfo/>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjtools</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <mavenExecutorId>forked-path</mavenExecutorId>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <arguments>-Psonatype-oss-release,jasig-release,nocheck</arguments>
+                </configuration>
+            </plugin>
+            <!-- CAS-988 generate hashes for assembly artifacts -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven-antrun-plugin.version}</version>
+                <configuration>
+                    <target>
+                        <ant antfile="tasks.xml" target="genhash"/>
+                    </target>
+                </configuration>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </build>
 
-  <properties>
-    <!-- Dependency Versions -->
-    <spring.webflow.version>2.4.1.RELEASE</spring.webflow.version>
-    <spring.version>4.1.8.RELEASE</spring.version>
-    <spring.security.version>4.0.1.RELEASE</spring.security.version>
-    <spring.data.version>1.7.0.RELEASE</spring.data.version>
-    <cas-server-security-filter.version>2.0.3</cas-server-security-filter.version>
-    <aspectj.version>1.8.6</aspectj.version>
-    <commons.codec.version>1.10</commons.codec.version>
-    <c3p0.version>0.9.5.1</c3p0.version>
-    <hibernate.core.version>4.3.10.Final</hibernate.core.version>
-    <junit.version>4.12</junit.version>
-    <mockito.version>1.10.19</mockito.version>
-    <inspektr.version>1.3.GA</inspektr.version>
-    <slf4j.version>1.7.12</slf4j.version>
-    <postgresql.version>42.1.4</postgresql.version>
-    <jstl.version>1.2</jstl.version>
-    <servlet.api.version>3.0.1</servlet.api.version>
-    <raven.log4j2.version>7.8.2</raven.log4j2.version>
-    <checkstyle.version>6.7</checkstyle.version>
-    <apache.httpclient.version>4.4.1</apache.httpclient.version>
-    <nimbus.jose.version>4.10</nimbus.jose.version>
-    <!--<bouncycastle.provider.version>[1.52,]</bouncycastle.provider.version>-->
-    <jaxb.version>2.3.0-jaxb-1.0.6</jaxb.version>
-    <json.version>20160212</json.version>
-    <crash.version>1.3.2</crash.version>
-    <pac4j.version>1.7.1</pac4j.version>
-    <google.gson.version>2.7</google.gson.version>
+    <modules>
+        <module>cas-server-support-oauth</module>
+        <module>cas-server-support-osf</module>
+        <module>cas-server-webapp</module>
+    </modules>
 
-    <!-- Plugin Versions -->
-    <maven-buildnumber-plugin-version>1.3</maven-buildnumber-plugin-version>
-    <maven-assembly-plugin.version>2.5.5</maven-assembly-plugin.version>
-    <maven-aspectj-plugin.version>1.7</maven-aspectj-plugin.version>
-    <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
-    <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
-    <maven-enforcer-plugin.version>1.4</maven-enforcer-plugin.version>
-    <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
-    <maven-findbugs-plugin.version>3.0.1</maven-findbugs-plugin.version>
-    <maven-findbugs-contrib-plugin.version>6.2.1</maven-findbugs-contrib-plugin.version>
-    <maven-findbugs-security-plugin.version>1.4.1</maven-findbugs-security-plugin.version>
-    <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
-    <maven-jetty-plugin.version>9.3.0.v20150612</maven-jetty-plugin.version>
-    <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
-    <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+    <profiles>
+        <profile>
+            <id>nocheck</id>
+            <properties>
+                <skipTests>true</skipTests>
+                <checkstyle.skip>true</checkstyle.skip>
+                <license.skip>true</license.skip>
+                <notice.skip>true</notice.skip>
+                <versions.skip>true</versions.skip>
+                <findbugs.skip>true</findbugs.skip>
+                <cobertura.skip>true</cobertura.skip>
+            </properties>
 
-    <!-- Project configuration -->
-    <cs.dir>${project.basedir}</cs.dir>
-    <cas.properties.filepath>/WEB-INF/cas.properties</cas.properties.filepath>
-    <maven.compiler.aspectj.skip>false</maven.compiler.aspectj.skip>
-    <project.build.sourceVersion>1.7</project.build.sourceVersion>
-    <project.build.targetVersion>1.7</project.build.targetVersion>
-  </properties>
+            <!-- WORKAROUND: Temporarily disable checks for legacy production environment. -->
+            <!-- see: https://maven.apache.org/guides/introduction/introduction-to-profiles.html-->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <log4j.configuration>file:noLogs.xml</log4j.configuration>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <properties>
+
+        <!-- Dependency Versions -->
+        <spring.webflow.version>2.4.1.RELEASE</spring.webflow.version>
+        <spring.version>4.1.8.RELEASE</spring.version>
+        <spring.security.version>4.0.1.RELEASE</spring.security.version>
+        <spring.data.version>1.7.0.RELEASE</spring.data.version>
+        <cas-server-security-filter.version>2.0.3</cas-server-security-filter.version>
+        <aspectj.version>1.8.6</aspectj.version>
+        <commons.codec.version>1.10</commons.codec.version>
+        <c3p0.version>0.9.5.1</c3p0.version>
+        <hibernate.core.version>4.3.10.Final</hibernate.core.version>
+        <junit.version>4.12</junit.version>
+        <mockito.version>1.10.19</mockito.version>
+        <inspektr.version>1.3.GA</inspektr.version>
+        <slf4j.version>1.7.12</slf4j.version>
+        <postgresql.version>42.1.4</postgresql.version>
+        <jstl.version>1.2</jstl.version>
+        <servlet.api.version>3.0.1</servlet.api.version>
+        <raven.log4j2.version>7.8.2</raven.log4j2.version>
+        <checkstyle.version>6.7</checkstyle.version>
+        <apache.httpclient.version>4.4.1</apache.httpclient.version>
+        <nimbus.jose.version>4.10</nimbus.jose.version>
+        <jaxb.version>2.3.0-jaxb-1.0.6</jaxb.version>
+        <json.version>20160212</json.version>
+        <crash.version>1.3.2</crash.version>
+        <pac4j.version>1.7.1</pac4j.version>
+        <google.gson.version>2.7</google.gson.version>
+
+        <!-- Plugin Versions -->
+        <maven-buildnumber-plugin-version>1.3</maven-buildnumber-plugin-version>
+        <maven-assembly-plugin.version>2.5.5</maven-assembly-plugin.version>
+        <maven-aspectj-plugin.version>1.7</maven-aspectj-plugin.version>
+        <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
+        <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
+        <maven-enforcer-plugin.version>1.4</maven-enforcer-plugin.version>
+        <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <maven-findbugs-plugin.version>3.0.1</maven-findbugs-plugin.version>
+        <maven-findbugs-contrib-plugin.version>6.2.1</maven-findbugs-contrib-plugin.version>
+        <maven-findbugs-security-plugin.version>1.4.1</maven-findbugs-security-plugin.version>
+        <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
+        <maven-jetty-plugin.version>9.3.0.v20150612</maven-jetty-plugin.version>
+        <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+
+        <!-- Project configuration -->
+        <cs.dir>${project.basedir}</cs.dir>
+        <cas.properties.filepath>/WEB-INF/cas.properties</cas.properties.filepath>
+        <maven.compiler.aspectj.skip>false</maven.compiler.aspectj.skip>
+        <project.build.sourceVersion>1.7</project.build.sourceVersion>
+        <project.build.targetVersion>1.7</project.build.targetVersion>
+
+    </properties>
 </project>
