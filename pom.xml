@@ -728,8 +728,8 @@
         <cs.dir>${project.basedir}</cs.dir>
         <cas.properties.filepath>/WEB-INF/cas.properties</cas.properties.filepath>
         <maven.compiler.aspectj.skip>false</maven.compiler.aspectj.skip>
-        <project.build.sourceVersion>1.7</project.build.sourceVersion>
-        <project.build.targetVersion>1.7</project.build.targetVersion>
+        <project.build.sourceVersion>1.8</project.build.sourceVersion>
+        <project.build.targetVersion>1.8</project.build.targetVersion>
 
     </properties>
 </project>
