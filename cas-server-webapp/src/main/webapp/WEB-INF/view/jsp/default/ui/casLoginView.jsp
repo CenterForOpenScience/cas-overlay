@@ -85,7 +85,9 @@
             </a>
         </section>
 
-        <br/><hr/><br/>
+        <section class="row">
+            <hr class="hr-text" data-content="OR" />
+        </section>
 
         <%-- OSF Username and Password Login --%>
         <section class="row">
