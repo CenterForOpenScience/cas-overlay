@@ -534,11 +534,13 @@ footer a:link, footer a:visited {
     color: black;
     text-align: center;
     height: 1.5em;
+    opacity: .5;
+    font-size: 1.4em;
 }
 
 .hr-text::before {
     content: '';
-    background: black;
+    background: linear-gradient(to right, transparent, black, #f7f7f7);
     position: absolute;
     left: 0;
     top: 50%;

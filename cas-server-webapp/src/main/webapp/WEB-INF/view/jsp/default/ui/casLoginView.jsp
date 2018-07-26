@@ -91,7 +91,7 @@
 
         <%-- OSF Username and Password Login --%>
         <section class="row">
-            <label for="username"><spring:message code="screen.welcome.label.netid"/></label>
+            <label for="username" style="display: none"><spring:message code="screen.welcome.label.netid"/></label>
             <c:choose>
                 <c:when test="${not empty sessionScope.openIdLocalId}">
                     <strong><c:out value="${sessionScope.openIdLocalId}"/></strong>
@@ -99,14 +99,14 @@
                 </c:when>
                 <c:otherwise>
                     <spring:message code="screen.welcome.label.netid.accesskey" var="userNameAccessKey"/>
-                    <form:input cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true"/>
+                    <form:input cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true" placeholder="Email"/>
                 </c:otherwise>
             </c:choose>
         </section>
         <section class="row">
-            <label for="password"><spring:message code="screen.welcome.label.password"/></label>
+            <label for="password" style="display: none"><spring:message code="screen.welcome.label.password"/></label>
             <spring:message code="screen.welcome.label.password.accesskey" var="passwordAccessKey"/>
-            <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off"/>
+            <form:password cssClass="required" cssErrorClass="error" id="password" size="25" tabindex="2" path="password" accesskey="${passwordAccessKey}" htmlEscape="true" autocomplete="off" placeholder="Password"/>
             <span id="capslock-on" style="display:none;"> <p><img src="images/warning.png" valign="top"><spring:message code="screen.capslock.on"/></p></span>
         </section>
         <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false"/>
