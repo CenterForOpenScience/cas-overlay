@@ -511,7 +511,7 @@ footer a:link, footer a:visited {
     font-weight: lighter;
     text-align: center;
     vertical-align: middle;
-    white-space: nowrap;
+    white-space: normal;
     word-wrap: normal;
 }
 
