@@ -60,9 +60,9 @@
         <%-- 2FA One Time Passcode Verification --%>
         <h2><spring:message code="screen.2fa.login.heading"/></h2>
         <section class="row">
-            <label for="oneTimePassword"><spring:message code="screen.welcome.label.passcode"/></label>
+            <label for="oneTimePassword" style="display: none"><spring:message code="screen.welcome.label.passcode"/></label>
             <spring:message code="screen.welcome.label.passcode.accesskey" var="passcodeAccessKey"/>
-            <form:input cssClass="required" cssErrorClass="error" id="oneTimePassword" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="oneTimePassword" autocomplete="off" htmlEscape="true"/>
+            <form:input cssClass="required" cssErrorClass="error" id="oneTimePassword" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="oneTimePassword" autocomplete="off" htmlEscape="true" placeholder="One time passcode"/>
         </section>
         <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false"/>
         <section class="row btn-row">
@@ -77,7 +77,7 @@
         <section class="row">
             <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')"/>
             <a id="alt-login-cancel" class="btn-alt-login" href="${osfLoginUrl}${serviceParam}">
-                <img class="osf-alt-logo" src="../images/osf-alt-logo.png">
+                <img class="osf-alt-logo" src="../images/osf-logo.png">
                 <span class="label-login"><spring:message code="screen.2fa.button.cancel"/></span>
             </a>
         </section>
