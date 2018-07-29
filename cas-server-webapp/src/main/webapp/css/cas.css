@@ -381,7 +381,7 @@ footer a:link, footer a:visited {
     -moz-border-radius: 4px;
     border-radius: 4px;
     display: inline-block;
-    padding: 15px 0 15px 0;
+    padding: 13px 0 13px 0;
     text-align: center;
 }
 
@@ -389,7 +389,7 @@ footer a:link, footer a:visited {
     font-size: 1.2em;
     opacity: 0.75;
     white-space: nowrap;
-    padding-left: 36px;
+    padding-left: 44px;
 }
 
 .row .btn-alt-login:hover {
@@ -410,7 +410,7 @@ footer a:link, footer a:visited {
     top: 0;
     border-right: 1px solid #ababab;
     padding: 6px;
-    height: 36px
+    height: 32px
 }
 
 #inst-login {
@@ -458,7 +458,7 @@ footer a:link, footer a:visited {
     color: white;
     font-weight: bold;
     width: 100%;
-    padding: 15px 2px 15px 2px;
+    padding: 14px 2px 14px 2px;
     -webkit-appearance: none;
     -moz-appearance: none;
     -webkit-border-radius: 3px;
