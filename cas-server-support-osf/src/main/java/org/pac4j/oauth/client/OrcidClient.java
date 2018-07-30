@@ -120,12 +120,22 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     @Override
     protected void internalInit() {
         super.internalInit();
-        this.service = new ProxyOAuth20ServiceImpl(new OrcidApi20(this.getMember()), new OAuthConfig(this.key,
-                this.secret,
-                this.callbackUrl,
-                SignatureType.Header,
-                this.getScope(),
-                null), this.connectTimeout, this.readTimeout, this.proxyHost, this.proxyPort, false, true);
+        this.service = new ProxyOAuth20ServiceImpl(
+                new OrcidApi20(),
+                new OAuthConfig(
+                        this.key,
+                        this.secret,
+                        this.callbackUrl,
+                        SignatureType.Header,
+                        this.getScope(),
+                        null
+                ),
+                this.connectTimeout,
+                this.readTimeout,
+                this.proxyHost, this.proxyPort,
+                false,
+                true
+        );
     }
 
     /**

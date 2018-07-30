@@ -35,32 +35,19 @@ public class OrcidApi20 extends DefaultApi20 {
     private static final String AUTH_URL = "https://www.orcid.org/oauth/authorize";
 
     /** The token exchange url. */
-    private static final String TOKEN_URL = "https://%s.orcid.org/oauth/token";
-
-    /** The member flag. */
-    private final Boolean member;
+    private static final String TOKEN_URL = "https://orcid.org/oauth/token";
 
     /**
      * The default constructor.
      */
-    public OrcidApi20() {
-        this(Boolean.TRUE);
-    }
-
-    /**
-     * Create an instance of `OrcidApi20` with the `member` flag.
-     * @param member the member flag
-     */
-    public OrcidApi20(final Boolean member) {
-        this.member = member;
-    }
+    public OrcidApi20() {}
 
     /**
      * @return Return the url for token exchange endpoint.
      */
     @Override
     public String getAccessTokenEndpoint() {
-        return String.format(TOKEN_URL, (this.member ? "api" : "pub"));
+        return TOKEN_URL;
     }
 
     /**
