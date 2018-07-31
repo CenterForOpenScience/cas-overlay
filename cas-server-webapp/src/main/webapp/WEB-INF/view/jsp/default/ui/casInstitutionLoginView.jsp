@@ -90,6 +90,8 @@
                 return;
             } else if (institutionLoginUrl === "callutheran") {
                 institutionLoginUrl = "${callutheranUrl}";
+            } else if (institutionLoginUrl === "itb") {
+                institutionLoginUrl = "${itbUrl}";
             } else if (institutionLoginUrl === "okstate") {
                 institutionLoginUrl = "${okstateUrl}";
             }

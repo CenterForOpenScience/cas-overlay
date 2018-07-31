@@ -27,7 +27,7 @@ under the License.
     </description>
 
     <!-- OAuth2 Clients -->
-    <!-- ORCiD -->
+    <!-- ORCID -->
     <bean id="orcid" class="org.pac4j.oauth.client.OrcidClient">
         <property name="key" value="${oauth.orcid.client.id}" />
         <property name="secret" value="${oauth.orcid.client.secret}" />
@@ -36,17 +36,24 @@ under the License.
     </bean>
 
     <!-- CAS Clients -->
-    <!-- Oklahoma State University -->
-    <bean id="okstate" class="org.pac4j.cas.client.CasClient">
-        <property name="casLoginUrl" value="${cas.okstate.login.url}" />
-        <property name="name" value="${cas.okstate.client.name}" />
-        <property name="casProtocol" value="${cas.okstate.cas.protocol}" />
-    </bean>
     <!-- California Lutheran University -->
     <bean id="callutheran" class="org.pac4j.cas.client.CasClient">
         <property name="casLoginUrl" value="${cas.callutheran.login.url}" />
         <property name="name" value="${cas.callutheran.client.name}" />
         <property name="casProtocol" value="${cas.callutheran.cas.protocol}" />
+    </bean>
+    <!-- Institut Teknologi Bandung -->
+    <bean id="itb" class="org.pac4j.cas.client.CasClient">
+        <property name="casLoginUrl" value="${cas.itb.login.url}" />
+        <property name="casPrefixUrl" value="${cas.itb.prefix.url}" />
+        <property name="name" value="${cas.itb.client.name}" />
+        <property name="casProtocol" value="${cas.itb.cas.protocol}" />
+    </bean>
+    <!-- Oklahoma State University -->
+    <bean id="okstate" class="org.pac4j.cas.client.CasClient">
+        <property name="casLoginUrl" value="${cas.okstate.login.url}" />
+        <property name="name" value="${cas.okstate.client.name}" />
+        <property name="casProtocol" value="${cas.okstate.cas.protocol}" />
     </bean>
 
     <!-- General Configuration for All Clients -->
@@ -54,9 +61,12 @@ under the License.
         <property name="callbackUrl" value="${delegation.redirect.uri}" />
         <property name="clients">
             <list>
+                <!-- OAuth2 Clients -->
                 <ref bean="orcid" />
-                <ref bean="okstate" />
+                <!-- CAS Clients -->
                 <ref bean="callutheran" />
+                <ref bean="itb" />
+                <ref bean="okstate" />
             </list>
         </property>
     </bean>
