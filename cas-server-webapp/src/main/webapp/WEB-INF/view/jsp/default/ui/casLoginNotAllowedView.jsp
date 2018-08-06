@@ -30,7 +30,7 @@
     <section class="row">
         <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')"/>
         <a id="alt-login-inst" class="btn-alt-login" href="${osfResendConfirmationUrl}">
-            <img class="osf-alt-logo" src="../images/osf-alt-logo.png">
+            <img class="osf-alt-logo" src="../images/osf-logo.png">
             <span class="label-login"><spring:message code="screen.loginnotallowed.button.resendConfirmation"/></span>
         </a>
     </section>
