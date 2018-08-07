@@ -273,34 +273,46 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      * @throws AccountException an account exception
      */
     protected OpenScienceFrameworkCredential constructCredential(final RequestContext context) throws AccountException {
+
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
-        // Note 1:  Do not use `WebUtils.getCredential(RequestContext context)`, it will make the credential`null`.
-        // Note 2:  Should check both FlowScope and RequestScope? And write an `.getCredential(RequestContext context)`
-        //          which are compatible with OpenScienceFrameworkCredential
+
+        // WARNING: Do not use ``WebUtils.getCredential(RequestContext context)``, it will make the credential ``null``.
+        // _TO_DO_: Check both ``FlowScope`` and ``RequestScope``. Write a ``.getCredential(RequestContext context)``
+        //          which are compatible with ``OpenScienceFrameworkCredential``.
         final OpenScienceFrameworkCredential credential
                 = (OpenScienceFrameworkCredential) context.getFlowScope().get(CONST_CREDENTIAL);
+
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
 
         // WARNING: Do not assume this works w/o acceptance testing in a Production environment.
         // The call is made to trust these headers only because we assume the Apache Shibboleth Service Provider module
         // rejects any conflicting / forged headers.
         final String shibbolethSession = request.getHeader(SHIBBOLETH_SESSION_HEADER);
+
         if (StringUtils.hasText(shibbolethSession)) {
+
+            // Auth type 1: Institution login via Shibboleth with SAML2
             credential.setDelegationProtocol(DelegationProtocol.SAML_SHIB);
             credential.setRemotePrincipal(Boolean.TRUE);
 
-            // remove the shibboleth cookie
-            // do not rely on the Shibboleth server to remove this cookie, which only works only for normal flow
+            // Remove the shibboleth cookie. 1) Do not rely on the Shibboleth server to remove this cookie, which only
+            // works only for normal flow. 2) CAS takes over and the cookie is no longer needed.
             removeShibbolethSessionCookie(context);
 
-            // SAML-Shibboleth based institution login
-            final String remoteUser = request.getHeader(REMOTE_USER);
+            // The header "REMOTE_USER" is not required as an identifier for institution users. OSF and CAS relies on
+            // ``username`` to identify such users. The method ``notifyRemotePrincipalAuthenticated()`` guarantees that
+            // ``username`` is provided. For most cases, it is the ``eppn`` or ``mail`` attribute.
+            String remoteUser = request.getHeader(REMOTE_USER);
             if (StringUtils.isEmpty(remoteUser)) {
-                logger.error("Invalid Remote User specified as Empty");
-                throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
+                logger.info("Header \"REMOTE_USR\" is empty.");
+                logger.debug("Header \"REMOTE_USR\" is only available if the institution has provided"
+                        + "any of the three attributes: ``eppn``, ``persistent-id`` or ``targeted-id``");
+                remoteUser = "";
+            } else {
+                logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
             }
-            logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
 
+            // Retrieve all attributes from the headers
             for (final String headerName : Collections.list(request.getHeaderNames())) {
                 if (headerName.startsWith(ATTRIBUTE_PREFIX)) {
                     final String headerValue = request.getHeader(headerName);
@@ -312,9 +324,11 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 }
             }
 
-            // Notify the OSF of the remote principal authentication.
+            // Parse the attributes and notify OSF of the remote principal authentication
             final PrincipalAuthenticationResult remoteUserInfo
                     = notifyRemotePrincipalAuthenticated(credential);
+
+            // Build and return the credential
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
             return credential;
