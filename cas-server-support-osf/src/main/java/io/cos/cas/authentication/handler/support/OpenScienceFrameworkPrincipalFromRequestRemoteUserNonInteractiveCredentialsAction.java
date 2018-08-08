@@ -299,18 +299,22 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             // works only for normal flow. 2) CAS takes over and the cookie is no longer needed.
             removeShibbolethSessionCookie(context);
 
-            // The header "REMOTE_USER" is not required as an identifier for institution users. OSF and CAS relies on
-            // ``username`` to identify such users. The method ``notifyRemotePrincipalAuthenticated()`` guarantees that
-            // ``username`` is provided. For most cases, it is the ``eppn`` or ``mail`` attribute.
-            String remoteUser = request.getHeader(REMOTE_USER);
+            // The header "REMOTE_USER" is still REQUIRED as an identifier for institution users although 1) OSF and CAS
+            // already rely on ``username`` for identification purpose and 2) ``notifyRemotePrincipalAuthenticated()``
+            // guarantees that ``username`` is provided. The reason for keeping this extra check in place is that
+            // ``username`` is not always the identifier since it can be ``eppn``, ``mail`` or other attributes. The
+            // header "REMOTE_USER" is defined as ``REMOTE_USER="eppn uid persistent-id targeted-id"``, in which every
+            // attribute can be considered as the users' institution identity. In short, CAS requires at least one of
+            // the four ID attributes ``eppn``, ``uid``, ``persistent-id``, ``targeted-id`` in addition to attributes
+            // that are mapped to ``username`` and ``fullname``. Please see our Shibboleth server's configuration for
+            // detailed mapping for attributes. The following link provides the best practice of using "REMOTE_USER":
+            // https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAttributeAccess
+            final String remoteUser = request.getHeader(REMOTE_USER);
             if (StringUtils.isEmpty(remoteUser)) {
-                logger.info("Header \"REMOTE_USR\" is empty.");
-                logger.debug("Header \"REMOTE_USR\" is only available if the institution has provided"
-                        + "any of the three attributes: ``eppn``, ``persistent-id`` or ``targeted-id``");
-                remoteUser = "";
-            } else {
-                logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
+                logger.error("Invalid Remote User specified as Empty");
+                throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
             }
+            logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
 
             // Retrieve all attributes from the headers
             for (final String headerName : Collections.list(request.getHeaderNames())) {
