@@ -312,6 +312,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             final String remoteUser = request.getHeader(REMOTE_USER);
             if (StringUtils.isEmpty(remoteUser)) {
                 logger.error("Invalid Remote User specified as Empty");
+                // _TO_DO_: Delay the exception until we know which the institution is and who the user is.
                 throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
             }
             logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
