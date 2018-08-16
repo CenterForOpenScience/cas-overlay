@@ -39,6 +39,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <title>OSF | Sign In </title>
 
@@ -53,7 +54,22 @@
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,700' rel='stylesheet' type='text/css'>
     </head>
 
-    <body id="cas" onload="selectFocus()">
+    <script>
+        function resizeCasContent() {
+            if (!document.getElementById("inst-login")) {
+                return;
+            }
+            const casContent = document.getElementById("content");
+            if (window.innerWidth >= 420) {
+                casContent.style.width = "360px";
+            } else {
+                casContent.style.width = "90%";
+            }
+        }
+    </script>
+
+    <body id="cas" onload="selectFocus()" onresize="resizeCasContent()">
+
         <div id="container">
             <br/>
             <header>

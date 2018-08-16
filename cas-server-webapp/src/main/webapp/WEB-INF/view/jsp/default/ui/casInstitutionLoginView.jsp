@@ -25,9 +25,7 @@
 
 <div id="inst-login">
 
-    <script>
-        document.getElementById("content").style.width = "360px";
-    </script>
+    <script>resizeCasContent();</script>
 
     <section class="row">
         <div class="heading">
