@@ -231,7 +231,9 @@ header h1 {
     display: inline;
 }
 
-#login input[type=text], #login input[type=password] {
+#login input[type=text],
+#login input[type=email],
+#login input[type=password] {
     font-size: 1.4em;
     padding: 5px;
 }
@@ -334,6 +336,7 @@ footer a:link, footer a:visited {
 }
 
 #fm1 .row input[type=text],
+#fm1 .row input[type=email],
 #fm1 .row input[type=password] {
     width: 100%;
     padding: 10px;
