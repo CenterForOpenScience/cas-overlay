@@ -55,6 +55,18 @@
     </head>
 
     <script>
+        function selectFocus() {
+            const username = document.getElementById("username");
+            const oneTimePasscode = document.getElementById("oneTimePassword");
+            const institutionSelect = document.getElementById("institution-form-select");
+            if (username) {
+                username.focus();
+            } else if (oneTimePasscode) {
+                oneTimePasscode.focus();
+            } else if (institutionSelect) {
+                institutionSelect.focus();
+            }
+        }
         function resizeCasContent() {
             if (!document.getElementById("inst-login")) {
                 return;
