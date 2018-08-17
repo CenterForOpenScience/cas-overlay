@@ -40,7 +40,7 @@
     </section>
     <section class="row">
         <div class="select">
-            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" onchange="checkSelect()"/>
+            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" onchange="checkSelect()" autofocus="autofocus"/>
         </div>
     </section><br/>
 

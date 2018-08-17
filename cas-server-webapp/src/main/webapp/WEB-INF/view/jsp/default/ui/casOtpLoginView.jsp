@@ -62,7 +62,7 @@
         <section class="row">
             <label for="oneTimePassword" style="display: none"><spring:message code="screen.welcome.label.passcode"/></label>
             <spring:message code="screen.welcome.label.passcode.accesskey" var="passcodeAccessKey"/>
-            <form:input cssClass="required" cssErrorClass="error" id="oneTimePassword" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="oneTimePassword" autocomplete="off" htmlEscape="true" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit one-time passcode"/>
+            <form:input cssClass="required" cssErrorClass="error" id="oneTimePassword" size="25" tabindex="1" accesskey="${passcodeAccessKey}" path="oneTimePassword" autocomplete="off" htmlEscape="true" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit one-time passcode" autofocus="autofocus"/>
         </section>
         <form:errors path="*" id="msg" cssClass="errors" element="div" htmlEscape="false"/>
         <section class="row btn-row">
