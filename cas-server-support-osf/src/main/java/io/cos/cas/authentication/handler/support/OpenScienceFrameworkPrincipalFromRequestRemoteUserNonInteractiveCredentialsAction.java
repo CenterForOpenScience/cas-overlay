@@ -338,7 +338,6 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
             return credential;
         } else if (ticketGrantingTicketId != null) {
-            // pac4j login
             final TicketGrantingTicket ticketGrantingTicket;
             try {
                 ticketGrantingTicket = centralAuthenticationService.getTicket(
@@ -346,10 +345,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                         TicketGrantingTicket.class
                 );
             } catch (final InvalidTicketException e) {
-                logger.error("Invalid Ticket Granting Ticket");
-                throw new RemoteUserFailedLoginException("Invalid Ticket Granting Ticket");
+                // The TGT associated with the tgtId has been expired or removed. Return `null`.
+                logger.warn("Invalid Ticket Granting Ticket");
+                return null;
             }
 
+            // Auth type 2: pac4j-based auth delegation login
             final Authentication authentication;
             final Principal principal;
             try {
@@ -365,13 +366,16 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 clientName = (String) authentication.getAttributes().get("clientName");
             }
 
+            // Auth type 2.1: ORCiD login via OAuth
             if (OrcidClient.class.getSimpleName().equals(clientName)) {
                 credential.setDelegationProtocol(DelegationProtocol.OAUTH_PAC4J);
                 credential.setRemotePrincipal(Boolean.TRUE);
                 return credential;
             }
 
-            // CAS pac4j institution login.
+            // Auth type 2.2: Institution login via CAS
+            // _TODO_: Please add a check here to ensure that 1) `clientName` is not null and that 2) `clientName`
+            //         matches one of the configured institutions that uses CAS for delegation
             credential.setDelegationProtocol(DelegationProtocol.CAS_PAC4J);
             credential.setRemotePrincipal(Boolean.TRUE);
             credential.getDelegationAttributes().put("Cas-Identity-Provider", clientName);
