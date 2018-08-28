@@ -99,7 +99,7 @@
                 </c:when>
                 <c:otherwise>
                     <spring:message code="screen.welcome.label.netid.accesskey" var="userNameAccessKey"/>
-                    <form:input cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true" placeholder="Email"/>
+                    <form:input type="email" cssClass="required" cssErrorClass="error" id="username" size="25" tabindex="1" accesskey="${userNameAccessKey}" path="username" autocomplete="off" htmlEscape="true" placeholder="Email" autofocus="autofocus"/>
                 </c:otherwise>
             </c:choose>
         </section>

@@ -273,34 +273,51 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      * @throws AccountException an account exception
      */
     protected OpenScienceFrameworkCredential constructCredential(final RequestContext context) throws AccountException {
+
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
-        // Note 1:  Do not use `WebUtils.getCredential(RequestContext context)`, it will make the credential`null`.
-        // Note 2:  Should check both FlowScope and RequestScope? And write an `.getCredential(RequestContext context)`
-        //          which are compatible with OpenScienceFrameworkCredential
+
+        // WARNING: Do not use ``WebUtils.getCredential(RequestContext context)``, it will make the credential ``null``.
+        // _TO_DO_: Check both ``FlowScope`` and ``RequestScope``. Write a ``.getCredential(RequestContext context)``
+        //          which are compatible with ``OpenScienceFrameworkCredential``.
         final OpenScienceFrameworkCredential credential
                 = (OpenScienceFrameworkCredential) context.getFlowScope().get(CONST_CREDENTIAL);
+
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
 
         // WARNING: Do not assume this works w/o acceptance testing in a Production environment.
         // The call is made to trust these headers only because we assume the Apache Shibboleth Service Provider module
         // rejects any conflicting / forged headers.
         final String shibbolethSession = request.getHeader(SHIBBOLETH_SESSION_HEADER);
+
         if (StringUtils.hasText(shibbolethSession)) {
+
+            // Auth type 1: Institution login via Shibboleth with SAML2
             credential.setDelegationProtocol(DelegationProtocol.SAML_SHIB);
             credential.setRemotePrincipal(Boolean.TRUE);
 
-            // remove the shibboleth cookie
-            // do not rely on the Shibboleth server to remove this cookie, which only works only for normal flow
+            // Remove the shibboleth cookie. 1) Do not rely on the Shibboleth server to remove this cookie, which only
+            // works only for normal flow. 2) CAS takes over and the cookie is no longer needed.
             removeShibbolethSessionCookie(context);
 
-            // SAML-Shibboleth based institution login
+            // The header "REMOTE_USER" is still REQUIRED as an identifier for institution users although 1) OSF and CAS
+            // already rely on ``username`` for identification purpose and 2) ``notifyRemotePrincipalAuthenticated()``
+            // guarantees that ``username`` is provided. The reason for keeping this extra check in place is that
+            // ``username`` is not always the identifier since it can be ``eppn``, ``mail`` or other attributes. The
+            // header "REMOTE_USER" is defined as ``REMOTE_USER="eppn uid persistent-id targeted-id"``, in which every
+            // attribute can be considered as the users' institution identity. In short, CAS requires at least one of
+            // the four ID attributes ``eppn``, ``uid``, ``persistent-id``, ``targeted-id`` in addition to attributes
+            // that are mapped to ``username`` and ``fullname``. Please see our Shibboleth server's configuration for
+            // detailed mapping for attributes. The following link provides the best practice of using "REMOTE_USER":
+            // https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAttributeAccess
             final String remoteUser = request.getHeader(REMOTE_USER);
             if (StringUtils.isEmpty(remoteUser)) {
                 logger.error("Invalid Remote User specified as Empty");
+                // _TO_DO_: Delay the exception until we know which the institution is and who the user is.
                 throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
             }
             logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
 
+            // Retrieve all attributes from the headers
             for (final String headerName : Collections.list(request.getHeaderNames())) {
                 if (headerName.startsWith(ATTRIBUTE_PREFIX)) {
                     final String headerValue = request.getHeader(headerName);
@@ -312,14 +329,15 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 }
             }
 
-            // Notify the OSF of the remote principal authentication.
+            // Parse the attributes and notify OSF of the remote principal authentication
             final PrincipalAuthenticationResult remoteUserInfo
                     = notifyRemotePrincipalAuthenticated(credential);
+
+            // Build and return the credential
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
             return credential;
         } else if (ticketGrantingTicketId != null) {
-            // pac4j login
             final TicketGrantingTicket ticketGrantingTicket;
             try {
                 ticketGrantingTicket = centralAuthenticationService.getTicket(
@@ -327,10 +345,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                         TicketGrantingTicket.class
                 );
             } catch (final InvalidTicketException e) {
-                logger.error("Invalid Ticket Granting Ticket");
-                throw new RemoteUserFailedLoginException("Invalid Ticket Granting Ticket");
+                // The TGT associated with the tgtId has been expired or removed. Return `null`.
+                logger.warn("Invalid Ticket Granting Ticket");
+                return null;
             }
 
+            // Auth type 2: pac4j-based auth delegation login
             final Authentication authentication;
             final Principal principal;
             try {
@@ -346,13 +366,16 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 clientName = (String) authentication.getAttributes().get("clientName");
             }
 
+            // Auth type 2.1: ORCiD login via OAuth
             if (OrcidClient.class.getSimpleName().equals(clientName)) {
                 credential.setDelegationProtocol(DelegationProtocol.OAUTH_PAC4J);
                 credential.setRemotePrincipal(Boolean.TRUE);
                 return credential;
             }
 
-            // CAS pac4j institution login.
+            // Auth type 2.2: Institution login via CAS
+            // _TODO_: Please add a check here to ensure that 1) `clientName` is not null and that 2) `clientName`
+            //         matches one of the configured institutions that uses CAS for delegation
             credential.setDelegationProtocol(DelegationProtocol.CAS_PAC4J);
             credential.setRemotePrincipal(Boolean.TRUE);
             credential.getDelegationAttributes().put("Cas-Identity-Provider", clientName);

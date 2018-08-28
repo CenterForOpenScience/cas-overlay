@@ -25,9 +25,7 @@
 
 <div id="inst-login">
 
-    <script>
-        document.getElementById("content").style.width = "360px";
-    </script>
+    <script>resizeCasContent();</script>
 
     <section class="row">
         <div class="heading">
@@ -42,7 +40,7 @@
     </section>
     <section class="row">
         <div class="select">
-            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" onchange="checkSelect()"/>
+            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" onchange="checkSelect()" autofocus="autofocus"/>
         </div>
     </section><br/>
 
