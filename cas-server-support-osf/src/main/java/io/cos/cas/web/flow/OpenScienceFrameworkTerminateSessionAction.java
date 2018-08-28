@@ -20,30 +20,20 @@
 package io.cos.cas.web.flow;
 
 import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
-
-import org.apache.commons.collections4.Predicate;
-
-import org.jasig.cas.authentication.Authentication;
-import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.CentralAuthenticationService;
-import org.jasig.cas.ticket.Ticket;
-import org.jasig.cas.ticket.TicketGrantingTicket;
+import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.web.support.CookieRetrievingCookieGenerator;
 import org.jasig.cas.web.support.WebUtils;
-
+import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.webflow.action.EventFactorySupport;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import java.util.Collection;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-
 
 /**
  * The Open Science Framework Terminate Session Action.
@@ -93,82 +83,34 @@ public class OpenScienceFrameworkTerminateSessionAction {
         this.institutionHandler = institutionHandler;
     }
 
-    /** A predicate class that selects all active ticket granting tickets that have the same auth principal. */
-    public static final class ActiveTicketGrantingTicketPredicate implements Predicate {
-
-        private String principalId;
-
-        /**
-         * Instantiate the predicate with the principal ID.
-         *
-         * @param principalId the principal ID, which is the user's OSF GUID in most cases.
-         */
-        ActiveTicketGrantingTicketPredicate(final String principalId) {
-            this.principalId = principalId;
-        }
-
-        @Override
-        public boolean evaluate(final Object object) {
-            final Ticket ticket = (Ticket) object;
-            if (ticket instanceof TicketGrantingTicket) {
-                final Authentication auth = ((TicketGrantingTicket) ticket).getAuthentication();
-                if (auth != null) {
-                    final Principal principal = auth.getPrincipal();
-                    return principal != null && this.principalId.equals(principal.getId()) && !ticket.isExpired();
-                }
-            }
-            return false;
-        }
-    }
-
     /**
      * The terminate session action. Return `success` or `finish` event.
      * @param context The request context
      * @return Event
      */
     public Event terminate(final RequestContext context) {
-
-        // For the login web flow : obtain the ticket ID from context as it may have already been stored
+        // in login's webflow : we can get the value from context as it has already been stored
         String tgtId = WebUtils.getTicketGrantingTicketId(context);
-        // For the logout web flow: obtain the ticket ID from the TGC cookie
+
+        String institutionId = null;
+        Boolean remotePrincipal = Boolean.FALSE;
+
+        // for logout, we need to get the cookie's value
         if (tgtId == null) {
             final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
             tgtId = this.ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
         }
-
-        // Institution login info
-        String institutionId = null;
-        Boolean remotePrincipal = Boolean.FALSE;
-
+        // for institution logout, get the institutionId stored in TGT
         if (tgtId != null) {
-
             TicketGrantingTicket tgt = null;
             try {
-                tgt = centralAuthenticationService.getTicket(tgtId, TicketGrantingTicket.class);
+                tgt  = centralAuthenticationService.getTicket(tgtId, TicketGrantingTicket.class);
             } catch (final Exception e) {
-                // ignore
+                //  ignore
             }
-
-            // Destroy other TGTs that belong to the same authenticated user
             if (tgt != null) {
                 final Authentication auth = tgt.getAuthentication();
                 if (auth != null) {
-                    // Obtain all TGTs that belongs to the same OSF user
-                    final String principalId = auth.getPrincipal().getId();
-                    final Collection<Ticket> tickets = this.centralAuthenticationService.getTickets(
-                            new ActiveTicketGrantingTicketPredicate(principalId)
-                    );
-                    // Destroy all TGTs except the one for the current session
-                    for(final Ticket ticket: tickets) {
-                        if (!tgtId.equals(ticket.getId())) {
-                            try {
-                                this.centralAuthenticationService.destroyTicketGrantingTicket(ticket.getId());
-                            } catch (final Exception e) {
-                                // ignore
-                            }
-                        }
-                    }
-                    // Check if the session to terminate is one authenticated via institution login
                     if (auth.getAttributes().containsKey("institutionId")) {
                         institutionId = (String) auth.getAttributes().get("institutionId");
                     }
@@ -180,28 +122,22 @@ public class OpenScienceFrameworkTerminateSessionAction {
 
             WebUtils.putLogoutRequests(context, this.centralAuthenticationService.destroyTicketGrantingTicket(tgtId));
         }
-
-        // Remove cookies in the response
         final HttpServletResponse response = WebUtils.getHttpServletResponse(context);
         this.ticketGrantingTicketCookieGenerator.removeCookie(response);
         this.warnCookieGenerator.removeCookie(response);
 
-        // Redirect to the institution logout endpoint if the session was authenticated via institution auth
+        // if logged in through institutions, redirect to institution logout endpoint
         if (remotePrincipal && institutionId != null) {
             final String institutionLogoutUrl = institutionHandler.findInstitutionLogoutUrlById(institutionId);
             if (institutionLogoutUrl == null) {
-                logger.warn(
-                        "Institution {} does not have a dedicated logout url, use default logout redirection instead",
-                        institutionId
-                );
+                logger.warn("Institution {} does not have a dedicated logout url, use default logout redirection instead", institutionId);
             } else {
                 context.getFlowScope().put("logoutRedirectUrl", institutionLogoutUrl);
-                // Must return the "finish" event to prevent `logoutRedirectUrl` being overwritten
+                // return `finish` event to prevent `logoutRedirectUrl` being overwritten
                 return new Event(this, "finish");
             }
         }
 
-        // Default return event
         return this.eventFactorySupport.success(this);
     }
 }
