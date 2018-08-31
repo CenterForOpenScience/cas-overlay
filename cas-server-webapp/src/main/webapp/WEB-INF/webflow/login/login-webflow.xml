@@ -97,7 +97,6 @@
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="authenticationFailure" to="handleAuthenticationFailure" />
         <transition on="error" to="beforeLogin" />
-        <transition on="invalidVerificationKey" to="casLoginInvalidVerificationKeyView" />
     </action-state>
 
     <action-state id="beforeLogin">
@@ -272,7 +271,6 @@
     <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
     <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
-    <end-state id="casLoginInvalidVerificationKeyView" view="casLoginInvalidVerificationKeyView" />
 
     <end-state id="postView" view="postResponseView">
         <on-entry>
