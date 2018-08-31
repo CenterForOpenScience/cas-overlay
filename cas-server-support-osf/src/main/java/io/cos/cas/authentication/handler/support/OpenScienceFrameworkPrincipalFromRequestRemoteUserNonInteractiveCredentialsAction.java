@@ -245,6 +245,13 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             onSuccess(context, credential);
             return success();
         } catch (final AuthenticationException e) {
+
+            // This is a temporary hotfix to prevent invalid verification from looping indefinitely in the login flow
+            final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
+            if (request.getParameter("verification_key") != null || credential.getVerificationKey() != null) {
+                return new Event(this, "invalidVerificationKey");
+            }
+
             return getEventFactorySupport().event(
                     this,
                     AUTHENTICATION_FAILURE,
