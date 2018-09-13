@@ -237,7 +237,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         } else {
             // If the user instance is not claimed, it is also not registered and not confirmed.
             // It can be either an unclaimed contributor or a new user pending confirmation.
-            if (!user.isClaimed() && !user.isRegistered() && !user.isConfirmed()) {
+            if (!user.isRegistered() && !user.isConfirmed()) {
                 if (isUnusablePassword(user.getPassword())) {
                     // If the user instance has an unusable password, it must be an unclaimed contributor.
                     logger.info("User Status Check: {}", USER_NOT_CLAIMED);
