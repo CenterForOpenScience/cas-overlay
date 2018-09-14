@@ -211,33 +211,34 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         return credential instanceof OpenScienceFrameworkCredential;
     }
 
-
-
     /**
-     * Verify User Status.
+     * Verify user status.
      *
-     *  USER_ACTIVE:
-     *      authentication succeed
-     *  USER_NOT_CONFIRMED:
-     *      inform the user that the account is not confirmed and provide a resend confirmation link
-     *  USER_DISABLED:
-     *      inform the user that the account is disable and that they can contact OSF support
-     *  USER_MERGED, USER_NOT_CLAIMED and USER_STATUS_UNKNOWN:
-     *      these is not suppose to happen, ask user to contact OSF support
+     * USER_ACTIVE:             Active user found, proceed.
+     *
+     * USER_NOT_CONFIRMED:      Inform users that the account is created but not confirmed. In addition, provide them
+     *                          with a link to resend confirmation email.
+     *
+     * USER_DISABLED:           Inform users that the account is disable and that they should contact OSF support.
+     *
+     * USER_MERGED,
+     * USER_NOT_CLAIMED,
+     * USER_STATUS_UNKNOWN:     These three are internal or invalid user status that are not supposed to happen with
+     *                          normal authentication and authorization flow.
      *
      * @param user the OSF user
      * @return the user status
      */
     private String verifyUserStatus(final OpenScienceFrameworkUser user) {
-        // An active user must be registered, claimed, not disabled, not merged and has a not null/None password.
-        // Only active user can pass the verification.
+        // An active user must be registered, not disabled, not merged and has a not null password.
+        // Only active users can pass the verification.
         if (user.isActive()) {
             logger.info("User Status Check: {}", USER_ACTIVE);
             return USER_ACTIVE;
         } else {
-            // If the user instance is not claimed, it is also not registered and not confirmed.
-            // It can be either an unclaimed contributor or a new user pending confirmation.
-            if (!user.isClaimed() && !user.isRegistered() && !user.isConfirmed()) {
+            // If the user instance is neither registered nor not confirmed, it can be either an unclaimed contributor
+            // or a newly created user pending confirmation. The difference is whether it has a usable password.
+            if (!user.isRegistered() && !user.isConfirmed()) {
                 if (isUnusablePassword(user.getPassword())) {
                     // If the user instance has an unusable password, it must be an unclaimed contributor.
                     logger.info("User Status Check: {}", USER_NOT_CLAIMED);
@@ -249,23 +250,22 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                     return USER_NOT_CONFIRMED;
                 }
             }
-            // If the user instance is merged by another user, it is registered, confirmed and claimed.
-            // `.merged_by` field being not null is a sufficient condition.
-            // However, its username is set to GUID and password is set to unusable.
+            // If the user instance has been merged by another user, it stays registered and confirmed. The username is
+            // GUID and the password is unusable. `.merged_by` being not null is a sufficient condition.
             if (user.isMerged()) {
                 logger.info("User Status Check: {}", USER_MERGED);
                 return USER_MERGED;
             }
-            // If the user instance is disabled, it is also not registered but claimed.
-            // `.date_disabled` field being not null is a sufficient condition.
-            // However, it still has the username and password.
-            // When the user tries to login, an account disabled message will be displayed.
+            // If the user instance is disabled, it is also not registered. `.date_disabled` being not null is a
+            // sufficient condition. It still has the original username and password. When the user tries to login with
+            // correct username and password, an "Account Disabled" message will be displayed.
             if (user.isDisabled()) {
                 logger.info("User Status Check: {}", USER_DISABLED);
                 return USER_DISABLED;
             }
 
-            // Other status combinations are considered UNKNOWN
+            // Other status combinations are considered UNKNOWN. This should not happen unless 1) there is bug in the
+            // user model and/or 2) the user model has been changed but CAS fails to catch up.
             logger.info("User Status Check: {}", USER_STATUS_UNKNOWN);
             return USER_STATUS_UNKNOWN;
         }
