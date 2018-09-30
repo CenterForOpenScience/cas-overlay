@@ -21,24 +21,23 @@ package io.cos.cas.authentication;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account which is merged.
+ * Describes an error condition where authentication has failed during authentication delegation.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class RemoteUserFailedLoginException extends AccountException {
 
     private static final long serialVersionUID = 3472948140572518658L;
 
-    /**
-     * Instantiates a new remote user login failure exception.
-     */
+    /** Instantiates a new exception (default). */
     public RemoteUserFailedLoginException() {
         super();
     }
 
     /**
-     * Instantiates a new remote user login failure exception.
+     * Instantiates a new exception with a given message.
      *
      * @param message the message
      */

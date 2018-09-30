@@ -24,21 +24,20 @@ import javax.security.auth.login.AccountException;
  * Describes an error condition where authentication occurs from an registered but not confirmed account.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class LoginNotAllowedException extends AccountException {
 
     private static final long serialVersionUID = 3376259469680697722L;
 
-    /**
-     * Instantiates a new invalid login location exception.
-     */
+    /** Instantiates a new exception (default). */
     public LoginNotAllowedException() {
         super();
     }
 
     /**
-     * Instantiates a new invalid login location exception.
+     * Instantiates a new exception with a given message.
      *
      * @param message the message
      */
