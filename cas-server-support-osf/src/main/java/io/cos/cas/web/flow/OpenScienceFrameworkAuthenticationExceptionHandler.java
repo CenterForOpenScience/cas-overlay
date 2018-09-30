@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.cos.cas.authentication.InvalidVerificationKeyException;
 import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.OneTimePasswordRequiredException;
@@ -78,6 +79,7 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
 
     // Customized exceptions for OSF
     static {
+        DEFAULT_ERROR_LIST.add(InvalidVerificationKeyException.class);
         DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
         DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);

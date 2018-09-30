@@ -29,6 +29,7 @@ import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
+import io.cos.cas.authentication.InvalidVerificationKeyException;
 import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.OneTimePasswordRequiredException;
@@ -140,20 +141,25 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         Boolean validPassphrase = Boolean.FALSE;
+        Boolean validVerificationKey = Boolean.FALSE;
         final String userStatus = verifyUserStatus(user);
 
         if (credential.isRemotePrincipal()) {
             // verified through remote principals
             validPassphrase = Boolean.TRUE;
-        } else if (verificationKey != null && verificationKey.equals(user.getVerificationKey())) {
-            // verified by verification key
-            validPassphrase = Boolean.TRUE;
         } else if (plainTextPassword != null && verifyPassword(plainTextPassword, user.getPassword())) {
             // verified by password
             validPassphrase = Boolean.TRUE;
+        } else if (verificationKey != null) {
+            if (verificationKey.equals(user.getVerificationKey())) {
+                // verified by verification key
+                validVerificationKey = Boolean.TRUE;
+            } else {
+                throw new InvalidVerificationKeyException(username +": invalid verification key");
+            }
         }
-        if (!validPassphrase) {
-            throw new FailedLoginException(username + ": invalid remote authentication, verification key or password");
+        if (!validPassphrase && !validVerificationKey) {
+            throw new FailedLoginException(username + ": invalid password or absent remote principal");
         }
 
         final OpenScienceFrameworkTimeBasedOneTimePassword timeBasedOneTimePassword

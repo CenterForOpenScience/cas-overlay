@@ -97,7 +97,6 @@
         <transition on="success" to="sendTicketGrantingTicket" />
         <transition on="authenticationFailure" to="handleAuthenticationFailure" />
         <transition on="error" to="beforeLogin" />
-        <transition on="invalidVerificationKey" to="casLoginInvalidVerificationKeyView" />
     </action-state>
 
     <action-state id="beforeLogin">
@@ -197,6 +196,7 @@
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
         <transition on="AccountDisabledException" to="casAccountDisabledView"/>
         <!-- Customized exceptions for OSF -->
+        <transition on="InvalidVerificationKeyException" to="casInvalidVerificationKeyView" />
         <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
         <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
         <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
@@ -274,7 +274,7 @@
     <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
     <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
-    <end-state id="casLoginInvalidVerificationKeyView" view="casLoginInvalidVerificationKeyView" />
+    <end-state id="casInvalidVerificationKeyView" view="casInvalidVerificationKeyView" />
 
     <end-state id="postView" view="postResponseView">
         <on-entry>
