@@ -139,27 +139,28 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         if (user == null) {
             throw new AccountNotFoundException(username + " not found with query");
         }
-
-        Boolean validPassphrase = Boolean.FALSE;
-        Boolean validVerificationKey = Boolean.FALSE;
         final String userStatus = verifyUserStatus(user);
 
-        if (credential.isRemotePrincipal()) {
-            // verified through remote principals
-            validPassphrase = Boolean.TRUE;
-        } else if (plainTextPassword != null && verifyPassword(plainTextPassword, user.getPassword())) {
-            // verified by password
-            validPassphrase = Boolean.TRUE;
-        } else if (verificationKey != null) {
-            if (verificationKey.equals(user.getVerificationKey())) {
-                // verified by verification key
-                validVerificationKey = Boolean.TRUE;
+        // Verify the user's credential
+        // 1. Verification passes right away if the credential is created via authentication delegation using protocols
+        //    such as OAuth, CAS, SAML, etc, in which case the condition `credential.remotePrincipal == true` holds.
+        // 2. Otherwise, check either password-based or verification-key-based login, which are mutually exclusive.
+        if (!credential.isRemotePrincipal()) {
+            if (plainTextPassword != null) {
+                // Verify password if password exists
+                if (!verifyPassword(plainTextPassword, user.getPassword())) {
+                    throw new FailedLoginException(username + ": invalid password");
+                }
+            } else if (verificationKey != null) {
+                // Verify verification key if verification key exists
+                if (!verificationKey.equals(user.getVerificationKey())) {
+                    throw new InvalidVerificationKeyException(username +": invalid verification key");
+                }
             } else {
-                throw new InvalidVerificationKeyException(username +": invalid verification key");
+                // This should never happen to the users during normal CAS login flow unless there is an undiscovered
+                // internal bug or the login request is programmatically crafted.
+                throw new FailedLoginException(username + ": absent remote principal");
             }
-        }
-        if (!validPassphrase && !validVerificationKey) {
-            throw new FailedLoginException(username + ": invalid password or absent remote principal");
         }
 
         final OpenScienceFrameworkTimeBasedOneTimePassword timeBasedOneTimePassword
