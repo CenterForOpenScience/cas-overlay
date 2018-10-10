@@ -21,24 +21,23 @@ package io.cos.cas.authentication;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account which requires a Time-based One Time Password.
+ * Describes an error condition where two-factor authentication has failed.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class OneTimePasswordFailedLoginException extends AccountException {
 
     private static final long serialVersionUID = 1973864633797308866L;
 
-    /**
-     * Instantiates a new invalid login location exception.
-     */
+    /** Instantiates a new exception (default). */
     public OneTimePasswordFailedLoginException() {
         super();
     }
 
     /**
-     * Instantiates a new invalid login location exception.
+     * Instantiates a new exception with a given message.
      *
      * @param message the message
      */

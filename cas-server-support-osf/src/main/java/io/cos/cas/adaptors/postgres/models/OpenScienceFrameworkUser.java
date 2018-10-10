@@ -66,9 +66,6 @@ public final class OpenScienceFrameworkUser {
     @Column(name = "is_registered", nullable = false)
     private Boolean registered;
 
-    @Column(name = "is_claimed", nullable = false)
-    private Boolean claimed;
-
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "date_confirmed")
     private Date dateConfirmed;
@@ -106,10 +103,6 @@ public final class OpenScienceFrameworkUser {
 
     public Boolean isRegistered() {
         return registered;
-    }
-
-    public Boolean isClaimed() {
-        return claimed;
     }
 
     public Boolean isMerged() {

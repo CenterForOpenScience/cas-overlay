@@ -22,26 +22,25 @@ import javax.security.auth.login.AccountException;
 
 /**
  * Describes an error condition where authentication occurs from an account that:
- * 1. unclaimed user which is created as an contributor
- * 2. merged user which is merged into antoher account
- * 3. other undefined user status (inactive and unknown)
+ *
+ * 1. is an unclaimed user which has been created as a new contributor
+ * 2. is an inactive user which has been merged into another account
+ * 3. has other undefined/unknown status, possibly due to internal bug or user model changes
  *
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class ShouldNotHappenException extends AccountException {
 
     private static final long serialVersionUID = 8296529645368130304L;
 
-    /**
-     * Instantiates a new invalid login location exception.
-     */
+    /** Instantiates a new exception (default). */
     public ShouldNotHappenException() {
         super();
     }
 
     /**
-     * Instantiates a new invalid login location exception.
+     * Instantiates a new exception with a given message.
      *
      * @param message the message
      */
