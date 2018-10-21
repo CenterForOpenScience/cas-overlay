@@ -196,6 +196,7 @@
         <transition on="AccountNotFoundException" to="generateLoginTicket"/>
         <transition on="AccountDisabledException" to="casAccountDisabledView"/>
         <!-- Customized exceptions for OSF -->
+        <transition on="InvalidVerificationKeyException" to="casInvalidVerificationKeyView" />
         <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
         <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
         <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
@@ -273,6 +274,7 @@
     <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
     <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
+    <end-state id="casInvalidVerificationKeyView" view="casInvalidVerificationKeyView" />
 
     <end-state id="postView" view="postResponseView">
         <on-entry>
