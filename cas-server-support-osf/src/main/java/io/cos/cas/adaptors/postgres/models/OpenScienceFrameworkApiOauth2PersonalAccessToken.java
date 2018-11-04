@@ -31,7 +31,7 @@ import javax.persistence.Table;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 @Entity
 @Table(name = "osf_apioauth2personaltoken")
@@ -46,9 +46,6 @@ public class OpenScienceFrameworkApiOauth2PersonalAccessToken {
 
     @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "scopes", nullable = false)
-    private String scopes;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
@@ -70,10 +67,6 @@ public class OpenScienceFrameworkApiOauth2PersonalAccessToken {
 
     public String getName() {
         return name;
-    }
-
-    public String getScopes() {
-        return scopes;
     }
 
     public Boolean isActive() {
