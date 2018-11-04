@@ -22,6 +22,7 @@ package io.cos.cas.adaptors.postgres.daos;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2TokenScope;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
@@ -92,10 +93,18 @@ public interface OpenScienceFrameworkDao {
     List<OpenScienceFrameworkApiOauth2Application> findOauthApplications();
 
     /**
-     * Find the GUID object asscociated with a User.
+     * Find the guid object associated with the user.
      *
      * @param user the user
      * @return the GUID object
      */
     OpenScienceFrameworkGuid findGuidByUser(final OpenScienceFrameworkUser user);
+
+    /**
+     * Fine all the token-scope relationships by the token's primary key (GUID).
+     *
+     * @param tokenGuid the token's primary key (GUID)
+     * @return OpenScienceFrameworkApiOauth2TokenScope List or null
+     */
+    List<OpenScienceFrameworkApiOauth2TokenScope> findAllTokenScopesByTokenGuid(final Integer tokenGuid);
 }

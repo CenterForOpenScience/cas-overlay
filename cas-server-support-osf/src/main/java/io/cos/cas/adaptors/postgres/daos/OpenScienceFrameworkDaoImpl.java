@@ -22,6 +22,7 @@ package io.cos.cas.adaptors.postgres.daos;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2TokenScope;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkEmail;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
@@ -209,6 +210,20 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("appLable", "osf");
             query.setParameter("model", "osfuser");
             return query.getSingleResult();
+        } catch (final PersistenceException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<OpenScienceFrameworkApiOauth2TokenScope> findAllTokenScopesByTokenGuid(final Integer tokenGuid) {
+        try {
+            final TypedQuery<OpenScienceFrameworkApiOauth2TokenScope> query = entityManager.createQuery(
+                    "select m from OpenScienceFrameworkApiOauth2TokenScope m where m.tokenGuid = :tokenGuid",
+                    OpenScienceFrameworkApiOauth2TokenScope.class
+            );
+            query.setParameter("tokenGuid", tokenGuid);
+            return query.getResultList();
         } catch (final PersistenceException e) {
             return null;
         }
