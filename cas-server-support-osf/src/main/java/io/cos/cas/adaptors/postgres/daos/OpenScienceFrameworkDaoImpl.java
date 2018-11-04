@@ -169,6 +169,20 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     }
 
     @Override
+    public OpenScienceFrameworkApiOauth2Scope findOneScopeById(final Integer id) {
+        try {
+            final TypedQuery<OpenScienceFrameworkApiOauth2Scope> query = entityManager.createQuery(
+                    "select s from OpenScienceFrameworkApiOauth2Scope s where s.id = :id",
+                    OpenScienceFrameworkApiOauth2Scope.class
+            );
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        } catch (final PersistenceException e) {
+            return null;
+        }
+    }
+
+    @Override
     public OpenScienceFrameworkApiOauth2PersonalAccessToken findOnePersonalAccessTokenByTokenId(final String tokenId) {
         try {
             final TypedQuery<OpenScienceFrameworkApiOauth2PersonalAccessToken> query = entityManager.createQuery(

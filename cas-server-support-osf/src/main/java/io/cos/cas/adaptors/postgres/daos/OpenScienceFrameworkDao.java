@@ -78,6 +78,14 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkApiOauth2Scope findOneScopeByName(final String name);
 
     /**
+     * Find one scope by id (i.e. the primary key, not the scopeId).
+     *
+     * @param id the primary key
+     * @return OpenScienceFrameworkApiOauth2Scope or null
+     */
+    OpenScienceFrameworkApiOauth2Scope findOneScopeById(final Integer id);
+
+    /**
      * Find one personal access token by token id.
      *
      * @param tokenId the token id
