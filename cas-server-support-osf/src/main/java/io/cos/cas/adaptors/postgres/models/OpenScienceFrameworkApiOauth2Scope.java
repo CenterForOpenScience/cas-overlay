@@ -29,7 +29,7 @@ import javax.persistence.Table;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 @Entity
 @Table(name = "osf_apioauth2scope")
@@ -38,6 +38,9 @@ public class OpenScienceFrameworkApiOauth2Scope {
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
+
+    @Column(name = "_id", nullable = false)
+    private String scopeId;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -48,12 +51,19 @@ public class OpenScienceFrameworkApiOauth2Scope {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @Column(name = "is_public", nullable = false)
+    private Boolean isPublic;
+
     /** Default Constructor. */
     public OpenScienceFrameworkApiOauth2Scope() {}
 
 
     public Integer getId() {
         return id;
+    }
+
+    public String getScopeId() {
+        return scopeId;
     }
 
     public String getName() {
@@ -66,6 +76,10 @@ public class OpenScienceFrameworkApiOauth2Scope {
 
     public Boolean isActive() {
         return isActive;
+    }
+
+    public Boolean isPublic() {
+        return isPublic;
     }
 
     @Override
