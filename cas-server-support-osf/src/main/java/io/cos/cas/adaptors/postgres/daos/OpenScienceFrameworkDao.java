@@ -78,15 +78,15 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkApiOauth2Scope findOneScopeByName(final String name);
 
     /**
-     * Find one scope by id (i.e. the primary key, not the scopeId).
+     * Find one scope by the scope's primary key id.
      *
-     * @param id the primary key
+     * @param scopePk the scope's primary key
      * @return OpenScienceFrameworkApiOauth2Scope or null
      */
-    OpenScienceFrameworkApiOauth2Scope findOneScopeById(final Integer id);
+    OpenScienceFrameworkApiOauth2Scope findOneScopeByScopePk(final Integer scopePk);
 
     /**
-     * Find one personal access token by token id.
+     * Find one personal access token by token id (i.e the column token_id, not the primary key id).
      *
      * @param tokenId the token id
      * @return OpenScienceFrameworkApiOauth2PersonalAccessToken or null
@@ -109,10 +109,10 @@ public interface OpenScienceFrameworkDao {
     OpenScienceFrameworkGuid findGuidByUser(final OpenScienceFrameworkUser user);
 
     /**
-     * Fine all the token-scope relationships by the token's primary key (GUID).
+     * Fine all the token-scope relationships by the token's primary key.
      *
-     * @param tokenGuid the token's primary key (GUID)
+     * @param tokenPk the token's primary key
      * @return OpenScienceFrameworkApiOauth2TokenScope List or null
      */
-    List<OpenScienceFrameworkApiOauth2TokenScope> findAllTokenScopesByTokenGuid(final Integer tokenGuid);
+    List<OpenScienceFrameworkApiOauth2TokenScope> findAllTokenScopesByTokenPk(final Integer tokenPk);
 }

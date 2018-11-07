@@ -79,15 +79,17 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
 
         // Find the scopes associated with this token
         final List<OpenScienceFrameworkApiOauth2TokenScope> tokenScopeList
-                = openScienceFrameworkDao.findAllTokenScopesByTokenGuid(token.getId());
+                = openScienceFrameworkDao.findAllTokenScopesByTokenPk(token.getId());
+        LOGGER.info(tokenScopeList.toString());
         final Set<String> scopeSet = new HashSet<>();
         for (final OpenScienceFrameworkApiOauth2TokenScope tokenScope : tokenScopeList) {
             final OpenScienceFrameworkApiOauth2Scope scope
-                    = openScienceFrameworkDao.findOneScopeById(tokenScope.getScopeGuid());
+                    = openScienceFrameworkDao.findOneScopeByScopePk(tokenScope.getScopePk());
             if (scope != null) {
                 scopeSet.add(scope.getName());
             }
         }
+        LOGGER.info(scopeSet.toString());
 
         // Find the owner of the token
         final OpenScienceFrameworkGuid guid = openScienceFrameworkDao.findGuidByUser(token.getOwner());

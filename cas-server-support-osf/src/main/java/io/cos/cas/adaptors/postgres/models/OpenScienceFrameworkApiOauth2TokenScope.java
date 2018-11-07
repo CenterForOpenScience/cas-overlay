@@ -41,11 +41,11 @@ public class OpenScienceFrameworkApiOauth2TokenScope {
 
     /** The Primary Key of the Personal Access Token Object. */
     @Column(name = "apioauth2personaltoken_id", nullable = false)
-    private Integer tokenGuid;
+    private Integer tokenPk;
 
     /** The Primary Key of the Scope Object. */
     @Column(name = "apioauth2scope_id", nullable = false)
-    private Integer scopeGuid;
+    private Integer scopePk;
 
     /** The Default Constructor. */
     public OpenScienceFrameworkApiOauth2TokenScope() {}
@@ -54,16 +54,16 @@ public class OpenScienceFrameworkApiOauth2TokenScope {
         return id;
     }
 
-    public Integer getTokenGuid() {
-        return tokenGuid;
+    public Integer getTokenPk() {
+        return tokenPk;
     }
 
-    public Integer getScopeGuid() {
-        return scopeGuid;
+    public Integer getScopePk() {
+        return scopePk;
     }
 
     @Override
     public String toString() {
-        return String.format("OpenScienceFrameworkApiOauth2TokenScope [tokenGuid=%s, scopeGuid=%d, ]", tokenGuid, scopeGuid);
+        return String.format("OpenScienceFrameworkApiOauth2TokenScope [tokenPk=%s, scopePk=%d, ]", tokenPk, scopePk);
     }
 }
