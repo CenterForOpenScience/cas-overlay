@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.0.3 (2018-11-09)
+===================
+
+- Add branded login support for ecoevorxiv and banglarxiv
+
 18.0.2 (2018-11-02)
 ===================
 
@@ -15,4 +20,4 @@ We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 18.0.0 (2018-10-26)
 ===================
 
-- Fix the infinite loop caused by invalid verification key.
+- Fix the infinite loop caused by invalid verification key
