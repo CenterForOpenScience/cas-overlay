@@ -52,6 +52,9 @@ public class OpenScienceFrameworkLoginHandler {
         /** The flag for institution login instead of normal OSF login. */
         private boolean institutionLogin;
 
+        /** The flag for redirect to ORCiD login instead of normal OSF login. */
+        private boolean orcidRedirect;
+
         /**
          * Construct an instance of `OpenScienceFrameworkLoginContext` with the given settings.
          *
@@ -86,6 +89,14 @@ public class OpenScienceFrameworkLoginHandler {
 
         public void setInstitutionLogin(final Boolean institutionLogin) {
             this.institutionLogin = institutionLogin;
+        }
+
+        public boolean isOrcidRedirect() {
+            return orcidRedirect;
+        }
+
+        public void setOrcidRedirect(final boolean orcidRedirect) {
+            this.orcidRedirect = orcidRedirect;
         }
 
         /**
@@ -139,22 +150,29 @@ public class OpenScienceFrameworkLoginHandler {
         final OpenScienceFrameworkLoginContext osfLoginContext;
         final String serviceUrl = getEncodedServiceUrl(context);
         final boolean institutionLogin = isInstitutionLogin(context);
+        final boolean orcidRedirect = isOrcidRedirect(context);
 
         String jsonLoginContext = (String) context.getFlowScope().get("jsonLoginContext");
         if (jsonLoginContext == null) {
-            // Create a new login context
+            // Create a new login context with service URL and institution login flag
             osfLoginContext = new OpenScienceFrameworkLoginContext(serviceUrl, institutionLogin);
+            // Only allow ORCiD login redirect from a brand new login flow
+            osfLoginContext.setOrcidRedirect(orcidRedirect);
         } else {
-            // If the login context already exists, update the service URL and the institution flag but keep the errors
+            // If the login context already exists, update the service URL and the institution login flag while keeping
+            // the errors and disabling ORCiD login redirect
             osfLoginContext = OpenScienceFrameworkLoginContext.fromJson(jsonLoginContext);
             osfLoginContext.setServiceUrl(serviceUrl);
             osfLoginContext.setInstitutionLogin(institutionLogin);
+            osfLoginContext.setOrcidRedirect(false);
         }
         jsonLoginContext = osfLoginContext.toJson();
         context.getFlowScope().put("jsonLoginContext", jsonLoginContext);
 
         if (osfLoginContext.isInstitutionLogin()) {
             return new Event(this, "institutionLogin");
+        } else if (osfLoginContext.isOrcidRedirect()) {
+            return new Event(this, "orcidLoginRedirect");
         } else {
             return new Event(this, "osfDefaultLogin");
         }
@@ -169,6 +187,17 @@ public class OpenScienceFrameworkLoginHandler {
     private boolean isInstitutionLogin(final RequestContext context) {
         final String campaign = context.getRequestParameters().get("campaign");
         return "institution".equals(campaign);
+    }
+
+    /**
+     * Check if the request is ORCiD login redirect.
+     *
+     * @param context the request context
+     * @return true if `redirectOrcid=true` is present in the request parameters
+     */
+    private boolean isOrcidRedirect(final RequestContext context) {
+        final String orcidRedirect = context.getRequestParameters().get("redirectOrcid");
+        return orcidRedirect != null && "true".equals(orcidRedirect.toLowerCase());
     }
 
     /**
