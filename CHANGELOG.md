@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.0.4 (2018-11-20)
+===================
+
+- Support OSF signup via ORCiD login
+
 18.0.3 (2018-11-09)
 ===================
 
