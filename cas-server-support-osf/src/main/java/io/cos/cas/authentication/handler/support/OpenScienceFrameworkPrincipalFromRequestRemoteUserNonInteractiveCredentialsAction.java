@@ -311,11 +311,13 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             // https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAttributeAccess
             final String remoteUser = request.getHeader(REMOTE_USER);
             if (StringUtils.isEmpty(remoteUser)) {
-                logger.error("Invalid Remote User specified as Empty");
+                logger.error("Invalid Remote User Specified as Empty");
+                // _TO_DO_: Re-enable non-empty remote user requirement
                 // _TO_DO_: Delay the exception until we know which the institution is and who the user is.
-                throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
+                // throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
+            } else {
+                logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
             }
-            logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
 
             // Retrieve all attributes from the headers
             for (final String headerName : Collections.list(request.getHeaderNames())) {
@@ -336,6 +338,14 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             // Build and return the credential
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
+            if (StringUtils.isEmpty(remoteUser)) {
+                logger.error(
+                        "Empty Remote User: username={}, institutionId={}",
+                        remoteUserInfo.getUsername(),
+                        remoteUserInfo.getInstitutionId()
+                );
+            }
+
             return credential;
         } else if (ticketGrantingTicketId != null) {
             final TicketGrantingTicket ticketGrantingTicket;
