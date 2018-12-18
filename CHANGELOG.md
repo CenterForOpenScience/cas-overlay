@@ -2,6 +2,16 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.0.6 (2018-12-18)
+===================
+
+- Add branded login support for mediarxiv
+
+18.0.5 (2018-12-12)
+===================
+
+- Allow empty REMOTE\_UESR header during institution auth
+
 18.0.4 (2018-11-20)
 ===================
 
