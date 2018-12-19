@@ -67,11 +67,12 @@ public class OpenScienceFrameworkLoginHandler {
             this.institutionLogin = institutionLogin;
         }
 
+        // Must be public to be accessible in the JSP page
         public String getServiceUrl() {
             return serviceUrl;
         }
 
-        public void setServiceUrl(final String serviceUrl) {
+        void setServiceUrl(final String serviceUrl) {
             this.serviceUrl = serviceUrl;
         }
 
@@ -83,24 +84,25 @@ public class OpenScienceFrameworkLoginHandler {
             this.handleErrorName =handleErrorName;
         }
 
+        // Must be public to be accessible in the JSP page
         public boolean isInstitutionLogin() {
             return institutionLogin;
         }
 
-        public void setInstitutionLogin(final boolean institutionLogin) {
+        void setInstitutionLogin(final boolean institutionLogin) {
             this.institutionLogin = institutionLogin;
         }
 
-        public boolean isOrcidRedirect() {
+        boolean isOrcidRedirect() {
             return orcidRedirect;
         }
 
-        public void setOrcidRedirect(final boolean orcidRedirect) {
+        void setOrcidRedirect(final boolean orcidRedirect) {
             this.orcidRedirect = orcidRedirect;
         }
 
         /**
-         * Check if the service URL exists.
+         * Check if the service URL exists. Must be public to be accessible in the JSP page.
          *
          * @return true if service url exists, false otherwise
          */
