@@ -83,11 +83,11 @@ public class OpenScienceFrameworkLoginHandler {
             this.handleErrorName =handleErrorName;
         }
 
-        public boolean getInstitutionLogin() {
+        public boolean isInstitutionLogin() {
             return institutionLogin;
         }
 
-        public void setInstitutionLogin(final Boolean institutionLogin) {
+        public void setInstitutionLogin(final boolean institutionLogin) {
             this.institutionLogin = institutionLogin;
         }
 
@@ -106,15 +106,6 @@ public class OpenScienceFrameworkLoginHandler {
          */
         public boolean isServiceUrl() {
             return serviceUrl != null;
-        }
-
-        /**
-         * Check if it is institution login.
-         *
-         * @return true if institution login, false otherwise
-         */
-        public boolean isInstitutionLogin() {
-            return institutionLogin;
         }
 
         /**
