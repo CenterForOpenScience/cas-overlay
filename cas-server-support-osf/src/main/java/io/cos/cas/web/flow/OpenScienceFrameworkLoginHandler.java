@@ -179,7 +179,7 @@ public class OpenScienceFrameworkLoginHandler {
      */
     private boolean isInstitutionLogin(final RequestContext context) {
         final String campaign = context.getRequestParameters().get("campaign");
-        return "institution".equals(campaign);
+        return campaign != null && "institution".equals(campaign.toLowerCase());
     }
 
     /**
