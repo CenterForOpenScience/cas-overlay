@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.1.0 (2018-12-20)
+===================
+
+- Improve login context and login handler
+
 18.0.6 (2018-12-18)
 ===================
 
