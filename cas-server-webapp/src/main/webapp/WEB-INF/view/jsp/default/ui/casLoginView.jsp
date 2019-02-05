@@ -64,7 +64,7 @@
             <c:if test="${not empty registeredService.id && (
                 registeredService.id == 203948234207230 || registeredService.id == 203948234207231 ||
                 registeredService.id == 203948234207232 || registeredService.id == 203948234207340 ||
-                (registeredService.id >= 203948234207240 && registeredService.id <= 203948234207267)
+                (registeredService.id >= 203948234207240 && registeredService.id <= 203948234207268)
             )}">
                 <section class="row">
                     <a id="alt-login-orcid" class="btn-alt-login" href="${OrcidClientUrl}">
