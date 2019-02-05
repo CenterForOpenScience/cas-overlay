@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.1.2 (2019-02-05)
+===================
+
+- Add branded login support for bodoarxiv
+
 18.1.1 (2019-01-02)
 ===================
 
