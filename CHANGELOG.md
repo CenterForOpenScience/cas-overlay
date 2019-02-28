@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.1.3 (2019-02-28)
+===================
+
+- Update logo for bodoarxiv
+
 18.1.2 (2019-02-05)
 ===================
 
