@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.1.4 (2019-03-04)
+===================
+
+- Add branded login support for metaarxiv
+
 18.1.3 (2019-02-28)
 ===================
 
