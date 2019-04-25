@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.1.5 (2019-04-25)
+===================
+
+- Add branded login support for edarxiv
+
 18.1.4 (2019-03-04)
 ===================
 
