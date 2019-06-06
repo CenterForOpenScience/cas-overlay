@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.1.6 (2019-06-06)
+===================
+
+- Add branded login support for indiarxiv
+
 18.1.5 (2019-04-25)
 ===================
 
