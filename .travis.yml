@@ -18,6 +18,7 @@
 #
 
 language: java
+dist: trusty
 sudo: false
 jdk:
   - oraclejdk8
