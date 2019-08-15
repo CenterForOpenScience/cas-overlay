@@ -44,7 +44,7 @@ import java.util.Set;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler
         implements InitializingBean {
@@ -80,7 +80,6 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
         // Find the scopes associated with this token
         final List<OpenScienceFrameworkApiOauth2TokenScope> tokenScopeList
                 = openScienceFrameworkDao.findAllTokenScopesByTokenPk(token.getId());
-        LOGGER.info(tokenScopeList.toString());
         final Set<String> scopeSet = new HashSet<>();
         for (final OpenScienceFrameworkApiOauth2TokenScope tokenScope : tokenScopeList) {
             final OpenScienceFrameworkApiOauth2Scope scope
@@ -89,7 +88,6 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
                 scopeSet.add(scope.getName());
             }
         }
-        LOGGER.info(scopeSet.toString());
 
         // Find the owner of the token
         final OpenScienceFrameworkGuid guid = openScienceFrameworkDao.findGuidByUser(token.getOwner());
@@ -97,6 +95,7 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
             return null;
         }
 
+        // Return a PAT of the CAS model, which is created based on the token, scope and owner of the OSF model.
         return new PersonalAccessToken(token.getTokenId(), guid.getGuid(), scopeSet);
     }
 }
