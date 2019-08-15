@@ -21,23 +21,30 @@ package io.cos.cas.adaptors.postgres.handlers;
 
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2TokenScope;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
+
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 import org.jasig.cas.support.oauth.personal.handler.support.AbstractPersonalAccessTokenHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
+
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * The Open Science FrameWork API OAuth2 Personal Access Token Handler.
+ * The OSF API OAuth2 Personal Access Token Handler.
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 4.1.5
  */
 public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler
         implements InitializingBean {
@@ -58,25 +65,37 @@ public class OpenScienceFrameworkPersonalAccessTokenHandler extends AbstractPers
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-    }
+    public void afterPropertiesSet() throws Exception {}
 
     @Override
     public PersonalAccessToken getToken(final String tokenId) {
+
+        // Find the token by token id
         final OpenScienceFrameworkApiOauth2PersonalAccessToken token
-            = openScienceFrameworkDao.findOnePersonalAccessTokenByTokenId(tokenId);
+                = openScienceFrameworkDao.findOnePersonalAccessTokenByTokenId(tokenId);
         if (token == null || !token.isActive()) {
             return null;
         }
-        final String scopes = token.getScopes() == null ? "" : token.getScopes();
+
+        // Find the scopes associated with this token
+        final List<OpenScienceFrameworkApiOauth2TokenScope> tokenScopeList
+                = openScienceFrameworkDao.findAllTokenScopesByTokenPk(token.getId());
+        final Set<String> scopeSet = new HashSet<>();
+        for (final OpenScienceFrameworkApiOauth2TokenScope tokenScope : tokenScopeList) {
+            final OpenScienceFrameworkApiOauth2Scope scope
+                    = openScienceFrameworkDao.findOneScopeByScopePk(tokenScope.getScopePk());
+            if (scope != null) {
+                scopeSet.add(scope.getName());
+            }
+        }
+
+        // Find the owner of the token
         final OpenScienceFrameworkGuid guid = openScienceFrameworkDao.findGuidByUser(token.getOwner());
         if (guid == null) {
             return null;
         }
-        return new PersonalAccessToken(
-            token.getTokenId(),
-            guid.getGuid(),
-            new HashSet<>(Arrays.asList(scopes.split(" ")))
-        );
+
+        // Return a PAT of the CAS model, which is created based on the token, scope and owner of the OSF model.
+        return new PersonalAccessToken(token.getTokenId(), guid.getGuid(), scopeSet);
     }
 }
