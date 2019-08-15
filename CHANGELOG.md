@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+18.1.7 (2019-08-15)
+===================
+
+- Fix oraclejdk8 build failure on travis
+
 18.1.6 (2019-06-06)
 ===================
 
