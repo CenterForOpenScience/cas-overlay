@@ -1,36 +1,34 @@
-<!-- Use the following format for the title of the Pull Request:
-
-    [Ticket] Title
+<!-- Before submitting the PR, double check the target branch.
+     - For critical hotfixes, select "master" as the target branch.
+       Please (re)name your branch to "hotfix/<branch_name>".
+     - For the rest, select "develop" as the target branch. Please
+       (re)name your branch with a proper prefix listed below:
+       - "feature/" for features - major updates
+       - "patch/" for improvements - minor updates
+       - "fix/" for bug fixes
+     - For security issues, please check with the team lead before
+       submitting your Pull Request.
 -->
-
-<!-- Before submit your Pull Request, make sure you picked the right target branch:
-
-    - For hotfixes, select "master"
-    - For features, improvements and bug fixes, select "develop"
--->
-
-<!-- For security related issue, talk with the team lead before submitting your PR -->
 
 ## Ticket
 
-<!-- Link to JIRA ticket, if applicable e.g. https://openscience.atlassian.net/browse/SVCS-1234 -->
+<!-- Link to the JIRA ticket(s), if applicable. For example:
+     [ENG-000](https://openscience.atlassian.net/browse/SVCS-000)
+-->
 
 ## Purpose
 
-<!-- Describe the purpose of your changes -->
+<!-- Describe the purpose of your changes. -->
 
 ## Changes
 
-<!-- Briefly describe or list your changes  -->
+<!-- Briefly describe or list your changes. -->
 
-## Side effects
+## Dev / QA Notes
 
-<!-- Any possible side effects? -->
+<!-- This section is required if this change needs QA. -->
 
-## QA Notes
-
-<!-- If applicable, briefly describe how QA should test this ticket/PR -->
-
-## Deployment Notes
+## Dev-Ops Notes
 
 <!-- Any special configurations for deployment? -->
+
