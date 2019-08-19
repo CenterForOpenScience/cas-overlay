@@ -2,6 +2,14 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.0.0 (2019-08-19)
+===================
+
+- Update the PR template
+- Add the authors list
+- Fixed type in readme
+- Update TCI to switch from oraclejdk8 to openjdk8
+
 18.1.7 (2019-08-15)
 ===================
 
