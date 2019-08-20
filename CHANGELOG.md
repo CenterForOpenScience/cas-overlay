@@ -2,6 +2,18 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.1.0 (2019-08-19)
+===================
+
+Update CAS for OSF token-scope relationship model change.
+
+- Add M2M relationship between PAT and scope
+- Add scopeId and isPublic to the scope model
+- Remove scopes from the PAT model
+- Update OSF DAO and its implementation
+  - Query token-scope by token's PK
+  - Query scope by scope's PK Update PAT handler
+
 19.0.0 (2019-08-19)
 ===================
 

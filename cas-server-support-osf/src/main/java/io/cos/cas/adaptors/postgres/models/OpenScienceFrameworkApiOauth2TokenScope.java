@@ -22,51 +22,48 @@ package io.cos.cas.adaptors.postgres.models;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
- * The Open Science Framework Email.
+ * The M2M Relationship between OSF API OAuth2 "Personal Access Token" and "Scope".
  *
  * @author Longze Chen
  * @since 4.1.5
  */
 @Entity
-@Table(name = "osf_email")
-public class OpenScienceFrameworkEmail {
+@Table(name = "osf_apioauth2personaltoken_scopes")
+public class OpenScienceFrameworkApiOauth2TokenScope {
 
     /** The Primary Key. */
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    /** The Email Address. */
-    @Column(name = "address", nullable = false)
-    private String address;
+    /** The Primary Key of the Personal Access Token Object. */
+    @Column(name = "apioauth2personaltoken_id", nullable = false)
+    private Integer tokenPk;
 
-    /** The Owner of The Email Address. */
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private OpenScienceFrameworkUser user;
+    /** The Primary Key of the Scope Object. */
+    @Column(name = "apioauth2scope_id", nullable = false)
+    private Integer scopePk;
 
-    /** Default Constructor. */
-    public OpenScienceFrameworkEmail() {}
+    /** The Default Constructor. */
+    public OpenScienceFrameworkApiOauth2TokenScope() {}
 
     public Integer getId() {
         return id;
     }
 
-    public String getName() {
-        return address;
+    public Integer getTokenPk() {
+        return tokenPk;
     }
 
-    public OpenScienceFrameworkUser getUser() {
-        return user;
+    public Integer getScopePk() {
+        return scopePk;
     }
 
     @Override
     public String toString() {
-        return String.format("%s [id=%d, email=%s, user=%s]", this.getClass().getSimpleName(), id, address, user.getUsername());
+        return String.format("OpenScienceFrameworkApiOauth2TokenScope [tokenPk=%s, scopePk=%d, ]", tokenPk, scopePk);
     }
 }
