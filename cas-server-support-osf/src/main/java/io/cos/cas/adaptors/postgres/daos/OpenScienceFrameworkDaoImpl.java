@@ -22,6 +22,7 @@ package io.cos.cas.adaptors.postgres.daos;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Scope;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2TokenScope;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkEmail;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
@@ -168,6 +169,20 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
     }
 
     @Override
+    public OpenScienceFrameworkApiOauth2Scope findOneScopeByScopePk(final Integer scopePk) {
+        try {
+            final TypedQuery<OpenScienceFrameworkApiOauth2Scope> query = entityManager.createQuery(
+                    "select s from OpenScienceFrameworkApiOauth2Scope s where s.id = :id",
+                    OpenScienceFrameworkApiOauth2Scope.class
+            );
+            query.setParameter("id", scopePk);
+            return query.getSingleResult();
+        } catch (final PersistenceException e) {
+            return null;
+        }
+    }
+
+    @Override
     public OpenScienceFrameworkApiOauth2PersonalAccessToken findOnePersonalAccessTokenByTokenId(final String tokenId) {
         try {
             final TypedQuery<OpenScienceFrameworkApiOauth2PersonalAccessToken> query = entityManager.createQuery(
@@ -209,6 +224,20 @@ public class OpenScienceFrameworkDaoImpl implements OpenScienceFrameworkDao {
             query.setParameter("appLable", "osf");
             query.setParameter("model", "osfuser");
             return query.getSingleResult();
+        } catch (final PersistenceException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<OpenScienceFrameworkApiOauth2TokenScope> findAllTokenScopesByTokenPk(final Integer tokenPk) {
+        try {
+            final TypedQuery<OpenScienceFrameworkApiOauth2TokenScope> query = entityManager.createQuery(
+                    "select m from OpenScienceFrameworkApiOauth2TokenScope m where m.tokenPk = :tokenPk",
+                    OpenScienceFrameworkApiOauth2TokenScope.class
+            );
+            query.setParameter("tokenPk", tokenPk);
+            return query.getResultList();
         } catch (final PersistenceException e) {
             return null;
         }
