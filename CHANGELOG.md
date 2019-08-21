@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.1.1 (2019-08-21)
+===================
+
+Update inst attr map (base and unc) and tweak PR template
+
 19.1.0 (2019-08-19)
 ===================
 
