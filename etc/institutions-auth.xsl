@@ -27,6 +27,18 @@
                             <suffix/>
                         </user>
                     </xsl:when>
+                    <!-- University of North Carolina at Chapel Hill (UNC) -->
+                    <xsl:when test="$idp='urn:mace:incommon:unc.edu'">
+                        <id>unc</id>
+                        <user>
+                            <username><xsl:value-of select="//attribute[@name='eppn']/@value"/></username>
+                            <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
+                            <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
+                            <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
+                            <middleNames/>
+                            <suffix/>
+                        </user>
+                    </xsl:when>
                     <!--  Unknown Identity Provider  -->
                     <xsl:otherwise>
                         <xsl:message terminate="yes">Error: Unknown Identity Provider '<xsl:value-of select="$idp"/>'</xsl:message>
