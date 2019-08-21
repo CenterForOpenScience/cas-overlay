@@ -12,8 +12,8 @@
 
 ## Ticket
 
-<!-- Link to the JIRA ticket(s), if applicable. For example:
-     [ENG-000](https://openscience.atlassian.net/browse/SVCS-000)
+<!-- Link to the JIRA ticket, if applicable. For example:
+     [ENG-000](https://openscience.atlassian.net/browse/ENG-000)
 -->
 
 ## Purpose
@@ -26,9 +26,9 @@
 
 ## Dev / QA Notes
 
-<!-- This section is required if this change needs QA. -->
+<!-- Any special note for local development and/or QA testing? -->
 
 ## Dev-Ops Notes
 
-<!-- Any special configurations for deployment? -->
+<!-- Any special note for PR merge and/or server deployment? -->
 
