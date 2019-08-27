@@ -27,6 +27,18 @@
                             <suffix/>
                         </user>
                     </xsl:when>
+                    <!-- University of British Columbia [Test] (UBC) -->
+                    <xsl:when test="$idp='https://authentication.stg.id.ubc.ca'">
+                        <id>ubc</id>
+                        <user>
+                            <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
+                            <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
+                            <familyName/>
+                            <givenName/>
+                            <middleNames/>
+                            <suffix/>
+                        </user>
+                    </xsl:when>
                     <!-- University of North Carolina at Chapel Hill (UNC) -->
                     <xsl:when test="$idp='urn:mace:incommon:unc.edu'">
                         <id>unc</id>
