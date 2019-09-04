@@ -25,7 +25,7 @@ COS is an [Research & Scholarship Entity Category (R&S)](https://refeds.org/cate
 * Entity ID: `https://accounts.osf.io/shibboleth`
 * Requested Attributes: `eduPersonPrincipalName` (SAML2), `mail` (SAML2) and `displayName` (SAML2)
 
-The full technical details can be found at https://www.incommon.org/federation/research-scholarship-adopters/.
+Full technical details can be found at https://www.incommon.org/federation/research-scholarship-adopters/.
 
 Please note that only COS's production SP is registered by InCommon. If you want to connect to COS's test / staging SP, here is the [SP metadata](https://accounts.test.osf.io/Shibboleth.sso/Metadata) as mentioned in **Other Institutions** below.
 
@@ -46,3 +46,10 @@ COS offers a Service Provider (SP) based on [SAML 2.0](https://docs.oasis-open.o
 ### For All Institutions
 
 Inform COS of the user you would like to test with; your COS contact will ensure your account is ready to go and will send you a link to test the SSO configuration setup for your institution.
+
+
+## Alternative SSO Options
+
+COS strongly recommends using this Shibboleth-based SSO when connecting to the OSF. However, if this is not available at your institution, please inform COS of alternative SSO options you have. We may support them in the future.
+
+One alternative that COS currently supports is the CAS-based SSO, please refer to [Connecting to the Open Science Framework (OSF) via CAS-based Single Sign-On (SSO)](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/docs/osf-institutions-sso-via-cas.md) for technical details.
