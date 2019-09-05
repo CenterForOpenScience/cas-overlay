@@ -26,31 +26,6 @@ Versioning Scheme:  [![CalVer Scheme](https://img.shields.io/badge/calver-YY.MIN
 
 The implementation of OSF CAS is based on [Yale/Jasig/Apereo CAS 4.1.x](https://github.com/apereo/cas/tree/4.1.x) using [CAS Overlay Template 4.1.x](https://github.com/apereo/cas-overlay-template/tree/4.1). Official docs from [Apereo CAS](https://www.apereo.org/projects/cas) can be found [here](https://apereo.github.io/cas/4.1.x). Learn more about the CAS protocol [here](https://apereo.github.io/cas/4.1.x/protocol/CAS-Protocol.html) or refer to [the full specification](https://apereo.github.io/cas/4.1.x/protocol/CAS-Protocol-Specification.html).
 
-## Configuration
-
-### JPA Ticket Registry
-
-* Postgres
-* Apache DBCP2 (Database Connection Pooling v2)
-
-### Custom Application Authentication
-
-* Two-Factor Authentication (2FA) with Time-based One Time Passwords (TOTP)
-* Postgres authentication backend
-* Customized login web flow prompts
-  * Login, institution login, ORCiD login, verification key login, logout, 2FA w/ TOTP
-  * OAuth Application Approval
-
-### Service Registry
-
-* Merging Service Registry Loader
-* JSON Service Registry
-* Open Science Framework Service Registry (Postgres & OAuth)
-
-### Jetty 9.x Web Server
-
-* Optimized for faster builds
-
 ## Running OSF CAS for Development
 
 ### Java 8
