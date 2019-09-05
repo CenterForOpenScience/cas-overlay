@@ -1,14 +1,30 @@
-# Center for Open Science CAS Overlay
+# Center for Open Science - CAS Overlay
 
 `Master` Build Status: [![Build Status](https://travis-ci.org/CenterForOpenScience/cas-overlay.svg?branch=master)](https://travis-ci.org/CenterForOpenScience/cas-overlay)
 
 `Develop` Build Status: [![Build Status](https://travis-ci.org/CenterForOpenScience/cas-overlay.svg?branch=develop)](https://travis-ci.org/CenterForOpenScience/cas-overlay)
 
-Official Docs can be found [here](https://jasig.github.io/cas/)
+Versioning Scheme:  [![CalVer Scheme](https://img.shields.io/badge/calver-YY.MINOR.MICRO-22bfda.svg)](http://calver.org)
 
-[CAS 4.1 Roadmap](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap)
+## About
 
-[Docker Server](https://github.com/CenterForOpenScience/docker-library/tree/master/cas)
+"Center for Open Science - CAS Overlay" is often referred to as **CAS** or **OSF CAS**. It is the centralized authentication and authorization system for [the OSF](https://osf.io/) and its services such as [Preprints](https://osf.io/preprints/), [Registries](https://osf.io/registries) and [SHARE](https://share.osf.io/).
+
+### Features
+
+* OSF Username and Password Login
+* OSF Username and Verification Key Login
+* OSF Two-Factor Authentication
+* OSF Authentication Delegation
+  * [ORCiD Login with OAuth](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/docs/osf-cas-as-an-oauth-client.md)
+  * [Institution Login with CAS](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/docs/osf-cas-as-a-cas-client.md)
+  * [Institution Login with SAML](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/docs/osf-cas-as-a-saml-sp.md)
+* [OSF OAuth Provider](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/docs/osf-cas-as-an-oauth-server.md)
+* Login Request Throttling
+
+### References
+
+The implementation of OSF CAS is based on [Yale/Jasig/Apereo CAS 4.1.x](https://github.com/apereo/cas/tree/4.1.x) using [CAS Overlay Template 4.1.x](https://github.com/apereo/cas-overlay-template/tree/4.1). Official docs from [Apereo CAS](https://www.apereo.org/projects/cas) can be found [here](https://apereo.github.io/cas/4.1.x). Learn more about the CAS protocol [here](https://apereo.github.io/cas/4.1.x/protocol/CAS-Protocol.html) or refer to [the full specification](https://apereo.github.io/cas/4.1.x/protocol/CAS-Protocol-Specification.html).
 
 ## Configuration
 
@@ -19,34 +35,44 @@ Official Docs can be found [here](https://jasig.github.io/cas/)
 
 ### Custom Application Authentication
 
-* Multi-Factor Authentication
-  * Time-based One Time Passwords (TOTP), e.g. Google Authenticator
-* MongoDB authentication backend
+* Two-Factor Authentication (2FA) with Time-based One Time Passwords (TOTP)
+* Postgres authentication backend
 * Customized login web flow prompts
-  * Login, Logout, One Time Password, Verification Key
+  * Login, institution login, ORCiD login, verification key login, logout, 2FA w/ TOTP
   * OAuth Application Approval
-* [Login from external form](https://wiki.jasig.org/display/CAS/Using+CAS+from+external+link+or+custom+external+form)
 
 ### Service Registry
 
 * Merging Service Registry Loader
 * JSON Service Registry
-* Open Science Framework Service Registry (MongoDB & OAuth)
+* Open Science Framework Service Registry (Postgres & OAuth)
 
 ### Jetty 9.x Web Server
 
-* Startup Server Command
-  * `mvn -pl cas-server-webapp/ jetty:run`
 * Optimized for faster builds
 
-If you have trouble building CAS via `mvn clean install`, you may need to install the "Java Cryptography Extension (JCE) Unlimited Strength
-Jurisdiction Policy Files". Follow
-[these instructions](http://bigdatazone.blogspot.com/2014/01/mac-osx-where-to-put-unlimited-jce-java.html) to unpack
-the zip file, back up existing policy files, and install the new, stronger cryptography policy files.
+## Running OSF CAS for Development
 
+### A Working OSF
 
-### TODO
+* CAS requires a working OSF (more specifically, its database server) running locally. See [Running the OSF For Development](https://github.com/CenterForOpenScience/osf.io/blob/develop/README-docker-compose.md) for how to run OSF locally with `docker-compose`.
 
-* Request Throttling
-* Jetty JPA Shared Sessions
+### Database
 
+* CAS requires [Postgres](https://www.postgresql.org/docs/9.6/index.html) as its backend database. Use a port other than `5432` since this default one has already been taken by OSF. Update `database.url`, `database.user` and `database.password` in the [`cas.properties`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/etc/cas.properties#L141).
+
+* CAS also requires read-only access to OSF's database. No extra Postgres setup or CAS configuration is needed when running OSF locally with `docker-compose` as mentioned above. The [default](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/etc/cas.properties#L94) one works as it is.
+
+### Run CAS
+
+* Refer to the [`Dockerfile`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/Dockerfile) in the repository for how to run CAS with the [Jetty Maven Plugin](https://www.eclipse.org/jetty/documentation/current/jetty-maven-plugin.html). Only the `app` and `dev` stages are relevant in this case since the `dist` one is used for production and staging servers. In addition, take a look at the [`.travis.yml`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/.travis.yml) on how to run unit tests.
+
+### A Few Extra Notes
+
+* To use the "Sign in with ORCiD" feature, create an application at [ORCiD Developer Tools](https://orcid.org/developer-tools). Update `oauth.orcid.client.id` and `oauth.orcid.client.secret` in the [`cas.properties`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/etc/cas.properties#L68).
+
+* The "Sign in through institution" feature is not available for local development. It requires a Shibboleth server sitting in front of CAS handling both SAML 2.0 authentication and TLS.
+
+* If you have trouble building CAS via `mvn clean install`, you may need to install the ["Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files"](https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html). For macOS, follow [these instructions](http://bigdatazone.blogspot.com/2014/01/mac-osx-where-to-put-unlimited-jce-java.html) to unpack the zip file, back up existing policy files, and install the new, stronger cryptography policy files.
+
+* We recommend using an IDE (e.g. [IntelliJ IDEA](https://www.jetbrains.com/idea/), [Eclipse IDE](https://www.eclipse.org/downloads/), etc.) for local development.
