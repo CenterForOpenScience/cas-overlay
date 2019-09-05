@@ -53,6 +53,14 @@ The implementation of OSF CAS is based on [Yale/Jasig/Apereo CAS 4.1.x](https://
 
 ## Running OSF CAS for Development
 
+### Java 8
+
+* Install Java Development Kit 8 (JDK 1.8) either from [Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK](https://openjdk.java.net/install/).
+
+### Apache Maven
+
+* See [here](https://maven.apache.org/install.html) for how to install `maven` and [here](https://maven.apache.org/ide.html) for IDE integrations.
+
 ### A Working OSF
 
 * CAS requires a working OSF (more specifically, its database server) running locally. See [Running the OSF For Development](https://github.com/CenterForOpenScience/osf.io/blob/develop/README-docker-compose.md) for how to run OSF locally with `docker-compose`.
@@ -65,7 +73,18 @@ The implementation of OSF CAS is based on [Yale/Jasig/Apereo CAS 4.1.x](https://
 
 ### Run CAS
 
-* Refer to the [`Dockerfile`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/Dockerfile) in the repository for how to run CAS with the [Jetty Maven Plugin](https://www.eclipse.org/jetty/documentation/current/jetty-maven-plugin.html). Only the `app` and `dev` stages are relevant in this case since the `dist` one is used for production and staging servers. In addition, take a look at the [`.travis.yml`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/.travis.yml) on how to run unit tests.
+* Refer to the [`Dockerfile`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/Dockerfile) in the repository for how to run CAS with the [Jetty Maven Plugin](https://www.eclipse.org/jetty/documentation/current/jetty-maven-plugin.html). Only the `app` and `dev` stages are relevant in this case since the `dist` one is used for production and staging servers. Take a look at the [`.travis.yml`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/.travis.yml) on how to run unit tests. You can skip `package` and go for `clean` and `install` directly; in addition, toggle the profile `nocheck` to turn unit tests on and off.
+
+* TL;DR, here are the commands that you need:
+
+    ```bash
+    # clean and install w/ test
+    mvn clean install -P !nocheck
+    # clean and install w/o test
+    mvn clean install -P nocheck
+    # start jetty
+    mvn -pl cas-server-webapp/ jetty:run
+    ```
 
 ### A Few Extra Notes
 
@@ -74,5 +93,7 @@ The implementation of OSF CAS is based on [Yale/Jasig/Apereo CAS 4.1.x](https://
 * The "Sign in through institution" feature is not available for local development. It requires a Shibboleth server sitting in front of CAS handling both SAML 2.0 authentication and TLS.
 
 * If you have trouble building CAS via `mvn clean install`, you may need to install the ["Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files"](https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html). For macOS, follow [these instructions](http://bigdatazone.blogspot.com/2014/01/mac-osx-where-to-put-unlimited-jce-java.html) to unpack the zip file, back up existing policy files, and install the new, stronger cryptography policy files.
+
+* Installing `java8` with [Homebrew](https://brew.sh/) on macOS (i.e. `brew cask install java8`) [no longer works](https://github.com/ashishb/dotfiles/pull/14) due to [the license change for Java SE](https://www.oracle.com/downloads/licenses/javase-license1.html). [Here](https://github.com/Homebrew/homebrew-cask-versions/issues/7253) is the discussion.
 
 * We recommend using an IDE (e.g. [IntelliJ IDEA](https://www.jetbrains.com/idea/), [Eclipse IDE](https://www.eclipse.org/downloads/), etc.) for local development.
