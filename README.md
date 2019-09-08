@@ -32,6 +32,10 @@ The implementation of OSF CAS is based on [Yale/Jasig/Apereo CAS 4.1.x](https://
 
 * Install Java Development Kit 8 (JDK 1.8) either from [Oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK](https://openjdk.java.net/install/). For macOS, it is recommended to use *THE* package manager [Homebrew](https://brew.sh/) with command `brew cask install adoptopenjdk8`.
 
+### JCE with Unlimited Strength
+
+* Download and install [Unlimited Strength Jurisdiction Policy Files](https://www.oracle.com/java/technologies/jce-all-downloads.html) for Java Cryptography Extension (JCE). [Here](https://www.oracle.com/java/technologies/jce8-downloads.html) is the version for JDK 1.8. Unpack the ZIP file and follow the `README.txt` in the folder to back up existing cryptography policy files and install the new stronger ones.
+
 ### Apache Maven
 
 * See [here](https://maven.apache.org/install.html) for how to install `maven` and [here](https://maven.apache.org/ide.html) for IDE integrations.
@@ -66,8 +70,6 @@ The implementation of OSF CAS is based on [Yale/Jasig/Apereo CAS 4.1.x](https://
 * To use the "Sign in with ORCiD" feature, create an application at [ORCiD Developer Tools](https://orcid.org/developer-tools). Update `oauth.orcid.client.id` and `oauth.orcid.client.secret` in the [`cas.properties`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/etc/cas.properties#L68).
 
 * The "Sign in through institution" feature is not available for local development. It requires a Shibboleth server sitting in front of CAS handling both SAML 2.0 authentication and TLS.
-
-* If you have trouble building CAS via `mvn clean install`, you may need to install the ["Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files"](https://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html). For macOS, follow [these instructions](http://bigdatazone.blogspot.com/2014/01/mac-osx-where-to-put-unlimited-jce-java.html) to unpack the zip file, back up existing policy files, and install the new, stronger cryptography policy files.
 
 * Installing `java8` with [Homebrew](https://brew.sh/) on macOS (i.e. `brew cask install java8`) [no longer works](https://github.com/ashishb/dotfiles/pull/14) due to [Oracle's new license for Java SE](https://www.oracle.com/downloads/licenses/javase-license1.html). [Here](https://github.com/Homebrew/homebrew-cask-versions/issues/7253) is the discussion. Instead, use the alternative [AdoptOpenJDK](https://adoptopenjdk.net/) and here is the [Tap](https://github.com/AdoptOpenJDK/homebrew-openjdk).
 
