@@ -20,6 +20,7 @@ package org.jasig.cas.support.oauth.token;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.ServiceTicketImpl;
 import org.jasig.cas.ticket.Ticket;
@@ -27,46 +28,46 @@ import org.jasig.cas.ticket.Ticket;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
 import java.util.Set;
 
 /**
- * Authorization Code token implementation.
+ * The implementation class for {@link AuthorizationCode}.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 @Entity
 @Table(name="AUTHORIZATIONCODE")
 public final class AuthorizationCodeImpl extends AbstractToken implements AuthorizationCode {
 
-    /** Unique Id for serialization. */
+    /** Unique id for serialization. */
     private static final long serialVersionUID = -7608149809180111599L;
 
-    /** The ServiceTicket this is associated with. */
+    /** The service ticket this authorization code is associated with. */
     @OneToOne(targetEntity=ServiceTicketImpl.class, orphanRemoval=true)
     @OnDelete(action= OnDeleteAction.CASCADE)
     private ServiceTicket serviceTicket;
 
     /**
-     * Instantiates a new oauth refresh token impl.
-     */
-    public AuthorizationCodeImpl() {
-        // nothing to do
-    }
-
-    /**
-     * Constructs a new Code Token.
-     * May throw an {@link IllegalArgumentException} if the Authentication object is null.
+     * Instantiate a new {@link AuthorizationCodeImpl}.
      *
-     * @param id the id of the Ticket
+     * @param id the id of the authorization code
      * @param type the token type
      * @param clientId the client id
      * @param principalId the principal id
      * @param serviceTicket the service ticket
      * @param scopes the scopes
      */
-    public AuthorizationCodeImpl(final String id, final TokenType type, final String clientId, final String principalId,
-                                 final ServiceTicket serviceTicket, final Set<String> scopes) {
+    public AuthorizationCodeImpl(
+            final String id,
+            final TokenType type,
+            final String clientId,
+            final String principalId,
+            final ServiceTicket serviceTicket,
+            final Set<String> scopes
+    ) {
         super(id, clientId, principalId, type, scopes);
         this.serviceTicket = serviceTicket;
     }
