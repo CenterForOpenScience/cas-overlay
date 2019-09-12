@@ -24,10 +24,12 @@ import org.jasig.cas.authentication.RootCasException;
  * The exception to throw when we cannot find a requested scope.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class InvalidScopeException extends RootCasException {
 
+    /** Unique id for serialization. */
     private static final long serialVersionUID = -8143505357364890832L;
 
     /** The code description. */
@@ -36,8 +38,9 @@ public class InvalidScopeException extends RootCasException {
     private final String scope;
 
     /**
-     * Constructs a InvalidScopeException with the default exception code.
-     * @param scope the scope that originally caused this exception to be thrown.
+     * Instantiates a {@link InvalidScopeException} with the default exception code.
+     *
+     * @param scope the scope that originally caused this exception to be thrown
      */
     public InvalidScopeException(final String scope) {
         super(CODE);
@@ -45,11 +48,10 @@ public class InvalidScopeException extends RootCasException {
     }
 
     /**
-     * Constructs a InvalidScopeException with the default exception code and
-     * the original exception that was thrown.
+     * Instantiates a {@link InvalidScopeException} with the default exception code and the original exception.
      *
      * @param throwable the chained exception
-     * @param scope the scope that originally caused this exception to be thrown.
+     * @param scope the scope that originally caused this exception to be thrown
      */
     public InvalidScopeException(final Throwable throwable, final String scope) {
         super(CODE, throwable);
@@ -58,6 +60,7 @@ public class InvalidScopeException extends RootCasException {
 
     /**
      * Returns the message of this exception.
+     *
      * @return the message
      * @see InvalidScopeException#scope
      */

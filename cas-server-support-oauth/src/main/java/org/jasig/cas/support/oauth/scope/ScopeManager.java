@@ -25,10 +25,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Scope Manager.
+ * OAuth scope manager.
+ *
+ * This manager is a property of the CAS OAuth Service {@link org.jasig.cas.support.oauth.CentralOAuthServiceImpl} and
+ * is used to retrieve scope information via its two scope handlers.
+ *
+ * The OSF scope handler {@literal io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkPersonalAccessTokenHandler}
+ * is used as the main scope handler with current CAS settings.
+ *
+ * The simple scope handler {@link org.jasig.cas.support.oauth.scope.handler.SimpleScopeHandler} is used as the CAS
+ * scope handler by by default.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class ScopeManager {
 
@@ -41,17 +51,17 @@ public class ScopeManager {
     /**
      * Creates a new scope manager with only a default scope handler.
      *
-     * @param scopeHandler The default scope handler.
+     * @param scopeHandler The default scope handler
      */
     public ScopeManager(final ScopeHandler scopeHandler) {
         this(scopeHandler, new SimpleScopeHandler());
     }
 
     /**
-     * Creates a new scope manager with the addition of the cas scope handler.
+     * Creates a new scope manager with a scope handler and an additional cas scope handler.
      *
-     * @param scopeHandler The default scope handler.
-     * @param casScopeHandler The cas scope handler.
+     * @param scopeHandler The default scope handler
+     * @param casScopeHandler The cas scope handler
      */
     public ScopeManager(final ScopeHandler scopeHandler, final ScopeHandler casScopeHandler) {
         this.scopeHandler = scopeHandler;
@@ -61,8 +71,8 @@ public class ScopeManager {
     /**
      * Retrieve a scope by name.
      *
-     * @param name the name of the scope.
-     * @return the retireved scope
+     * @param name the name of the scope
+     * @return the retrieved scope
      */
     public Scope getScope(final String name) {
         return scopeHandler.getScope(name);
@@ -71,7 +81,7 @@ public class ScopeManager {
     /**
      * Retrieve a set of default scopes.
      *
-     * @return the set of scopes.
+     * @return the set of scopes
      */
     public Set<Scope> getDefaults() {
         return scopeHandler.getDefaults();
@@ -80,7 +90,7 @@ public class ScopeManager {
     /**
      * Retrieve a set of scopes specific to the CAS handler.
      *
-     * @return the set of scopes.
+     * @return the set of scopes
      */
     public Set<String> getCASScopes() {
         final Set<String> scopeSet = new HashSet<>();

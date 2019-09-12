@@ -24,10 +24,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Base class for OAuth Scope Handlers.
+ * The abstract base class for OAuth scope handler classes.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public abstract class AbstractScopeHandler implements ScopeHandler {
 
