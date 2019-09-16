@@ -19,197 +19,202 @@
 package org.jasig.cas.support.oauth;
 
 /**
- * This class has the main constants for the OAuth implementation.
+ * This class has the main constants for the OAuth 2.0 implementation.
+ *
+ * These constants are used in many places such as OAuth request URLs, redirect response URLs, HTTP headers and body,
+ * OAuth session data, error name and messages, etc. However, the naming of the constants is not accurate and at times
+ * confusing. Thus, refer to the JavaDoc comments and the actual usage for what they are and how they are used.
  *
  * @author Jerome Leleu
  * @author Michael Haselton
- * @since 3.5.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public interface OAuthConstants {
 
-    /** The redirect uri. */
+    /** The name of the redirect uri parameter. */
     String REDIRECT_URI = "redirect_uri";
 
-    /** The response type. */
+    /** The name of the response type parameter. */
     String RESPONSE_TYPE = "response_type";
 
-    /** The client id. */
+    /** The name of the client id parameter. */
     String CLIENT_ID = "client_id";
 
-    /** The client secret. */
+    /** The name of the client secret parameter. */
     String CLIENT_SECRET = "client_secret";
 
-    /** The scope. */
+    /** The name of the scope parameter (OAuth protocol, as opposed to the CAS protocol one). */
     String SCOPE = "scope";
 
-    /** The approval prompt. */
+    /** The name of the access type parameter. */
     String ACCESS_TYPE = "access_type";
 
-    /** The approval prompt. */
+    /** The name of the approval prompt parameter. */
     String APPROVAL_PROMPT = "approval_prompt";
 
-    /** The approval prompt force. */
+    /** One value for the approval prompt parameter: force. */
     String APPROVAL_PROMPT_FORCE = "force";
 
-    /** The approval prompt auto. */
+    /** The other value for the approval prompt parameter: auto. */
     String APPROVAL_PROMPT_AUTO = "auto";
 
-    /** The bypass approval prompt. */
+    /** OAuth session parameter: bypass approval prompt. */
     String BYPASS_APPROVAL_PROMPT = "bypass_approval_prompt";
 
-    /** The code. */
+    /** The name of the code parameter, of which the value stores an authorization code. */
     String CODE = "code";
 
-    /** The service. */
+    /** The name of the service parameter, of which the value is a full callback authorize URL. */
     String SERVICE = "service";
 
-    /** The ticket. */
+    /** The name of the service ticket parameter. */
     String TICKET = "ticket";
 
-    /** The token. */
+    /** The name of the token parameter. */
     String TOKEN = "token";
 
-    /** The state. */
+    /** The name of the state parameter. */
     String STATE = "state";
 
-    /** The access token. */
+    /** The name of access token parameter (OAuth protocol, as opposed to the CAS protocol one). */
     String ACCESS_TOKEN = "access_token";
 
-    /** The refresh token. */
+    /** The name of the refresh token parameter OR one value for the grant type parameter for refresh token. */
     String REFRESH_TOKEN = "refresh_token";
 
-    /** The grant type. */
+    /** The name of the grant type parameter. */
     String GRANT_TYPE = "grant_type";
 
-    /** The authorization code. */
+    /** The other value of the grant type parameter for authorization code. */
     String AUTHORIZATION_CODE = "authorization_code";
 
-    /** The bearer token. */
+    /** The bearer token prefix in the authorization header OR one of the value for the token type parameter. */
     String BEARER_TOKEN = "Bearer";
 
-    /** The OATH h20_ approval prompt action. */
+    /** The name of the OAuth approval prompt action parameter. */
     String OAUTH20_APPROVAL_PROMPT_ACTION = "action";
 
-    /** The OATH h20_ approval prompt allow action. */
+    /** The only valid value for the OAuth approval prompt action parameter: allow. */
     String OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW = "allow";
 
-    /** The OAUT h20_ redirect uri. */
+    /** OAuth session parameter: redirect uri. */
     String OAUTH20_REDIRECT_URI = "oauth20_redirect_uri";
 
-    /** The OAUT h20_ login ticket id. */
+    /** OAuth session parameter: login ticket id. */
     String OAUTH20_LOGIN_TICKET_ID = "oauth20_login_ticket_id";
 
-    /** The OAUT h20_ servic e_ name. */
+    /** OAuth session parameter: service name. */
     String OAUTH20_SERVICE_NAME = "oauth20_service_name";
 
-    /** The OAUT h20_ state. */
+    /** OAuth session parameter: state. */
     String OAUTH20_STATE = "oauth20_state";
 
-    /** The OAUT h20_ scope. */
+    /** OAuth session parameter: scope. */
     String OAUTH20_SCOPE = "oauth20_scope";
 
-    /** The OAUT h20_ scope map. */
+    /** OAuth session parameter: scope map. */
     String OAUTH20_SCOPE_SET = "oauth20_scope_set";
 
-    /** The OAUT h20_ response type. */
+    /** OAuth session parameter: response type. */
     String OAUTH20_RESPONSE_TYPE = "oauth20_response_type";
 
-    /** The OAUT h20_ client id. */
+    /** OAuth session parameter: client id. */
     String OAUTH20_CLIENT_ID = "oauth20_client_id";
 
-    /** The OAUT h20_ token type. */
+    /** OAuth session parameter: token type. */
     String OAUTH20_TOKEN_TYPE = "oauth20_token_type";
 
-    /** The OAUT h20_ approval prompt. */
+    /** OAuth session parameter: approval prompt. */
     String OAUTH20_APPROVAL_PROMPT = "oauth20_approval_prompt";
 
-    /** The missing access token. */
+    /** Error name for missing access token. */
     String MISSING_ACCESS_TOKEN = "missing_access_token";
 
-    /** The expired access token. */
+    /** Error name for expired access token. */
     String EXPIRED_ACCESS_TOKEN = "expired_access_token";
 
-    /** The confirm view. */
+    /** Bean configuration: the name of the OAuth confirm view. */
     String CONFIRM_VIEW = "oauthConfirmView";
 
-    /** The error view. */
+    /** Bean configuration: the name of the OAuth failure view. */
     String ERROR_VIEW = "oauthFailureView";
 
-    /** The invalid request. */
+    /** Error name for invalid requests, e.g. invalid or missing redirect uri, client id and secret. */
     String INVALID_REQUEST = "invalid_request";
 
-    /** The unauthorized request. */
+    /** Error name for invalid access token. */
     String UNAUTHORIZED_REQUEST = "unauthorized";
 
-    /** The invalid grant. */
+    /** Error name for invalid grants, e.g. invalid grant type, expired ST and TGT. */
     String INVALID_GRANT = "invalid_grant";
 
-    /** The authorize url. */
+    /** The OAuth authorize endpoint. */
     String AUTHORIZE_URL = "authorize";
 
-    /** The callback authorize url. */
+    /** The path for OAuth callback authorize endpoint. */
     String CALLBACK_AUTHORIZE_URL = "callbackAuthorize";
 
-    /** The callback authorize url. */
+    /** The path for OAuth callback authorize action endpoint. */
     String CALLBACK_AUTHORIZE_ACTION_URL = "callbackAuthorizeAction";
 
-    /** The access token url. */
+    /** The path for OAuth 2.0 access token endpoint. */
     String TOKEN_URL = "token";
 
-    /** The revoke token url. */
+    /** The path for OAuth 2.0 revoke token endpoint. */
     String REVOKE_URL = "revoke";
 
-    /** The profile url. */
+    /** The path for OAuth 2.0 profile endpoint. */
     String PROFILE_URL = "profile";
 
-    /** The metadata url. */
+    /** The path for OAuth 2.0 metadata endpoint. */
     String METADATA_URL = "metadata";
 
-    /** The remaining time in seconds before expiration with syntax : expires_in: 3600... */
+    /** The name of the expiration time parameter. */
     String EXPIRES_IN = "expires_in";
 
-    /** The token type. */
+    /** The name of the token type parameter. */
     String TOKEN_TYPE = "token_type";
 
-    /** The error. */
+    /** The name of the error parameter in the denied callback URL. */
     String ERROR = "error";
 
-    /** The access denied. */
+    /** The value for the error parameter in the denied callback URL for access denied. */
     String ACCESS_DENIED = "access_denied";
 
-    /** The CAS protocol access token. */
+    /** The attribute name of the access token (CAS protocol, as opposed to the OAuth protocol one. */
     String CAS_PROTOCOL_ACCESS_TOKEN = "accessToken";
 
-    /** The CAS protocol access token scope. */
+    /** The attribute name of access token scope (CAS protocol, as opposed to the OAuth protocol one. */
     String CAS_PROTOCOL_ACCESS_TOKEN_SCOPE = "accessTokenScope";
 
-    /** The invalid code error description. */
+    /** Error description for invalid code. */
     String INVALID_CODE_DESCRIPTION = "Invalid Code";
 
-    /** The invalid refresh token error description. */
+    /** Error description for invalid refresh token. */
     String INVALID_REFRESH_TOKEN_DESCRIPTION = "Invalid Refresh Token";
 
-    /** The invalid access token error description. */
+    /** Error description for invalid access token. */
     String INVALID_ACCESS_TOKEN_DESCRIPTION = "Invalid Access Token";
 
-    /** The missing access token error description. */
+    /** Error description for missing access token. */
     String MISSING_ACCESS_TOKEN_DESCRIPTION = "Missing Access Token";
 
-    /** The ticket granting ticket expired error description. */
+    /** Error description for ticket granting ticket expired. */
     String EXPIRED_TGT_DESCRIPTION = "Ticket Granting Ticket Expired";
 
-    /** The service ticket expired error description. */
+    /** Error description for service ticket expired. */
     String EXPIRED_ST_DESCRIPTION = "Service Ticket Expired";
 
-    /** The invalid client id or client secret error description. */
+    /** Error description for invalid client id or client secret. */
     String INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION = "Invalid Client ID or Client Secret";
 
-    /** The invalid redirect uri error description. */
+    /** Error description for invalid redirect uri. */
     String INVALID_REDIRECT_URI_DESCRIPTION = "Invalid Redirect URI";
 
-    /** The invalid grant type error description. */
+    /** Error description for invalid grant type. */
     String INVALID_GRANT_TYPE_DESCRIPTION = "Invalid Grant Type";
 
-    /** The failed token revocation error description. */
+    /** Error description for failed token revocation. */
     String FAILED_TOKEN_REVOCATION_DESCRIPTION = "Token Revocation Failed";
 }
