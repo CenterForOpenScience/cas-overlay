@@ -24,11 +24,11 @@ import com.codahale.metrics.annotation.Timed;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.SimpleWebApplicationServiceImpl;
+import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
 import org.jasig.cas.support.oauth.metadata.ClientMetadata;
@@ -60,15 +60,15 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.util.Assert;
 
-import javax.validation.constraints.NotNull;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
 /**
- * Central OAuth Service implementation.
+ * The CAS OAuth service implementation of {@link CentralOAuthService}.
  *
  * @author Michael Haselton
  * @author Longze Chen
@@ -79,73 +79,66 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     /** Log instance for logging events, info, warnings, errors, etc. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CentralOAuthService.class);
 
-    /** CentralAuthenticationService for requesting tickets as needed. */
+    /** The primary CAS authentication service for requesting tickets as needed. */
     @NotNull
     private final CentralAuthenticationService centralAuthenticationService;
 
-    /** ServicesManager for verifying service endpoints. */
+    /** The service manager for accessing (retrieving) OAuth registered services. */
     @NotNull
     private final ServicesManager servicesManager;
 
-    /** TokenRegistry for storing and retrieving tokens as needed. */
+    /** The ticket registry for accessing (deleting) tickets as needed. */
     @NotNull
     private final TicketRegistry ticketRegistry;
 
-    /** TokenRegistry for storing and retrieving tokens as needed. */
+    /** The token registry for accessing (storing and retrieving) tokens as needed. */
     @NotNull
     private final TokenRegistry tokenRegistry;
 
-    /** ScopeManager for storing and retrieving scopes as needed. */
+    /** The scope manager for accessing (storing and retrieving) scopes as needed. */
     @NotNull
     private final ScopeManager scopeManager;
 
-    /** PersonalAccessTokenManager for retrieving personal tokens. */
+    /** The personal access token manager for accessing (retrieving) personal access tokens. */
     @NotNull
     private final PersonalAccessTokenManager personalAccessTokenManager;
 
-    /**
-     * UniqueTicketIdGenerator to generate ids for AuthorizationCodes
-     * created.
-     */
+    /** The unique id generator that generates ids for authorization codes created. */
     @NotNull
     private final UniqueTicketIdGenerator authorizationCodeUniqueIdGenerator;
 
-    /**
-     * UniqueTicketIdGenerator to generate ids for RefreshTokens
-     * created.
-     */
+    /** The unique id generator that generates ids for refresh tokens created. */
     @NotNull
     private final UniqueTicketIdGenerator refreshTokenUniqueIdGenerator;
 
-    /**
-     * UniqueTicketIdGenerator to generate ids for AccessTokens
-     * created.
-     */
+    /** The unique id generator that generates ids for access tokens created. */
     @NotNull
     private final UniqueTicketIdGenerator accessTokenUniqueIdGenerator;
 
     /**
-     * Build the central oauth service implementation.
+     * Instantiates a new CAS OAuth service {@link CentralOAuthServiceImpl}.
      *
-     * @param centralAuthenticationService the central authentication service.
-     * @param servicesManager the services manager.
-     * @param ticketRegistry the ticket registry.
-     * @param tokenRegistry the token registry.
-     * @param authorizationCodeUniqueIdGenerator the authorization code unique id generator.
-     * @param refreshTokenUniqueIdGenerator the refresh token unique id generator.
-     * @param accessTokenUniqueIdGenerator the access token unique id generator.
-     * @param scopeManager the scope manager.
-     * @param personalAccessTokenManager the personal access token manager.
+     * @param centralAuthenticationService the central authentication service
+     * @param servicesManager the services manager
+     * @param ticketRegistry the ticket registry
+     * @param tokenRegistry the token registry
+     * @param authorizationCodeUniqueIdGenerator the authorization code unique id generator
+     * @param refreshTokenUniqueIdGenerator the refresh token unique id generator
+     * @param accessTokenUniqueIdGenerator the access token unique id generator
+     * @param scopeManager the scope manager
+     * @param personalAccessTokenManager the personal access token manager
      */
-    public CentralOAuthServiceImpl(final CentralAuthenticationService centralAuthenticationService,
-                                   final ServicesManager servicesManager,
-                                   final TicketRegistry ticketRegistry,
-                                   final TokenRegistry tokenRegistry,
-                                   final UniqueTicketIdGenerator authorizationCodeUniqueIdGenerator,
-                                   final UniqueTicketIdGenerator refreshTokenUniqueIdGenerator,
-                                   final UniqueTicketIdGenerator accessTokenUniqueIdGenerator,
-                                   final ScopeManager scopeManager,
-                                   final PersonalAccessTokenManager personalAccessTokenManager) {
+    public CentralOAuthServiceImpl(
+            final CentralAuthenticationService centralAuthenticationService,
+            final ServicesManager servicesManager,
+            final TicketRegistry ticketRegistry,
+            final TokenRegistry tokenRegistry,
+            final UniqueTicketIdGenerator authorizationCodeUniqueIdGenerator,
+            final UniqueTicketIdGenerator refreshTokenUniqueIdGenerator,
+            final UniqueTicketIdGenerator accessTokenUniqueIdGenerator,
+            final ScopeManager scopeManager,
+            final PersonalAccessTokenManager personalAccessTokenManager
+    ) {
         this.centralAuthenticationService = centralAuthenticationService;
         this.servicesManager = servicesManager;
         this.ticketRegistry = ticketRegistry;
@@ -163,67 +156,97 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    public AuthorizationCode grantAuthorizationCode(final TokenType type, final String clientId,
-                                                    final String ticketGrantingTicketId, final String redirectUri,
-                                                    final Set<String> scopes) throws TicketException {
+    public AuthorizationCode grantAuthorizationCode(
+            final TokenType type,
+            final String clientId,
+            final String ticketGrantingTicketId,
+            final String redirectUri,
+            final Set<String> scopes
+    ) throws TicketException {
+
         final Service service = new SimpleWebApplicationServiceImpl(redirectUri);
-        final ServiceTicket serviceTicket = centralAuthenticationService.grantServiceTicket(ticketGrantingTicketId, service);
+        final ServiceTicket serviceTicket
+                = centralAuthenticationService.grantServiceTicket(ticketGrantingTicketId, service);
 
         final AuthorizationCodeImpl authorizationCode = new AuthorizationCodeImpl(
                 this.authorizationCodeUniqueIdGenerator.getNewTicketId(AuthorizationCode.PREFIX),
-                type, clientId, serviceTicket.getGrantingTicket().getAuthentication().getPrincipal().getId(),
-                serviceTicket, scopes);
+                type,
+                clientId,
+                serviceTicket.getGrantingTicket().getAuthentication().getPrincipal().getId(),
+                serviceTicket,
+                scopes
+        );
+
+        // TODO: add token type to the logger
         LOGGER.debug("{} : {}", OAuthConstants.AUTHORIZATION_CODE, authorizationCode);
 
         this.tokenRegistry.addToken(authorizationCode);
-
         return authorizationCode;
     }
 
     @Override
-    public RefreshToken grantOfflineRefreshToken(final AuthorizationCode authorizationCode, final String redirectUri)
-            throws InvalidTokenException {
-        final Principal principal = authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal();
-        final OAuthCredential credential = new OAuthCredential(principal.getId(), principal.getAttributes(), TokenType.OFFLINE);
+    public RefreshToken grantOfflineRefreshToken(
+            final AuthorizationCode authorizationCode,
+            final String redirectUri
+    ) throws InvalidTokenException {
 
+        final Principal principal
+                = authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal();
+        final OAuthCredential credential
+                = new OAuthCredential(principal.getId(), principal.getAttributes(), TokenType.OFFLINE);
         final TicketGrantingTicket ticketGrantingTicket;
         try {
             ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credential);
         } catch (final AuthenticationException | TicketException e) {
             throw new InvalidTokenException(authorizationCode.getId());
         }
-
         final RefreshToken refreshToken = new RefreshTokenImpl(
-                refreshTokenUniqueIdGenerator.getNewTicketId(RefreshToken.PREFIX), authorizationCode.getClientId(),
+                refreshTokenUniqueIdGenerator.getNewTicketId(RefreshToken.PREFIX),
+                authorizationCode.getClientId(),
                 authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal().getId(),
-                ticketGrantingTicket, authorizationCode.getServiceTicket().getService(), authorizationCode.getScopes());
-        LOGGER.debug("Offline {} : {}", OAuthConstants.REFRESH_TOKEN, refreshToken);
+                ticketGrantingTicket,
+                authorizationCode.getServiceTicket().getService(),
+                authorizationCode.getScopes()
+        );
+        LOGGER.debug("OFFLINE {} : {}", OAuthConstants.REFRESH_TOKEN, refreshToken);
 
-        // remove the service ticket, doing so will cascade and remove the authorization code token
+        // Remove the service ticket, doing so will CASCADE and remove the authorization code.
+        // For `AuthorizationCodeImpl`, both `.getTicket()` and `getServiceTicket()` returns the service ticket.
         ticketRegistry.deleteTicket(authorizationCode.getTicket().getId());
-        tokenRegistry.addToken(refreshToken);
 
+        tokenRegistry.addToken(refreshToken);
         return refreshToken;
     }
 
     @Override
-    public AccessToken grantCASAccessToken(final TicketGrantingTicket ticketGrantingTicket, final Service service)
-            throws TicketException {
+    public AccessToken grantCASAccessToken(
+            final TicketGrantingTicket ticketGrantingTicket,
+            final Service service
+    ) throws TicketException {
+
         final AccessToken accessToken = new AccessTokenImpl(
-                accessTokenUniqueIdGenerator.getNewTicketId(AccessToken.PREFIX), TokenType.CAS, null,
-                ticketGrantingTicket.getAuthentication().getPrincipal().getId(), ticketGrantingTicket, service, null,
-                scopeManager.getCASScopes());
+                accessTokenUniqueIdGenerator.getNewTicketId(AccessToken.PREFIX),
+                TokenType.CAS,
+                null,
+                ticketGrantingTicket.getAuthentication().getPrincipal().getId(),
+                ticketGrantingTicket,
+                service,
+                null,
+                scopeManager.getCASScopes()
+        );
         LOGGER.debug("CAS {} : {}", OAuthConstants.ACCESS_TOKEN, accessToken);
 
         tokenRegistry.addToken(accessToken);
-
         return accessToken;
     }
 
     @Override
-    public AccessToken grantPersonalAccessToken(final PersonalAccessToken personalAccessToken) throws InvalidTokenException {
-        final OAuthCredential credential = new OAuthCredential(personalAccessToken.getPrincipalId(), TokenType.PERSONAL);
+    public AccessToken grantPersonalAccessToken(
+            final PersonalAccessToken personalAccessToken
+    ) throws InvalidTokenException {
 
+        final OAuthCredential credential
+                = new OAuthCredential(personalAccessToken.getPrincipalId(), TokenType.PERSONAL);
         final TicketGrantingTicket ticketGrantingTicket;
         try {
             ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credential);
@@ -232,41 +255,58 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
         }
 
         final AccessToken accessToken = new AccessTokenImpl(
-                personalAccessToken.getId(), TokenType.PERSONAL, null, personalAccessToken.getPrincipalId(), ticketGrantingTicket,
-                null, null, personalAccessToken.getScopes());
-        LOGGER.debug("Personal {} : {}", OAuthConstants.ACCESS_TOKEN, accessToken);
+                personalAccessToken.getId(),
+                TokenType.PERSONAL,
+                null,
+                personalAccessToken.getPrincipalId(),
+                ticketGrantingTicket,
+                null,
+                null,
+                personalAccessToken.getScopes()
+        );
+        LOGGER.debug("PERSONAL {} : {}", OAuthConstants.ACCESS_TOKEN, accessToken);
 
         tokenRegistry.addToken(accessToken);
-
         return accessToken;
     }
 
     @Override
     public AccessToken grantOfflineAccessToken(final RefreshToken refreshToken) throws InvalidTokenException {
+
         final ServiceTicket serviceTicket;
         try {
-            serviceTicket = centralAuthenticationService.grantServiceTicket(refreshToken.getTicketGrantingTicket().getId(),
-                    refreshToken.getService());
+            serviceTicket = centralAuthenticationService
+                    .grantServiceTicket(
+                            refreshToken.getTicketGrantingTicket().getId(),
+                            refreshToken.getService()
+                    );
         } catch (final TicketException e) {
             throw new InvalidTokenException(refreshToken.getId());
         }
 
         final AccessToken accessToken = new AccessTokenImpl(
-                accessTokenUniqueIdGenerator.getNewTicketId(AccessToken.PREFIX), TokenType.OFFLINE, refreshToken.getClientId(),
-                refreshToken.getTicketGrantingTicket().getAuthentication().getPrincipal().getId(), null, null,
-                serviceTicket, refreshToken.getScopes());
-        LOGGER.debug("Offline {} : {}", OAuthConstants.ACCESS_TOKEN, accessToken);
+                accessTokenUniqueIdGenerator.getNewTicketId(AccessToken.PREFIX),
+                TokenType.OFFLINE,
+                refreshToken.getClientId(),
+                refreshToken.getTicketGrantingTicket().getAuthentication().getPrincipal().getId(),
+                null,
+                null,
+                serviceTicket,
+                refreshToken.getScopes()
+        );
+        LOGGER.debug("OFFLINE {} : {}", OAuthConstants.ACCESS_TOKEN, accessToken);
 
         tokenRegistry.addToken(accessToken);
-
         return accessToken;
     }
 
     @Override
     public AccessToken grantOnlineAccessToken(final AuthorizationCode authorizationCode) throws InvalidTokenException {
-        final Principal principal = authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal();
-        final OAuthCredential credential = new OAuthCredential(principal.getId(), principal.getAttributes(), TokenType.ONLINE);
 
+        final Principal principal
+                = authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal();
+        final OAuthCredential credential
+                = new OAuthCredential(principal.getId(), principal.getAttributes(), TokenType.ONLINE);
         final TicketGrantingTicket ticketGrantingTicket;
         try {
             ticketGrantingTicket = centralAuthenticationService.createTicketGrantingTicket(credential);
@@ -275,15 +315,22 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
         }
 
         final AccessToken accessToken = new AccessTokenImpl(
-                accessTokenUniqueIdGenerator.getNewTicketId(AccessToken.PREFIX), TokenType.ONLINE, authorizationCode.getClientId(),
+                accessTokenUniqueIdGenerator.getNewTicketId(AccessToken.PREFIX),
+                TokenType.ONLINE,
+                authorizationCode.getClientId(),
                 authorizationCode.getServiceTicket().getGrantingTicket().getAuthentication().getPrincipal().getId(),
-                ticketGrantingTicket, authorizationCode.getServiceTicket().getService(), null, authorizationCode.getScopes());
-        LOGGER.debug("Online {} : {}", OAuthConstants.ACCESS_TOKEN, accessToken);
+                ticketGrantingTicket,
+                authorizationCode.getServiceTicket().getService(),
+                null,
+                authorizationCode.getScopes()
+        );
+        LOGGER.debug("ONLINE {} : {}", OAuthConstants.ACCESS_TOKEN, accessToken);
 
-        // remove the service ticket, doing so will cascade and remove the authorization code token
+        // Remove the service ticket, doing so will CASCADE and remove the authorization code.
+        // For `AuthorizationCodeImpl`, both `.getTicket()` and `getServiceTicket()` returns the service ticket.
         ticketRegistry.deleteTicket(authorizationCode.getTicket().getId());
-        tokenRegistry.addToken(accessToken);
 
+        tokenRegistry.addToken(accessToken);
         return accessToken;
     }
 
@@ -299,15 +346,18 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     public Boolean revokeClientPrincipalTokens(final AccessToken accessToken, final String clientId) {
+
         final String targetClientId;
+        // TODO: Add a check here for PERSONAL access tokens which shouldn't be used here.
         if (accessToken.getType() == TokenType.CAS) {
-            // Only CAS Tokens are allowed to specify the client id for revocation.
+            // CAS access token is not bound to a client but to a principal. Must specify the client id.
             if (StringUtils.isBlank(clientId)) {
                 LOGGER.warn("CAS Token used for revocation, Client ID must be specified");
                 return Boolean.FALSE;
             }
             targetClientId = clientId;
         } else {
+            // ONLINE and OFFLINE access tokens is bound to a client. Must provide the correct client id.
             if (!accessToken.getClientId().equals(clientId)) {
                 LOGGER.warn("Access Token's Client ID and specified Client ID must match");
                 return Boolean.FALSE;
@@ -315,17 +365,30 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
             targetClientId = accessToken.getClientId();
         }
 
-        final Collection<RefreshToken> refreshTokens = tokenRegistry.getClientPrincipalTokens(targetClientId,
-                accessToken.getPrincipalId(), RefreshToken.class);
+        final Collection<RefreshToken> refreshTokens = tokenRegistry
+                .getClientPrincipalTokens(
+                        targetClientId,
+                        accessToken.getPrincipalId(),
+                        RefreshToken.class
+                );
         for (final RefreshToken token : refreshTokens) {
             LOGGER.debug("Revoking refresh token : {}", token.getId());
+            // Remove the ticket granting ticket, doing so will CASCADE and remove 1) the refresh token and 2) the
+            // service tickets created by the ticket granting ticket for generating OFFLINE access tokens which will
+            // further CASCADE and remove all the OFFLINE access tokens.
             ticketRegistry.deleteTicket(token.getTicketGrantingTicket().getId());
         }
 
-        final Collection<AccessToken> accessTokens = tokenRegistry.getClientPrincipalTokens(targetClientId,
-                accessToken.getPrincipalId(), TokenType.ONLINE, AccessToken.class);
+        final Collection<AccessToken> accessTokens = tokenRegistry
+                .getClientPrincipalTokens(
+                        targetClientId,
+                        accessToken.getPrincipalId(),
+                        TokenType.ONLINE,
+                        AccessToken.class
+                );
         for (final AccessToken token : accessTokens) {
             LOGGER.debug("Revoking access token : {}", token.getId());
+            // Remove the ticket granting ticket, doing so will CASCADE and remove the ONLINE access token.
             ticketRegistry.deleteTicket(token.getTicketGrantingTicket().getId());
         }
 
@@ -334,6 +397,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     public ClientMetadata getClientMetadata(final String clientId, final String clientSecret) {
+
         final OAuthRegisteredService service = getRegisteredService(clientId);
         if (service == null) {
             LOGGER.error("OAuth Registered Service could not be found for clientId : {}", clientId);
@@ -344,45 +408,56 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
             return null;
         }
 
-        return new ClientMetadata(service.getClientId(), service.getName(), service.getDescription(),
-                tokenRegistry.getPrincipalCount(clientId));
+        return new ClientMetadata(
+                service.getClientId(),
+                service.getName(),
+                service.getDescription(),
+                tokenRegistry.getPrincipalCount(clientId)
+        );
     }
 
     @Override
-    public Collection<PrincipalMetadata> getPrincipalMetadata(final AccessToken accessToken)
-            throws InvalidTokenException {
+    public Collection<PrincipalMetadata> getPrincipalMetadata(
+            final AccessToken accessToken
+    ) throws InvalidTokenException {
+
         if (accessToken.getType() != TokenType.CAS) {
-            // Only CAS Tokens are allowed to access principal metadata.
-            LOGGER.warn("Principal Metadata can only be accessed with an Access Token of type CAS");
+            // Only CAS access tokens are allowed to access principal metadata.
+            LOGGER.warn("Principal metadata can only be accessed with an access token of type CAS");
             throw new InvalidTokenException(accessToken.getId());
         }
 
         final Map<String, PrincipalMetadata> metadata = new HashMap<>();
+
+        // TODO: Fix code duplication
         for (final Token token : tokenRegistry.getPrincipalTokens(accessToken.getPrincipalId(), RefreshToken.class)) {
             final PrincipalMetadata serviceDetail;
             if (!metadata.containsKey(token.getClientId())) {
                 final OAuthRegisteredService service = getRegisteredService(token.getClientId());
-
-                serviceDetail = new PrincipalMetadata(service.getClientId(), service.getName(), service.getDescription());
-                metadata.put(token.getClientId(), serviceDetail);
+                serviceDetail = new PrincipalMetadata(
+                        service.getClientId(),
+                        service.getName(),
+                        service.getDescription());
+                metadata.put(token.getClientId(), serviceDetail
+                );
             } else {
                 serviceDetail = metadata.get(token.getClientId());
             }
-
             serviceDetail.getScopes().addAll(token.getScopes());
         }
-
         for (final Token token : tokenRegistry.getPrincipalTokens(accessToken.getPrincipalId(), AccessToken.class)) {
             final PrincipalMetadata serviceDetail;
             if (!metadata.containsKey(token.getClientId())) {
                 final OAuthRegisteredService service = getRegisteredService(token.getClientId());
-
-                serviceDetail = new PrincipalMetadata(service.getClientId(), service.getName(), service.getDescription());
+                serviceDetail = new PrincipalMetadata(
+                        service.getClientId(),
+                        service.getName(),
+                        service.getDescription()
+                );
                 metadata.put(token.getClientId(), serviceDetail);
             } else {
                 serviceDetail = metadata.get(token.getClientId());
             }
-
             serviceDetail.getScopes().addAll(token.getScopes());
         }
 
@@ -395,20 +470,25 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     }
 
     @Override
-    public Boolean isAccessToken(final TokenType type, final String clientId, final String principalId,
-                                 final Set<String> scopes) {
+    public Boolean isAccessToken(
+            final TokenType type,
+            final String clientId,
+            final String principalId,
+            final Set<String> scopes
+    ) {
         return tokenRegistry.isToken(type, clientId, principalId, scopes, AccessToken.class);
     }
 
     @Override
     public Token getToken(final String tokenId) throws InvalidTokenException {
-        Assert.notNull(tokenId, "tokenId cannot be null");
 
+        Assert.notNull(tokenId, "tokenId cannot be null");
         if (tokenId.startsWith(AuthorizationCode.PREFIX)) {
             return getToken(tokenId, AuthorizationCode.class);
         } else if (tokenId.startsWith(RefreshToken.PREFIX)) {
             return getToken(tokenId, RefreshToken.class);
         }
+        // PERSONAL access tokens do not have the `accessToken.PREFIX` that is used by both OFFLINE and ONLINE ones
         return getToken(tokenId, AccessToken.class);
     }
 
@@ -416,8 +496,8 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     @Timed(name = "GET_TOKEN_TIMER")
     @Metered(name = "GET_TOKEN_METER")
     @Counted(name="GET_TOKEN_COUNTER", monotonic=true)
-    public <T extends Token> T getToken(final String tokenId, final Class<T> clazz)
-            throws InvalidTokenException {
+    public <T extends Token> T getToken(final String tokenId, final Class<T> clazz) throws InvalidTokenException {
+
         Assert.notNull(tokenId, "tokenId cannot be null");
 
         final T token = this.tokenRegistry.getToken(tokenId, clazz);
@@ -425,11 +505,9 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
             LOGGER.error("Token [{}] by type [{}] cannot be found in the token registry.", tokenId, clazz.getSimpleName());
             throw new InvalidTokenException(tokenId);
         }
-
         if (token.getTicket().isExpired()) {
-            // cleanup the expired ticket and token.
+            // Remove the expired ticket, which will CASCADE and remove the token.
             ticketRegistry.deleteTicket(token.getTicket().getId());
-
             LOGGER.error("Token [{}] ticket [{}] is expired.", tokenId, token.getTicket().getId());
             throw new InvalidTokenException(tokenId);
         }
@@ -439,6 +517,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     public PersonalAccessToken getPersonalAccessToken(final String tokenId) {
+
         Assert.notNull(tokenId, "tokenId cannot be null");
 
         if (personalAccessTokenManager != null) {
@@ -450,10 +529,11 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     public Map<String, Scope> getScopes(final Set<String> scopeSet) throws InvalidScopeException {
+
         Assert.notNull(scopeSet, "scopeSet cannot be null");
 
         final Map<String, Scope> scopeMap = new HashMap<>();
-
+        // Add the given set of scopes.
         for (final String scope : scopeSet) {
             final Scope oAuthScope = scopeManager.getScope(scope);
             if (oAuthScope == null) {
@@ -462,7 +542,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
             }
             scopeMap.put(oAuthScope.getName(), oAuthScope);
         }
-
+        // Add the default set of scopes.
         for (final Scope defaultScope : scopeManager.getDefaults()) {
             scopeMap.put(defaultScope.getName(), defaultScope);
         }
