@@ -19,14 +19,17 @@
 package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.support.oauth.token.TokenType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
@@ -35,9 +38,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * This controller is in charge of responding to the authorize call in
- * OAuth protocol. It stores the callback url and redirects user to the
- * login page with the callback service.
+ * The OAuth 2.0 authorization controller.
+ *
+ * This controller handles the client's the initial authorization request {@literal /oauth2/authorize}. It verifies the
+ * request, stores the authorization parameters in session and finally redirects the user to the CAS default login page
+ * for primary authentication with the authorization callback endpoint {@literal /oauth2/callbackAuthorize} as service,
+ * which further handles CAS service validation and OAuth authorization callback.
  *
  * @author Jerome Leleu
  * @author Michael Haselton
@@ -46,17 +52,20 @@ import javax.servlet.http.HttpSession;
  */
 public final class OAuth20AuthorizeController extends AbstractController {
 
+    /** Log instance for logging events, info, warnings, errors, etc. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizeController.class);
 
+    /** The CAS OAuth authorization service. */
     private final CentralOAuthService centralOAuthService;
 
+    /** The primary CAS authentication login url. */
     private final String loginUrl;
 
     /**
-     * Instantiates a new o auth20 authorize controller.
+     * Instantiates a new {@link OAuth20AuthorizeController}.
      *
-     * @param centralOAuthService the central oauth service
-     * @param loginUrl the login url
+     * @param centralOAuthService the CAS OAuth service
+     * @param loginUrl the CAS login url
      */
     public OAuth20AuthorizeController(final CentralOAuthService centralOAuthService, final String loginUrl) {
         this.centralOAuthService = centralOAuthService;
@@ -64,8 +73,11 @@ public final class OAuth20AuthorizeController extends AbstractController {
     }
 
     @Override
-    protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
-            throws Exception {
+    protected ModelAndView handleRequestInternal(
+            final HttpServletRequest request,
+            final HttpServletResponse response
+    ) throws Exception {
+
         final String responseType = request.getParameter(OAuthConstants.RESPONSE_TYPE);
         LOGGER.debug("{} : {}", OAuthConstants.RESPONSE_TYPE, responseType);
 
@@ -87,45 +99,70 @@ public final class OAuth20AuthorizeController extends AbstractController {
         final String approvalPrompt = request.getParameter(OAuthConstants.APPROVAL_PROMPT);
         LOGGER.debug("{} : {}", OAuthConstants.APPROVAL_PROMPT, approvalPrompt);
 
+        // Verify the authorization request.
         verifyRequest(responseType, clientId, redirectUri, accessType);
 
+        // Retrieve the OAuth registered service.
         final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
         if (service == null) {
             LOGGER.error("Unknown {} : {}", OAuthConstants.CLIENT_ID, clientId);
             throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
-        // Redirect URI is a literal string (not regex) and the match is done by case-insensitive equality check.
+
+        // Verify the redirect uri, which is stored as the `serviceId` property of the `OAuthRegisteredService` class.
+        // It is not a regular expression but a literal string and thus the match is done by a case-insensitive string
+        // equality check.
         if (!redirectUri.equalsIgnoreCase(service.getServiceId())) {
-            LOGGER.error("Unmatched {} : {} for serviceId : {}", OAuthConstants.REDIRECT_URI, redirectUri, service.getServiceId());
+            LOGGER.error(
+                    "Unmatched {} : {} for serviceId : {}",
+                    OAuthConstants.REDIRECT_URI,
+                    redirectUri, service.getServiceId()
+            );
             throw new InvalidParameterException(OAuthConstants.REDIRECT_URI);
         }
 
-        // keep info in session
+        // Keep the authorization parameters in session.
         final HttpSession session = request.getSession();
         session.setAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT, service.isBypassApprovalPrompt());
-        session.setAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT, StringUtils.isBlank(approvalPrompt)
-                ? OAuthConstants.APPROVAL_PROMPT_AUTO : approvalPrompt);
-        session.setAttribute(OAuthConstants.OAUTH20_TOKEN_TYPE, TokenType.valueOf(StringUtils.isBlank(accessType)
-                ? "ONLINE" : accessType.toUpperCase()));
-        session.setAttribute(OAuthConstants.OAUTH20_RESPONSE_TYPE, StringUtils.isBlank(responseType) ? "code" : responseType.toLowerCase());
+        session.setAttribute(
+                OAuthConstants.OAUTH20_APPROVAL_PROMPT,
+                StringUtils.isBlank(approvalPrompt) ? OAuthConstants.APPROVAL_PROMPT_AUTO : approvalPrompt
+        );
+        session.setAttribute(
+                OAuthConstants.OAUTH20_TOKEN_TYPE,
+                TokenType.valueOf(StringUtils.isBlank(accessType) ? "ONLINE" : accessType.toUpperCase())
+        );
+        session.setAttribute(
+                OAuthConstants.OAUTH20_RESPONSE_TYPE,
+                StringUtils.isBlank(responseType) ? "code" : responseType.toLowerCase()
+        );
         session.setAttribute(OAuthConstants.OAUTH20_CLIENT_ID, clientId);
         session.setAttribute(OAuthConstants.OAUTH20_REDIRECT_URI, redirectUri);
         session.setAttribute(OAuthConstants.OAUTH20_SERVICE_NAME, service.getName());
-        session.setAttribute(OAuthConstants.OAUTH20_SCOPE, StringUtils.isBlank(scope) ? "" : scope);
+        session.setAttribute(
+                OAuthConstants.OAUTH20_SCOPE,
+                StringUtils.isBlank(scope) ? "" : scope
+        );
         session.setAttribute(OAuthConstants.OAUTH20_STATE, state);
 
-        final String callbackAuthorizeUrl = request.getRequestURL().toString()
-                .replace("/" + OAuthConstants.AUTHORIZE_URL, "/" + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        // Generate the authorization callback url.
+        final String callbackAuthorizeUrl = request.getRequestURL().toString().replace(
+                "/" + OAuthConstants.AUTHORIZE_URL,
+                "/" + OAuthConstants.CALLBACK_AUTHORIZE_URL
+        );
         LOGGER.debug("{} : {}", OAuthConstants.CALLBACK_AUTHORIZE_URL, callbackAuthorizeUrl);
 
-        final String loginUrlWithService = OAuthUtils.addParameter(loginUrl, OAuthConstants.SERVICE, callbackAuthorizeUrl);
+        // Generate the CAS login url with the authorization callback url as service.
+        final String loginUrlWithService
+                = OAuthUtils.addParameter(loginUrl, OAuthConstants.SERVICE, callbackAuthorizeUrl);
         LOGGER.debug("loginUrlWithService : {}", loginUrlWithService);
 
+        // Finally, redirect to the CAS default login endpoint.
         return OAuthUtils.redirectTo(loginUrlWithService);
     }
 
     /**
-     * Verify the request by reviewing the values of client id, redirect uri, etc...
+     * Verify the request by reviewing the values of OAuth 2.0 parameters.
      *
      * @param responseType the response type
      * @param clientId the client id
@@ -133,26 +170,34 @@ public final class OAuth20AuthorizeController extends AbstractController {
      * @param accessType the access type
      * @throws InvalidParameterException with the name of the invalid parameter
      */
-    private void verifyRequest(final String responseType, final String clientId, final String redirectUri, final String accessType)
-        throws InvalidParameterException {
-        // responseType must be valid
+    private void verifyRequest(
+            final String responseType,
+            final String clientId,
+            final String redirectUri,
+            final String accessType
+    ) throws InvalidParameterException {
+
+        // Response type can either be "code" or "token", default (if not provided) is "code".
         if (!StringUtils.isBlank(responseType)) {
             if (!"code".equalsIgnoreCase(responseType) && !"token".equalsIgnoreCase(responseType)) {
                 LOGGER.error("Invalid {} specified : {}", OAuthConstants.RESPONSE_TYPE, responseType);
                 throw new InvalidParameterException(OAuthConstants.RESPONSE_TYPE);
             }
         }
-        // clientId is required
+
+        // Client id is required (not empty).
         if (StringUtils.isBlank(clientId)) {
             LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
             throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
-        // redirectUri is required
+
+        // Redirect uri is required (not empty).
         if (StringUtils.isBlank(redirectUri)) {
             LOGGER.error("Missing {}", OAuthConstants.REDIRECT_URI);
             throw new InvalidParameterException(OAuthConstants.REDIRECT_URI);
         }
-        // accessType must be valid, default is ONLINE
+
+        // Access type can either be "OFFLINE" or "ONLINE", default (if not provided) is "ONLINE".
         if (!StringUtils.isBlank(accessType)) {
             try {
                 final TokenType tokenType = TokenType.valueOf(accessType.toUpperCase());
