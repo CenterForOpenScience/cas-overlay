@@ -59,9 +59,6 @@ public interface OAuthConstants {
     /** The other value for the approval prompt parameter: auto. */
     String APPROVAL_PROMPT_AUTO = "auto";
 
-    /** OAuth session parameter: bypass approval prompt. */
-    String BYPASS_APPROVAL_PROMPT = "bypass_approval_prompt";
-
     /** The name of the code parameter, of which the value stores an authorization code. */
     String CODE = "code";
 
@@ -127,6 +124,9 @@ public interface OAuthConstants {
 
     /** OAuth session parameter: approval prompt. */
     String OAUTH20_APPROVAL_PROMPT = "oauth20_approval_prompt";
+
+    /** OAuth session parameter: bypass approval prompt. */
+    String BYPASS_APPROVAL_PROMPT = "bypass_approval_prompt";
 
     /** Error name for missing access token. */
     String MISSING_ACCESS_TOKEN = "missing_access_token";
