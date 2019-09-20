@@ -188,11 +188,17 @@ public interface OAuthConstants {
     /** The attribute name of access token scope (CAS protocol, as opposed to the OAuth protocol one. */
     String CAS_PROTOCOL_ACCESS_TOKEN_SCOPE = "accessTokenScope";
 
-    /** Error description for invalid code. */
+    /** Error description for invalid authorization code. */
     String INVALID_CODE_DESCRIPTION = "Invalid Code";
+
+    /** Error description for missing authorization code. */
+    String MISSING_CODE_DESCRIPTION = "Missing Code";
 
     /** Error description for invalid refresh token. */
     String INVALID_REFRESH_TOKEN_DESCRIPTION = "Invalid Refresh Token";
+
+    /** Error description for missing refresh token. */
+    String MISSING_REFRESH_TOKEN_DESCRIPTION = "Missing Refresh Token";
 
     /** Error description for invalid access token. */
     String INVALID_ACCESS_TOKEN_DESCRIPTION = "Invalid Access Token";
@@ -206,14 +212,32 @@ public interface OAuthConstants {
     /** Error description for service ticket expired. */
     String EXPIRED_ST_DESCRIPTION = "Service Ticket Expired";
 
+    /** Error description for missing client id. */
+    String MISSING_CLIENT_ID_DESCRIPTION = "Missing Client ID";
+
+    /** Error description for unknown client id. */
+    String UNKNOWN_CLIENT_ID_DESCRIPTION = "Unknown Client ID";
+
+    /** Error description for missing client secret. */
+    String MISSING_CLIENT_SECRET_DESCRIPTION = "Missing Client Secret";
+
+    /** Error description for invalid client secret. */
+    String INVALID_CLIENT_SECRET_DESCRIPTION = "Invalid Client Secret";
+
     /** Error description for invalid client id or client secret. */
     String INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION = "Invalid Client ID or Client Secret";
 
     /** Error description for invalid redirect uri. */
     String INVALID_REDIRECT_URI_DESCRIPTION = "Invalid Redirect URI";
 
+    /** Error description for missing redirect uri. */
+    String MISSING_REDIRECT_URI_DESCRIPTION = "Missing Redirect URI";
+
     /** Error description for invalid grant type. */
     String INVALID_GRANT_TYPE_DESCRIPTION = "Invalid Grant Type";
+
+    /** Error description for missing grant type. */
+    String MISSING_GRANT_TYPE_DESCRIPTION = "Missing Grant Type";
 
     /** Error description for failed token revocation. */
     String FAILED_TOKEN_REVOCATION_DESCRIPTION = "Token Revocation Failed";
