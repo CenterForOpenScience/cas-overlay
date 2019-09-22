@@ -32,6 +32,9 @@ package org.jasig.cas.support.oauth;
  */
 public interface OAuthConstants {
 
+    /** The name of the HTTP authorization header. */
+    String AUTHORIZATION_HEADER = "Authorization";
+
     /** The name of the redirect uri parameter. */
     String REDIRECT_URI = "redirect_uri";
 
@@ -205,6 +208,12 @@ public interface OAuthConstants {
 
     /** Error description for missing access token. */
     String MISSING_ACCESS_TOKEN_DESCRIPTION = "Missing Access Token";
+
+    /** Error description for the invalid token. */
+    String INVALID_TOKEN_DESCRIPTION = "Invalid Token";
+
+    /** Error description for the missing token. */
+    String MISSING_TOKEN_DESCRIPTION = "Missing Token";
 
     /** Error description for ticket granting ticket expired. */
     String EXPIRED_TGT_DESCRIPTION = "Ticket Granting Ticket Expired";

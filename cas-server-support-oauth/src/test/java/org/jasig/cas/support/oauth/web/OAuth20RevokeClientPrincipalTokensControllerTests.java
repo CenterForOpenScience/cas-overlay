@@ -19,28 +19,32 @@
 package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.InvalidTokenException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * This class tests the {@link OAuth20RevokeClientPrincipalTokensController} class.
  *
  * @author Fitz Elliott
- * @since 3.5.2
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
@@ -68,7 +72,7 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}";
+                + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -94,7 +98,7 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}";
+                + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -120,7 +124,7 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}";
+                + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);

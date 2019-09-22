@@ -336,6 +336,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
 
     @Override
     public Boolean revokeToken(final Token token) {
+        // Remove the ticket, doing so will CASCADE and remove the token.
         return ticketRegistry.deleteTicket(token.getTicket().getId());
     }
 
@@ -348,7 +349,7 @@ public final class CentralOAuthServiceImpl implements CentralOAuthService {
     public Boolean revokeClientPrincipalTokens(final AccessToken accessToken, final String clientId) {
 
         final String targetClientId;
-        // TODO: Add a check here for PERSONAL access tokens which shouldn't be used here.
+        // TODO: either add a check for PERSONAL access tokens or treat PERSONAL access token as CAS token
         if (accessToken.getType() == TokenType.CAS) {
             // CAS access token is not bound to a client but to a principal. Must specify the client id.
             if (StringUtils.isBlank(clientId)) {
