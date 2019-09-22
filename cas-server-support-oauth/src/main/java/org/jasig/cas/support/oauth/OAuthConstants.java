@@ -50,6 +50,12 @@ public interface OAuthConstants {
     /** The name of the scope parameter (OAuth protocol, as opposed to the CAS protocol one). */
     String SCOPE = "scope";
 
+    /** The name of the principal id parameter. */
+    String PRINCIPAL_ATTRIBUTES = "attributes";
+
+    /** The name of the principal id parameter. */
+    String PRINCIPAL_ID = "id";
+
     /** The name of the service name parameter. */
     String SERVICE_NAME = "name";
 
