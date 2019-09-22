@@ -50,6 +50,15 @@ public interface OAuthConstants {
     /** The name of the scope parameter (OAuth protocol, as opposed to the CAS protocol one). */
     String SCOPE = "scope";
 
+    /** The name of the service name parameter. */
+    String SERVICE_NAME = "name";
+
+    /** The name of the service users parameter. */
+    String SERVICE_USERS = "users";
+
+    /** The name of the service description parameter. */
+    String SERVICE_DESCRIPTION = "description";
+
     /** The name of the access type parameter. */
     String ACCESS_TYPE = "access_type";
 
@@ -205,6 +214,9 @@ public interface OAuthConstants {
 
     /** Error description for invalid access token. */
     String INVALID_ACCESS_TOKEN_DESCRIPTION = "Invalid Access Token";
+
+    /** Error description for invalid access token type. */
+    String INVALID_ACCESS_TOKEN_TYPE_DESCRIPTION = "Invalid Access Token Type";
 
     /** Error description for missing access token. */
     String MISSING_ACCESS_TOKEN_DESCRIPTION = "Missing Access Token";
