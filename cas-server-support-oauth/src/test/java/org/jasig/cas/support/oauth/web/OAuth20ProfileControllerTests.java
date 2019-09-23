@@ -82,8 +82,10 @@ public final class OAuth20ProfileControllerTests {
 
     @Test
     public void verifyNoAccessToken() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -95,9 +97,8 @@ public final class OAuth20ProfileControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid or missing parameter 'access_token'\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'access_token'\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -106,9 +107,11 @@ public final class OAuth20ProfileControllerTests {
 
     @Test
     public void verifyNoTokenAndAuthHeaderIsMalformed() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.addHeader("Authorization", "Let me in i am authorized");
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -119,8 +122,8 @@ public final class OAuth20ProfileControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid or missing parameter 'access_token'\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -131,13 +134,15 @@ public final class OAuth20ProfileControllerTests {
 
     @Test
     public void verifyInvalidAccessToken() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenThrow(new InvalidTokenException("error"));
         when(centralOAuthService.getPersonalAccessToken(AT_ID)).thenReturn(null);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -150,9 +155,8 @@ public final class OAuth20ProfileControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -161,6 +165,7 @@ public final class OAuth20ProfileControllerTests {
 
     @Test
     public void verifyInvalidValidateServiceTicket() throws Exception {
+
         final TicketGrantingTicket ticketGrantingTicket = mock(TicketGrantingTicket.class);
         when(ticketGrantingTicket.isExpired()).thenReturn(false);
 
@@ -180,13 +185,17 @@ public final class OAuth20ProfileControllerTests {
         when(serviceTicket.getService()).thenReturn(service);
 
         final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
-        when(centralAuthenticationService.grantServiceTicket(accessToken.getTicketGrantingTicket().getId(),
-                accessToken.getService())).thenReturn(serviceTicket);
-        when(centralAuthenticationService.validateServiceTicket(serviceTicket.getId(),
-                serviceTicket.getService())).thenThrow(new InvalidTicketException("expired ticket"));
+        when(centralAuthenticationService.grantServiceTicket(
+                accessToken.getTicketGrantingTicket().getId(),
+                accessToken.getService()
+        )).thenReturn(serviceTicket);
+        when(centralAuthenticationService.validateServiceTicket(
+                serviceTicket.getId(),
+                serviceTicket.getService()
+        )).thenThrow(new InvalidTicketException("expired ticket"));
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -203,8 +212,8 @@ public final class OAuth20ProfileControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -213,6 +222,7 @@ public final class OAuth20ProfileControllerTests {
 
     @Test
     public void verifyOK() throws Exception {
+
         final TicketGrantingTicket ticketGrantingTicket = mock(TicketGrantingTicket.class);
         when(ticketGrantingTicket.isExpired()).thenReturn(false);
 
@@ -247,13 +257,17 @@ public final class OAuth20ProfileControllerTests {
         when(assertion.getPrimaryAuthentication()).thenReturn(authentication);
 
         final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
-        when(centralAuthenticationService.grantServiceTicket(accessToken.getTicketGrantingTicket().getId(),
-                accessToken.getService())).thenReturn(serviceTicket);
-        when(centralAuthenticationService.validateServiceTicket(serviceTicket.getId(),
-                serviceTicket.getService())).thenReturn(assertion);
+        when(centralAuthenticationService.grantServiceTicket(
+                accessToken.getTicketGrantingTicket().getId(),
+                accessToken.getService()
+        )).thenReturn(serviceTicket);
+        when(centralAuthenticationService.validateServiceTicket(
+                serviceTicket.getId(),
+                serviceTicket.getService()
+        )).thenReturn(assertion);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -270,8 +284,8 @@ public final class OAuth20ProfileControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"id\":\"" + ID + "\",\"attributes\":[{\"" + NAME + "\":\"" + VALUE + "\"},{\"" + NAME2
-                + "\":[\"" + VALUE + "\",\"" + VALUE + "\"]}]}";
+        final String expected = "{\"id\":\"" + ID + "\",\"attributes\":[{\"" + NAME
+                + "\":\"" + VALUE + "\"},{\"" + NAME2 + "\":[\"" + VALUE + "\",\"" + VALUE + "\"]}]}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("id").asText(), receivedObj.get("id").asText());
@@ -285,6 +299,7 @@ public final class OAuth20ProfileControllerTests {
 
     @Test
     public void verifyOKWithAuthorizationHeader() throws Exception {
+
         final TicketGrantingTicket ticketGrantingTicket = mock(TicketGrantingTicket.class);
         when(ticketGrantingTicket.isExpired()).thenReturn(false);
 
@@ -319,16 +334,21 @@ public final class OAuth20ProfileControllerTests {
         when(assertion.getPrimaryAuthentication()).thenReturn(authentication);
 
         final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
-        when(centralAuthenticationService.grantServiceTicket(accessToken.getTicketGrantingTicket().getId(),
-                accessToken.getService())).thenReturn(serviceTicket);
-        when(centralAuthenticationService.validateServiceTicket(serviceTicket.getId(),
-                serviceTicket.getService())).thenReturn(assertion);
+        when(centralAuthenticationService.grantServiceTicket(
+                accessToken.getTicketGrantingTicket().getId(),
+                accessToken.getService()
+        )).thenReturn(serviceTicket);
+        when(centralAuthenticationService.validateServiceTicket(
+                serviceTicket.getId(),
+                serviceTicket.getService()
+        )).thenReturn(assertion);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.addHeader("Authorization", OAuthConstants.BEARER_TOKEN + " " + AT_ID);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
         oauth20WrapperController.setCentralOAuthService(centralOAuthService);
         oauth20WrapperController.setCentralAuthenticationService(centralAuthenticationService);
@@ -341,8 +361,8 @@ public final class OAuth20ProfileControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"id\":\"" + ID + "\",\"attributes\":[{\"" + NAME + "\":\"" + VALUE + "\"},{\"" + NAME2
-                + "\":[\"" + VALUE + "\",\"" + VALUE + "\"]}]}";
+        final String expected = "{\"id\":\"" + ID + "\",\"attributes\":[{\"" + NAME
+                + "\":\"" + VALUE + "\"},{\"" + NAME2 + "\":[\"" + VALUE + "\",\"" + VALUE + "\"]}]}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("id").asText(), receivedObj.get("id").asText());
@@ -356,6 +376,7 @@ public final class OAuth20ProfileControllerTests {
 
     @Test
     public void verifyOKWithScopes() throws Exception {
+
         final TicketGrantingTicket ticketGrantingTicket = mock(TicketGrantingTicket.class);
         when(ticketGrantingTicket.isExpired()).thenReturn(false);
 
@@ -381,7 +402,7 @@ public final class OAuth20ProfileControllerTests {
 
         final Principal principal = mock(Principal.class);
         when(principal.getId()).thenReturn(ID);
-        when(principal.getAttributes()).thenReturn(new HashMap<String, Object>());
+        when(principal.getAttributes()).thenReturn(new HashMap<>());
 
         final Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(principal);
@@ -390,16 +411,21 @@ public final class OAuth20ProfileControllerTests {
         when(assertion.getPrimaryAuthentication()).thenReturn(authentication);
 
         final CentralAuthenticationService centralAuthenticationService = mock(CentralAuthenticationService.class);
-        when(centralAuthenticationService.grantServiceTicket(accessToken.getTicketGrantingTicket().getId(),
-                accessToken.getService())).thenReturn(serviceTicket);
-        when(centralAuthenticationService.validateServiceTicket(serviceTicket.getId(),
-                serviceTicket.getService())).thenReturn(assertion);
+        when(centralAuthenticationService.grantServiceTicket(
+                accessToken.getTicketGrantingTicket().getId(),
+                accessToken.getService()
+        )).thenReturn(serviceTicket);
+        when(centralAuthenticationService.validateServiceTicket(
+                serviceTicket.getId(),
+                serviceTicket.getService()
+        )).thenReturn(assertion);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
         oauth20WrapperController.setCentralOAuthService(centralOAuthService);
         oauth20WrapperController.setCentralAuthenticationService(centralAuthenticationService);
@@ -415,25 +441,23 @@ public final class OAuth20ProfileControllerTests {
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("id").asText(), receivedObj.get("id").asText());
-
         assertEquals(expectedObj.get("scope").size(), receivedObj.get("scope").size());
 
         for (final JsonNode expectedNode : expectedObj.get("scope")) {
             Boolean found = Boolean.FALSE;
-
             for (final JsonNode receivedNode : receivedObj.get("scope")) {
                 if (receivedNode.asText().equals(expectedNode.asText())) {
                     found = Boolean.TRUE;
                     break;
                 }
             }
-
             assertEquals(found, Boolean.TRUE);
         }
     }
 
     @Test
     public void verifyOKWithPersonalToken() throws Exception {
+
         final Map<String, Object> map = new HashMap<>();
         map.put(NAME, VALUE);
         final List<String> list = Arrays.asList(VALUE, VALUE);
@@ -461,8 +485,8 @@ public final class OAuth20ProfileControllerTests {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -486,6 +510,7 @@ public final class OAuth20ProfileControllerTests {
 
     @Test
     public void verifyOKWithOfflineToken() throws Exception {
+
         final Service service = new SimpleWebApplicationServiceImpl("id");
 
         final ServiceTicket serviceTicket = mock(ServiceTicket.class);
@@ -519,8 +544,8 @@ public final class OAuth20ProfileControllerTests {
         when(centralAuthenticationService.validateServiceTicket(serviceTicket.getId(),
                 serviceTicket.getService())).thenReturn(assertion);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -537,8 +562,8 @@ public final class OAuth20ProfileControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"id\":\"" + ID + "\",\"attributes\":[{\"" + NAME + "\":\"" + VALUE + "\"},{\"" + NAME2
-                + "\":[\"" + VALUE + "\",\"" + VALUE + "\"]}]}";
+        final String expected = "{\"id\":\"" + ID + "\",\"attributes\":[{\"" + NAME
+                + "\":\"" + VALUE + "\"},{\"" + NAME2 + "\":[\"" + VALUE + "\",\"" + VALUE + "\"]}]}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("id").asText(), receivedObj.get("id").asText());

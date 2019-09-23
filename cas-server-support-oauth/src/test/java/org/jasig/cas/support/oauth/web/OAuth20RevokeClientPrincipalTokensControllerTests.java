@@ -58,9 +58,11 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
     @Test
     public void verifyNoTokenOrAuthHeader() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -71,8 +73,8 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid or missing parameter 'access_token'\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -83,10 +85,12 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
     @Test
     public void verifyNoTokenAndAuthHeaderIsBlank() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.addHeader("Authorization", "");
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -97,8 +101,8 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid or missing parameter 'access_token'\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -109,10 +113,12 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
     @Test
     public void verifyNoTokenAndAuthHeaderIsMalformed() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.addHeader("Authorization", "Let me in i am authorized");
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -123,8 +129,8 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid or missing parameter 'access_token'\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -135,14 +141,16 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
     @Test
     public void verifyInvalidAccessToken() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenThrow(new InvalidTokenException("error"));
         when(centralOAuthService.getPersonalAccessToken(AT_ID)).thenReturn(null);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -156,8 +164,8 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -166,6 +174,7 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
     @Test
     public void verifyOKWithAccessToken() throws Exception {
+
         final AccessToken accessToken = mock(AccessToken.class);
         when(accessToken.getId()).thenReturn(AT_ID);
 
@@ -173,10 +182,11 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
         when(centralOAuthService.revokeClientPrincipalTokens(accessToken, CLIENT_ID)).thenReturn(true);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -192,6 +202,7 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
     @Test
     public void verifyOKWithAuthHeader() throws Exception {
+
         final AccessToken accessToken = mock(AccessToken.class);
         when(accessToken.getId()).thenReturn(AT_ID);
 
@@ -199,10 +210,11 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
         when(centralOAuthService.revokeClientPrincipalTokens(accessToken, CLIENT_ID)).thenReturn(true);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.addHeader("Authorization", OAuthConstants.BEARER_TOKEN + " " + AT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -218,6 +230,7 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
 
     @Test
     public void verifyFailedToRevokeTokens() throws Exception {
+
         final AccessToken accessToken = mock(AccessToken.class);
         when(accessToken.getId()).thenReturn(AT_ID);
 
@@ -225,8 +238,8 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
         when(centralOAuthService.revokeClientPrincipalTokens(accessToken, CLIENT_ID)).thenReturn(false);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -240,8 +253,8 @@ public final class OAuth20RevokeClientPrincipalTokensControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
