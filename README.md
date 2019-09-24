@@ -64,10 +64,11 @@ The implementation of OSF CAS is based on [Yale/Jasig/Apereo CAS 4.1.x](https://
     # start jetty
     mvn -pl cas-server-webapp/ jetty:run
     ```
+* With default settings, CAS runs on port `8080` at IP address `192.168.168.167` locally. Change `server.name` here in [`cas.properties`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/etc/cas.properties#L117) if you want a different IP or port.
 
 ### A Few Extra Notes
 
-* To use the "Sign in with ORCiD" feature, create an application at [ORCiD Developer Tools](https://orcid.org/developer-tools). Update `oauth.orcid.client.id` and `oauth.orcid.client.secret` in the [`cas.properties`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/etc/cas.properties#L68).
+* To use the "Sign in with ORCiD" feature, create an application at [ORCiD Developer Tools](https://orcid.org/developer-tools) with **Redirect URI** set as `http://192.168.168.167:8080/login`. Alternatively, COS developers can use the credentials provided in https://osf.io/m2hig/wiki/home/. Update `oauth.orcid.client.id` and `oauth.orcid.client.secret` accordingly here in the [`cas.properties`](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/etc/cas.properties#L68). ORCiD login will not work if CAS is run on a different `server.name` without updating 1) OSF `docker-compose` settings and 2) the **Redirect URI** of the ORCiD developer application.
 
 * The "Sign in through institution" feature is not available for local development. It requires a Shibboleth server sitting in front of CAS handling both SAML 2.0 authentication and TLS.
 
