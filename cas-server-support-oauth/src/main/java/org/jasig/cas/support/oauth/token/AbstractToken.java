@@ -67,6 +67,9 @@ public abstract class AbstractToken implements Token {
     @Column(name="SCOPES_HASH", nullable=false)
     private Integer scopesHash;
 
+    /** Default constructor. */
+    protected AbstractToken(){}
+
     /**
      * Instantiate a new {@link AbstractToken}.
      *

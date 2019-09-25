@@ -68,6 +68,9 @@ public final class AccessTokenImpl extends AbstractToken implements AccessToken 
     @OnDelete(action= OnDeleteAction.CASCADE)
     private ServiceTicket serviceTicket;
 
+    /** Default constructor. */
+    public AccessTokenImpl(){}
+
     /**
      * Instantiate a new {@link AccessTokenImpl}.
      *

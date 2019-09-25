@@ -50,6 +50,9 @@ public final class AuthorizationCodeImpl extends AbstractToken implements Author
     @OnDelete(action= OnDeleteAction.CASCADE)
     private ServiceTicket serviceTicket;
 
+    /** Default constructor. */
+    public AuthorizationCodeImpl(){}
+
     /**
      * Instantiate a new {@link AuthorizationCodeImpl}.
      *

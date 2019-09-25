@@ -59,6 +59,9 @@ public final class RefreshTokenImpl extends AbstractToken implements RefreshToke
     @Column(name="SERVICE", nullable=false)
     private Service service;
 
+    /** Default constructor. */
+    public RefreshTokenImpl(){}
+
     /**
      * Instantiate a new {@link RefreshTokenImpl}.
      *
