@@ -19,26 +19,31 @@
 package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.metadata.ClientMetadata;
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import org.junit.Test;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * This class tests the {@link OAuth20MetadataClientController} class.
  *
  * @author Fitz Elliott
- * @since 3.5.2
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20MetadataClientControllerTests {
 
@@ -65,13 +70,15 @@ public final class OAuth20MetadataClientControllerTests {
 
     @Test
     public void verifyNoClientId() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, CLIENT_SECRET)).thenReturn(METADATA);
         
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, "");
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -83,8 +90,8 @@ public final class OAuth20MetadataClientControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid or missing parameter 'client_id'\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'client_id'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -95,13 +102,15 @@ public final class OAuth20MetadataClientControllerTests {
 
     @Test
     public void verifyNoClientSecret() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, CLIENT_SECRET)).thenReturn(METADATA);
         
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, "");
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -113,8 +122,8 @@ public final class OAuth20MetadataClientControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid or missing parameter 'client_secret'\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'client_secret'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -125,15 +134,17 @@ public final class OAuth20MetadataClientControllerTests {
 
     @Test
     public void verifyOK() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getClientMetadata(NO_SUCH_CLIENT_ID, CLIENT_SECRET)).thenReturn(null);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, WRONG_CLIENT_SECRET)).thenReturn(null);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, CLIENT_SECRET)).thenReturn(METADATA);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -145,9 +156,8 @@ public final class OAuth20MetadataClientControllerTests {
         assertEquals(HttpStatus.SC_OK, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"client_id\":\"" + CLIENT_ID + "\",\"name\":\""
-            + CLIENT_META_NAME + "\",\"description\":\"" + CLIENT_META_DESCRIPTION
-            + "\",\"users\":\"" + CLIENT_META_USERS + "\"}";
+        final String expected = "{\"client_id\":\"" + CLIENT_ID + "\",\"name\":\"" + CLIENT_META_NAME
+                + "\",\"description\":\"" + CLIENT_META_DESCRIPTION + "\",\"users\":\"" + CLIENT_META_USERS + "\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -160,15 +170,17 @@ public final class OAuth20MetadataClientControllerTests {
 
     @Test
     public void verifyNoSuchClientId() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getClientMetadata(NO_SUCH_CLIENT_ID, CLIENT_SECRET)).thenReturn(null);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, WRONG_CLIENT_SECRET)).thenReturn(null);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, CLIENT_SECRET)).thenReturn(METADATA);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, NO_SUCH_CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -180,8 +192,8 @@ public final class OAuth20MetadataClientControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -192,13 +204,14 @@ public final class OAuth20MetadataClientControllerTests {
 
     @Test
     public void verifyWrongClientSecret() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getClientMetadata(NO_SUCH_CLIENT_ID, CLIENT_SECRET)).thenReturn(null);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, WRONG_CLIENT_SECRET)).thenReturn(null);
         when(centralOAuthService.getClientMetadata(CLIENT_ID, CLIENT_SECRET)).thenReturn(METADATA);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, WRONG_CLIENT_SECRET);
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -212,8 +225,8 @@ public final class OAuth20MetadataClientControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);

@@ -24,10 +24,12 @@ import org.jasig.cas.authentication.RootCasException;
  * The exception to throw when we cannot verify the token.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class InvalidTokenException extends RootCasException {
 
+    /** Unique id for serialization. */
     private static final long serialVersionUID = -5875760146336410828L;
 
     /** The code description. */
@@ -36,8 +38,9 @@ public class InvalidTokenException extends RootCasException {
     private final String tokenId;
 
     /**
-     * Constructs a InvalidTokenException with the default exception code.
-     * @param tokenId the token id that originally caused this exception to be thrown.
+     * Instantiates a new {@link InvalidTokenException} with the default exception code.
+     *
+     * @param tokenId the token id that originally caused this exception to be thrown
      */
     public InvalidTokenException(final String tokenId) {
         super(CODE);
@@ -45,11 +48,10 @@ public class InvalidTokenException extends RootCasException {
     }
 
     /**
-     * Constructs a InvalidTokenException with the default exception code and
-     * the original exception that was thrown.
+     * Instantiates a new {@link InvalidTokenException} with the default exception code and the original exception.
      *
      * @param throwable the chained exception
-     * @param tokenId the token id that originally caused this exception to be thrown.
+     * @param tokenId the token id that originally caused this exception to be thrown
      */
     public InvalidTokenException(final Throwable throwable, final String tokenId) {
         super(CODE, throwable);
@@ -58,6 +60,7 @@ public class InvalidTokenException extends RootCasException {
 
     /**
      * Returns the message of this exception, token is not included for security purposes.
+     *
      * @return the message
      * @see InvalidTokenException#tokenId
      */

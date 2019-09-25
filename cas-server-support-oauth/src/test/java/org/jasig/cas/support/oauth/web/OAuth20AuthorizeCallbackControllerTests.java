@@ -18,21 +18,26 @@
  */
 package org.jasig.cas.support.oauth.web;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.http.HttpStatus;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.scope.Scope;
 import org.jasig.cas.support.oauth.token.TokenType;
+import org.jasig.cas.ticket.registry.TicketRegistry;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
-import org.jasig.cas.ticket.registry.TicketRegistry;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -42,8 +47,6 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.anySetOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +56,8 @@ import static org.mockito.Mockito.when;
  *
  * @author Jerome Leleu
  * @author Michael Haselton
- * @since 3.5.2
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20AuthorizeCallbackControllerTests {
 
@@ -75,12 +79,14 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
     @Test
     public void verifySetupFailsNoTicket() throws Exception {
+
         final TicketRegistry ticketRegistry = mock(TicketRegistry.class);
         when(ticketRegistry.getTicket(SERVICE_TICKET_ID)).thenReturn(null);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         mockRequest.setParameter(OAuthConstants.TICKET, SERVICE_TICKET_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -93,7 +99,6 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT + "\",\"error_description\":\""
                 + OAuthConstants.EXPIRED_ST_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -104,15 +109,17 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
     @Test
     public void verifySetupFailsExpiredTicket() throws Exception {
+
         final ServiceTicket serviceTicket = mock(ServiceTicket.class);
         when(serviceTicket.isExpired()).thenReturn(true);
 
         final TicketRegistry ticketRegistry = mock(TicketRegistry.class);
         when(ticketRegistry.getTicket(SERVICE_TICKET_ID)).thenReturn(serviceTicket);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         mockRequest.setParameter(OAuthConstants.TICKET, SERVICE_TICKET_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -125,9 +132,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT + "\",\"error_description\":\""
-                + OAuthConstants.EXPIRED_ST_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT
+                + "\",\"error_description\":\"" + OAuthConstants.EXPIRED_ST_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -136,6 +142,7 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
     @Test
     public void verifySetupOK() throws Exception {
+
         final TicketGrantingTicket ticketGrantingTicket = mock(TicketGrantingTicket.class);
         when(ticketGrantingTicket.getId()).thenReturn(TICKET_GRANTING_TICKET_ID);
 
@@ -165,11 +172,12 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
     @Test
     public void verifyFailIfGrantingTicketNull() throws Exception {
+
         final TicketRegistry ticketRegistry = mock(TicketRegistry.class);
         when(ticketRegistry.getTicket(TICKET_GRANTING_TICKET_ID)).thenReturn(null);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         final MockHttpSession mockSession = new MockHttpSession();
         mockSession.putValue(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, TICKET_GRANTING_TICKET_ID);
         mockSession.putValue(OAuthConstants.OAUTH20_SCOPE, SCOPE);
@@ -190,9 +198,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT + "\",\"error_description\":\""
-                + OAuthConstants.EXPIRED_TGT_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT
+                + "\",\"error_description\":\"" + OAuthConstants.EXPIRED_TGT_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -201,14 +208,15 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
     @Test
     public void verifyFailIfGrantingTicketExpired() throws Exception {
+
         final TicketGrantingTicket ticketGrantingTicket = mock(TicketGrantingTicket.class);
         when(ticketGrantingTicket.isExpired()).thenReturn(true);
 
         final TicketRegistry ticketRegistry = mock(TicketRegistry.class);
         when(ticketRegistry.getTicket(TICKET_GRANTING_TICKET_ID)).thenReturn(ticketGrantingTicket);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         final MockHttpSession mockSession = new MockHttpSession();
         mockSession.putValue(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, TICKET_GRANTING_TICKET_ID);
         mockSession.putValue(OAuthConstants.OAUTH20_SCOPE, SCOPE);
@@ -229,9 +237,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT + "\",\"error_description\":\""
-                + OAuthConstants.EXPIRED_TGT_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT
+                + "\",\"error_description\":\"" + OAuthConstants.EXPIRED_TGT_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -240,6 +247,7 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
     @Test
     public void verifyBypassPromptIsTrue() throws Exception {
+
         final TicketGrantingTicket ticketGrantingTicket = mock(TicketGrantingTicket.class);
         when(ticketGrantingTicket.isExpired()).thenReturn(false);
 
@@ -253,8 +261,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getScopes(anySetOf(String.class))).thenReturn(scopeMap);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         final MockHttpSession mockSession = new MockHttpSession();
         mockSession.putValue(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, TICKET_GRANTING_TICKET_ID);
         mockSession.putValue(OAuthConstants.OAUTH20_SCOPE, SCOPE);
@@ -275,11 +283,13 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         assertTrue(modelAndView.getView() instanceof RedirectView);
         final RedirectView redirectView = (RedirectView) modelAndView.getView();
         assertTrue(redirectView.getUrl().endsWith(
-            CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"));
+                CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"
+        ));
     }
 
     @Test
     public void verifyNoPromptWithExistingToken() throws Exception {
+
         final Principal principal = mock(Principal.class);
         when(principal.getId()).thenReturn(PRINCIPAL_ID);
 
@@ -302,8 +312,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         when(centralOAuthService.isAccessToken(TokenType.ONLINE, CLIENT_ID, PRINCIPAL_ID, scopeMap.keySet())).thenReturn(true);
         when(centralOAuthService.isRefreshToken(CLIENT_ID, PRINCIPAL_ID, scopeMap.keySet())).thenReturn(false);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         final MockHttpSession mockSession = new MockHttpSession();
         mockSession.putValue(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, TICKET_GRANTING_TICKET_ID);
         mockSession.putValue(OAuthConstants.OAUTH20_SCOPE, SCOPE);
@@ -323,13 +333,15 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         assertTrue(modelAndView.getView() instanceof RedirectView);
         final RedirectView redirectView = (RedirectView) modelAndView.getView();
         assertTrue(redirectView.getUrl().endsWith(
-            CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"));
+            CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"
+        ));
 
         assertEquals(scopeMap.keySet(), mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
     public void verifyAutoPromptWithExistingToken() throws Exception {
+
         final Principal principal = mock(Principal.class);
         when(principal.getId()).thenReturn(PRINCIPAL_ID);
 
@@ -353,8 +365,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         when(centralOAuthService.isRefreshToken(CLIENT_ID, PRINCIPAL_ID, scopeMap.keySet())).thenReturn(true);
 
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         final MockHttpSession mockSession = new MockHttpSession();
         mockSession.putValue(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, TICKET_GRANTING_TICKET_ID);
         mockSession.putValue(OAuthConstants.OAUTH20_SCOPE, SCOPE);
@@ -375,13 +387,15 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         assertTrue(modelAndView.getView() instanceof RedirectView);
         final RedirectView redirectView = (RedirectView) modelAndView.getView();
         assertTrue(redirectView.getUrl().endsWith(
-            CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"));
+            CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL + "?action=allow"
+        ));
 
         assertEquals(scopeMap.keySet(), mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
 
     @Test
     public void verifyOK() throws Exception {
+
         final Principal principal = mock(Principal.class);
         when(principal.getId()).thenReturn(PRINCIPAL_ID);
 
@@ -402,8 +416,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getScopes(anySetOf(String.class))).thenReturn(scopeMap);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         final MockHttpSession mockSession = new MockHttpSession();
         mockSession.putValue(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, TICKET_GRANTING_TICKET_ID);
         mockSession.putValue(OAuthConstants.OAUTH20_SCOPE, SCOPE);
@@ -431,6 +445,7 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
     @Test
     public void verifyOKWhenBypassApprovalFalse() throws Exception {
+
         final Principal principal = mock(Principal.class);
         when(principal.getId()).thenReturn(PRINCIPAL_ID);
 
@@ -451,8 +466,8 @@ public final class OAuth20AuthorizeCallbackControllerTests {
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getScopes(anySetOf(String.class))).thenReturn(scopeMap);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         final MockHttpSession mockSession = new MockHttpSession();
         mockSession.putValue(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, TICKET_GRANTING_TICKET_ID);
         mockSession.putValue(OAuthConstants.OAUTH20_SCOPE, SCOPE);
@@ -481,6 +496,7 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
     @Test
     public void verifyNoPromptWithoutExistingToken() throws Exception {
+
         final Principal principal = mock(Principal.class);
         when(principal.getId()).thenReturn(PRINCIPAL_ID);
 
@@ -500,12 +516,16 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getScopes(anySetOf(String.class))).thenReturn(scopeMap);
-        when(centralOAuthService.isAccessToken(TokenType.ONLINE, CLIENT_ID, PRINCIPAL_ID, scopeMap.keySet())).thenReturn(false);
+        when(centralOAuthService.isAccessToken(
+                TokenType.ONLINE,
+                CLIENT_ID,
+                PRINCIPAL_ID,
+                scopeMap.keySet()
+        )).thenReturn(false);
         when(centralOAuthService.isRefreshToken(CLIENT_ID, PRINCIPAL_ID, scopeMap.keySet())).thenReturn(true);
 
-
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         final MockHttpSession mockSession = new MockHttpSession();
         mockSession.putValue(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, TICKET_GRANTING_TICKET_ID);
         mockSession.putValue(OAuthConstants.OAUTH20_SCOPE, SCOPE);
@@ -533,6 +553,7 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
     @Test
     public void verifyAutoPromptWithoutExistingToken() throws Exception {
+
         final Principal principal = mock(Principal.class);
         when(principal.getId()).thenReturn(PRINCIPAL_ID);
 
@@ -552,12 +573,16 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getScopes(anySetOf(String.class))).thenReturn(scopeMap);
-        when(centralOAuthService.isAccessToken(TokenType.ONLINE, CLIENT_ID, PRINCIPAL_ID, scopeMap.keySet())).thenReturn(true);
+        when(centralOAuthService.isAccessToken(
+                TokenType.ONLINE,
+                CLIENT_ID,
+                PRINCIPAL_ID,
+                scopeMap.keySet()
+        )).thenReturn(true);
         when(centralOAuthService.isRefreshToken(CLIENT_ID, PRINCIPAL_ID, scopeMap.keySet())).thenReturn(false);
 
-
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-                "GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
         final MockHttpSession mockSession = new MockHttpSession();
         mockSession.putValue(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, TICKET_GRANTING_TICKET_ID);
         mockSession.putValue(OAuthConstants.OAUTH20_SCOPE, SCOPE);
@@ -583,5 +608,4 @@ public final class OAuth20AuthorizeCallbackControllerTests {
 
         assertEquals(scopeMap.keySet(), mockSession.getAttribute(OAuthConstants.OAUTH20_SCOPE_SET));
     }
-
 }

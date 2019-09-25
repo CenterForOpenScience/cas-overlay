@@ -25,29 +25,30 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Simple Personal Token Handler.
+ * Simple personal access token handler.
+ *
+ * This handler is not used by the PAT manager {@link org.jasig.cas.support.oauth.personal.PersonalAccessTokenManager},
+ * which uses {@link io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkPersonalAccessTokenHandler} instead with
+ * current CAS settings.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class SimplePersonalAccessTokenHandler extends AbstractPersonalAccessTokenHandler {
 
-    /**
-     * A list of personal access tokens.
-     */
+    /** A list of personal access tokens. */
     private final Set<PersonalAccessToken> tokens;
 
-    /**
-     * Constructs a new instance of simple personal access token handler without any assigned tokens.
-     */
+    /** Constructs a new instance of simple personal access token handler without any assigned tokens. */
     public SimplePersonalAccessTokenHandler() {
-        this(new HashSet<PersonalAccessToken>());
+        this(new HashSet<>());
     }
 
     /**
      * Constructs a new instance of simple personal access token handler with the set of tokens specified.
      *
-     * @param tokens the set of tokens.
+     * @param tokens the set of personal access tokens
      */
     public SimplePersonalAccessTokenHandler(final Set<PersonalAccessToken> tokens) {
         this.tokens = tokens;

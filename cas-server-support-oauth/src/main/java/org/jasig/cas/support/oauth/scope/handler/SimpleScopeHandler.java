@@ -25,29 +25,30 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Simple OAuth Scope Handler.
+ * Simple OAuth scope handler.
+ *
+ * With current CAS settings, this handler is not used as the primary scope handler but only as the CAS scope handler
+ * in the scope manager {@link org.jasig.cas.support.oauth.scope.ScopeManager}, which uses the OSF scope handler
+ * {@literal io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkPersonalAccessTokenHandler} as its primary one.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class SimpleScopeHandler extends AbstractScopeHandler {
 
-    /**
-     * The set of scopes added to the handler.
-     */
+    /** The set of scopes added to the handler. */
     private final Set<Scope> scopes;
 
-    /**
-     * Constructs a new instance of the scope handler w/ a blank list of scopes.
-     */
+    /** Constructs a new instance of the scope handler with a blank list of scopes. */
     public SimpleScopeHandler() {
-        this(new HashSet<Scope>());
+        this(new HashSet<>());
     }
 
     /**
-     * Constructors a new instance of the scope handler w/ the scopes specified.
+     * Constructors a new instance of the scope handler with the list of scopes specified.
      *
-     * @param scopes the list of scopes.
+     * @param scopes the list of scopes
      */
     public SimpleScopeHandler(final Set<Scope> scopes) {
         this.scopes = scopes;

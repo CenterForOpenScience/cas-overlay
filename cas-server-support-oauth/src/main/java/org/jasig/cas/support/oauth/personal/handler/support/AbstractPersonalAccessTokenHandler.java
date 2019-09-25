@@ -19,10 +19,10 @@
 package org.jasig.cas.support.oauth.personal.handler.support;
 
 /**
- * Base class for Personal Token Handler.
+ * The abstract base class for personal access token handler classes.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
-public abstract class AbstractPersonalAccessTokenHandler implements PersonalAccessTokenHandler {
-}
+public abstract class AbstractPersonalAccessTokenHandler implements PersonalAccessTokenHandler {}
