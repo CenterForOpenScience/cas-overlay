@@ -19,32 +19,37 @@
 package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.InvalidTokenException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * This class tests the {@link OAuth20MetadataPrincipalController} class.
  *
  * @author Fitz Elliott
- * @since 3.5.2
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20MetadataPrincipalControllerTests {
 
@@ -66,8 +71,10 @@ public final class OAuth20MetadataPrincipalControllerTests {
 
     @Test
     public void verifyNoTokenOrAuthHeader() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -78,8 +85,8 @@ public final class OAuth20MetadataPrincipalControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.MISSING_ACCESS_TOKEN + "\",\"error_description\":\""
-                + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -91,9 +98,11 @@ public final class OAuth20MetadataPrincipalControllerTests {
 
     @Test
     public void verifyNoTokenAndAuthHeaderIsBlank() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.addHeader("Authorization", "");
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -104,8 +113,8 @@ public final class OAuth20MetadataPrincipalControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.MISSING_ACCESS_TOKEN + "\",\"error_description\":\""
-                + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -116,9 +125,11 @@ public final class OAuth20MetadataPrincipalControllerTests {
 
     @Test
     public void verifyNoTokenAndAuthHeaderIsMalformed() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.addHeader("Authorization", "Let me in i am authorized");
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -129,8 +140,8 @@ public final class OAuth20MetadataPrincipalControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.MISSING_ACCESS_TOKEN + "\",\"error_description\":\""
-                + OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'access_token'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -141,13 +152,15 @@ public final class OAuth20MetadataPrincipalControllerTests {
 
     @Test
     public void verifyInvalidAccessToken() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenThrow(new InvalidTokenException("error"));
         when(centralOAuthService.getPersonalAccessToken(AT_ID)).thenReturn(null);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT
-                + OAuthConstants.PROFILE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.PROFILE_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -161,8 +174,8 @@ public final class OAuth20MetadataPrincipalControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.UNAUTHORIZED_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -171,20 +184,23 @@ public final class OAuth20MetadataPrincipalControllerTests {
 
     @Test
     public void verifyOKWithAccessToken() throws Exception {
+
         final AccessToken accessToken = mock(AccessToken.class);
         when(accessToken.getId()).thenReturn(AT_ID);
 
         final List<PrincipalMetadata> principalMetas = Arrays.asList(
                 new PrincipalMetadata(CLIENT_ID, PRINC_NAME_ONE, PRINC_DESCR_ONE),
-                new PrincipalMetadata(CLIENT_ID, PRINC_NAME_TWO, PRINC_DESCR_TWO));
+                new PrincipalMetadata(CLIENT_ID, PRINC_NAME_TWO, PRINC_DESCR_TWO)
+        );
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
         when(centralOAuthService.getPrincipalMetadata(accessToken)).thenReturn(principalMetas);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -227,20 +243,23 @@ public final class OAuth20MetadataPrincipalControllerTests {
 
     @Test
     public void verifyOKWithAuthHeader() throws Exception {
+
         final AccessToken accessToken = mock(AccessToken.class);
         when(accessToken.getId()).thenReturn(AT_ID);
 
         final List<PrincipalMetadata> principalMetas = Arrays.asList(
                 new PrincipalMetadata(CLIENT_ID, PRINC_NAME_ONE, PRINC_DESCR_ONE),
-                new PrincipalMetadata(CLIENT_ID, PRINC_NAME_TWO, PRINC_DESCR_TWO));
+                new PrincipalMetadata(CLIENT_ID, PRINC_NAME_TWO, PRINC_DESCR_TWO)
+        );
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
         when(centralOAuthService.getPrincipalMetadata(accessToken)).thenReturn(principalMetas);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.addHeader("Authorization", OAuthConstants.BEARER_TOKEN + " " + AT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -283,18 +302,20 @@ public final class OAuth20MetadataPrincipalControllerTests {
 
     @Test
     public void verifyEmptyPrincipalListOK() throws Exception {
+
         final AccessToken accessToken = mock(AccessToken.class);
         when(accessToken.getId()).thenReturn(AT_ID);
 
-        final List<PrincipalMetadata> principalMetas = Arrays.asList();
+        final List<PrincipalMetadata> principalMetas = Collections.emptyList();
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(AT_ID, AccessToken.class)).thenReturn(accessToken);
         when(centralOAuthService.getPrincipalMetadata(accessToken)).thenReturn(principalMetas);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.METADATA_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.METADATA_URL);
         mockRequest.setParameter(OAuthConstants.ACCESS_TOKEN, AT_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();

@@ -18,13 +18,11 @@
  */
 package org.jasig.cas.support.oauth.web;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.http.HttpStatus;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
@@ -33,7 +31,15 @@ import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.ticket.TicketGrantingTicket;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -45,7 +51,9 @@ import java.util.Date;
  *
  * @author Jerome Leleu
  * @author Michael Haselton
- * @since 3.5.2
+ * @author Fitz Elliott
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20TokenRefreshTokenControllerTests {
 
@@ -71,8 +79,9 @@ public final class OAuth20TokenRefreshTokenControllerTests {
 
     @Test
     public void verifyNoRefreshTokenID() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.REFRESH_TOKEN);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
@@ -99,8 +108,9 @@ public final class OAuth20TokenRefreshTokenControllerTests {
 
     @Test
     public void verifyNoClientId() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.REFRESH_TOKEN);
         mockRequest.setParameter(OAuthConstants.REFRESH_TOKEN, RT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
@@ -127,8 +137,9 @@ public final class OAuth20TokenRefreshTokenControllerTests {
 
     @Test
     public void verifyNoClientSecret() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.REFRESH_TOKEN);
         mockRequest.setParameter(OAuthConstants.REFRESH_TOKEN, RT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -155,11 +166,12 @@ public final class OAuth20TokenRefreshTokenControllerTests {
 
     @Test
     public void verifyNoRefreshToken() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(RT_ID, RefreshToken.class)).thenThrow(new InvalidTokenException("error"));
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.REFRESH_TOKEN);
         mockRequest.setParameter(OAuthConstants.REFRESH_TOKEN, RT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -178,8 +190,8 @@ public final class OAuth20TokenRefreshTokenControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_REFRESH_TOKEN_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_REFRESH_TOKEN_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -188,6 +200,7 @@ public final class OAuth20TokenRefreshTokenControllerTests {
 
     @Test
     public void verifyOK() throws Exception {
+
         final TicketGrantingTicket ticketGrantingTicket = mock(TicketGrantingTicket.class);
         when(ticketGrantingTicket.getCreationTime()).thenReturn(new Date().getTime());
 
@@ -205,8 +218,8 @@ public final class OAuth20TokenRefreshTokenControllerTests {
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
         when(centralOAuthService.grantOfflineAccessToken(refreshToken)).thenReturn(accessToken);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.REFRESH_TOKEN);
         mockRequest.setParameter(OAuthConstants.REFRESH_TOKEN, RT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -225,17 +238,25 @@ public final class OAuth20TokenRefreshTokenControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-        final String expected = "{\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\",\"expires_in\":\"" + TIMEOUT
-                + "\",\"refresh_token\":\"" + RT_ID + "\",\"access_token\":\"" + AT_ID + "\"}";
+        final String expected = "{"
+                + "\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\","
+                + "\"expires_in\":\"" + TIMEOUT + "\","
+                + "\"refresh_token\":\"" + RT_ID + "\","
+                + "\"access_token\":\"" + AT_ID + "\""
+                + "}";
+
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("token_type").asText(), receivedObj.get("token_type").asText());
-        assertTrue("received expires_at greater or equal to expected",
-                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt());
+        assertTrue(
+                "received expires_at greater or equal to expected",
+                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt()
+        );
         assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
     }
 
     private OAuthRegisteredService getRegisteredService(final String serviceId, final String secret) {
+
         final OAuthRegisteredService registeredServiceImpl = new OAuthRegisteredService();
 
         registeredServiceImpl.setName("The registered service name");

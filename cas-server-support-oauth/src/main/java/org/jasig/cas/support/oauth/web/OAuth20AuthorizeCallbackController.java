@@ -20,104 +20,145 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.scope.Scope;
 import org.jasig.cas.support.oauth.token.TokenType;
+
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 /**
- * This controller is called after successful authentication and
- * redirects user to the callback url of the OAuth application. A code is
- * added which is the service ticket retrieved from previous authentication.
+ * The OAuth 2.0 authorization callback controller.
+ *
+ * This controller is called twice. In the first pass, it handles one step of the CAS protocol; in the second one, it
+ * handles one step of the OAuth protocol.
+ *
+ * It is first called after the first authentication step of the CAS protocol after credentials check has passed and a
+ * service ticket pending validation has been issued. In this pass, it handles the second step of the CAS protocol:
+ * validating the service ticket and granting a ticket granting ticket. One important and interesting thing to note is
+ * that this controller acts smartly as both a CAS client and a CAS server in the process. This saves the extra efforts
+ * for talking to the primary CAS service as well as preserving session.
+ *
+ * After successful CAS authentication (both steps done, service ticket removed and ticket granting ticket generated),
+ * the controller redirects back to itself to be called a second time. Depending on settings of the registered service
+ * and OAuth parameters, it either redirects the user to the callback url for allowing the authorization or the view
+ * for asking user to confirm the authorization action.
  *
  * @author Jerome Leleu
  * @author Michael Haselton
- * @since 3.5.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20AuthorizeCallbackController extends AbstractController {
 
+    /** Log instance for logging events, info, warnings, errors, etc. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizeCallbackController.class);
 
+    /** The CAS OAuth authorization service. */
     private final CentralOAuthService centralOAuthService;
 
+    /** The ticket registry for accessing (retrieving and deleting) tickets. */
     private final TicketRegistry ticketRegistry;
 
     /**
-     * Instantiates a new o auth20 authorize callback controller.
+     * Instantiates a new {@link OAuth20AuthorizeCallbackController}.
      *
-     * @param centralOAuthService the central oauth service
+     * @param centralOAuthService the the CAS OAuth service
      * @param ticketRegistry the ticket registry
      */
-    public OAuth20AuthorizeCallbackController(final CentralOAuthService centralOAuthService, final TicketRegistry ticketRegistry) {
+    public OAuth20AuthorizeCallbackController(
+            final CentralOAuthService centralOAuthService,
+            final TicketRegistry ticketRegistry
+    ) {
         this.centralOAuthService = centralOAuthService;
         this.ticketRegistry = ticketRegistry;
     }
 
     @Override
-    protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
-            throws Exception {
+    protected ModelAndView handleRequestInternal(
+            final HttpServletRequest request,
+            final HttpServletResponse response
+    ) throws Exception {
+
+        // Retrieve the session which stores the current authorization parameters.
         final HttpSession session = request.getSession();
 
-        // get cas login service ticket
+        // Before first pass: the login service ticket is a query parameter the first time this controller is called.
+        // There is no ticket granting ticket in the user session. Before second pass: the login service ticket has
+        // been removed and a ticket granting ticket has been generated and stored in the user session.
+
+        // Retrieve the login service ticket and determine which pass the controller is called.
         final String serviceTicketId = request.getParameter(OAuthConstants.TICKET);
         LOGGER.debug("{} : {}", OAuthConstants.TICKET, serviceTicketId);
 
-        // first time this url is requested the login ticket will be a query parameter
+        // Service ticket found in the query parameters of the request, first pass starts.
         if (serviceTicketId != null) {
-            // create the login ticket granting ticket
+
+            // Create the login ticket granting ticket from the service ticket
             final ServiceTicket serviceTicket = (ServiceTicket) ticketRegistry.getTicket(serviceTicketId);
             if (serviceTicket == null || serviceTicket.isExpired()) {
                 LOGGER.error("Service Ticket expired : {}", serviceTicketId);
-                return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT, OAuthConstants.EXPIRED_ST_DESCRIPTION,
-                        HttpStatus.SC_BAD_REQUEST);
+                return OAuthUtils.writeJsonError(
+                        response,
+                        OAuthConstants.INVALID_GRANT,
+                        OAuthConstants.EXPIRED_ST_DESCRIPTION,
+                        HttpStatus.SC_BAD_REQUEST
+                );
             }
-
             final TicketGrantingTicket ticketGrantingTicket = serviceTicket.getGrantingTicket();
 
-            // remove login service ticket
+            // Remove login service ticket.
             ticketRegistry.deleteTicket(serviceTicket.getId());
 
-            // store the login tgt id in the user's session, used to create service tickets for validation and
-            // oauth credentials later in the flow
+            // Store the login ticket granting ticket id in the OAuth session.
             session.setAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID, ticketGrantingTicket.getId());
 
-            // redirect back to self, clears the service ticket from the url, allows the page to be refreshed w/o error
+            // Redirects back to itself to start the second pass.
             return OAuthUtils.redirectTo(request.getRequestURL().toString());
         }
 
-        // get cas login service ticket from the session
+        // No service ticket is found, second pass starts.
+
+        // Retrieve the login ticket granting ticket.
         final String ticketGrantingTicketId = (String) session.getAttribute(OAuthConstants.OAUTH20_LOGIN_TICKET_ID);
         LOGGER.debug("{} : {}", OAuthConstants.TICKET, ticketGrantingTicketId);
 
-        // verify the login ticket granting ticket is still valid
-        final TicketGrantingTicket ticketGrantingTicket = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
+        // Verify the login ticket granting ticket is still valid.
+        final TicketGrantingTicket ticketGrantingTicket
+                = (TicketGrantingTicket) ticketRegistry.getTicket(ticketGrantingTicketId);
         if (ticketGrantingTicket == null || ticketGrantingTicket.isExpired()) {
             LOGGER.error("Ticket Granting Ticket expired : {}", ticketGrantingTicketId);
-            // display error view as we are still interacting w/ the user.
+            // Display the error view as we are still interacting w/ the user.
             return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_GRANT,
                     OAuthConstants.EXPIRED_TGT_DESCRIPTION,
                     HttpStatus.SC_BAD_REQUEST);
         }
 
-        final String callbackUrl = request.getRequestURL().toString()
-                .replace("/" + OAuthConstants.CALLBACK_AUTHORIZE_URL, "/" + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL);
+        // Build the callback url for allowing the authorization.
+        final String callbackUrl = request.getRequestURL().toString().replace(
+                "/" + OAuthConstants.CALLBACK_AUTHORIZE_URL,
+                "/" + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL
+        );
         LOGGER.debug("{} : {}", OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL, callbackUrl);
 
         final String clientId = (String) session.getAttribute(OAuthConstants.OAUTH20_CLIENT_ID);
@@ -133,26 +174,35 @@ public final class OAuth20AuthorizeCallbackController extends AbstractController
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_TOKEN_TYPE, tokenType);
 
         final String approvalPrompt = (String) session.getAttribute(OAuthConstants.OAUTH20_APPROVAL_PROMPT);
-        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_APPROVAL_PROMPT);
+        LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_APPROVAL_PROMPT, approvalPrompt);
 
         final Boolean bypassApprovalPrompt = (Boolean) session.getAttribute(OAuthConstants.BYPASS_APPROVAL_PROMPT);
         LOGGER.debug("{} : {}", OAuthConstants.BYPASS_APPROVAL_PROMPT, bypassApprovalPrompt);
 
         final Set<String> requestedScopeSet = new HashSet<>(Arrays.asList(scope.split(" ")));
 
-        // we use the scope map rather than scope set as the oauth service has the potential to add default scopes(s).
+        // Use a map rather a set for scopes as the OAuth service has the potential to add default scopes(s).
         final Map<String, Scope> scopeMap = centralOAuthService.getScopes(requestedScopeSet);
         session.setAttribute(OAuthConstants.OAUTH20_SCOPE_SET, new HashSet<>(scopeMap.keySet()));
 
-        final String allowCallbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION,
-                OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW);
-        // this override can only be set on the service itself
+        // Update the callback url with action "allow".
+        final String allowCallbackUrl = OAuthUtils.addParameter(
+                callbackUrl,
+                OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION,
+                OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW
+        );
+
+        // Final redirect - option 1: Ignore the `OAUTH20_APPROVAL_PROMPT` parameter in session and redirect to the
+        // callback URL for allowing the authorization if the `BYPASS_APPROVAL_PROMPT` parameter is set. This override
+        // can ONLY be set by the OAuth registered service itself.
         if (bypassApprovalPrompt != null && bypassApprovalPrompt) {
             return OAuthUtils.redirectTo(allowCallbackUrl);
         }
-        // if approval prompt is not forced, check if we have already approved the requested scopes,
-        // if so do not ask the user again for authorization.
-        if (StringUtils.isBlank(approvalPrompt) || !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)) {
+
+        // Final redirect - option 2: If `OAUTH20_APPROVAL_PROMPT` is automatic, check if we have already approved the
+        // requested scopes, if so do not ask the user again for authorization.
+        if (StringUtils.isBlank(approvalPrompt)
+                || !approvalPrompt.equalsIgnoreCase(OAuthConstants.APPROVAL_PROMPT_FORCE)) {
             final String principalId = ticketGrantingTicket.getAuthentication().getPrincipal().getId();
             final Boolean existingToken = (tokenType == TokenType.ONLINE)
                     ? centralOAuthService.isAccessToken(tokenType, clientId, principalId, scopeMap.keySet())
@@ -163,6 +213,8 @@ public final class OAuth20AuthorizeCallbackController extends AbstractController
             }
         }
 
+        // Final redirect - option 3: If `OAUTH20_APPROVAL_PROMPT` is forced or if we haven't previously approved the
+        // requested scopes, redirect to the authorization confirmation page for the user to approve the action.
         final Map<String, Object> model = new HashMap<>();
         model.put("callbackUrl", callbackUrl);
         model.put("scopeMap", scopeMap);

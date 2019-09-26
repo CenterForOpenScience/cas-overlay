@@ -19,28 +19,32 @@
 package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.InvalidTokenException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * This class tests the {@link OAuth20RevokeTokenController} class.
  *
  * @author Fitz Elliott
- * @since 3.5.2
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20RevokeTokenControllerTests {
 
@@ -52,11 +56,13 @@ public final class OAuth20RevokeTokenControllerTests {
 
     @Test
     public void verifyNoToken() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(null)).thenThrow(new InvalidTokenException("error"));
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -71,7 +77,7 @@ public final class OAuth20RevokeTokenControllerTests {
         final ObjectMapper mapper = new ObjectMapper();
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
-            + "\",\"error_description\":\"Invalid Token\"}";
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'token'\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -80,6 +86,7 @@ public final class OAuth20RevokeTokenControllerTests {
 
     @Test
     public void verifyRevocationFail() throws Exception {
+
         final AccessToken accessToken = mock(AccessToken.class);
         when(accessToken.getId()).thenReturn(TOKEN_ID);
 
@@ -87,9 +94,10 @@ public final class OAuth20RevokeTokenControllerTests {
         when(centralOAuthService.getToken(TOKEN_ID)).thenReturn(accessToken);
         when(centralOAuthService.revokeToken(accessToken)).thenReturn(false);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.TOKEN, TOKEN_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -104,7 +112,7 @@ public final class OAuth20RevokeTokenControllerTests {
         final ObjectMapper mapper = new ObjectMapper();
 
         final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
-            + "\",\"error_description\":\"" + OAuthConstants.FAILED_TOKEN_REVOCATION_DESCRIPTION + "\"}";
+                + "\",\"error_description\":\"" + OAuthConstants.FAILED_TOKEN_REVOCATION_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -113,6 +121,7 @@ public final class OAuth20RevokeTokenControllerTests {
 
     @Test
     public void verifyOK() throws Exception {
+
         final AccessToken accessToken = mock(AccessToken.class);
         when(accessToken.getId()).thenReturn(TOKEN_ID);
 
@@ -120,9 +129,10 @@ public final class OAuth20RevokeTokenControllerTests {
         when(centralOAuthService.getToken(TOKEN_ID)).thenReturn(accessToken);
         when(centralOAuthService.revokeToken(accessToken)).thenReturn(true);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.REVOKE_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.TOKEN, TOKEN_ID);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -135,5 +145,4 @@ public final class OAuth20RevokeTokenControllerTests {
         assertNull(mockResponse.getContentType());
         assertEquals("null", mockResponse.getContentAsString());
     }
-
 }

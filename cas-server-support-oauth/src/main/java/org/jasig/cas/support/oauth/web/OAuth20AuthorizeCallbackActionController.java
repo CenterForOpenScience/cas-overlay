@@ -19,6 +19,7 @@
 package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
@@ -26,49 +27,67 @@ import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.AuthorizationCode;
 import org.jasig.cas.support.oauth.token.TokenType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
+
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
- * This controller is called if a user selects an action to allow or deny
- * authorization.
+ * The OAuth 2.0 authorization callback action controller.
+ *
+ * This controller is called 1) if the user clicks an action button on the OAuth confirmation page to allow / deny the
+ * authorization or 2) if the {@link OAuth20AuthorizeCallbackController} decides to bypass the aforementioned explicit
+ * user confirmation with "allow" as the action. If allowed, the user is redirected to the "redirect uri" with `token`
+ * or `code` and other parameters appended as fragment (after the "#"). Otherwise if denied, the user is redirected to
+ * the "redirect uri" with the query parameter `error=access_denied`.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20AuthorizeCallbackActionController extends AbstractController {
 
+    /** Log instance for logging events, info, warnings, errors, etc. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20AuthorizeCallbackActionController.class);
 
+    /** The CAS OAuth authorization service. */
     private final CentralOAuthService centralOAuthService;
 
+    /** The ticket timeout. */
     private final Long timeout;
 
     /**
-     * Instantiates a new o auth20 authorize callback action controller.
+     * Instantiates a new {@link OAuth20AuthorizeCallbackActionController}.
      *
      * @param centralOAuthService the central oauth service
      * @param timeout the ticket timeout
      */
-    public OAuth20AuthorizeCallbackActionController(final CentralOAuthService centralOAuthService, final Long timeout) {
+    public OAuth20AuthorizeCallbackActionController(
+            final CentralOAuthService centralOAuthService,
+            final Long timeout
+    ) {
         this.centralOAuthService = centralOAuthService;
         this.timeout = timeout;
     }
 
     @Override
-    protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
-            throws Exception {
+    protected ModelAndView handleRequestInternal(
+            final HttpServletRequest request,
+            final HttpServletResponse response
+    ) throws Exception {
+
         final HttpSession session = request.getSession();
 
-        // get action
+        // Retrieve the authorization action of the the user.
         final String action = request.getParameter(OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION);
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION, action);
 
@@ -80,7 +99,7 @@ public final class OAuth20AuthorizeCallbackActionController extends AbstractCont
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_CLIENT_ID, clientId);
         session.removeAttribute(OAuthConstants.OAUTH20_CLIENT_ID);
 
-        // retrieve state from session (csrf equivalent)
+        // Retrieve the state from session, which is equivalent to using CSRF token and prevents CSRF.
         final String state = (String) session.getAttribute(OAuthConstants.OAUTH20_STATE);
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_STATE, state);
         session.removeAttribute(OAuthConstants.OAUTH20_STATE);
@@ -102,6 +121,7 @@ public final class OAuth20AuthorizeCallbackActionController extends AbstractCont
         LOGGER.debug("{} : {}", OAuthConstants.OAUTH20_SCOPE_SET, scopeSet);
         session.removeAttribute(OAuthConstants.OAUTH20_SCOPE_SET);
 
+        // The user has denied the authorization. Redirect to the "redirect uri" with an error query parameter.
         if (!action.equalsIgnoreCase(OAuthConstants.OAUTH20_APPROVAL_PROMPT_ACTION_ALLOW)) {
             LOGGER.warn("Approval Prompt Action was denied by the user.");
             final String deniedCallbackUrl = OAuthUtils.addParameter(redirectUri, OAuthConstants.ERROR, OAuthConstants.ACCESS_DENIED);
@@ -119,16 +139,18 @@ public final class OAuth20AuthorizeCallbackActionController extends AbstractCont
             throw new InvalidParameterException(OAuthConstants.OAUTH20_REDIRECT_URI);
         }
 
+        // TODO: The "token" response type should be disabled. It is very dangerous to include the access token in the
+        //       URL as a query parameter (as opposed to be returned in a HTTPS POST response body) since it is neither
+        //       one-time or short-lived (as opposed to the authorization code).
         if ("token".equals(responseType)) {
-            final AuthorizationCode authorizationCode = centralOAuthService.grantAuthorizationCode(
-                    TokenType.ONLINE, clientId, loginTicketId, redirectUri, scopeSet);
+            final AuthorizationCode authorizationCode = centralOAuthService
+                    .grantAuthorizationCode(TokenType.ONLINE, clientId, loginTicketId, redirectUri, scopeSet);
             final AccessToken accessToken = centralOAuthService.grantOnlineAccessToken(authorizationCode);
-
             String callbackUrl = redirectUri;
+            final long timeSinceTicketCreation = System.currentTimeMillis() - accessToken.getTicket().getCreationTime();
+            final int expiresIn = (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(timeSinceTicketCreation));
             callbackUrl += "#" + OAuthConstants.ACCESS_TOKEN + "=" + accessToken.getId();
-            callbackUrl += "&" + OAuthConstants.EXPIRES_IN + "="
-                    + (int) (timeout - TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()
-                    - accessToken.getTicket().getCreationTime()));
+            callbackUrl += "&" + OAuthConstants.EXPIRES_IN + "=" + expiresIn;
             callbackUrl += "&" + OAuthConstants.TOKEN_TYPE + "=" + OAuthConstants.BEARER_TOKEN;
             if (!StringUtils.isBlank(state)) {
                 callbackUrl += "&" + OAuthConstants.STATE + "=" + state;
@@ -137,10 +159,10 @@ public final class OAuth20AuthorizeCallbackActionController extends AbstractCont
             return OAuthUtils.redirectTo(callbackUrl);
         }
 
-        // response type is code
-        final AuthorizationCode authorizationCode = centralOAuthService.grantAuthorizationCode(
-                tokenType, clientId, loginTicketId, redirectUri, scopeSet);
-
+        // Response type is "code", redirect to the callback url (which is the redirect uri of the registered service
+        // instead of the OAuth authorization callback endpoints this time) with code and state.
+        final AuthorizationCode authorizationCode = centralOAuthService
+                .grantAuthorizationCode(tokenType, clientId, loginTicketId, redirectUri, scopeSet);
         String callbackUrl = OAuthUtils.addParameter(redirectUri, OAuthConstants.CODE, authorizationCode.getId());
         if (!StringUtils.isBlank(state)) {
             callbackUrl = OAuthUtils.addParameter(callbackUrl, OAuthConstants.STATE, state);

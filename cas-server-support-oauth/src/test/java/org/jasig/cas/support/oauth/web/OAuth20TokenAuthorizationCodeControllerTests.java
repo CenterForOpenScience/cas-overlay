@@ -18,13 +18,11 @@
  */
 package org.jasig.cas.support.oauth.web;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.http.HttpStatus;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
@@ -35,7 +33,15 @@ import org.jasig.cas.support.oauth.token.InvalidTokenException;
 import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.TokenType;
 import org.jasig.cas.ticket.ServiceTicket;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -78,8 +84,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyNoCode() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
@@ -96,9 +103,11 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + new InvalidParameterException(OAuthConstants.CODE).getMessage() + "\"}";
+        final String expected = "{"
+                + "\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\","
+                + "\"error_description\":"
+                + "\"" + new InvalidParameterException(OAuthConstants.CODE).getMessage() + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -107,8 +116,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyNoClientId() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
@@ -125,9 +135,11 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + new InvalidParameterException(OAuthConstants.CLIENT_ID).getMessage() + "\"}";
+        final String expected = "{"
+                + "\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\","
+                + "\"error_description\":"
+                + "\"" + new InvalidParameterException(OAuthConstants.CLIENT_ID).getMessage() + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -136,8 +148,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyNoClientSecret() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -154,9 +167,11 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + new InvalidParameterException(OAuthConstants.CLIENT_SECRET).getMessage() + "\"}";
+        final String expected = "{"
+                + "\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\","
+                + "\"error_description\":"
+                + "\"" + new InvalidParameterException(OAuthConstants.CLIENT_SECRET).getMessage() + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -165,8 +180,9 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyNoRedirectUri() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -183,9 +199,11 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + new InvalidParameterException(OAuthConstants.REDIRECT_URI).getMessage() + "\"}";
+        final String expected = "{"
+                + "\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\","
+                + "\"error_description\":"
+                + "\"" + new InvalidParameterException(OAuthConstants.REDIRECT_URI).getMessage() + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -194,11 +212,12 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyNoAuthorizationCode() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenThrow(new InvalidTokenException("error"));
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -217,9 +236,10 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_CODE_DESCRIPTION + "\"}";
+        final String expected = "{"
+                + "\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\","
+                + "\"error_description\":\"" + OAuthConstants.INVALID_CODE_DESCRIPTION + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -228,14 +248,15 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyNoRegisteredService() throws Exception {
+
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
 
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(null);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -254,9 +275,10 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+        final String expected = "{"
+                + "\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\","
+                + "\"error_description\":\"" + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -265,6 +287,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyWrongSecret() throws Exception {
+
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
 
         final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_SECRET);
@@ -273,8 +296,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -293,9 +316,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -304,6 +326,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyRedirectUriDoesNotStartWithServiceId() throws Exception {
+
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
 
         final OAuthRegisteredService service = getRegisteredService(REDIRECT_URI, CLIENT_SECRET);
@@ -312,8 +335,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -332,9 +355,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -343,6 +365,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyInvalidGrantType() throws Exception {
+
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
         when(authorizationCode.getType()).thenReturn(TokenType.PERSONAL);
 
@@ -352,8 +375,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -372,9 +395,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_GRANT
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_GRANT_TYPE_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -383,6 +405,7 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
     @Test
     public void verifyOfflineOK() throws Exception {
+
         final ServiceTicket serviceTicket = mock(ServiceTicket.class);
         when(serviceTicket.getCreationTime()).thenReturn(new Date().getTime());
 
@@ -405,8 +428,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         when(centralOAuthService.grantOfflineRefreshToken(authorizationCode, REDIRECT_URI)).thenReturn(refreshToken);
         when(centralOAuthService.grantOfflineAccessToken(refreshToken)).thenReturn(accessToken);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -426,19 +449,26 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-        final String expected = "{\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\",\"expires_in\":\"" + TIMEOUT
-                + "\",\"refresh_token\":\"" + RT_ID + "\",\"access_token\":\"" + AT_ID + "\"}";
+        final String expected = "{"
+                + "\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\","
+                + "\"expires_in\":\"" + TIMEOUT + "\","
+                + "\"refresh_token\":\"" + RT_ID + "\","
+                + "\"access_token\":\"" + AT_ID + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("token_type").asText(), receivedObj.get("token_type").asText());
-        assertTrue("received expires_at greater or equal to expected",
-                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt());
+        assertTrue(
+                "received expires_at greater or equal to expected",
+                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt()
+        );
         assertEquals(expectedObj.get("refresh_token").asText(), receivedObj.get("refresh_token").asText());
         assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
     }
 
     @Test
     public void verifyOnlineOK() throws Exception {
+
         final ServiceTicket serviceTicket = mock(ServiceTicket.class);
         when(serviceTicket.getCreationTime()).thenReturn(new Date().getTime());
 
@@ -457,8 +487,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
         when(centralOAuthService.grantOnlineAccessToken(authorizationCode)).thenReturn(accessToken);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -478,8 +508,11 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-        final String expected = "{\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\",\"expires_in\":\"" + TIMEOUT
-                + "\",\"access_token\":\"" + AT_ID + "\"}";
+        final String expected = "{"
+                + "\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\","
+                + "\"expires_in\":\"" + TIMEOUT + "\","
+                + "\"access_token\":\"" + AT_ID + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("token_type").asText(), receivedObj.get("token_type").asText());
@@ -488,11 +521,10 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
     }
 
-    /**
-     * Verify that attempts to use regex for redirect URI matching fails with expected exception.
-     */
+    /** Verify that attempts to use regex for redirect URI matching fails with expected exception. */
     @Test
     public void verifyRegexRedirectUriDoesNotStartWithServiceId() throws Exception {
+
         final AuthorizationCode authorizationCode = mock(AuthorizationCode.class);
 
         final OAuthRegisteredService service = getRegisteredService(REGEX_REDIRECT_URI, CLIENT_SECRET);
@@ -501,8 +533,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         when(centralOAuthService.getToken(CODE, AuthorizationCode.class)).thenReturn(authorizationCode);
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -522,8 +554,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_REDIRECT_URI_DESCRIPTION + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -531,12 +563,13 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
     }
 
     /**
-     * Verify that regex-like redirect URI matches if an only if the two string are equal (case-insensitive).
+     * Verify that regex-like redirect URI matches if and only if the two strings are equal (case-insensitive).
      *
-     * Online Mode
+     * ONLINE mode.
      */
     @Test
     public void verifyOnlineOKRegexRedirectUri() throws Exception {
+
         final ServiceTicket serviceTicket = mock(ServiceTicket.class);
         when(serviceTicket.getCreationTime()).thenReturn(new Date().getTime());
 
@@ -555,8 +588,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         when(centralOAuthService.getRegisteredService(CLIENT_ID)).thenReturn(service);
         when(centralOAuthService.grantOnlineAccessToken(authorizationCode)).thenReturn(accessToken);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -576,23 +609,29 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-        final String expected = "{\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\",\"expires_in\":\"" + TIMEOUT
-                + "\",\"access_token\":\"" + AT_ID + "\"}";
+        final String expected = "{"
+                + "\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\","
+                + "\"expires_in\":\"" + TIMEOUT + "\","
+                + "\"access_token\":\"" + AT_ID + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("token_type").asText(), receivedObj.get("token_type").asText());
-        assertTrue("received expires_at greater or equal to expected",
-                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt());
+        assertTrue(
+                "received expires_at greater or equal to expected",
+                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt()
+        );
         assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
     }
 
     /**
-     * Verify that regex-like redirect URI matches if an only if the two string are equal (case-insensitive).
+     * Verify that regex-like redirect URI matches if and only if the two strings are equal (case-insensitive).
      *
      * Offline Mode
      */
     @Test
     public void verifyOfflineOKRegexRedirectUri() throws Exception {
+
         final ServiceTicket serviceTicket = mock(ServiceTicket.class);
         when(serviceTicket.getCreationTime()).thenReturn(new Date().getTime());
 
@@ -615,8 +654,8 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         when(centralOAuthService.grantOfflineRefreshToken(authorizationCode, REGEX_REDIRECT_URI)).thenReturn(refreshToken);
         when(centralOAuthService.grantOfflineAccessToken(refreshToken)).thenReturn(accessToken);
 
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT
-                + OAuthConstants.TOKEN_URL);
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
         mockRequest.setParameter(OAuthConstants.CODE, CODE);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
@@ -636,18 +675,25 @@ public final class OAuth20TokenAuthorizationCodeControllerTests {
         assertEquals("application/json", mockResponse.getContentType());
 
         final ObjectMapper mapper = new ObjectMapper();
-        final String expected = "{\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\",\"expires_in\":\"" + TIMEOUT
-                + "\",\"refresh_token\":\"" + RT_ID + "\",\"access_token\":\"" + AT_ID + "\"}";
+        final String expected = "{"
+                + "\"token_type\":\"" + OAuthConstants.BEARER_TOKEN + "\","
+                + "\"expires_in\":\"" + TIMEOUT + "\","
+                +"\"refresh_token\":\"" + RT_ID + "\","
+                + "\"access_token\":\"" + AT_ID + "\""
+                + "}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("token_type").asText(), receivedObj.get("token_type").asText());
-        assertTrue("received expires_at greater or equal to expected",
-                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt());
+        assertTrue(
+                "received expires_at greater or equal to expected",
+                expectedObj.get("expires_in").asInt() >= receivedObj.get("expires_in").asInt()
+        );
         assertEquals(expectedObj.get("refresh_token").asText(), receivedObj.get("refresh_token").asText());
         assertEquals(expectedObj.get("access_token").asText(), receivedObj.get("access_token").asText());
     }
 
     private OAuthRegisteredService getRegisteredService(final String serviceId, final String secret) {
+
         final OAuthRegisteredService registeredServiceImpl = new OAuthRegisteredService();
 
         registeredServiceImpl.setName("The registered service name");

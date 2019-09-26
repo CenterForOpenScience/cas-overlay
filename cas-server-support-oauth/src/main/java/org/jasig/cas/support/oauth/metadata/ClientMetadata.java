@@ -19,24 +19,33 @@
 package org.jasig.cas.support.oauth.metadata;
 
 /**
- * Client Metadata.
+ * Client metadata.
+ *
+ * The metadata about an OAuth registered service, which is the CAS perspective of an OSF developer app. In addition,
+ * the property {@link ClientMetadata#users} is not a list of users as its name indicates but actually the total number
+ * of users that have authorized the client / service / developer app.
+ *
+ * The CAS OAuth Service {@link org.jasig.cas.support.oauth.CentralOAuthServiceImpl#getClientMetadata} uses this class
+ * when retrieving the metadata about a given client / service / developer app.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class ClientMetadata {
+
     private final String clientId;
     private final String name;
     private final String description;
     private final Integer users;
 
     /**
-     * Constructors a new client metadata class.
+     * Instantiate a {@link ClientMetadata} with details of an OAuth registered service.
      *
-     * @param clientId the client id.
-     * @param name the name.
-     * @param description the description.
-     * @param users the users.
+     * @param clientId the client id
+     * @param name the name of the client
+     * @param description the description of the client
+     * @param users the number of users of the client
      */
     public ClientMetadata(final String clientId, final String name, final String description, final Integer users) {
         this.clientId = clientId;

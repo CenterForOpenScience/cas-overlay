@@ -26,27 +26,33 @@ import org.jasig.cas.support.oauth.token.RefreshToken;
 import org.jasig.cas.support.oauth.token.RefreshTokenImpl;
 import org.jasig.cas.support.oauth.token.Token;
 import org.jasig.cas.support.oauth.token.TokenType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.util.Assert;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.validation.constraints.NotNull;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * JPA Token Registry.
+ * JPA-based OAuth token registry.
+ *
+ * An implementation of {@link TokenRegistry} which uses Java Persistent API (JPA) to store access tokens.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class JpaTokenRegistry implements TokenRegistry {
 
-    /** The Commons Logging logger instance. */
+    /** Log instance for logging events, info, warnings, errors, etc. */
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @NotNull
@@ -67,6 +73,7 @@ public final class JpaTokenRegistry implements TokenRegistry {
 
     @Override
     public <T extends Token> T getToken(final String tokenId, final Class<T> clazz) throws ClassCastException {
+
         Assert.notNull(clazz, "clazz cannot be null");
 
         final T token = entityManager.find(getClassImplementation(clazz), tokenId);
@@ -75,75 +82,93 @@ public final class JpaTokenRegistry implements TokenRegistry {
         }
 
         if (!clazz.isAssignableFrom(token.getClass())) {
-            throw new ClassCastException("Token [" + token.getId()
-                    + "] is of type " + token.getClass()
-                    + " when we were expecting " + clazz);
+            throw new ClassCastException(
+                    "Token [" + token.getId() + "] is of type " + token.getClass() + " when we were expecting " + clazz
+            );
         }
 
         return token;
     }
 
     @Override
-    public <T extends Token> Collection<T> getClientTokens(final String clientId, final Class<T> clazz) throws ClassCastException {
+    public <T extends Token> Collection<T> getClientTokens(
+            final String clientId,
+            final Class<T> clazz
+    ) throws ClassCastException {
+
         Assert.notNull(clientId, "clientId cannot be null");
         Assert.notNull(clazz, "clazz cannot be null");
 
         final Class<T> clazzImpl = getClassImplementation(clazz);
         try {
-            return entityManager
-                    .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.clientId = :clientId", clazzImpl)
-                    .setParameter("clientId", clientId)
-                    .getResultList();
+            final String query = "select t from " + clazzImpl.getSimpleName() + " t where t.clientId = :clientId";
+            return entityManager.createQuery(query, clazzImpl).setParameter("clientId", clientId).getResultList();
         } catch (final NoResultException e) {
             return null;
         }
     }
 
     @Override
-    public <T extends Token> Collection<T> getClientPrincipalTokens(final String clientId, final String principalId, final Class<T> clazz)
-            throws ClassCastException {
+    public <T extends Token> Collection<T> getClientPrincipalTokens(
+            final String clientId,
+            final String principalId,
+            final Class<T> clazz
+    ) throws ClassCastException {
         return getClientPrincipalTokens(clientId, principalId, null, clazz);
     }
 
     @Override
-    public <T extends Token> Collection<T> getClientPrincipalTokens(final String clientId, final String principalId, final TokenType type,
-                                                                    final Class<T> clazz) throws ClassCastException {
+    public <T extends Token> Collection<T> getClientPrincipalTokens(
+            final String clientId,
+            final String principalId,
+            final TokenType type,
+            final Class<T> clazz
+    ) throws ClassCastException {
+
         Assert.notNull(clientId, "clientId cannot be null");
         Assert.notNull(principalId, "principalId cannot be null");
         Assert.notNull(clazz, "clazz cannot be null");
 
+        String query;
         final Class<T> clazzImpl = getClassImplementation(clazz);
         try {
             if (type == null) {
+                query = "select t from " + clazzImpl.getSimpleName()
+                        + " t where t.clientId = :clientId and t.principalId = :principalId";
                 return entityManager
-                        .createQuery("select t from " + clazzImpl.getSimpleName()
-                                + " t where t.clientId = :clientId and t.principalId = :principalId", clazzImpl)
+                        .createQuery(query, clazzImpl)
                         .setParameter("clientId", clientId)
                         .setParameter("principalId", principalId)
                         .getResultList();
+            } else {
+                query = "select t from " + clazzImpl.getSimpleName()
+                        + " t where t.clientId = :clientId and t.principalId = :principalId and t.type = :type";
+                return entityManager
+                        .createQuery(query, clazzImpl)
+                        .setParameter("clientId", clientId)
+                        .setParameter("principalId", principalId)
+                        .setParameter("type", type)
+                        .getResultList();
             }
-
-            return entityManager
-                    .createQuery("select t from " + clazzImpl.getSimpleName()
-                            + " t where t.clientId = :clientId and t.principalId = :principalId and t.type = :type", clazzImpl)
-                    .setParameter("clientId", clientId)
-                    .setParameter("principalId", principalId)
-                    .setParameter("type", type)
-                    .getResultList();
         } catch (final NoResultException e) {
             return null;
         }
     }
 
     @Override
-    public <T extends Token> Collection<T> getPrincipalTokens(final String principalId, final Class<T> clazz) throws ClassCastException {
+    public <T extends Token> Collection<T> getPrincipalTokens(
+            final String principalId,
+            final Class<T> clazz
+    ) throws ClassCastException {
+
         Assert.notNull(principalId, "principalId cannot be null");
         Assert.notNull(clazz, "clazz cannot be null");
 
         final Class<T> clazzImpl = getClassImplementation(clazz);
         try {
+            final String query = "select t from " + clazzImpl.getSimpleName() + " t where t.principalId = :principalId";
             return entityManager
-                    .createQuery("select t from " + clazzImpl.getSimpleName() + " t where t.principalId = :principalId", clazzImpl)
+                    .createQuery(query, clazzImpl)
                     .setParameter("principalId", principalId)
                     .getResultList();
         } catch (final NoResultException e) {
@@ -152,37 +177,46 @@ public final class JpaTokenRegistry implements TokenRegistry {
     }
 
     @Override
-    public <T extends Token> Boolean isToken(final String clientId, final String principalId, final Set<String> scopes,
-                                             final Class<T> clazz) {
+    public <T extends Token> Boolean isToken(
+            final String clientId,
+            final String principalId,
+            final Set<String> scopes,
+            final Class<T> clazz
+    ) throws ClassCastException {
         return isToken(null, clientId, principalId, scopes, clazz);
     }
 
     @Override
-    public <T extends Token> Boolean isToken(final TokenType type, final String clientId, final String principalId,
-                                             final Set<String> scopes, final Class<T> clazz) {
+    public <T extends Token> Boolean isToken(
+            final TokenType type,
+            final String clientId,
+            final String principalId,
+            final Set<String> scopes,
+            final Class<T> clazz
+    ) throws ClassCastException {
         Assert.notNull(clientId, "clientId cannot be null");
         Assert.notNull(principalId, "principalId cannot be null");
         Assert.notNull(scopes, "scopes cannot be null");
         Assert.notNull(clazz, "clazz cannot be null");
 
-        final Class<T> clazzImpl = getClassImplementation(clazz);
+        String query;
         final Collection<T> tokens;
+        final Class<T> clazzImpl = getClassImplementation(clazz);
         try {
             if (type == null) {
+                query = "select t from " + clazzImpl.getSimpleName() + " t where "
+                        + "t.clientId = :clientId and t.principalId = :principalId and t.scopesHash = :scopesHash";
                 tokens = entityManager
-                        .createQuery("select t from " + clazzImpl.getSimpleName() + " t "
-                                        + "where t.clientId = :clientId and t.principalId = :principalId and t.scopesHash = :scopesHash",
-                                clazzImpl)
+                        .createQuery(query, clazzImpl)
                         .setParameter("clientId", clientId)
                         .setParameter("principalId", principalId)
                         .setParameter("scopesHash", scopes.hashCode())
                         .getResultList();
             } else {
+                query = "select t from " + clazzImpl.getSimpleName() + " t where t.type = :type and "
+                        + "t.clientId = :clientId and t.principalId = :principalId and t.scopesHash = :scopesHash";
                 tokens = entityManager
-                        .createQuery("select t from " + clazzImpl.getSimpleName() + " t "
-                                        + "where t.type = :type and t.clientId = :clientId and t.principalId = :principalId "
-                                        + "and t.scopesHash = :scopesHash",
-                                clazzImpl)
+                        .createQuery(query, clazzImpl)
                         .setParameter("type", type)
                         .setParameter("clientId", clientId)
                         .setParameter("principalId", principalId)
@@ -204,23 +238,28 @@ public final class JpaTokenRegistry implements TokenRegistry {
 
     @Override
     public Integer getPrincipalCount(final String clientId) {
+
         Assert.notNull(clientId, "clientId cannot be null");
 
+        String query;
         final Set<String> principals = new HashSet<>();
+
         try {
-            principals.addAll(entityManager
-                    .createQuery("select distinct t.principalId from RefreshTokenImpl t where t.clientId = :clientId", String.class)
-                    .setParameter("clientId", clientId)
-                    .getResultList());
+            query = "select distinct t.principalId from "
+                    + RefreshTokenImpl.class.getSimpleName() + " t where t.clientId = :clientId";
+            principals.addAll(
+                    entityManager.createQuery(query, String.class).setParameter("clientId", clientId).getResultList()
+            );
         } catch (final NoResultException e) {
             // no results
         }
 
         try {
-            principals.addAll(entityManager
-                    .createQuery("select distinct t.principalId from AccessTokenImpl t where t.clientId = :clientId", String.class)
-                    .setParameter("clientId", clientId)
-                    .getResultList());
+            query = "select distinct t.principalId from "
+                    + AccessTokenImpl.class.getSimpleName() + " t where t.clientId = :clientId";
+            principals.addAll(
+                    entityManager.createQuery(query, String.class).setParameter("clientId", clientId).getResultList()
+            );
         } catch (final NoResultException e) {
             // no results
         }
@@ -231,10 +270,10 @@ public final class JpaTokenRegistry implements TokenRegistry {
     /**
      * Retrieve the token implementation class of the clazz specified.
      *
-     * @param clazz The assignable form of the implementation class.
+     * @param clazz the assignable form of the implementation class
      * @param <T> the generic token type to return that extends {@link Token}
-     * @return the token implementation class.
-     * @throws ClassCastException the class cast exception.
+     * @return the token implementation class
+     * @throws ClassCastException the class cast exception
      */
     @SuppressWarnings("unchecked")
     private <T extends Token> Class<T> getClassImplementation(final Class<T> clazz) throws ClassCastException {
@@ -245,8 +284,6 @@ public final class JpaTokenRegistry implements TokenRegistry {
         } else if (AccessToken.class.isAssignableFrom(clazz)) {
             return (Class<T>) AccessTokenImpl.class;
         }
-
-        throw new ClassCastException("Could not cast " + clazz
-                + " to a suitable token implementation class");
+        throw new ClassCastException("Could not cast " + clazz + " to a suitable token implementation class");
     }
 }

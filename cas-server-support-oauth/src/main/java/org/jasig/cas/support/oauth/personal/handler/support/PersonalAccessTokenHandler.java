@@ -21,18 +21,19 @@ package org.jasig.cas.support.oauth.personal.handler.support;
 import org.jasig.cas.support.oauth.personal.PersonalAccessToken;
 
 /**
- * Interface for Personal Token Handler.
+ * The interface for personal access token handler classes.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public interface PersonalAccessTokenHandler {
 
     /**
      * Get a personal access token from the handler by the token id specified.
      *
-     * @param tokenId the token id.
-     * @return a personal access token or null.
+     * @param tokenId the token id
+     * @return a personal access token or null
      */
     PersonalAccessToken getToken(String tokenId);
 }

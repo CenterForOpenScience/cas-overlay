@@ -24,15 +24,16 @@ import java.io.Serializable;
 import java.util.Set;
 
 /**
- * Interface for the generic concept of a token.
+ * The interface for the generic concept of a token.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public interface Token extends Serializable {
 
     /**
-     * Method to retrieve the id.
+     * Method to retrieve the id of the token.
      *
      * @return the id
      */

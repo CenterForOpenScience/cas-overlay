@@ -21,26 +21,28 @@ package org.jasig.cas.support.oauth.personal;
 import java.util.Set;
 
 /**
- * Personal Access Token.
+ * Personal access token (PAT).
+ *
+ * This is not a model class but a helper. It stores the token information retrieved from the OSF database, of which
+ * the model class is {@link io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2PersonalAccessToken}.
+ *
+ * The CAS OAuth Service {@link org.jasig.cas.support.oauth.CentralOAuthServiceImpl} uses this information to create
+ * its own PAT, of which the model class is {@link org.jasig.cas.support.oauth.token.AccessTokenImpl} and of which the
+ * token type {@link org.jasig.cas.support.oauth.token.TokenType} is PERSONAL - 2.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class PersonalAccessToken {
 
-    /**
-     * The id of the token.
-     */
+    /** The id of the token. */
     private final String id;
 
-    /**
-     * The principal id of the token.
-     */
+    /** The principal id of the token. */
     private final String principalId;
 
-    /**
-     * The scopes assigned to the token.
-     */
+    /** The scopes assigned to the token. */
     private final Set<String> scopes;
 
     /**
@@ -59,7 +61,7 @@ public final class PersonalAccessToken {
     /**
      * Get the identifier of the token.
      *
-     * @return the id.
+     * @return the the id of the token
      */
     public String getId() {
         return this.id;
@@ -68,7 +70,7 @@ public final class PersonalAccessToken {
     /**
      * Get the principal id of the token.
      *
-     * @return the principal id.
+     * @return the principal id
      */
     public String getPrincipalId() {
         return this.principalId;
@@ -77,7 +79,7 @@ public final class PersonalAccessToken {
     /**
      * Get a set of scopes assigned to the token.
      *
-     * @return a set of scopes.
+     * @return a set of scopes
      */
     public Set<String> getScopes() {
         return this.scopes;

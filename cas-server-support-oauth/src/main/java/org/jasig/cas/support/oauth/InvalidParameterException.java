@@ -24,20 +24,24 @@ import org.jasig.cas.authentication.RootCasException;
  * The exception to throw when a parameter is invalid or missing.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class InvalidParameterException extends RootCasException {
 
+    /** Log instance for logging events, info, warnings, errors, etc. */
     private static final long serialVersionUID = -6122987319096575896L;
 
     /** The code description. */
     private static final String CODE = "INVALID_PARAMETER";
 
+    /** The name of the invalid or missing parameter. */
     private final String name;
 
     /**
-     * Constructs a InvalidParameterException with the default exception code.
-     * @param name the name of the parameter that originally caused this exception to be thrown.
+     * Instantiates a {@link InvalidParameterException} with the default exception code and a given parameter name.
+     *
+     * @param name the name of the parameter that originally caused this exception to be thrown
      */
     public InvalidParameterException(final String name) {
         super(CODE);
@@ -45,8 +49,8 @@ public class InvalidParameterException extends RootCasException {
     }
 
     /**
-     * Constructs a InvalidParameterException with the default exception code and
-     * the original exception that was thrown.
+     * Instantiates a {@link InvalidParameterException} with the default exception code, the original exception that
+     * was thrown and a given parameter name.
      *
      * @param throwable the chained exception
      * @param name the name of the parameter that originally caused this exception to be thrown.
@@ -58,6 +62,7 @@ public class InvalidParameterException extends RootCasException {
 
     /**
      * Returns the message of this exception.
+     *
      * @return the message
      * @see InvalidParameterException#name
      */

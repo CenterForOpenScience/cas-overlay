@@ -22,10 +22,14 @@ import static org.junit.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.http.HttpStatus;
+
 import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
+
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -33,7 +37,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * This class tests the {@link OAuth20WrapperController} class.
  *
  * @author Jerome Leleu
- * @since 3.5.2
+ * @author Fitz Elliott
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20WrapperControllerTests {
 
@@ -41,7 +47,9 @@ public final class OAuth20WrapperControllerTests {
 
     @Test
     public void verifyWrongMethod() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", CONTEXT + "wrongmethod");
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + "wrongmethod");
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -55,7 +63,9 @@ public final class OAuth20WrapperControllerTests {
 
     @Test
     public void verifyNoPostForAuthCtrl() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.AUTHORIZE_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.AUTHORIZE_URL);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -69,7 +79,9 @@ public final class OAuth20WrapperControllerTests {
 
     @Test
     public void verifyNoPostForAuthCallbackCtrl() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_URL);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -83,8 +95,9 @@ public final class OAuth20WrapperControllerTests {
 
     @Test
     public void verifyNoPostForAuthCallbackActionCtrl() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-            "POST", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.CALLBACK_AUTHORIZE_ACTION_URL);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -97,9 +110,10 @@ public final class OAuth20WrapperControllerTests {
     }
 
     @Test
-    public void verifyNoGetForTokenCtrls() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-            "GET", CONTEXT + OAuthConstants.TOKEN_URL);
+    public void verifyNoGetForTokenCtrl() throws Exception {
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.TOKEN_URL);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -112,9 +126,10 @@ public final class OAuth20WrapperControllerTests {
     }
 
     @Test
-    public void verifyNoGrantTypeForTokenCtrls() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-            "POST", CONTEXT + OAuthConstants.TOKEN_URL);
+    public void verifyNoGrantTypeForTokenCtrl() throws Exception {
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -126,8 +141,8 @@ public final class OAuth20WrapperControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + new InvalidParameterException(OAuthConstants.GRANT_TYPE).getMessage() + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + new InvalidParameterException(OAuthConstants.GRANT_TYPE).getMessage() + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -135,9 +150,10 @@ public final class OAuth20WrapperControllerTests {
     }
 
     @Test
-    public void verifyInvalidGrantTypeForTokenCtrls() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-            "POST", CONTEXT + OAuthConstants.TOKEN_URL);
+    public void verifyInvalidGrantTypeForTokenCtrl() throws Exception {
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.TOKEN_URL);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
         mockRequest.setParameter(OAuthConstants.GRANT_TYPE, "banana");
@@ -150,8 +166,8 @@ public final class OAuth20WrapperControllerTests {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + new InvalidParameterException(OAuthConstants.GRANT_TYPE).getMessage() + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + new InvalidParameterException(OAuthConstants.GRANT_TYPE).getMessage() + "\"}";
         final JsonNode expectedObj = mapper.readTree(expected);
         final JsonNode receivedObj = mapper.readTree(mockResponse.getContentAsString());
         assertEquals(expectedObj.get("error").asText(), receivedObj.get("error").asText());
@@ -159,9 +175,10 @@ public final class OAuth20WrapperControllerTests {
     }
 
     @Test
-    public void verifyNoGetForRevokeCtrls() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-            "GET", CONTEXT + OAuthConstants.REVOKE_URL);
+    public void verifyNoGetForRevokeCtrl() throws Exception {
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.REVOKE_URL);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -175,8 +192,9 @@ public final class OAuth20WrapperControllerTests {
 
     @Test
     public void verifyNoPostForProfileCtrl() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-            "POST", CONTEXT + OAuthConstants.PROFILE_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.PROFILE_URL);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -190,8 +208,9 @@ public final class OAuth20WrapperControllerTests {
 
     @Test
     public void verifyNoGetForProfileCtrl() throws Exception {
-        final MockHttpServletRequest mockRequest = new MockHttpServletRequest(
-            "GET", CONTEXT + OAuthConstants.METADATA_URL);
+
+        final MockHttpServletRequest mockRequest
+                = new MockHttpServletRequest("GET", CONTEXT + OAuthConstants.METADATA_URL);
 
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
@@ -202,5 +221,4 @@ public final class OAuth20WrapperControllerTests {
         assertEquals("text/plain", mockResponse.getContentType());
         assertEquals("error=" + OAuthConstants.INVALID_REQUEST, mockResponse.getContentAsString());
     }
-
 }

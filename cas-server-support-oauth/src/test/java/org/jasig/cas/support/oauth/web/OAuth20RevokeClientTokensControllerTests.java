@@ -19,15 +19,24 @@
 package org.jasig.cas.support.oauth.web;
 
 import org.apache.http.HttpStatus;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.OAuthConstants;
 
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.RefreshToken;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -35,13 +44,8 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
- * This class tests the {@link OAuth20RevokeClienTokensController} class.
+ * This class tests the {@link OAuth20RevokeClientTokensController} class.
  *
  * @author Fitz Elliott
  * @author Longze Chen
@@ -65,12 +69,14 @@ public final class OAuth20RevokeClientTokensControllerTests {
     /** Test that no client id raises HTTP 400 Bad Request. */
     @Test
     public void verifyNoClientId() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
 
         final MockHttpServletRequest mockRequest
                 = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, "");
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -82,8 +88,8 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid or missing parameter 'client_id'\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'client_id'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -95,12 +101,14 @@ public final class OAuth20RevokeClientTokensControllerTests {
     /** Test that no client secret raises HTTP 400 Bad Request. */
     @Test
     public void verifyNoClientSecret() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
 
         final MockHttpServletRequest mockRequest
                 = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, "");
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -112,8 +120,8 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + "Invalid or missing parameter 'client_secret'\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + "Invalid or missing parameter 'client_secret'\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -125,12 +133,14 @@ public final class OAuth20RevokeClientTokensControllerTests {
     /** Test that client id not found raises HTTP 400 Bad Request. */
     @Test
     public void verifyNoSuchClientId() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
 
         final MockHttpServletRequest mockRequest
                 = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, NO_SUCH_CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -142,8 +152,8 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -155,12 +165,14 @@ public final class OAuth20RevokeClientTokensControllerTests {
     /** Test that wrong client secret raises HTTP 400 Bad Request. */
     @Test
     public void verifyWrongClientSecret() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
 
         final MockHttpServletRequest mockRequest
                 = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, WRONG_CLIENT_SECRET);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();
@@ -172,8 +184,8 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertEquals(HttpStatus.SC_BAD_REQUEST, mockResponse.getStatus());
         assertEquals(CONTENT_TYPE, mockResponse.getContentType());
 
-        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST + "\",\"error_description\":\""
-                + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
+        final String expected = "{\"error\":\"" + OAuthConstants.INVALID_REQUEST
+                + "\",\"error_description\":\"" + OAuthConstants.INVALID_CLIENT_ID_OR_SECRET_DESCRIPTION + "\"}";
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode expectedObj = mapper.readTree(expected);
@@ -182,9 +194,10 @@ public final class OAuth20RevokeClientTokensControllerTests {
         assertEquals(expectedObj.get("error_description").asText(), receivedObj.get("error_description").asText());
     }
 
-    /* Test that valid client id and secret succeeds and returns HTTP 204 No Content. */
+    /** Test that valid client id and secret succeeds and returns HTTP 204 No Content. */
     @Test
     public void verifyOK() throws Exception {
+
         final CentralOAuthService centralOAuthService = mock(CentralOAuthService.class);
         final Collection<AccessToken> accessTokens = new LinkedList<>();
         final Collection<RefreshToken> refreshTokens = new LinkedList<>();
@@ -200,6 +213,7 @@ public final class OAuth20RevokeClientTokensControllerTests {
                 = new MockHttpServletRequest("POST", CONTEXT + OAuthConstants.REVOKE_URL);
         mockRequest.setParameter(OAuthConstants.CLIENT_ID, CLIENT_ID);
         mockRequest.setParameter(OAuthConstants.CLIENT_SECRET, CLIENT_SECRET);
+
         final MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
         final OAuth20WrapperController oauth20WrapperController = new OAuth20WrapperController();

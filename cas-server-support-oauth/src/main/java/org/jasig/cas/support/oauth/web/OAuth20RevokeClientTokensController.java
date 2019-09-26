@@ -20,6 +20,7 @@ package org.jasig.cas.support.oauth.web;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
 import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
@@ -27,17 +28,22 @@ import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.RefreshToken;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
- * This controller handles requests to revoke all tokens associated with a client id.
+ * The OAuth 2.0 "Revoke Client Tokens" controller.
+ *
+ * This controller handles requests to revoke all tokens of the registered service associated with a given client id.
  *
  * @author Michael Haselton
  * @author Longze Chen
@@ -45,35 +51,44 @@ import java.util.Collection;
  */
 public final class OAuth20RevokeClientTokensController extends AbstractController {
 
+    /** Log instance for logging events, info, warnings, errors, etc. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20RevokeClientTokensController.class);
 
+    /** The CAS OAuth authorization service. */
     private final CentralOAuthService centralOAuthService;
 
     /**
-     * Instantiates a new o auth20 revoke client tokens controller.
+     * Instantiates a new {@link OAuth20RevokeClientTokensController}.
      *
-     * @param centralOAuthService the central oauth service
+     * @param centralOAuthService the CAS OAuth service
      */
     public OAuth20RevokeClientTokensController(final CentralOAuthService centralOAuthService) {
         this.centralOAuthService = centralOAuthService;
     }
 
     @Override
-    protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
-            throws Exception {
+    protected ModelAndView handleRequestInternal(
+            final HttpServletRequest request,
+            final HttpServletResponse response
+    ) throws Exception {
+
+        // Verify that all required OAuth 2.0 parameters are provided.
         final String clientId = request.getParameter(OAuthConstants.CLIENT_ID);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_ID, clientId);
-
         final String clientSecret = request.getParameter(OAuthConstants.CLIENT_SECRET);
         LOGGER.debug("{} : {}", OAuthConstants.CLIENT_SECRET, "************");
-
         try {
             verifyRequest(clientId, clientSecret);
         } catch (final InvalidParameterException e) {
-            return OAuthUtils.writeJsonError(response, OAuthConstants.INVALID_REQUEST, e.getMessage(), HttpStatus.SC_BAD_REQUEST);
+            return OAuthUtils.writeJsonError(
+                    response,
+                    OAuthConstants.INVALID_REQUEST,
+                    e.getMessage(),
+                    HttpStatus.SC_BAD_REQUEST
+            );
         }
 
-        // Verify that the client service has a valid client id and client secret
+        // Retrieve the registered service associated with the client id and verify the client secret.
         final OAuthRegisteredService service = centralOAuthService.getRegisteredService(clientId);
         if (service == null || !service.getClientSecret().equals(clientSecret)) {
             LOGGER.error("Could not revoke client tokens, mismatched client id or client secret");
@@ -85,38 +100,38 @@ public final class OAuth20RevokeClientTokensController extends AbstractControlle
             );
         }
 
-        // Remove all refresh tokens for the client of the specified id
+        // Attempt to remove all refresh and access tokens associated with the registered service via client id.
         final Collection<RefreshToken> refreshTokens = centralOAuthService.getClientRefreshTokens(clientId);
         for (final RefreshToken token: refreshTokens) {
             LOGGER.debug("Revoking refresh token : {}", token.getId());
             centralOAuthService.revokeToken(token);
         }
-        // Remove all access tokens for the client of the specified id
         final Collection<AccessToken> accessTokens = centralOAuthService.getClientAccessTokens(clientId);
         for (final AccessToken token: accessTokens) {
             LOGGER.info("Revoking access token : {}", token.getId());
             centralOAuthService.revokeToken(token);
         }
 
+        // Return an HTTP 204 No Content after all tokens have been removed successfully.
         return OAuthUtils.writeText(response, null, HttpStatus.SC_NO_CONTENT);
     }
 
     /**
-     * Verify the request by reviewing the values of client id, etc...
+     * Verify that all required OAuth 2.0 parameters are provided.
      *
      * @param clientId the client id
      * @param clientSecret the client secret
      * @throws InvalidParameterException with the name of the invalid parameter
      */
     private void verifyRequest(final String clientId, final String clientSecret) throws InvalidParameterException {
-        // clientId is required
+
         if (StringUtils.isBlank(clientId)) {
-            LOGGER.error("Missing {}", OAuthConstants.CLIENT_ID);
+            LOGGER.error(OAuthConstants.MISSING_CLIENT_ID_DESCRIPTION);
             throw new InvalidParameterException(OAuthConstants.CLIENT_ID);
         }
-        // clientSecret is required
+
         if (StringUtils.isBlank(clientSecret)) {
-            LOGGER.error("Missing {}", OAuthConstants.CLIENT_SECRET);
+            LOGGER.error(OAuthConstants.MISSING_CLIENT_SECRET_DESCRIPTION);
             throw new InvalidParameterException(OAuthConstants.CLIENT_SECRET);
         }
     }
