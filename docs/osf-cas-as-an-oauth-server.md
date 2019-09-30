@@ -1,349 +1,413 @@
 # OSF CAS as an OAuth Server
 
-[Apereo CAS: OAuth Protocol](https://apereo.github.io/cas/4.1.x/protocol/OAuth-Protocol.html)
+## About
 
-[Apereo CAS: CAS as OAuth Server](https://apereo.github.io/cas/4.1.x/installation/OAuth-OpenId-Authentication.html)
+OSF CAS serves as an OAuth 2.0 authorization server for OSF in addition to its primary role as a CAS authentication server. 
 
-The following guide is moved to here from the main `README.md`. Part of it is outdated and is being refactored.
+### The OAuth 2.0 Protocol
 
-### OAuth2 Provider
+* [RFC 6749](https://tools.ietf.org/html/rfc6749)
+* [OAuth 2.0](https://oauth.net/2/)
+* [OAuth 2.0 Simplified](https://aaronparecki.com/oauth-2-simplified/)
 
-[Roadmap 4.1 OAuth Server Support](https://wiki.jasig.org/display/CAS/CAS+4.1+Roadmap#CAS4.1Roadmap-Oauthserversupport)
+### Parties and Roles
 
-* Token Registry
-  * JPA
-* Scope Managers
-  * Simple OAuth Scope Handler
-  * Open Science Framework Scope Handler (MongoDB)
-* Tokens
-  * Client Side & Web Application Server Response Types
-    * Authorization Code
-    * Token
-  * Refresh Token Support
-  * Revoke Access Tokens & Refresh Tokens
-  * Personal Access Tokens (Optional)
-  * CAS Login Access Tokens (Optional)
-* Service Specific Attribute Release
-* Delegated Ticket Expiration
-  * Access Token: 60 minutes
-  * Refresh Token: never-expire
-* Application Integration & Maintenance Actions
-  * User Actions
-    * List Authorized Applications
-    * Revoke Application Tokens
-  * User Owned Applications & Stats
-    * Active User Count
-    * Revoke All Tokens
+Party                   | Who               | Role
+----------------------- | ----------------- | ----
+Client Application      | A web application | 
+Authorization Server    | OSF CAS           | 
+Resource Owner          | OSF users         | 
+Resource Server         | OSF API           | 
+
+### Enable OAuth 2.0 Server Support
+
+* [Apereo CAS: OAuth Protocol](https://apereo.github.io/cas/4.1.x/protocol/OAuth-Protocol.html)
+* [Apereo CAS: CAS as OAuth Server](https://apereo.github.io/cas/4.1.x/installation/OAuth-OpenId-Authentication.html)
+
+</br>
+
+## Features
+
+### General
+
+* Authorize client applications
+* Exchange authorization code for access and refresh token
+* Request access token using refresh token
+* Revoke access and refresh tokens
+
+### Client Application Owners
+
+* Get the number of users who have authorized the application
+* Revoke all tokens of the application for all users 
+
+### Resource Owners
+
+* List all authorized applications
+* Revoke all tokens of an authorized application for the owner
+
+</br>
+
+## Design and Implementation
+
+For implementation details, please refer to the [`cas-server-support-oauth`](https://github.com/CenterForOpenScience/cas-overlay/tree/develop/cas-server-support-oauth/src/main/java/org/jasig/cas) module.
+
+### Tokens and Token Management
+
+* Token
+  * [Authorization Code](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/token/AuthorizationCodeImpl.java) (AC)
+  * [Access Token](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/token/AccessTokenImpl.java) (AT)
+  * [Refresh Token](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/token/RefreshTokenImpl.java) (RT)
+* [Token Type](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/token/TokenType.java)
+  * `OFFLINE`: AC, AC-exchanged RT and RT-granted AT
+  * `ONLINE`: AC, AC-exchanged AT
+  * `PERSONAL`: AT granted based on existing [OSF Personal Access Token](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-osf/src/main/java/io/cos/cas/adaptors/postgres/models/OpenScienceFrameworkApiOauth2PersonalAccessToken.java) (OSF PAT)
+  * `CAS`: AT granted as attributes during service validation
+* Token Access and Storage
+  * [JPA Token Registry](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/token/registry/JpaTokenRegistry.java)
+
+### Scope and Scope Management
+
+In OSF CAS, [Scope](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/scope/Scope.java) is not stored by itself in the CAS DB but as an [LOB property](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/token/AbstractToken.java#L65) of the associated [Token](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/token/AbstractToken.java). The [Scope Manager](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/scope/ScopeManager.java) uses 1) [Simple OAuth Scope Handler](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/scope/handler/SimpleScopeHandler.java) to handle scopes associated with `CAS` ATs only and 2) the [OSF Scope Handler](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-osf/src/main/java/io/cos/cas/adaptors/postgres/handlers/OpenScienceFrameworkScopeHandler.java) to handle scopes for all other types that use [OSF Scope]([OSF Scope](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-osf/src/main/java/io/cos/cas/adaptors/postgres/models/OpenScienceFrameworkApiOauth2Scope.java).
+
+### Service and Service Management
+
+In OSF CAS, client applications are loaded (and periodically updated) from the [OSF DB](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-osf/src/main/java/io/cos/cas/adaptors/postgres/models/OpenScienceFrameworkApiOauth2Application.java) into the memory as [OAuth Registered Service](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/services/OAuthRegisteredService.java). The main [OAuth Service](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/CentralOAuthServiceImpl.java) accesses them via the [Services Manager](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/CentralOAuthServiceImpl.java#L154).
+
+### Delegated Ticket Expiration
+
+The expiration time for a token is determined by [the expiration policy](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/ticket/support/OAuthDelegatingExpirationPolicy.java) its ticket uses.
+
+* `ONLINE` / `OFFLINE` AC: 1 minute
+* `ONLINE` / `OFFLINE` AT: 1 hour
+* `OFFLINE` RT: never-expire
+* `PERSONAL` AT: never-expire
+* `CAS` AT: varies - 30-day if *Remember Me* is enabled; otherwise 8-hour maximum lifetime with a 2-hour sliding window.
+
+### CAS Service Validation
+
+The [OAuth 2.0 Service Validate Controller](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/cas-server-support-oauth/src/main/java/org/jasig/cas/support/oauth/web/OAuth20ServiceValidateController.java) replaces the default [CAS Service Validate Controller](https://github.com/apereo/cas/blob/4.1.x/cas-server-webapp-support/src/main/java/org/jasig/cas/web/ServiceValidateController.java). In addition to performing default duties, it injects a `CAS` AT into the attributes released to OSF users during primary authentication.
+
+</br>
+
+## Endpoints
+
+### `GET /oauth2/authorize`
+
+#### Authorize a Client Application
+
+Securely allows or denies the client application's request to access the resource user's information with specified scopes. It returns a one-time and short-lived authorization code, which will be used to follow up with the token-code exchange.
+
+##### Request
+
+```
+https://accounts.osf.io/oauth2/authorize
+```
+
+##### Request Query Parameters
+
+Parameter       | Value / Example                   | Description
+--------------- | --------------------------------- | -----------
+response_type   | code                              | 
+client_id       | ffe5247b810045a8a9277d3b3b4edc7a  | 
+redirect_uri    | https://my.app.io/oauth2/callback | 
+scope           | osf.full_read                     | 
+state           | OQlHiyBY                          | 
+access_type     | **online** / offline              | 
+approval_prompt | **auto** / force`                 | 
+
+##### Authorization Web Flow
+
+0. The client application issues the initial authorization request to `oauth2/authorize`.
+1. If the user is not logged in, redirects to the primary CAS login with `oauth2/callbackAuthorize` as service.
+2. Both step 0 and 1 end up redirecting the user to `oauth2/callbackAuthorize` for service validation.
+3. After validation, redirects to `oauth2/callbackAuthorize` one more time, which checks previous decisions and asks the user to allow or deny the authorization if necessary.
+4. If denied, redirects to `/oauth2/callbackAuthorizeAction?action=DENY`; if allowed, redirects to `/oauth2/callbackAuthorizeAction?action=ALLOW`
+5. Finally for both decisions in step 4, redirects the user to the *Redirect URI*: `https://my.app.io/oauth2/callback?` with different query parameters as shown below.
+
+##### Query Parameters: ALLOW
+
+Parameter   | Value / Example
+----------- | -------------------------------------------------------
+code        | AC-1-mFs7MrWvaQy1fiidWGwXTw4dbAH30wk39cAELJnxizjGCUXYJl
+state       | OQlHiyBY
+
+##### Query Parameters: DENY
+
+Parameter   | Value / Example
+----------- | ---------------
+error       | access_denied
+
+</br>
+
+### `POST /oauth2/token`
+
+#### Exchange Code for Token
+
+Exchanges the authorization code for an access token and potentially a refresh token if *offline* mode was specified.
+
+##### Request
+
+```
+https://accounts.osf.io/oauth2/token
+```
+
+##### `POST` Body Parameters
+
+Parameter       | Value / Example                                           | Description
+--------------- | --------------------------------------------------------- | -----------
+code            | AC-1-mFs7MrWvaQy1fiidWGwXTw4dbAH30wk39cAELJnxizjGCUXYJl   | 
+client_id       | ffe5247b810045a8a9277d3b3b4edc7a                          | 
+client_secret   | 5PgE96R3Z53dBuwBDkJfbK6ItDXvGhaxYpQ6r4cU                  | 
+redirect_uri    | https://my.app.io/oauth2/callback                         | 
+grant_type      | authorization_code                                        | 
+
+##### Response
+
+```
+HTTP 200 OK
+```
+
+###### ONLINE Mode
+
+```json
+{
+    "access_token": "AT-2-p5jtVLATgft5EHqqbCTagg5i3q9e1htdcGEBvcpq0l1b2RyQav4bItEKPcDh94c5z7d7EK",
+    "token_type": "Bearer",
+    "expires_in": 3600
+}
+```
+
+###### OFFLINE Mode
+
+```json
+{
+    "access_token": "AT-1-IBGuzWBdencAMz74LQkIuNcbLuu9WM3TYyacadkecrHUlcivs1GnWHjFmlkZPYg4TTAUM4",
+    "refresh_token": "RT-1-xfQXZaqXSQIJykCg2vnfdQjc5efVKdtteXaPo0OwCxWzIAacfC",
+    "token_type": "Bearer",
+    "expires_in": 3600
+}
+```
+
+#### Refresh Access Token
+
+In *offline* mode, the client application may request for a new access token by presenting the previously granted refresh token.
+
+##### Request
+
+```
+https://accounts.osf.io/oauth2/token
+```
+
+##### `POST` Body Parameters
+
+Parameter       | Value / Example                                           | Description
+--------------- | --------------------------------------------------------- | -----------
+refresh_token   | RT-1-xfQXZaqXSQIJykCg2vnfdQjc5efVKdtteXaPo0OwCxWzIAacfC   | 
+client_id       | ffe5247b810045a8a9277d3b3b4edc7a                          | 
+client_secret   | 5PgE96R3Z53dBuwBDkJfbK6ItDXvGhaxYpQ6r4cU                  | 
+grant_type      | refresh_token                                             | 
+
+##### Response
+
+```
+HTTP 200 OK
+```
+
+```json
+{
+    "access_token": "AT-3-WbBmXVTsPlhUatrs5sQmilVLnA30wVv3holmfFCbIfePRjzQ6UXCb7LwJHGbFqmad3wNXu",
+    "token_type": "Bearer",
+    "expires_in": 3600
+}
+```
+
+</br>
+
+### `GET /oauth2/profile`
 
 #### Profile
 
-Provides the user's principal id, any released attributes and a list of granted scopes.
+Provides the user's principal ID, any released attributes and a list of granted scopes.
 
-GET: /oauth2/profile
-
-###### Request
+##### Request
 
 ```
 https://accounts.osf.io/oauth2/profile
-
-Authorization: Bearer AT-1-...
 ```
 
-###### Response
+##### Authorization Header
+
+Name            | Value / Example
+--------------- | ----------------------------------------------------------------------------------
+Authorization   | Bearer AT-4-IdanI4hWiybRzARBiLrlMdeMTlDJIqo1UgVLb4MHzbF13pNIT5POrfQTMW5yEyVD1oXXcz
+
+##### Response
+
+```
+HTTP 200 OK
+```
 
 ```json
 {
-    "id": "unique-user-identifier",
-    "scope": ["user.email", "user.profile"]
+    "scope": [
+        "osf.full_read"
+    ],
+    "id": "f2t7d"
 }
 ```
 
-#### Web Server Authorization
+</br>
 
-Secure server authorization of scopes, will need to follow up with the Authorization Code exchange.
+### `POST /oauth2/metadata`
 
-GET: /oauth2/authorize
+#### Metadata about a Client Application
 
-###### Request
+Provides metadata about an application specified by the given client ID.
 
-```
-https://accounts.osf.io/oauth2/authorize?client_id=gJgfkHAtz&redirect_uri=https%3A%2F%2Fmy-application%2Foauth%2Fcallback%2Fosf%2F&scope=user.profile%2Bwrite&state=FSyUOBgWiki_hyaBsa
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-response_type | code | ...
-client_id | ... | ...
-redirect_uri | ... | ...
-scope | ... | ...
-state | ... | ...
-access_type	 | **online** / offline | ...
-approval_prompt	 | **auto** / force | ...
-
-###### Response
-
-```
-https://my-application/oauth/callback/osf/?code=AC-1-3BfTHEimiGXAQPerA6Zq6cvOszjXAhzHLNQnVJhv3UPifgwVpn&state=FSyUOBgWiki_hyaBsa
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-code | code | ...
-state | ... | ...
-
-#### Client Side Authorization
-
-GET: /oauth2/authorize
-
-Allows client side javascript the ability to request specified scopes for authorization and directly return an Access Token.
-
-###### Request
-
-```
-https://accounts.osf.io/oauth2/authorize?response_type=token&client_id=gJgfkHAtz&redirect_uri=https%3A%2F%2Fmy-application%2Foauth%2Fcallback%2Fosf%2F&scope=user.profile%2Bwrite&state=FSyUOBgWiki_hyaBsa
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-response_type | token | ...
-client_id | ... | ...
-redirect_uri | ... | ...
-scope | ... | ...
-state | ... | ...
-approval_prompt	 | **auto** / force | ...
-
-###### Response
-
-```
-https://my-application/oauth/callback/osf/#access_token=AT-1-E9wpSxcUatFazdGtFFVO21i4exU9RypHbhcacgoktZ7TPUGGVf3KDuMq2RxGzKXZ6FO6if&expires_in=3600&token_type=Bearer&state=FSyUOBgWiki_hyaBsa
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-access_token | ... | ...
-expires_in | ... | ...
-token_type | Bearer | ...
-state | ... | ...
-
-
-#### Authorization Code Exchange
-
-Exchange of an Authorization Code for an Access Token and potentially a Refresh Token if **offline** mode was specified.  
-
-POST: /oauth2/token
-
-###### Request
-
-```
-https://accounts.osf.io/oauth2/token
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-code | ... | ...
-client_id | ... | ...
-client_secret | ... | ...
-redirect_uri | ... | ...
-grant_type | authorization_code | ...
-
-###### Response
-
-```json
-{
-    "token_type": "Bearer",
-    "expires_in": 3600,
-    "refresh_token":"RT-1-SjLa4ReI4KxcxKzEj1TtIWMTEwcMY26pSy6SftrObikpsbtInb",
-    "access_token":"AT-1-adg7yMBUbyO4zSPVqFj2HZzOsTqNtJ5ebgk25y5UbTt4HV5W1EQ45b6PvpDtEABsaXXFBS"
-}
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-token_type | Bearer | ...
-expires_in | ... | ...
-refresh_token | ... | Included only when the authorization request was made with access_type **offline**.
-access_token | ... | ...
-
-#### Access Token Refresh
-
-An authorized **offline** application may obtain a new Access Token from this endpoint.
-
-POST: /oauth2/token
-
-###### Request
-
-```
-https://accounts.osf.io/oauth2/token
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-refresh_token | ... | ...
-client_id | ... | ...
-client_secret | ... | ...
-grant_type | refresh_token | ...
-
-###### Response
-
-```json
-{
-    "token_type": "Bearer",
-    "expires_in": 3600,
-    "access_token":"AT-2-adg7yMBUbyO4zSPVqFj2HZzOsTqNtJ5ebgk25y5UbTt4HV5W1EQ45b6PvpDtEABsaXXFBS"
-}
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-token_type | Bearer | ...
-expires_in | ... | ...
-access_token | ... | ...
-
-#### Revoke a Token
-
-Handles revocation of Refresh and Access Tokens.
-
-POST: /oauth2/revoke
-
-###### Request
-
-```
-https://accounts.osf.io/oauth2/revoke
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-token | ... | ...
-
-###### Response
-
-```
-HTTP 204 NO CONTENT
-```
-
-#### Revoke All Tokens Issued to a Principal
-
-*e.g. user revokes application access*
-
-Revocation of all Tokens for a specified Client ID and the given token's Principal ID.
-
-*If the Access Token is of type CAS any valid Client ID can be specified, otherwise the Access Token
-may only revoke the Client ID it was generated with.*
-
-POST: /oauth2/revoke
-
-###### Request
-
-```
-https://accounts.osf.io/oauth2/revoke
-
-Authorization: Bearer AT-1-...
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-client_id | ... | ...
-
-###### Response
-
-```
-HTTP 204 NO CONTENT
-```
-
-#### Revoke All Client Tokens
-
-*e.g. application administrator revokes all tokens*
-
-Revocation of all Tokens associated with the given Client ID.
-
-POST: /oauth2/revoke
-
-###### Request
-
-```
-https://accounts.osf.io/oauth2/revoke
-```
-
-Parameter | Value | Description
-------------- | ------------- | -------------
-client_id | ... | ...
-client_secret | ... | ...
-
-###### Response
-
-```
-HTTP 204 NO CONTENT
-```
-
-#### Principal Metadata
-
-*e.g. list applications authorized to access the user's account*
-
-Gathers metadata regarding token's associated with the Principal ID specified.
-
-*The Access Token must be type CAS.*
-
-POST: /oauth2/metadata
-
-###### Request
+##### Request
 
 ```
 https://accounts.osf.io/oauth2/metadata
-
-Authorization: Bearer AT-1-...
 ```
 
-###### Response
+##### `POST` Body Parameters
+
+Parameter       | Value / Example                           | Description
+--------------- | ----------------------------------------- | -----------
+client_id       | ffe5247b810045a8a9277d3b3b4edc7a          | 
+client_secret   | 5PgE96R3Z53dBuwBDkJfbK6ItDXvGhaxYpQ6r4cU  | 
+
+##### Response
+
+```
+HTTP 204 NO CONTENT
+```
+
+```json
+{
+    "name": "An OAuth 2.0 Developer App",
+    "description": "See https://my.app.io/about.",
+    "client_id": "ffe5247b810045a8a9277d3b3b4edc7a",
+    "users": 1023
+}
+```
+
+#### Metadata about a Resource User
+
+Gathers metadata regarding a user specified by the principal ID associated with with the access token, *which must be of token type `CAS`*.
+
+##### Request
+
+```
+https://accounts.osf.io/oauth2/metadata
+```
+
+##### `POST` Body Parameters
+
+Name            | Value / Example
+--------------- | ----------------------------------------------------------------------------------
+Authorization   | Bearer AT-5-OQlHiyBYZwnwqI9Qu6o6Z1fZl7rbx6TzTZB9yPay6SOcbXwfdvpjc6FTbBpgwrj6PMF9GX
+
+##### Response
+
+```
+HTTP 200 OK
+```
 
 ```json
 [
     {
-        "id": "gJgfkHAtz",
-        "name": "Application #1",
-        "description": "An simple oauth application",
+        "name": "An OAuth 2.0 Developer App",
+        "description": "See https://my.app.io/about.",
+        "client_id": "ffe5247b810045a8a9277d3b3b4edc7a",
         "scope": [
-            "user.email",
-            "profile.basic"
+            "osf.full_read"
         ]
     },
     {
-        "id": "Joiuhwkjsl",
-        "name": "Third Party Application #2",
-        "description": "An oauth application",
+        "name": "Another OAuth 2.0 Developer App",
+        "description": "See https://my.staging.app.io/about.",
+        "client_id": "3b4edc7aa9277d3b810045a8ffe5247b",
         "scope": [
-            "nodes.create"
+            "osf.full_write"
         ]
     }
 ]
 ```
 
-#### Client Metadata
+</br>
 
-*e.g. application information, user count, etc...*
+### `POST /oauth2/revoke`
 
-Provides metadata about the Client ID specified.
+#### Revoke One Token
 
-POST: /oauth2/metadata
+Handles revocation of refresh and access tokens.
 
-###### Request
+##### Request
 
 ```
-https://accounts.osf.io/oauth2/metadata
+https://accounts.osf.io/oauth2/revoke
 ```
 
-Parameter | Value | Description
-------------- | ------------- | -------------
-client_id | ... | ...
-client_secret | ... | ...
+##### `POST` Body Parameters
 
+Name    | Value / Example
+------- | ---------------------------------------------------------------------------
+token   | AT-6-0ckMxjkBHgs5PMqbCtg9BgFo49Y60A1bC5QxFnQeWdiWe9ZfvKwWS52jyIwLrrwVMGFxfa
 
-###### Response
+##### Response
 
-```json
-{
-    "id": "gJgfkHAtz",
-    "name": "Application #1",
-    "description": "An simple oauth application",
-    "users": 9001
-}
+```
+HTTP 204 NO CONTENT
+```
+
+#### Revoke Tokens for a Client Application
+
+Revokes all tokens associated with a client application specified by the given client ID.
+
+##### Request
+
+```
+https://accounts.osf.io/oauth2/revoke
+```
+
+##### `POST` Body Parameters
+
+Parameter       | Value / Example                           | Description
+--------------- | ----------------------------------------- | -----------
+client_id       | ffe5247b810045a8a9277d3b3b4edc7a          | 
+client_secret   | 5PgE96R3Z53dBuwBDkJfbK6ItDXvGhaxYpQ6r4cU  | 
+
+##### Response
+
+```
+HTTP 204 NO CONTENT
+```
+
+#### Revoke Tokens for a Resource User
+
+Revokes all tokens of a client application that have been issued to a resource user. The application is specified by the client ID and the user is specified by the principal ID associated with the access token. The token used for authorization must have been generated by the application *unless it is of token type `CAS`*.
+
+##### Request
+
+```
+https://accounts.osf.io/oauth2/revoke
+```
+
+##### Authorization Header
+
+Name            | Value / Example
+--------------- | ----------------------------------------------------------------------------------
+Authorization   | Bearer AT-7-PvVw9wIcTOZYXFCVWbFhwsf9Q3idASiJeBdiWmLExcXSG54lCycokgCefWsy2Nzds4LoAW
+
+##### `POST` Body Parameters
+
+Parameter       | Value / Example                           | Description
+--------------- | ----------------------------------------- | -----------
+client_id       | ffe5247b810045a8a9277d3b3b4edc7a          | 
+
+##### Response
+
+```
+HTTP 204 NO CONTENT
 ```

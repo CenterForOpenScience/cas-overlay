@@ -29,7 +29,7 @@ import java.util.Set;
  *
  * With current CAS settings, this handler is not used as the primary scope handler but only as the CAS scope handler
  * in the scope manager {@link org.jasig.cas.support.oauth.scope.ScopeManager}, which uses the OSF scope handler
- * {@literal io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkPersonalAccessTokenHandler} as its primary one.
+ * {@literal io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkScopeHandler} as its primary one.
  *
  * @author Michael Haselton
  * @author Longze Chen

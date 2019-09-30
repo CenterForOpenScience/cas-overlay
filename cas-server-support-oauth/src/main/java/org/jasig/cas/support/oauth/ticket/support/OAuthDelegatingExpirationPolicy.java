@@ -35,23 +35,29 @@ import javax.validation.constraints.NotNull;
  * Auth Service, as opposed to the CAS OAuth Service) {@link org.jasig.cas.CentralAuthenticationServiceImpl} has two
  * policies using the class, {@code ticketGrantingTicketExpirationPolicy} and {@code serviceTicketExpirationPolicy}.
  *
- * With current CAS settings, for both TGT and ST, the refresh token policy {@link #oAuthRefreshTokenExpirationPolicy}
- * uses the built-in never-expire policy {@link org.jasig.cas.ticket.support.NeverExpiresExpirationPolicy}. Thus,
- * the refresh tokens never expire.
+ * For both TGT and ST, the refresh token policy {@link #oAuthRefreshTokenExpirationPolicy} uses the built-in
+ * never-expire policy {@link org.jasig.cas.ticket.support.NeverExpiresExpirationPolicy}. Thus, the refresh token
+ * never expires.
  *
- * Similarly, the access token policy {@link #oAuthAccessTokenExpirationPolicy} for both TGT and ST uses the built-in
- * time-out policy {@link org.jasig.cas.ticket.support.TimeoutExpirationPolicy}, where the time-to-kill property
- * {@code timeToKillInMilliSeconds} is set to 3,600,000. Thus, access tokens expire after 1 hour.
+ * For both TGT and ST, the ONLINE / OFFLINE access token policy {@link #oAuthAccessTokenExpirationPolicy} uses the
+ * built-in time-out policy {@link org.jasig.cas.ticket.support.TimeoutExpirationPolicy}, where
+ * {@code timeToKillInMilliSeconds} is set to 3,600,000 milliseconds. Thus, both ONLINE and OFFLINE access tokens
+ * expire after 1 hour.
  *
- * Instead of using the the built-in never-expire policy, this class simply let {@link #isExpired} always return
- * {@code False} for the personal access token. Thus, PATs never expire.
+ * The PERSONAL access token never expires. Instead of using the built-in never-expire policy, this class simply let
+ * the expiration check method {@link #isExpired} always return {@code False}.
  *
- * The session policy differs between TGT and ST. For ST, the expiration policy is instantiated using the built-in
- * {@link org.jasig.cas.ticket.support.MultiTimeUseOrTimeoutExpirationPolicy} with 10 seconds set as the time-to-kill.
- * For TGTs, the policy further depends on whether "Remember Me" or "Stay Signed In" is selected or not. If selected,
- * {@link org.jasig.cas.ticket.support.TimeoutExpirationPolicy} is used with time-to-kill set as 1,209,600,000, which
- * is 336 days (awkwardly, 336 days is one full year with 12 months of 28 days). Otherwise, it is the same as the ST
- * which is 10 seconds.
+ * The session policy differs between TGT and ST. This policy affects the expiration time for CAS access token (which
+ * is determined by the TGT) and the time for ONLINE / OFFLINE authorization code (which is determined by the ST).
+ *
+ * 1) ST uses the built-in {@link org.jasig.cas.ticket.support.MultiTimeUseOrTimeoutExpirationPolicy}, where
+ * {@code timeToKill} is set to 60 seconds. Thus, both ONLINE and OFFLINE authorization codes expire in 1 minute.
+ *
+ * 2) For TGTs, which policy to use depends on whether the "Remember Me" or "Stay Signed In" option is selected or not
+ * at login. If selected, {@link org.jasig.cas.ticket.support.TimeoutExpirationPolicy} is used with
+ * {@code timeToKillInMilliSeconds} set to 2,592,000 milliseconds, which is 30 days. Otherwise,
+ * {@link org.jasig.cas.ticket.support.TicketGrantingTicketExpirationPolicy} is used with a 2-hour sliding expiration
+ * with 8-hour maximum lifetime.
  *
  * @author Michael Haselton
  * @author Longze Chen
