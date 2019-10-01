@@ -221,7 +221,8 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
      *
      * This method overrides {@link BaseOAuthClient#sendRequestForData(Token, String)}. Here are the customizations:
      *
-     * 1. Removed access token from requests since the public API doesn't require it.
+     * 1. No longer appends the access token as a query parameter to the URL.
+     * 2. Always includes the access token using the "Authorization" header.
      * 3. Improved the way how log messages are built.
      * 4. Use interface constants {@link HttpStatus#SC_OK} instead of number literals.
      *
@@ -239,6 +240,9 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
         logger.debug("accessToken : {} / dataUrl : {}", accessToken, dataUrl);
         final long t0 = System.currentTimeMillis();
         final ProxyOAuthRequest request = createProxyRequest(dataUrl);
+        if (accessToken != null) {
+            request.addHeader("Authorization", "Bearer " + accessToken.getToken());
+        }
         final Response response = request.send();
         final int code = response.getCode();
         final String body = response.getBody();
