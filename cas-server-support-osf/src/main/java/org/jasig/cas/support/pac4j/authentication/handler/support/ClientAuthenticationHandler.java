@@ -18,20 +18,19 @@
  */
 package org.jasig.cas.support.pac4j.authentication.handler.support;
 
+import io.cos.cas.authentication.exceptions.DelegatedLoginException;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.jasig.cas.authentication.BasicCredentialMetaData;
 import org.jasig.cas.authentication.DefaultHandlerResult;
 import org.jasig.cas.authentication.HandlerResult;
-import org.jasig.cas.authentication.PreventedException;
 import org.jasig.cas.support.pac4j.authentication.principal.ClientCredential;
 
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.profile.UserProfile;
 
 import java.security.GeneralSecurityException;
-
-import javax.security.auth.login.FailedLoginException;
 
 /**
  * The Client Authentication Handler.
@@ -63,34 +62,28 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
     protected HandlerResult createResult(
             final ClientCredential credentials,
             final UserProfile profile
-    ) throws GeneralSecurityException, PreventedException {
+    ) throws GeneralSecurityException {
 
         final String id = typedIdUsed ? profile.getTypedId() : profile.getId();
         if (StringUtils.isNotBlank(id)) {
-            credentials.setUserProfile(profile);
-            credentials.setTypedIdUsed(typedIdUsed);
-            return new DefaultHandlerResult(
-                    this,
-                    new BasicCredentialMetaData(credentials),
-                    this.principalFactory.createPrincipal(id, profile.getAttributes()));
+            try {
+                credentials.setUserProfile(profile);
+                credentials.setTypedIdUsed(typedIdUsed);
+                return new DefaultHandlerResult(
+                        this,
+                        new BasicCredentialMetaData(credentials),
+                        this.principalFactory.createPrincipal(id, profile.getAttributes()));
+            } catch (final Exception e) {
+                throw new DelegatedLoginException(e.getMessage());
+            }
         }
-        throw new FailedLoginException("No identifier found for this user profile: " + profile);
+        throw new DelegatedLoginException("No identifier found for this user profile: " + profile);
     }
 
-    /**
-     * Check if type ID is used.
-     *
-     * @return the type ID flag
-     */
     public boolean isTypedIdUsed() {
         return typedIdUsed;
     }
 
-    /**
-     * Toggle the type ID flag on and off.
-     *
-     * @param typedIdUsed a boolean value to set the type ID flag
-     */
     public void setTypedIdUsed(final boolean typedIdUsed) {
         this.typedIdUsed = typedIdUsed;
     }

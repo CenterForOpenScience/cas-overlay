@@ -18,27 +18,32 @@
  */
 package org.jasig.cas.support.pac4j.authentication.handler.support;
 
+import io.cos.cas.authentication.exceptions.CasClientLoginException;
+import io.cos.cas.authentication.exceptions.DelegatedLoginException;
+import io.cos.cas.authentication.exceptions.OrcidClientLoginException;
+
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
-import org.jasig.cas.authentication.PreventedException;
 import org.jasig.cas.authentication.handler.support.AbstractPreAndPostProcessingAuthenticationHandler;
 import org.jasig.cas.authentication.principal.DefaultPrincipalFactory;
 import org.jasig.cas.authentication.principal.PrincipalFactory;
 import org.jasig.cas.support.pac4j.authentication.principal.ClientCredential;
 
+import org.pac4j.cas.client.CasClient;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
+import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.profile.UserProfile;
+import org.pac4j.oauth.client.OrcidClient;
 
 import org.springframework.webflow.context.ExternalContextHolder;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
 
 import java.security.GeneralSecurityException;
 
-import javax.security.auth.login.FailedLoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
@@ -48,8 +53,8 @@ import javax.validation.constraints.NotNull;
  *
  * This class is a generic handler for authentication delegated to an auth client, implementing the authentication
  * method {@link AbstractPreAndPostProcessingAuthenticationHandler#doAuthentication(Credential)}. It uses the auth
- * client and provides it with client credentials in order to get the user profile returned by the provider for an
- * authenticated user.
+ * client and provides it with the client credentials in order to get the user profile returned by the provider for
+ * an authenticated user.
  *
  * @author Jerome Leleu
  * @author Longze Chen
@@ -87,20 +92,25 @@ public abstract class AbstractClientAuthenticationHandler extends AbstractPreAnd
      * {@inheritDoc}
      **/
     @Override
-    protected HandlerResult doAuthentication(
-            final Credential credential
-    ) throws GeneralSecurityException, PreventedException {
+    protected HandlerResult doAuthentication(final Credential credential) throws GeneralSecurityException {
 
         // Construct a specific client credential from a general credential
         final ClientCredential clientCredentials = (ClientCredential) credential;
         logger.debug("clientCredentials : {}", clientCredentials);
 
-        // Retrieve the client by the client name found in the client credential
+        // Retrieve the client name found in the client credential
         final Credentials credentials = clientCredentials.getCredentials();
         final String clientName = credentials.getClientName();
         logger.debug("clientName : {}", clientName);
-        final Client<Credentials, UserProfile> client = this.clients.findClient(clientName);
-        logger.debug("client : {}", client);
+
+        // Attempt to load the client from defined clients
+        final Client<Credentials, UserProfile> client;
+        try {
+            client = this.clients.findClient(clientName);
+            logger.debug("client : {}", client);
+        } catch (final TechnicalException e) {
+            throw new DelegatedLoginException("Invalid client: " + clientName);
+        }
 
         // Create the web context
         final ServletExternalContext servletExternalContext
@@ -109,14 +119,25 @@ public abstract class AbstractClientAuthenticationHandler extends AbstractPreAnd
         final HttpServletResponse response = (HttpServletResponse) servletExternalContext.getNativeResponse();
         final WebContext webContext = new J2EContext(request, response);
 
-        // Retrieve user profile. If successful, create and return a handler result
-        final UserProfile userProfile = client.getUserProfile(credentials, webContext);
-        logger.debug("userProfile : {}", userProfile);
+        // Retrieve the user profile
+        final UserProfile userProfile;
+        try {
+            userProfile = client.getUserProfile(credentials, webContext);
+            logger.debug("userProfile : {}", userProfile);
+        } catch (final TechnicalException e) {
+            if (OrcidClient.class.getSimpleName().equals(client.getName())) {
+                throw new OrcidClientLoginException(e.getMessage());
+            } else if (CasClient.class.getSimpleName().equals(client.getName())) {
+                throw new CasClientLoginException(e.getMessage());
+            }
+            throw new DelegatedLoginException(e.getMessage());
+        }
+
+        // If successful, create and return a handler result; otherwise, throw a delegated login exception.
         if (userProfile != null) {
             return createResult(clientCredentials, userProfile);
         }
-        // Otherwise, throw an exception.
-        throw new FailedLoginException("Provider did not produce a user profile for: " + clientCredentials);
+        throw new DelegatedLoginException("Provider did not produce a user profile for: " + clientCredentials);
     }
 
     /**
@@ -126,12 +147,11 @@ public abstract class AbstractClientAuthenticationHandler extends AbstractPreAnd
      * @param profile the retrieved user profile
      * @return the built handler result
      * @throws GeneralSecurityException on authentication failure
-     * @throws PreventedException on the indeterminate case when authentication is prevented
      */
     protected abstract HandlerResult createResult(
             final ClientCredential credentials,
             final UserProfile profile
-    ) throws GeneralSecurityException, PreventedException;
+    ) throws GeneralSecurityException;
 
     /**
      * Set the principal factory.
