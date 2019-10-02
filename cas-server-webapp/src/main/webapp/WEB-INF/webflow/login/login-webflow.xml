@@ -35,6 +35,7 @@
         <transition on="success" to="remoteAuthenticate" />
         <transition on="error" to="ticketGrantingTicketCheck" />
         <transition on="stop" to="stopWebflow" />
+        <transition on="authenticationFailure" to="handleAuthenticationFailure" />
     </action-state>
     <view-state id="stopWebflow" />
 
