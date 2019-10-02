@@ -18,12 +18,17 @@
  */
 package org.jasig.cas.support.pac4j.web.flow;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
+import io.cos.cas.authentication.exceptions.DelegatedLoginException;
+
 import org.apache.commons.lang3.StringUtils;
 
+import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.authentication.principal.WebApplicationService;
 import org.jasig.cas.CentralAuthenticationService;
@@ -49,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.context.ExternalContext;
 import org.springframework.webflow.context.ExternalContextHolder;
+import org.springframework.webflow.core.collection.LocalAttributeMap;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -85,6 +91,9 @@ public final class ClientAction extends AbstractAction {
 
     /** Constant for the method parameter. */
     public static final String METHOD = "method";
+
+    /** Constant for the name of failed auth event. */
+    private static final String AUTHENTICATION_FAILURE = "authenticationFailure";
 
     /** Supported protocols. */
     private static final Set<Mechanism> SUPPORTED_PROTOCOLS = ImmutableSet.of(
@@ -138,34 +147,45 @@ public final class ClientAction extends AbstractAction {
         final String clientName = request.getParameter(this.clients.getClientNameParameter());
         logger.debug("clientName: {}", clientName);
 
-        // If `client_name` found in the request parameter, do the authentication / authorization (auth).
-        if (StringUtils.isNotBlank(clientName)) {
+        // In order for the main CAS login web flow to handle exceptions from pac4j's delegated login, we must apply
+        // a try-n-catch block to the rest of the code. TODO: wrap the code inside the block with a method.
+        try {
 
+            // If `client_name` is not in the request params, this is not an authentication. Prepare the login context
+            // with clients info and go to the original start point of the CAS login web flow.
+            if (StringUtils.isBlank(clientName)) {
+                prepareForLoginPage(context);
+                return error();
+            }
+
+            // If `client_name` found in the request parameter, this is an authentication. Verify the client and the
+            // protocol; retrieve credentials and session parameters; and attempt to authenticate.
             // 1. Retrieve the client
-            final BaseClient<Credentials, CommonProfile> client
-                    = (BaseClient<Credentials, CommonProfile>) this.clients.findClient(clientName);
-            logger.debug("client: {}", client);
-
+            final BaseClient<Credentials, CommonProfile> client;
+            try {
+                client = (BaseClient<Credentials, CommonProfile>) this.clients.findClient(clientName);
+                logger.debug("client: {}", client);
+            } catch (TechnicalException e) {
+                throw new DelegatedLoginException("Invalid client: " + clientName);
+            }
             // 2. Check supported protocols
             final Mechanism mechanism = client.getMechanism();
             if (!SUPPORTED_PROTOCOLS.contains(mechanism)) {
                 throw new TechnicalException("Only CAS, OAuth, OpenID and SAML protocols are supported: " + client);
             }
-
             // 3. Retrieve credentials
             final Credentials credentials;
             try {
                 credentials = client.getCredentials(webContext);
                 logger.debug("credentials: {}", credentials);
             } catch (final RequiresHttpAction e) {
-                // Abort auth if fails to get credentials
+                // Requires HTTP action: client redirection
                 logger.debug("requires http action: {}", e.toString());
                 response.flushBuffer();
                 final ExternalContext externalContext = ExternalContextHolder.getExternalContext();
                 externalContext.recordResponseComplete();
                 return new Event(this, "stop");
             }
-
             // 4. Retrieve saved parameters from the web session
             final Service service = (Service) session.getAttribute(SERVICE);
             context.getFlowScope().put(SERVICE, service);
@@ -177,20 +197,30 @@ public final class ClientAction extends AbstractAction {
             restoreRequestAttribute(request, session, LOCALE);
             restoreRequestAttribute(request, session, METHOD);
 
-            // 5. Attempt to authenticate if the credential is not null
             if (credentials != null) {
-                final TicketGrantingTicket tgt =
-                        this.centralAuthenticationService.createTicketGrantingTicket(new ClientCredential(credentials));
+                // 5. Attempt to authenticate if the credential is not null.
+                final TicketGrantingTicket tgt = this.centralAuthenticationService
+                        .createTicketGrantingTicket(new ClientCredential(credentials));
                 WebUtils.putTicketGrantingTicketInScopes(context, tgt);
                 return success();
+            } else {
+                // Otherwise, abort the authentication: prepare the login context with clients info and then go to the
+                // original start point of the CAS login web flow.
+                prepareForLoginPage(context);
+                return error();
             }
-        }
 
-        // If `client_name` is not in the request params - no auth, or if `credentials == null` - aborted auth, simply
-        // prepare the login context with clients info and then go to the original start point of the CAS login web
-        // flow: refer to "cas-server-webapp/src/main/webapp/WEB-INF/webflow/login/login-webflow.xml" for detail.
-        prepareForLoginPage(context);
-        return error();
+        } catch (final Exception e) {
+            // If any exception occurs during the client authentication process, return the specialized event which
+            // will allow the CAS authentication exception handler to handle the exception gracefully.
+            final Map<String, Class<? extends Exception>> failures = new LinkedHashMap<>();
+            failures.put(e.getClass().getSimpleName(), e.getClass());
+            return getEventFactorySupport().event(
+                    this,
+                    AUTHENTICATION_FAILURE,
+                    new LocalAttributeMap<>("error", new AuthenticationException(failures))
+            );
+        }
     }
 
     /**
