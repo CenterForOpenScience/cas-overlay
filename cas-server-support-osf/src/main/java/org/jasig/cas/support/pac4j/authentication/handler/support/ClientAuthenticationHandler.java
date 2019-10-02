@@ -19,34 +19,38 @@
 package org.jasig.cas.support.pac4j.authentication.handler.support;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.jasig.cas.authentication.BasicCredentialMetaData;
 import org.jasig.cas.authentication.DefaultHandlerResult;
 import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.PreventedException;
 import org.jasig.cas.support.pac4j.authentication.principal.ClientCredential;
+
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.profile.UserProfile;
 
-import javax.security.auth.login.FailedLoginException;
 import java.security.GeneralSecurityException;
 
+import javax.security.auth.login.FailedLoginException;
+
 /**
- * Specialized handler which builds the authenticated user directly from the retrieved user profile.
+ * The Client Authentication Handler.
+ *
+ * This class is a specialized handler which builds the authenticated user directly from the retrieved user profile.
  *
  * @author Jerome Leleu
- * @since 3.5.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public class ClientAuthenticationHandler extends AbstractClientAuthenticationHandler {
 
-    /**
-     * Whether to use the typed identifier (by default) or just the identifier.
-     */
+    /** Whether to use the typed identifier (default) or just the identifier. */
     private boolean typedIdUsed = true;
 
     /**
-     * Define the clients.
+     * Instantiate a new {@link ClientAuthenticationHandler} and define the clients.
      *
-     * @param theClients The clients for authentication
+     * @param theClients the clients for authentication
      */
     public ClientAuthenticationHandler(final Clients theClients) {
         super(theClients);
@@ -56,14 +60,12 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
      * {@inheritDoc}
      */
     @Override
-    protected HandlerResult createResult(final ClientCredential credentials, final UserProfile profile)
-            throws GeneralSecurityException, PreventedException {
-        final String id;
-        if (typedIdUsed) {
-            id = profile.getTypedId();
-        } else {
-            id = profile.getId();
-        }
+    protected HandlerResult createResult(
+            final ClientCredential credentials,
+            final UserProfile profile
+    ) throws GeneralSecurityException, PreventedException {
+
+        final String id = typedIdUsed ? profile.getTypedId() : profile.getId();
         if (StringUtils.isNotBlank(id)) {
             credentials.setUserProfile(profile);
             credentials.setTypedIdUsed(typedIdUsed);
@@ -75,10 +77,20 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
         throw new FailedLoginException("No identifier found for this user profile: " + profile);
     }
 
+    /**
+     * Check if type ID is used.
+     *
+     * @return the type ID flag
+     */
     public boolean isTypedIdUsed() {
         return typedIdUsed;
     }
 
+    /**
+     * Toggle the type ID flag on and off.
+     *
+     * @param typedIdUsed a boolean value to set the type ID flag
+     */
     public void setTypedIdUsed(final boolean typedIdUsed) {
         this.typedIdUsed = typedIdUsed;
     }
