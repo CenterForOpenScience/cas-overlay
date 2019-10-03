@@ -24,7 +24,9 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
+import io.cos.cas.authentication.exceptions.CasClientLoginException;
 import io.cos.cas.authentication.exceptions.DelegatedLoginException;
+import io.cos.cas.authentication.exceptions.OrcidClientLoginException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,6 +38,7 @@ import org.jasig.cas.support.pac4j.authentication.principal.ClientCredential;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.web.support.WebUtils;
 
+import org.pac4j.cas.client.CasClient;
 import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
@@ -43,10 +46,12 @@ import org.pac4j.core.client.Mechanism;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
+import org.pac4j.core.exception.CredentialsException;
 import org.pac4j.core.exception.RequiresHttpAction;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.ProfileHelper;
+import org.pac4j.oauth.client.OrcidClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,7 +170,7 @@ public final class ClientAction extends AbstractAction {
             try {
                 client = (BaseClient<Credentials, CommonProfile>) this.clients.findClient(clientName);
                 logger.debug("client: {}", client);
-            } catch (TechnicalException e) {
+            } catch (final TechnicalException e) {
                 throw new DelegatedLoginException("Invalid client: " + clientName);
             }
             // 2. Check supported protocols
@@ -185,6 +190,8 @@ public final class ClientAction extends AbstractAction {
                 final ExternalContext externalContext = ExternalContextHolder.getExternalContext();
                 externalContext.recordResponseComplete();
                 return new Event(this, "stop");
+            } catch (final CredentialsException e) {
+                throw createClientSpecificDelegatedLoginException(client.getClass().getSimpleName(), e);
             }
             // 4. Retrieve saved parameters from the web session
             final Service service = (Service) session.getAttribute(SERVICE);
@@ -199,10 +206,14 @@ public final class ClientAction extends AbstractAction {
 
             if (credentials != null) {
                 // 5. Attempt to authenticate if the credential is not null.
-                final TicketGrantingTicket tgt = this.centralAuthenticationService
-                        .createTicketGrantingTicket(new ClientCredential(credentials));
-                WebUtils.putTicketGrantingTicketInScopes(context, tgt);
-                return success();
+                try {
+                    final TicketGrantingTicket tgt = this.centralAuthenticationService
+                            .createTicketGrantingTicket(new ClientCredential(credentials));
+                    WebUtils.putTicketGrantingTicketInScopes(context, tgt);
+                    return success();
+                } catch (final Exception e) {
+                    throw createClientSpecificDelegatedLoginException(client.getClass().getSimpleName(), e);
+                }
             } else {
                 // Otherwise, abort the authentication: prepare the login context with clients info and then go to the
                 // original start point of the CAS login web flow.
@@ -287,5 +298,24 @@ public final class ClientAction extends AbstractAction {
         if (value != null) {
             session.setAttribute(name, value);
         }
+    }
+
+    /**
+     * Throw client specific exceptions for delegated authentication failures.
+     *
+     * @param clientClassSimpleName the simple name of the class of the client
+     * @param e the original exception
+     * @return a client specific exception
+     */
+    private DelegatedLoginException createClientSpecificDelegatedLoginException(
+            final String clientClassSimpleName,
+            final Exception e
+    ) {
+        if (OrcidClient.class.getSimpleName().equals(clientClassSimpleName)) {
+            return new OrcidClientLoginException(e.getMessage());
+        } else if (CasClient.class.getSimpleName().equals(clientClassSimpleName)) {
+            return new CasClientLoginException(e.getMessage());
+        }
+        return new DelegatedLoginException(e.getMessage());
     }
 }
