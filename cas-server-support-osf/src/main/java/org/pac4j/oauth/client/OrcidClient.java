@@ -48,7 +48,7 @@ import org.scribe.oauth.ProxyOAuth20ServiceImpl;
 public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
 
     /** The default scope. */
-    protected static final String DEFAULT_SCOPE = "/orcid-profile/read-limited";
+    protected static final String DEFAULT_SCOPE = "/authenticate";
 
     /** The scope. */
     protected String scope = DEFAULT_SCOPE;
