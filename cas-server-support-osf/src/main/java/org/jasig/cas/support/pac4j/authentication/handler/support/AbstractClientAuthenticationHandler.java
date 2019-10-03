@@ -18,9 +18,7 @@
  */
 package org.jasig.cas.support.pac4j.authentication.handler.support;
 
-import io.cos.cas.authentication.exceptions.CasClientLoginException;
 import io.cos.cas.authentication.exceptions.DelegatedLoginException;
-import io.cos.cas.authentication.exceptions.OrcidClientLoginException;
 
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
@@ -29,7 +27,6 @@ import org.jasig.cas.authentication.principal.DefaultPrincipalFactory;
 import org.jasig.cas.authentication.principal.PrincipalFactory;
 import org.jasig.cas.support.pac4j.authentication.principal.ClientCredential;
 
-import org.pac4j.cas.client.CasClient;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.context.J2EContext;
@@ -37,7 +34,6 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.profile.UserProfile;
-import org.pac4j.oauth.client.OrcidClient;
 
 import org.springframework.webflow.context.ExternalContextHolder;
 import org.springframework.webflow.context.servlet.ServletExternalContext;
@@ -119,17 +115,12 @@ public abstract class AbstractClientAuthenticationHandler extends AbstractPreAnd
         final HttpServletResponse response = (HttpServletResponse) servletExternalContext.getNativeResponse();
         final WebContext webContext = new J2EContext(request, response);
 
-        // Retrieve the user profile
+        // Attempt to retrieve the user profile
         final UserProfile userProfile;
         try {
             userProfile = client.getUserProfile(credentials, webContext);
             logger.debug("userProfile : {}", userProfile);
         } catch (final TechnicalException e) {
-            if (OrcidClient.class.getSimpleName().equals(client.getName())) {
-                throw new OrcidClientLoginException(e.getMessage());
-            } else if (CasClient.class.getSimpleName().equals(client.getName())) {
-                throw new CasClientLoginException(e.getMessage());
-            }
             throw new DelegatedLoginException(e.getMessage());
         }
 
