@@ -32,7 +32,7 @@ import org.scribe.utils.OAuthEncoder;
 public class OrcidApi20 extends DefaultApi20 {
 
     /** The authorization url. */
-    private static final String AUTH_URL = "https://www.orcid.org/oauth/authorize";
+    private static final String AUTH_URL = "https://orcid.org/oauth/authorize";
 
     /** The token exchange url. */
     private static final String TOKEN_URL = "https://orcid.org/oauth/token";
