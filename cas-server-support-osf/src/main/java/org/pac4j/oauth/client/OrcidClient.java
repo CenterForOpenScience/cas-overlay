@@ -32,8 +32,8 @@ import org.scribe.model.ProxyOAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.SignatureType;
 import org.scribe.model.Token;
-import org.scribe.tokens.OrcidToken;
 import org.scribe.oauth.ProxyOAuth20ServiceImpl;
+import org.scribe.tokens.OrcidToken;
 
 /**
  * The ORCiD Client.
@@ -47,7 +47,18 @@ import org.scribe.oauth.ProxyOAuth20ServiceImpl;
  */
 public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
 
-    /** The default scope. */
+    /**
+     * The default scope.
+     *
+     * OSF CAS uses the "/authenticate" scope for the purpose of authentication only. According to ORCiD API docs, this
+     * scope is used when the client system will collect the ORCID iD but does not need access to read-limited data or
+     * will use the ORCID system as an authentication provider. This scope is available on the Member or Public API.
+     * For more information about ORCiD scopes, refer to https://members.orcid.org/api/oauth/orcid-scopes.
+     *
+     * In addition, "pac4j" version of the ORCiD OAuth 2.0 client implementation must use the 3-legged OAuth and the
+     * "/authenticate" scope is such a 3-legged scope. For more information on 2-legged and 3-legged OAuth, refer to
+     * https://members.orcid.org/api/oauth/2legged-oauth and https://members.orcid.org/api/oauth/3legged-oauth.
+     */
     protected static final String DEFAULT_SCOPE = "/authenticate";
 
     /** The scope. */
