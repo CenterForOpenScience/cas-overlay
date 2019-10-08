@@ -2,6 +2,12 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.1.2 (2019-10-07)
+===================
+
+- Update CAS login URL for callutheran
+- Add callutheran to inst attr map
+
 19.1.1 (2019-08-21)
 ===================
 
