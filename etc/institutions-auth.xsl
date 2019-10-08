@@ -63,6 +63,18 @@
                             <suffix/>
                         </user>
                     </xsl:when>
+                    <!-- California Lutheran University (CALLUTHERAN)-->
+                    <xsl:when test="$idp='callutheran'">
+                        <id>callutheran</id>
+                        <user>
+                            <username><xsl:value-of select="//attribute[@name='email']/@value"/></username>
+                            <familyName><xsl:value-of select="//attribute[@name='familyName']/@value"/></familyName>
+                            <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
+                            <fullname/>
+                            <middleNames/>
+                            <suffix/>
+                        </user>
+                    </xsl:when>
                     <!--  Unknown Identity Provider  -->
                     <xsl:otherwise>
                         <xsl:message terminate="yes">Error: Unknown Identity Provider '<xsl:value-of select="$idp"/>'</xsl:message>
