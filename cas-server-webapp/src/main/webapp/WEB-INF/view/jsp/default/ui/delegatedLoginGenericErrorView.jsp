@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- Login exception page: invalid or unexpected user status --%>
+<%-- Generic delegated login exception page --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
