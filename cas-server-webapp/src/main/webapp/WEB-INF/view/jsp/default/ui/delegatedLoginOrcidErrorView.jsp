@@ -19,7 +19,7 @@
 
 --%>
 
-<%-- Login exception page: invalid or unexpected user status --%>
+<%-- Delegated login exception page: ORCiD client --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
