@@ -39,12 +39,14 @@ under the License.
     <!-- Oklahoma State University -->
     <bean id="okstate" class="org.pac4j.cas.client.CasClient">
         <property name="casLoginUrl" value="${cas.okstate.login.url}" />
+        <property name="casPrefixUrl" value="${cas.okstate.prefix.url}" />
         <property name="name" value="${cas.okstate.client.name}" />
         <property name="casProtocol" value="${cas.okstate.cas.protocol}" />
     </bean>
     <!-- California Lutheran University -->
     <bean id="callutheran" class="org.pac4j.cas.client.CasClient">
         <property name="casLoginUrl" value="${cas.callutheran.login.url}" />
+        <property name="casPrefixUrl" value="${cas.callutheran.prefix.url}" />
         <property name="name" value="${cas.callutheran.client.name}" />
         <property name="casProtocol" value="${cas.callutheran.cas.protocol}" />
     </bean>
