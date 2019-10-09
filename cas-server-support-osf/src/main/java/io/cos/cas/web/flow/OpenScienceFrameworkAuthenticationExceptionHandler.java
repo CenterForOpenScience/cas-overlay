@@ -23,6 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.cos.cas.authentication.exceptions.CasClientLoginException;
+import io.cos.cas.authentication.exceptions.DelegatedLoginException;
+import io.cos.cas.authentication.exceptions.OrcidClientLoginException;
 import io.cos.cas.authentication.InvalidVerificationKeyException;
 import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
@@ -85,6 +88,13 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
+    }
+
+    // Customized exceptions for delegated login
+    static {
+        DEFAULT_ERROR_LIST.add(DelegatedLoginException.class);
+        DEFAULT_ERROR_LIST.add(OrcidClientLoginException.class);
+        DEFAULT_ERROR_LIST.add(CasClientLoginException.class);
     }
 
     // Exceptions that should count against the login rate limiting
