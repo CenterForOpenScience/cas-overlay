@@ -74,9 +74,11 @@ public class ClientAuthenticationHandler extends AbstractClientAuthenticationHan
                         new BasicCredentialMetaData(credentials),
                         this.principalFactory.createPrincipal(id, profile.getAttributes()));
             } catch (final Exception e) {
+                logger.error("Failed to create handler result for profile: id = {}, error = {}", id, e.getMessage());
                 throw new DelegatedLoginException(e.getMessage());
             }
         }
+        logger.error("No identifier found for user profile");
         throw new DelegatedLoginException("No identifier found for this user profile: " + profile);
     }
 

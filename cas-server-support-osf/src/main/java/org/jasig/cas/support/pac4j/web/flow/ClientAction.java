@@ -171,11 +171,13 @@ public final class ClientAction extends AbstractAction {
                 client = (BaseClient<Credentials, CommonProfile>) this.clients.findClient(clientName);
                 logger.debug("client: {}", client);
             } catch (final TechnicalException e) {
+                logger.error("Invalid client: {}", clientName);
                 throw new DelegatedLoginException("Invalid client: " + clientName);
             }
             // 2. Check supported protocols
             final Mechanism mechanism = client.getMechanism();
             if (!SUPPORTED_PROTOCOLS.contains(mechanism)) {
+                logger.error("Invalid mechanism: client = {}", clientName);
                 throw new TechnicalException("Only CAS, OAuth, OpenID and SAML protocols are supported: " + client);
             }
             // 3. Retrieve credentials
@@ -191,6 +193,7 @@ public final class ClientAction extends AbstractAction {
                 externalContext.recordResponseComplete();
                 return new Event(this, "stop");
             } catch (final CredentialsException e) {
+                logger.error("Failed to retrieve the credentials: client = {}", clientName);
                 throw createClientSpecificDelegatedLoginException(client.getClass().getSimpleName(), e);
             }
             // 4. Retrieve saved parameters from the web session
@@ -212,6 +215,7 @@ public final class ClientAction extends AbstractAction {
                     WebUtils.putTicketGrantingTicketInScopes(context, tgt);
                     return success();
                 } catch (final Exception e) {
+                    logger.error("Failed to authenticate the credentials: client = {}", clientName);
                     throw createClientSpecificDelegatedLoginException(client.getClass().getSimpleName(), e);
                 }
             } else {
@@ -226,6 +230,7 @@ public final class ClientAction extends AbstractAction {
             // will allow the CAS authentication exception handler to handle the exception gracefully.
             final Map<String, Class<? extends Exception>> failures = new LinkedHashMap<>();
             failures.put(e.getClass().getSimpleName(), e.getClass());
+            logger.error("Client action failed unexpectedly: client = {}, error = {}", clientName, e.getMessage());
             return getEventFactorySupport().event(
                     this,
                     AUTHENTICATION_FAILURE,

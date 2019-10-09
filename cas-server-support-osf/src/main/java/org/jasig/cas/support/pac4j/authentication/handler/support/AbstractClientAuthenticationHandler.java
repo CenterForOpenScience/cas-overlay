@@ -105,6 +105,7 @@ public abstract class AbstractClientAuthenticationHandler extends AbstractPreAnd
             client = this.clients.findClient(clientName);
             logger.debug("client : {}", client);
         } catch (final TechnicalException e) {
+            logger.error("Invalid client: {}", clientName);
             throw new DelegatedLoginException("Invalid client: " + clientName);
         }
 
@@ -121,6 +122,7 @@ public abstract class AbstractClientAuthenticationHandler extends AbstractPreAnd
             userProfile = client.getUserProfile(credentials, webContext);
             logger.debug("userProfile : {}", userProfile);
         } catch (final TechnicalException e) {
+            logger.error("Failed to retrieve user profile: client = {}, error = {}", clientName, e.getMessage());
             throw new DelegatedLoginException(e.getMessage());
         }
 
@@ -128,6 +130,7 @@ public abstract class AbstractClientAuthenticationHandler extends AbstractPreAnd
         if (userProfile != null) {
             return createResult(clientCredentials, userProfile);
         }
+        logger.error("Provider did not produce a user profile: client = {}", clientName);
         throw new DelegatedLoginException("Provider did not produce a user profile for: " + clientCredentials);
     }
 
