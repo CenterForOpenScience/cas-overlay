@@ -54,7 +54,7 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     @Column(name = "is_confirmed", nullable = false)
     private Boolean confirmed;
 
-    @Column(name = "deleted", nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     private Boolean deleted;
 
     /** Default Constructor. */
