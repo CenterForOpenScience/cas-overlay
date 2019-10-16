@@ -2,6 +2,15 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.2.0 (2019-10-16)
+===================
+
+- Update the column name for OSF TOTP / 2FA model: `deleted` -> `is_deleted`
+- Refactor JavaDoc, comments and code style for the OAuth module
+- Refactor the main readme and add several new guides
+- Fixed ORCiD login for local development
+- Enable TODO comments
+
 19.1.2 (2019-10-07)
 ===================
 
