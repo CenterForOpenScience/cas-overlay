@@ -28,10 +28,16 @@ import org.jasig.cas.support.oauth.authentication.principal.OAuthCredential;
 import java.security.GeneralSecurityException;
 
 /**
- * Wraps the existing user authentication in an OAuth specific credential.
+ * OAuth authentication handler, which wraps the existing user authentication in an OAuth specific credential.
+ *
+ * The policy-based authentication manager {@link org.jasig.cas.authentication.PolicyBasedAuthenticationManager} first
+ * calls the {@link #supports} method to check whether the credential provided is for the CAS OAuth Service. If so, it
+ * then uses the {@link #authenticate} method to perform the authentication. Otherwise, the manager simply moves on to
+ * the next authentication handler if there is any.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuthCredentialsAuthenticationHandler extends AbstractAuthenticationHandler {
 
@@ -39,8 +45,11 @@ public final class OAuthCredentialsAuthenticationHandler extends AbstractAuthent
     public HandlerResult authenticate(final Credential credential) throws GeneralSecurityException {
         final OAuthCredential c = (OAuthCredential) credential;
 
-        return new DefaultHandlerResult(this, new BasicCredentialMetaData(credential),
-                this.principalFactory.createPrincipal(c.getId(), c.getAttributes()));
+        return new DefaultHandlerResult(
+                this,
+                new BasicCredentialMetaData(credential),
+                this.principalFactory.createPrincipal(c.getId(), c.getAttributes())
+        );
     }
 
     @Override

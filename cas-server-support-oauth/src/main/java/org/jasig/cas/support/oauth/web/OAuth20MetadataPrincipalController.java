@@ -19,107 +19,154 @@
 package org.jasig.cas.support.oauth.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+
 import org.jasig.cas.support.oauth.CentralOAuthService;
+import org.jasig.cas.support.oauth.InvalidParameterException;
 import org.jasig.cas.support.oauth.OAuthConstants;
 import org.jasig.cas.support.oauth.OAuthUtils;
 import org.jasig.cas.support.oauth.metadata.PrincipalMetadata;
 import org.jasig.cas.support.oauth.token.AccessToken;
 import org.jasig.cas.support.oauth.token.InvalidTokenException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
- * This controller handles requests for metadata regarding a principal.
+ * The OAuth 2.0 "Metadata Principal" Controller.
+ *
+ * This controller handles requests that ask for the metadata regarding a principal. The principal is identified and
+ * authenticated by the given access token. In addition, the access token must be of type CAS.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuth20MetadataPrincipalController extends AbstractController {
 
+    /** Log instance for logging events, info, warnings, errors, etc. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuth20MetadataPrincipalController.class);
 
-    private static final String CLIENT_ID = "client_id";
-
-    private static final String NAME = "name";
-
-    private static final String DESCRIPTION = "description";
-
-    private static final String SCOPE = "scope";
-
+    /** The CAS OAuth authorization service. */
     private final CentralOAuthService centralOAuthService;
 
     /**
-     * Instantiates a new o auth20 principal metadata controller.
+     * Instantiates a new {@link OAuth20MetadataPrincipalController}.
      *
-     * @param centralOAuthService the central oauth service
+     * @param centralOAuthService the CAS OAuth service
      */
     public OAuth20MetadataPrincipalController(final CentralOAuthService centralOAuthService) {
         this.centralOAuthService = centralOAuthService;
     }
 
     @Override
-    protected ModelAndView handleRequestInternal(final HttpServletRequest request, final HttpServletResponse response)
-            throws Exception {
+    protected ModelAndView handleRequestInternal(
+            final HttpServletRequest request,
+            final HttpServletResponse response
+    ) throws Exception {
+
+        // Verify that all required OAuth 2.0 parameters are provided.
+        final String prefixedBearerToken = request.getHeader(OAuthConstants.AUTHORIZATION_HEADER);
+        LOGGER.debug("{} : {}", OAuthConstants.BEARER_TOKEN, prefixedBearerToken);
         String accessTokenId = request.getParameter(OAuthConstants.ACCESS_TOKEN);
-        if (StringUtils.isBlank(accessTokenId)) {
-            final String authHeader = request.getHeader("Authorization");
-            if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith(OAuthConstants.BEARER_TOKEN + " ")) {
-                accessTokenId = authHeader.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
-            } else {
-                LOGGER.debug("Missing Access Token");
-                return OAuthUtils.writeJsonError(response, OAuthConstants.MISSING_ACCESS_TOKEN,
-                        OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION,
-                        HttpStatus.SC_BAD_REQUEST);
-            }
+        LOGGER.debug("{} : {}", OAuthConstants.ACCESS_TOKEN, accessTokenId);
+        try {
+            accessTokenId = verifyRequest(accessTokenId, prefixedBearerToken);
+        } catch (final InvalidParameterException e) {
+            return OAuthUtils.writeJsonError(
+                    response,
+                    OAuthConstants.INVALID_REQUEST,
+                    e.getMessage(),
+                    HttpStatus.SC_BAD_REQUEST
+            );
         }
 
+        // Verify and retrieve the access token.
         final AccessToken accessToken;
         try {
             accessToken = centralOAuthService.getToken(accessTokenId, AccessToken.class);
         } catch (final InvalidTokenException e) {
             LOGGER.error("Could not get Access Token [{}]", accessTokenId);
-            return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION,
-                    HttpStatus.SC_UNAUTHORIZED);
+            return OAuthUtils.writeJsonError(
+                    response,
+                    OAuthConstants.UNAUTHORIZED_REQUEST,
+                    OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION,
+                    HttpStatus.SC_UNAUTHORIZED
+            );
         }
 
+        // Retrieve the metadata about the principal identified and authenticated by the given access token.
         final Collection<PrincipalMetadata> metadata;
         try {
             metadata = centralOAuthService.getPrincipalMetadata(accessToken);
         } catch (final InvalidTokenException e) {
             LOGGER.error("Invalid Access Token [{}] type [{}]", accessToken.getId(), accessToken.getType());
-            return OAuthUtils.writeJsonError(response, OAuthConstants.UNAUTHORIZED_REQUEST, OAuthConstants.INVALID_ACCESS_TOKEN_DESCRIPTION,
-                    HttpStatus.SC_UNAUTHORIZED);
+            return OAuthUtils.writeJsonError(
+                    response,
+                    OAuthConstants.UNAUTHORIZED_REQUEST,
+                    OAuthConstants.INVALID_ACCESS_TOKEN_TYPE_DESCRIPTION,
+                    HttpStatus.SC_UNAUTHORIZED
+            );
         }
 
+        // Build and return the response.
         final List<Map<String, Object>> metadataList = new ArrayList<>();
         for (final PrincipalMetadata item : metadata) {
             final Map<String, Object> detailMap = new HashMap<>();
-            detailMap.put(CLIENT_ID, item.getClientId());
-            detailMap.put(NAME, item.getName());
-            detailMap.put(DESCRIPTION, item.getDescription());
-            detailMap.put(SCOPE, item.getScopes());
+            detailMap.put(OAuthConstants.CLIENT_ID, item.getClientId());
+            detailMap.put(OAuthConstants.SERVICE_NAME, item.getName());
+            detailMap.put(OAuthConstants.SERVICE_DESCRIPTION, item.getDescription());
+            detailMap.put(OAuthConstants.SCOPE, item.getScopes());
             metadataList.add(detailMap);
         }
-
         final Map<String, Object> map = new HashMap<>();
         map.put("data", metadataList);
-
         final String result = new ObjectMapper().writeValueAsString(map);
         LOGGER.debug("result : {}", result);
-
         response.setContentType("application/json");
         return OAuthUtils.writeText(response, result, HttpStatus.SC_OK);
+    }
+
+    /**
+     * Verify that all required OAuth 2.0 parameters are provided.
+     *
+     * @param accessTokenId the access token id
+     * @param prefixedBearerToken the prefixed bearer token provided by the HTTP Authorization header
+     * @return the access token id
+     * @throws InvalidParameterException with the name of the invalid parameter
+     */
+    private String verifyRequest(
+            final String accessTokenId,
+            final String prefixedBearerToken
+    ) throws InvalidParameterException {
+
+        // An access token must be provided via either the request body or the HTTP "Authorization" header.
+        if (StringUtils.isBlank(accessTokenId)) {
+            if (StringUtils.isNotBlank(prefixedBearerToken)
+                    && prefixedBearerToken.startsWith(OAuthConstants.BEARER_TOKEN + " ")
+            ) {
+                return prefixedBearerToken.substring(OAuthConstants.BEARER_TOKEN.length() + 1);
+            } else {
+                LOGGER.debug(OAuthConstants.MISSING_ACCESS_TOKEN_DESCRIPTION);
+                throw new InvalidParameterException(OAuthConstants.ACCESS_TOKEN);
+            }
+        } else {
+            return accessTokenId;
+        }
     }
 }

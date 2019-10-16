@@ -21,12 +21,16 @@ package org.jasig.cas.support.oauth.services;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import org.jasig.cas.services.OSFRegisteredService;
 import org.jasig.cas.services.RegisteredService;
 
 /**
- * An extension of the {@link OSFRegisteredService} that defines
- * the OAuth client id and secret for a given registered service.
+ * OAuth registered service.
+ *
+ * As an extension of the {@link OSFRegisteredService}, this class defines a few extra OAuth properties for a given
+ * registered service, including the client id, client secret and a boolean flag which determines whether to bypass
+ * the approval prompt during authorization.
  *
  * @author Misagh Moayyed
  * @author Michael Haselton
@@ -35,6 +39,7 @@ import org.jasig.cas.services.RegisteredService;
  */
 public final class OAuthRegisteredService extends OSFRegisteredService {
 
+    /** Unique id for serialization. */
     private static final long serialVersionUID = 5318897374067731021L;
 
     private String clientSecret;
@@ -105,9 +110,6 @@ public final class OAuthRegisteredService extends OSFRegisteredService {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder()
-                .appendSuper(super.hashCode())
-                .append(clientId)
-                .toHashCode();
+        return new HashCodeBuilder().appendSuper(super.hashCode()).append(clientId).toHashCode();
     }
 }

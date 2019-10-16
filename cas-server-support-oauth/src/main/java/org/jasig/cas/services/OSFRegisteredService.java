@@ -24,9 +24,11 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 /**
- * Mutable registered service that uses String equality check for
- * service matching. Matching is case insensitive.
+ * OSF registered service.
  *
+ * Mutable registered service that uses case-insensitive String equality check for service matching.
+ *
+ * @author Michael Haselton
  * @author Longze Chen
  * @since 4.1.5
  */
@@ -34,6 +36,7 @@ import javax.persistence.Entity;
 @DiscriminatorValue("osf")
 public class OSFRegisteredService extends AbstractRegisteredService {
 
+    /** Unique id for serialization. */
     private static final long serialVersionUID = 2028857446020394771L;
 
     private transient String servicePattern;

@@ -26,22 +26,24 @@ import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Abstract base class for Token classes.
+ * The abstract base class for token classes.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 @MappedSuperclass
 public abstract class AbstractToken implements Token {
 
-    /** Unique Id for serialization. */
+    /** Unique id for serialization. */
     private static final long serialVersionUID = -5608324980180191592L;
 
-    /** The unique identifier for this token. */
+    /** The unique id for this token. */
     @Id
     @Column(name="ID", nullable=false)
     private String id;
@@ -65,30 +67,29 @@ public abstract class AbstractToken implements Token {
     @Column(name="SCOPES_HASH", nullable=false)
     private Integer scopesHash;
 
-    /**
-     * Instantiates a new abstract token.
-     */
-    protected AbstractToken() {
-        // nothing to do
-    }
+    /** Default constructor. */
+    protected AbstractToken(){}
 
     /**
-     * Constructs a new Ticket with a unique id, a possible parent Ticket (can
-     * be null) and a specified Expiration Policy.
+     * Instantiate a new {@link AbstractToken}.
      *
-     * @param id the unique identifier for the token
-     * @param clientId the client identifier for the token
-     * @param principalId the principal identifier for the token
-     * @param type the type of the token
-     * @param scopes the assigned scopes for the token
+     * @param id the unique id of the token
+     * @param clientId the client id
+     * @param principalId the principal id
+     * @param type the token type
+     * @param scopes the token scopes
      */
-    public AbstractToken(final String id, final String clientId, final String principalId, final TokenType type,
-                         final Set<String> scopes) {
-        Assert.notNull(id, "id cannot be null");
-        Assert.notNull(principalId, "principalId cannot be null");
-        Assert.notNull(type, "type cannot be null");
-        Assert.notNull(scopes, "scopes cannot be null");
-
+    public AbstractToken(
+            final String id,
+            final String clientId,
+            final String principalId,
+            final TokenType type,
+            final Set<String> scopes
+    ) {
+        Assert.notNull(id, "Token ID cannot be null");
+        Assert.notNull(principalId, "Principal ID cannot be null");
+        Assert.notNull(type, "Token type cannot be null");
+        Assert.notNull(scopes, "Token scopes cannot be null");
         this.id = id;
         this.clientId = clientId;
         this.principalId = principalId;
@@ -96,9 +97,7 @@ public abstract class AbstractToken implements Token {
         this.scopes.addAll(scopes);
     }
 
-    /**
-     * Compute the hash of all scopes upon saving the token.
-     */
+    /** Compute the hash of all scopes upon saving the token. */
     @PreUpdate
     @PrePersist
     private void updateScopesHash() {

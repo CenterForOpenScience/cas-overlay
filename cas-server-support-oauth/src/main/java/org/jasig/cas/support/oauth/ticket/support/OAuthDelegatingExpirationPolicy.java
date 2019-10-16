@@ -30,15 +30,42 @@ import org.jasig.cas.ticket.support.AbstractCasExpirationPolicy;
 import javax.validation.constraints.NotNull;
 
 /**
- * Delegates to different expiration policies depending on oauth
- * token type specified by the credential.
+ * Delegates to different expiration policies depending on the OAuth token type {@link TokenType} specified by the
+ * OAuth credential access type {@literal OAuthCredential#accessType}. The primary CAS authentication (i.e. the CAS
+ * Auth Service, as opposed to the CAS OAuth Service) {@link org.jasig.cas.CentralAuthenticationServiceImpl} has two
+ * policies using the class, {@code ticketGrantingTicketExpirationPolicy} and {@code serviceTicketExpirationPolicy}.
+ *
+ * For both TGT and ST, the refresh token policy {@link #oAuthRefreshTokenExpirationPolicy} uses the built-in
+ * never-expire policy {@link org.jasig.cas.ticket.support.NeverExpiresExpirationPolicy}. Thus, the refresh token
+ * never expires.
+ *
+ * For both TGT and ST, the ONLINE / OFFLINE access token policy {@link #oAuthAccessTokenExpirationPolicy} uses the
+ * built-in time-out policy {@link org.jasig.cas.ticket.support.TimeoutExpirationPolicy}, where
+ * {@code timeToKillInMilliSeconds} is set to 3,600,000 milliseconds. Thus, both ONLINE and OFFLINE access tokens
+ * expire after 1 hour.
+ *
+ * The PERSONAL access token never expires. Instead of using the built-in never-expire policy, this class simply let
+ * the expiration check method {@link #isExpired} always return {@code False}.
+ *
+ * The session policy differs between TGT and ST. This policy affects the expiration time for CAS access token (which
+ * is determined by the TGT) and the time for ONLINE / OFFLINE authorization code (which is determined by the ST).
+ *
+ * 1) ST uses the built-in {@link org.jasig.cas.ticket.support.MultiTimeUseOrTimeoutExpirationPolicy}, where
+ * {@code timeToKill} is set to 60 seconds. Thus, both ONLINE and OFFLINE authorization codes expire in 1 minute.
+ *
+ * 2) For TGTs, which policy to use depends on whether the "Remember Me" or "Stay Signed In" option is selected or not
+ * at login. If selected, {@link org.jasig.cas.ticket.support.TimeoutExpirationPolicy} is used with
+ * {@code timeToKillInMilliSeconds} set to 2,592,000 milliseconds, which is 30 days. Otherwise,
+ * {@link org.jasig.cas.ticket.support.TicketGrantingTicketExpirationPolicy} is used with a 2-hour sliding expiration
+ * with 8-hour maximum lifetime.
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpirationPolicy {
 
-    /** Serialization support. */
+    /** Unique id for serialization. */
     private static final long serialVersionUID = 4461752518354198401L;
 
     @NotNull
@@ -52,36 +79,38 @@ public final class OAuthDelegatingExpirationPolicy extends AbstractCasExpiration
 
     @Override
     public boolean isExpired(final TicketState ticketState) {
+
+        final Authentication authentication;
         final AbstractTicket ticket = (AbstractTicket) ticketState;
         final TicketGrantingTicket ticketGrantingTicket = ticket.getGrantingTicket();
 
-        final Authentication authentication;
         if (ticketGrantingTicket != null) {
             authentication = ticketGrantingTicket.getAuthentication();
         } else {
             authentication = ticket.getAuthentication();
         }
 
-        final TokenType tokenType = (TokenType) authentication.getAttributes()
-                .get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_ACCESS_TYPE);
+        final TokenType tokenType
+                = (TokenType) authentication.getAttributes().get(OAuthCredential.AUTHENTICATION_ATTRIBUTE_ACCESS_TYPE);
 
-        // offline
+        // OFFLINE refresh token never expires; OFFLINE access token expires after 1 hour
         if (tokenType == TokenType.OFFLINE) {
-            return ticket instanceof TicketGrantingTicket ? oAuthRefreshTokenExpirationPolicy.isExpired(ticketState)
+            return ticket instanceof TicketGrantingTicket
+                    ? oAuthRefreshTokenExpirationPolicy.isExpired(ticketState)
                     : oAuthAccessTokenExpirationPolicy.isExpired(ticketState);
         }
 
-        // online
+        // ONLINE access token expires after 1 hour
         if (tokenType == TokenType.ONLINE && ticket instanceof TicketGrantingTicket) {
             return oAuthAccessTokenExpirationPolicy.isExpired(ticketState);
         }
 
-        // personal
+        // PERSONAL access token never expires
         if (tokenType == TokenType.PERSONAL && ticket instanceof TicketGrantingTicket) {
             return false;
         }
 
-        // service validation / other
+        // Service validation and other, expiration time varies
         return sessionExpirationPolicy.isExpired(ticketState);
     }
 

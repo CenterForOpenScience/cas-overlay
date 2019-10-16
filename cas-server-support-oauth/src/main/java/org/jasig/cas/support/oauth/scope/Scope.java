@@ -19,10 +19,21 @@
 package org.jasig.cas.support.oauth.scope;
 
 /**
- * An OAuth Scope.
+ * OAuth scope.
+ *
+ * In CAS, the OAuth scope is not stored in database by itself but as a Large Object (LOB) property of the token or
+ * the code it is associated with. See {@link org.jasig.cas.support.oauth.token.AbstractToken} for details.
+ *
+ * In OSF, the OAuth scope is stored in the database and the token-scope association is defined by a M2M relationship.
+ * For more information, refer to the following three model classes.
+ *
+ *      Scope: {@literal io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkApiOauth2Scope}
+ *      Token: {@literal io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkApiOauth2PersonalAccessToken}
+ *      M2M Relationship {@literal io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkApiOauth2TokenScope}
  *
  * @author Michael Haselton
- * @since 4.1.0
+ * @author Longze Chen
+ * @since 4.1.5
  */
 public final class Scope {
 
@@ -36,10 +47,10 @@ public final class Scope {
     private final Boolean isDefault;
 
     /**
-     * Creates a new scope.
+     * Creates a new and non-default scope.
      *
-     * @param name the scope name..
-     * @param description the scope description.
+     * @param name the scope name
+     * @param description the scope description
      */
     public Scope(final String name, final String description) {
         this(name, description, Boolean.FALSE);
@@ -48,9 +59,9 @@ public final class Scope {
     /**
      * Creates a new scope.
      *
-     * @param name the scope name..
-     * @param description the scope description.
-     * @param isDefault the scope default status.
+     * @param name the scope name
+     * @param description the scope description
+     * @param isDefault the scope default status
      */
     public Scope(final String name, final String description, final Boolean isDefault) {
         this.name = name;
@@ -61,7 +72,7 @@ public final class Scope {
     /**
      * Get the name of the scope.
      *
-     * @return the name.
+     * @return the scope name
      */
     public String getName() {
         return this.name;
@@ -70,7 +81,7 @@ public final class Scope {
     /**
      * Get the description of the scope.
      *
-     * @return the description.
+     * @return the scope description
      */
     public String getDescription() {
         return this.description;
@@ -79,7 +90,7 @@ public final class Scope {
     /**
      * Get the default status of the scope.
      *
-     * @return the default status.
+     * @return the scope default status
      */
     public Boolean getIsDefault() {
         return this.isDefault;
