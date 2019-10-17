@@ -16,39 +16,50 @@
 package org.pac4j.oauth.client;
 
 import org.apache.http.HttpStatus;
+
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.HttpCommunicationException;
 import org.pac4j.oauth.client.exception.OAuthCredentialsException;
 import org.pac4j.oauth.profile.OAuthAttributesDefinitions;
-import org.pac4j.oauth.profile.XmlHelper;
 import org.pac4j.oauth.profile.orcid.OrcidAttributesDefinition;
 import org.pac4j.oauth.profile.orcid.OrcidProfile;
+import org.pac4j.oauth.profile.XmlHelper;
+
 import org.scribe.builder.api.OrcidApi20;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthConfig;
+import org.scribe.model.ProxyOAuthRequest;
+import org.scribe.model.Response;
 import org.scribe.model.SignatureType;
 import org.scribe.model.Token;
 import org.scribe.oauth.ProxyOAuth20ServiceImpl;
 import org.scribe.tokens.OrcidToken;
-import org.scribe.model.ProxyOAuthRequest;
-import org.scribe.model.Response;
-
 
 /**
- * <p>This class is the OAuth client to authenticate users in ORCiD.</p>
- * <p>It returns a {@link org.pac4j.oauth.profile.orcid.OrcidProfile}.</p>
- * <p>More information at http://support.orcid.org/knowledgebase/articles/175079-tutorial-retrieve-data-from-an-orcid-record-with</p>
+ * The ORCiD Client.
+ *
+ * This class is the OAuth 2.0 client to authenticate users via ORCiD by authorization.
  *
  * @author Jens Tinglev
  * @author Michael Haselton
  * @author Longze Chen
- * @see org.pac4j.oauth.profile.orcid.OrcidProfile
  * @since 1.7.1
  */
 public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
 
-    /** The default scope. */
-    protected static final String DEFAULT_SCOPE = "/orcid-profile/read-limited";
+    /**
+     * The default scope.
+     *
+     * OSF CAS uses the "/authenticate" scope for the purpose of authentication only. According to ORCiD API docs, this
+     * scope is used when the client system will collect the ORCID iD but does not need access to read-limited data or
+     * will use the ORCID system as an authentication provider. This scope is available on the Member or Public API.
+     * For more information about ORCiD scopes, refer to https://members.orcid.org/api/oauth/orcid-scopes.
+     *
+     * In addition, "pac4j" version of the ORCiD OAuth 2.0 client implementation must use the 3-legged OAuth and the
+     * "/authenticate" scope is such a 3-legged scope. For more information on 2-legged and 3-legged OAuth, refer to
+     * https://members.orcid.org/api/oauth/2legged-oauth and https://members.orcid.org/api/oauth/3legged-oauth.
+     */
+    protected static final String DEFAULT_SCOPE = "/authenticate";
 
     /** The scope. */
     protected String scope = DEFAULT_SCOPE;
@@ -57,7 +68,7 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     protected Boolean member = Boolean.TRUE;
 
     /**
-     * Create an instance of `OrcidClient` with given `key` and `secret`.
+     * Instantiate a new {@link OrcidClient}.
      *
      * @param key the key
      * @param secret the secret
@@ -69,7 +80,7 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     }
 
     /**
-     * Create an instance of `OrcidClient`.
+     * Instantiate a new {@link OrcidClient}.
      */
     public OrcidClient() {
         setTokenAsHeader(true);
@@ -100,6 +111,11 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     /**
      * Get the oauth url to retrieve user profile.
      *
+     * This method overrides itself, and here are the customizations:
+     *
+     * 1. Replaces API 1.1 with API 2.0
+     * 2. Add the option to use the free public API if {@link #member} is {@code false}
+     *
      * @param accessToken the access token
      * @return profile uri
      * @throws OAuthException if wrong token type
@@ -107,8 +123,11 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     @Override
     protected String getProfileUrl(final Token accessToken) {
         if (accessToken instanceof OrcidToken) {
-            return String.format("https://%s.orcid.org/v2.0/%s/record",
-                    (this.getMember() ? "api" : "pub"), ((OrcidToken) accessToken).getOrcid());
+            return String.format(
+                    "https://%s.orcid.org/v2.0/%s/record",
+                    this.getMember() ? "api" : "pub",
+                    ((OrcidToken) accessToken).getOrcid()
+            );
         } else {
             throw new OAuthException("Token in getProfileUrl is not an OrcidToken");
         }
@@ -122,14 +141,7 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
         super.internalInit();
         this.service = new ProxyOAuth20ServiceImpl(
                 new OrcidApi20(),
-                new OAuthConfig(
-                        this.key,
-                        this.secret,
-                        this.callbackUrl,
-                        SignatureType.Header,
-                        this.getScope(),
-                        null
-                ),
+                new OAuthConfig(this.key, this.secret, this.callbackUrl, SignatureType.Header, this.getScope(), null),
                 this.connectTimeout,
                 this.readTimeout,
                 this.proxyHost, this.proxyPort,
@@ -167,20 +179,26 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     }
 
     /**
-     * Extract user profile.
+     * Extract the user profile from the profile response.
      *
-     * @param body the body
+     * This method replaces itself and here are the customizations:
+     *
+     * 1. Set the raw ORCiD ID as the profile ID
+     * 2. Build the profile using normalized attributes so they can be successfully released to OSF
+     *
+     * @param body the response body
      * @return the profile
      */
     @Override
     protected OrcidProfile extractUserProfile(final String body) {
+
         final OrcidProfile profile = new OrcidProfile();
         profile.setId(XmlHelper.get(body, OrcidAttributesDefinition.ORCID));
+
         for(final String attribute : OAuthAttributesDefinitions.orcidDefinition.getAllAttributes()) {
             final String value = XmlHelper.get(body, attribute);
             switch (attribute) {
                 case OrcidAttributesDefinition.NORMALIZED_FAMILY_NAME:
-                    break;
                 case OrcidAttributesDefinition.NORMALIZED_GIVEN_NAME:
                     break;
                 case OrcidAttributesDefinition.FAMILY_NAME:
@@ -198,8 +216,9 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     }
 
     /**
-     * Create a new `OrcidClient`.
-     * @return the new cient
+     * Create a new {@link OrcidClient}.
+     *
+     * @return the new client
      */
     @Override
     protected OrcidClient newClient() {
@@ -211,21 +230,35 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     /**
      * Make a request to get the data of the authenticated user for the provider.
      *
+     * This method overrides {@link BaseOAuthClient#sendRequestForData(Token, String)}. Here are the customizations:
+     *
+     * 1. No longer appends the access token as a query parameter to the URL.
+     * 2. Always includes the access token using the "Authorization" header.
+     * 3. Improved the way how log messages are built.
+     * 4. Use interface constants {@link HttpStatus#SC_OK} instead of number literals.
+     *
      * @param accessToken the access token
      * @param dataUrl url of the data
      * @return the user data response
      * @throws HttpCommunicationException if fails to retrieve data
      */
     @Override
-    protected String sendRequestForData(final Token accessToken, final String dataUrl) {
+    protected String sendRequestForData(
+            final Token accessToken,
+            final String dataUrl
+    ) throws HttpCommunicationException {
+
         logger.debug("accessToken : {} / dataUrl : {}", accessToken, dataUrl);
         final long t0 = System.currentTimeMillis();
         final ProxyOAuthRequest request = createProxyRequest(dataUrl);
+        if (accessToken != null) {
+            request.addHeader("Authorization", "Bearer " + accessToken.getToken());
+        }
         final Response response = request.send();
         final int code = response.getCode();
         final String body = response.getBody();
         final long t1 = System.currentTimeMillis();
-        logger.debug(String.format("Request took : {} ms for : {} ", (t1 - t0), dataUrl));
+        logger.debug("Request took : {} ms for : {} ", (t1 - t0), dataUrl);
         logger.debug("response code : {} / response body : {}", code, body);
         if (code != HttpStatus.SC_OK) {
             logger.error("Failed to get data, code : {} / body : {}", code, body);
