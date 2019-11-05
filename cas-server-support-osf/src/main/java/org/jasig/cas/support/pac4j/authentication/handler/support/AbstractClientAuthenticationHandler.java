@@ -54,7 +54,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author Jerome Leleu
  * @author Longze Chen
- * @since 4.1.5
+ * @since 4.1.0
  */
 @SuppressWarnings("unchecked")
 public abstract class AbstractClientAuthenticationHandler extends AbstractPreAndPostProcessingAuthenticationHandler {
