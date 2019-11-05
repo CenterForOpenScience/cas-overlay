@@ -80,7 +80,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author Jerome Leleu
  * @author Longze Chen
- * @since 4.1.5
+ * @since 3.5.0
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public final class ClientAction extends AbstractAction {

@@ -39,7 +39,7 @@ import java.security.GeneralSecurityException;
  *
  * @author Jerome Leleu
  * @author Longze Chen
- * @since 4.1.5
+ * @since 3.5.0
  */
 public class ClientAuthenticationHandler extends AbstractClientAuthenticationHandler {
 
