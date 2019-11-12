@@ -27,6 +27,18 @@
                             <suffix/>
                         </user>
                     </xsl:when>
+                    <!-- California Lutheran University [SAML SSO] (CALLUTHERAN2)-->
+                    <xsl:when test="$idp='login.callutheran.edu'">
+                        <id>callutheran2</id>
+                        <user>
+                            <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
+                            <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
+                            <familyName/>
+                            <givenName/>
+                            <middleNames/>
+                            <suffix/>
+                        </user>
+                    </xsl:when>
                     <!-- University of North Carolina at Chapel Hill (UNC) -->
                     <xsl:when test="$idp='urn:mace:incommon:unc.edu'">
                         <id>unc</id>
@@ -63,7 +75,7 @@
                             <suffix/>
                         </user>
                     </xsl:when>
-                    <!-- California Lutheran University (CALLUTHERAN)-->
+                    <!-- California Lutheran University [CAS SSO] (CALLUTHERAN)-->
                     <xsl:when test="$idp='callutheran'">
                         <id>callutheran</id>
                         <user>
