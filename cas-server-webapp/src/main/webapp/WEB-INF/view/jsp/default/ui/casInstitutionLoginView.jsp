@@ -86,7 +86,7 @@
             if(institutionLoginUrl == null || institutionLoginUrl === "") {
                 selectErrorMessage.style.display = "inline";
                 return;
-            } else if (institutionLoginUrl === "callutheran") {
+            } else if (institutionLoginUrl === "callutheran2") {
                 institutionLoginUrl = "${callutheranUrl}";
             } else if (institutionLoginUrl === "okstate") {
                 institutionLoginUrl = "${okstateUrl}";
