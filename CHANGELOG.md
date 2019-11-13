@@ -2,6 +2,12 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.2.2 (2019-11-13)
+===================
+
+- Update SSO for California Lutheran University
+- Fix change log for 19.2.1
+
 19.2.1 (2019-11-12)
 ===================
 
