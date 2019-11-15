@@ -1,11 +1,15 @@
 # Credits
 
-## Contributors
+## Maintainers
 
-- Michael Haselton  [`@icereval`](https://github.com/icereval)
 - Longze Chen [`@cslzchen`](https://github.com/cslzchen)
 - Fitz Elliott [`@felliott`](https://github.com/felliott)
-- Erin Braswell [`@erinspace`](https://github.com/erinspace)
-- Andy Boughton [`@abought`](https://github.com/abought)
-- Billy Hunt [`@billyhunt`](https://github.com/billyhunt)
-- Darío Hereñú [`@kant`](https://github.com/kant)
+- Matt Fraizer [`@mfraezz`](https://github.com/mfraezz)
+
+## Alumni
+
+- Michael Haselton  [`@icereval`](https://github.com/icereval)
+
+## Contributors
+
+* Here is the [contributor list](https://github.com/CenterForOpenScience/cas-overlay/graphs/contributors).
