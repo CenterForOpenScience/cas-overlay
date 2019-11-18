@@ -1,4 +1,6 @@
 /*
+ * Copyright (c) 2015. Center for Open Science
+ *
  * Licensed to Apereo under one or more contributor license
  * agreements. See the NOTICE file distributed with this work
  * for additional information regarding copyright ownership.
@@ -59,7 +61,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Jerome Leleu
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.5
+ * @since 3.5.0
  */
 public final class OAuth20ProfileController extends AbstractController {
 

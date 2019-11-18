@@ -1,17 +1,19 @@
 /*
-  Copyright 2012 - 2015 pac4j organization
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+ * Copyright (c) 2016. Center for Open Science
+ *
+ * Copyright 2012 - 2015 pac4j organization
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.scribe.builder.api;
 
@@ -27,12 +29,12 @@ import org.scribe.utils.OAuthEncoder;
  * @author Jens Tinglev
  * @author Michael Haselton
  * @author Longze Chen
- * @since 1.7.1
+ * @since 1.6.0
  */
 public class OrcidApi20 extends DefaultApi20 {
 
     /** The authorization url. */
-    private static final String AUTH_URL = "https://www.orcid.org/oauth/authorize";
+    private static final String AUTH_URL = "https://orcid.org/oauth/authorize";
 
     /** The token exchange url. */
     private static final String TOKEN_URL = "https://orcid.org/oauth/token";

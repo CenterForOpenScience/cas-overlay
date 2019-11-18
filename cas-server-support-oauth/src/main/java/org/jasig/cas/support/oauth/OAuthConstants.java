@@ -1,4 +1,6 @@
 /*
+ * Copyright (c) 2015. Center for Open Science
+ *
  * Licensed to Apereo under one or more contributor license
  * agreements. See the NOTICE file distributed with this work
  * for additional information regarding copyright ownership.
@@ -28,7 +30,7 @@ package org.jasig.cas.support.oauth;
  * @author Jerome Leleu
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.5
+ * @since 3.5.0
  */
 public interface OAuthConstants {
 

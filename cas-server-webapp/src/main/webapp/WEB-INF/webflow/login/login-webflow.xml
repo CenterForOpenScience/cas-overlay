@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
+    Copyright (c) 2015. Center for Open Science
+
     Licensed to Apereo under one or more contributor license
     agreements. See the NOTICE file distributed with this work
     for additional information regarding copyright ownership.
@@ -35,6 +37,7 @@
         <transition on="success" to="remoteAuthenticate" />
         <transition on="error" to="ticketGrantingTicketCheck" />
         <transition on="stop" to="stopWebflow" />
+        <transition on="authenticationFailure" to="handleAuthenticationFailure" />
     </action-state>
     <view-state id="stopWebflow" />
 
@@ -206,6 +209,10 @@
         <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
         <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
+        <!-- Customized exceptions for delegated login -->
+        <transition on="DelegatedLoginException" to="delegatedLoginGenericErrorView" />
+        <transition on="CasClientLoginException" to="delegatedLoginCasErrorView"/>
+        <transition on="OrcidClientLoginException" to="delegatedLoginOrcidErrorView"/>
         <!-- Unhandled Exceptions -->
         <transition on="UNKNOWN" to="generateLoginTicket"/>
     </action-state>
@@ -279,6 +286,9 @@
     <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
     <end-state id="casInvalidVerificationKeyView" view="casInvalidVerificationKeyView" />
+    <end-state id="delegatedLoginGenericErrorView" view="delegatedLoginGenericErrorView" />
+    <end-state id="delegatedLoginCasErrorView" view="delegatedLoginCasErrorView" />
+    <end-state id="delegatedLoginOrcidErrorView" view="delegatedLoginOrcidErrorView" />
 
     <end-state id="postView" view="postResponseView">
         <on-entry>

@@ -1,4 +1,6 @@
 /*
+ * Copyright (c) 2018. Center for Open Science
+ *
  * Licensed to Apereo under one or more contributor license
  * agreements. See the NOTICE file distributed with this work
  * for additional information regarding copyright ownership.
@@ -41,8 +43,9 @@ import javax.validation.constraints.NotNull;
 /**
  * Abstract implementation of the handler that has all of the logic.
  *
+ * @author Scott Battaglia
  * @author Longze Chen
- * @since 4.1.5
+ * @since 3.3.5
  */
 public abstract class AbstractThrottledSubmissionHandlerInterceptorAdapter
         extends HandlerInterceptorAdapter implements InitializingBean {

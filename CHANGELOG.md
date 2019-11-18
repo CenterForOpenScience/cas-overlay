@@ -2,6 +2,12 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.3.0 (2019-11-18)
+===================
+
+- Gracefully handle exceptions during delegated login using pac4j-1.7.x
+- Add / Update / Fix Apache 2.0 license header
+
 19.2.2 (2019-11-13)
 ===================
 
