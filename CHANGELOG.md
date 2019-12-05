@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.3.1 (2019-12-05)
+===================
+
+- Add UBC Prod and Test to institutions-auth.xsl
+
 19.3.0 (2019-11-18)
 ===================
 
