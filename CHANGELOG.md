@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.3.2 (2019-12-18)
+===================
+
+- Branded sign-in for BioHackrXiv
+
 19.3.1 (2019-12-05)
 ===================
 
