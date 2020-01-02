@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+19.3.3 (2020-01-02)
+===================
+
+- Update copyright year: 2020
+
 19.3.2 (2019-12-18)
 ===================
 
