@@ -1,19 +1,17 @@
 /*
- * Licensed to the Center For Open Science (COS) under one or more
- * contributor license agreements. See the NOTICE file distributed
- * with this work for additional information regarding copyright
- * ownership. COS licenses this file to you under the Apache
- * License, Version 2.0 (the "License"); you may not use this file
- * except in compliance with the License.  You may obtain a copy of
- * the License at the following location:
+ * Copyright (c) 2020. Center for Open Science
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an "AS
- * IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied.  See the License for the specific language
- * governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package io.cos.cas.adaptors.postgres.types;
@@ -41,12 +39,12 @@ import java.sql.Types;
  *
  * {@link com.google.gson.JsonObject} is used as the object type / class for Postgres {@literal jsonb}.
  *
- * CAS only has read-access to the OSF DB. Thus, 1) the type is immutable; 2) {@link this#nullSafeGet} is not
+ * CAS only has read-access to the OSF database. Thus, 1) the type is immutable; 2) {@link this#nullSafeGet} is not
  * implemented; 3) {@link this#deepCopy} simply returns the argument. Several methods are implemented with default /
  * minimal behavior by using the {@link this#deepCopy}.
  *
  * @author Longze Chen
- * @since 19.4.0
+ * @since 20.0.0
  */
 public class PostgresJsonbUserType implements UserType {
 
