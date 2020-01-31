@@ -21,11 +21,11 @@ import java.util.List;
 import java.util.Set;
 
 import io.cos.cas.authentication.exceptions.AccountNotConfirmedIdPLoginException;
+import io.cos.cas.authentication.exceptions.AccountNotConfirmedOsfLoginException;
 import io.cos.cas.authentication.exceptions.CasClientLoginException;
 import io.cos.cas.authentication.exceptions.DelegatedLoginException;
 import io.cos.cas.authentication.exceptions.OrcidClientLoginException;
 import io.cos.cas.authentication.InvalidVerificationKeyException;
-import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.RemoteUserFailedLoginException;
@@ -52,7 +52,7 @@ import javax.security.auth.login.FailedLoginException;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.5
+ * @since 19.0.0
  */
 public class OpenScienceFrameworkAuthenticationExceptionHandler extends AuthenticationExceptionHandler {
 
@@ -81,7 +81,7 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     // Customized exceptions for OSF
     static {
         DEFAULT_ERROR_LIST.add(InvalidVerificationKeyException.class);
-        DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
+        DEFAULT_ERROR_LIST.add(AccountNotConfirmedOsfLoginException.class);
         DEFAULT_ERROR_LIST.add(AccountNotConfirmedIdPLoginException.class);
         DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);

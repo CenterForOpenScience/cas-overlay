@@ -22,13 +22,13 @@ import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
+import io.cos.cas.authentication.exceptions.AccountNotConfirmedIdPLoginException;
+import io.cos.cas.authentication.exceptions.AccountNotConfirmedOsfLoginException;
 import io.cos.cas.authentication.InvalidVerificationKeyException;
-import io.cos.cas.authentication.LoginNotAllowedException;
 import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.ShouldNotHappenException;
-import io.cos.cas.authentication.exceptions.AccountNotConfirmedIdPLoginException;
 import io.cos.cas.authentication.oath.TotpUtils;
 
 import org.jasig.cas.authentication.AccountDisabledException;
@@ -189,7 +189,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
         // Check user's status, and only ACTIVE user can sign in
         if (USER_NOT_CONFIRMED_OSF.equals(userStatus)) {
-            throw new LoginNotAllowedException(username + " is registered but not confirmed");
+            throw new AccountNotConfirmedOsfLoginException(username + " is registered but not confirmed");
         } else if (USER_NOT_CONFIRMED_IDP.equals(userStatus)) {
             throw new AccountNotConfirmedIdPLoginException(username + " is registered via external IdP but not confirmed ");
         }  else if (USER_DISABLED.equals(userStatus)) {
