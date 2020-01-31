@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.cos.cas.authentication.exceptions.AccountNotConfirmedIdPLoginException;
 import io.cos.cas.authentication.exceptions.CasClientLoginException;
 import io.cos.cas.authentication.exceptions.DelegatedLoginException;
 import io.cos.cas.authentication.exceptions.OrcidClientLoginException;
@@ -81,6 +82,7 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     static {
         DEFAULT_ERROR_LIST.add(InvalidVerificationKeyException.class);
         DEFAULT_ERROR_LIST.add(LoginNotAllowedException.class);
+        DEFAULT_ERROR_LIST.add(AccountNotConfirmedIdPLoginException.class);
         DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
         DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);

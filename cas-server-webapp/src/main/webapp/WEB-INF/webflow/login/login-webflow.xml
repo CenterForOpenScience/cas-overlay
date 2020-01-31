@@ -205,6 +205,7 @@
         <!-- Customized exceptions for OSF -->
         <transition on="InvalidVerificationKeyException" to="casInvalidVerificationKeyView" />
         <transition on="LoginNotAllowedException" to="casLoginNotAllowedView" />
+        <transition on="AccountNotConfirmedIdPLoginException" to="casAccountNotConfirmedIdPLoginView" />
         <transition on="ShouldNotHappenException" to="casShouldNotHappenView" />
         <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView" />
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
@@ -283,6 +284,7 @@
     <end-state id="casBadHoursView" view="casBadHoursView"/>
     <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
     <end-state id="casLoginNotAllowedView" view="casLoginNotAllowedView" />
+    <end-state id="casAccountNotConfirmedIdPLoginView" view="casAccountNotConfirmedIdPLoginView" />
     <end-state id="casShouldNotHappenView" view="casShouldNotHappenView" />
     <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView" />
     <end-state id="casInvalidVerificationKeyView" view="casInvalidVerificationKeyView" />
