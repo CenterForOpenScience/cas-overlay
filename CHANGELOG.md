@@ -2,6 +2,13 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.0.0 (2020-02-03)
+===================
+
+- Fixed user status check for new unconfirmed ORCiD user
+- Updated the institution SSO guide for both SAML and CAS
+- Added a guide for common apache / shibboleth errors
+
 19.3.3 (2020-01-02)
 ===================
 
