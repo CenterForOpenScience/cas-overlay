@@ -1,6 +1,6 @@
 <%--
 
-    Copyright (c) 2015. Center for Open Science
+    Copyright (c) 2020. Center for Open Science
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
 
 --%>
 
-<%-- Login exception page: account not confirmed --%>
+<%-- Login exception page: account created via OSF email-password sign-up but not confirmed --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
 <div id="msg" class="errors">
-    <h2><spring:message code="screen.loginnotallowed.heading"/></h2>
-    <p><spring:message code="screen.loginnotallowed.message"/></p>
+    <h2><spring:message code="screen.accountnotconfirmed.osflogin.heading"/></h2>
+    <p><spring:message code="screen.accountnotconfirmed.osflogin.message"/></p>
     <hr/><br/>
     <section class="row">
         <spring:eval var="osfResendConfirmationUrl" expression="@casProperties.getProperty('osf.resendConfirmation.url')"/>
         <a id="alt-login-inst" class="btn-alt-login" href="${osfResendConfirmationUrl}">
             <img class="osf-alt-logo" src="../images/osf-logo.png">
-            <span class="label-login"><spring:message code="screen.loginnotallowed.button.resendConfirmation"/></span>
+            <span class="label-login"><spring:message code="screen.accountnotconfirmed.osflogin.button.resendConfirmation"/></span>
         </a>
     </section>
 </div>

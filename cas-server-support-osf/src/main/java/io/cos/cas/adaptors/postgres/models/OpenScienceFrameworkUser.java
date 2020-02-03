@@ -15,6 +15,15 @@
  */
 package io.cos.cas.adaptors.postgres.models;
 
+import com.google.gson.JsonObject;
+
+import io.cos.cas.adaptors.postgres.types.PostgresJsonbUserType;
+
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -23,17 +32,17 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.util.Date;
 
 /**
  * The Open Science Framework User.
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 19.0.0
  */
 @Entity
 @Table(name = "osf_osfuser")
+@TypeDef(name = "PostgresJsonb", typeClass = PostgresJsonbUserType.class)
 public final class OpenScienceFrameworkUser {
 
     @Id
@@ -45,6 +54,10 @@ public final class OpenScienceFrameworkUser {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "external_identity")
+    @Type(type = "PostgresJsonb")
+    private JsonObject externalIdentity;
 
     @Column(name = "verification_key")
     private String verificationKey;
@@ -83,6 +96,10 @@ public final class OpenScienceFrameworkUser {
 
     public String getPassword() {
         return password;
+    }
+
+    public JsonObject getExternalIdentity() {
+        return externalIdentity;
     }
 
     public String getVerificationKey() {
