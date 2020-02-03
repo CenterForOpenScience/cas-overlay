@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015. Center for Open Science
+ * Copyright (c) 2020. Center for Open Science
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.cos.cas.authentication;
+package io.cos.cas.authentication.exceptions;
 
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an registered but not confirmed account.
+ * Describes an error condition where authentication occurs from a registered (via OSF email-password sign-up) but
+ * not confirmed account.
  *
- * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.5
+ * @since 20.0.0
  */
-public class LoginNotAllowedException extends AccountException {
+public class AccountNotConfirmedOsfLoginException extends AccountException {
 
     private static final long serialVersionUID = 3376259469680697722L;
 
     /** Instantiates a new exception (default). */
-    public LoginNotAllowedException() {
+    public AccountNotConfirmedOsfLoginException() {
         super();
     }
 
@@ -38,7 +38,7 @@ public class LoginNotAllowedException extends AccountException {
      *
      * @param message the message
      */
-    public LoginNotAllowedException(final String message) {
+    public AccountNotConfirmedOsfLoginException(final String message) {
         super(message);
     }
 }

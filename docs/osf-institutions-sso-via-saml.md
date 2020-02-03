@@ -20,10 +20,14 @@ Any organization that has implemented a SAML 2.0 Identity Provider (IdP) and sig
 
 ### InCommon Research & Scholarship Institutions
 
-COS is an [Research & Scholarship Entity Category (R&S)](https://refeds.org/category/research-and-scholarship) Service Provider (SP) registered by the [InCommon Federation](https://www.incommon.org/federation/).
+COS is a [Research & Scholarship Entity Category (R&S)](https://refeds.org/category/research-and-scholarship) Service Provider (SP) registered by the [InCommon Federation](https://www.incommon.org/federation/).
 
 * Entity ID: `https://accounts.osf.io/shibboleth`
-* Requested Attributes: `eduPersonPrincipalName` (SAML2), `mail` (SAML2) and `displayName` (SAML2)
+* Required Attributes: `eduPersonPrincipalName` (SAML2), `mail` (SAML2) and `displayName` (SAML2)
+* Optional Attributes:
+  * `givenName` and `sn` pair which specifies the user's given name and surname
+  * `eduPersonOrgUnitDN` or `eduPersonPrimaryOrgUnitDN` which specifies the person's Organizational Unit(s) (i.e. the department(s))
+  * `eduPersonAffiliation` or `eduPersonPrimaryAffiliation` which specifies the person's relationship(s) to the institution in broad categories such as student, faculty, staff, alum, etc.
 
 Full technical details can be found at https://www.incommon.org/federation/research-scholarship-adopters/.
 
@@ -37,19 +41,26 @@ COS offers a Service Provider (SP) based on [SAML 2.0](https://docs.oasis-open.o
   * Production: https://accounts.osf.io/Shibboleth.sso/Metadata
   * Test and/or staging: https://accounts.test.osf.io/Shibboleth.sso/Metadata
 
-* Ensure that your IT administrators are releasing the three required pieces of information listed below and inform COS of the attributes you use for each of them.
-  * Unique identifier for the user (e.g. `eppn`)
-  * User's institutional email (e.g. `mail`)
-  * User's full name (e.g. `displayName` or **a pair of** `givenName` and `sn`)
+* Ensure that your IT administrators are releasing the three required pieces of information listed below. Optional ones are highly recommended if possible. Inform COS of the attributes you use for each of them.
+  * Required
+    * Unique identifier for the user (e.g. `eppn`)
+    * User's institutional email (e.g. `mail`)
+    * User's full name (e.g. `displayName`)
+  * Optional
+    * User's first and last name (e.g. a pair of `givenName` and `sn`)
+    * User's department(s) at your institution (e.g. `eduPersonOrgUnitDN` or `eduPersonPrimaryOrgUnitDN`)
+    * User's relationship(s) (e.g. student, faculty, staff, alum, etc.) to the institution (e.g. `eduPersonAffiliation` or `eduPersonPrimaryAffiliation`)
 
+* Provide COS with IdP metadata for your test / stage (if available) and prod servers. A URL to the metadata is preferred over an XML file so that our SP server can periodically reload and refresh the metadata.
+
+* It is recommended that a temporary institution test account can be created for COS engineers if possible, which will significantly aid and accelerate the process.
 
 ### For All Institutions
 
 Inform COS of the user you would like to test with; your COS contact will ensure your account is ready to go and will send you a link to test the SSO configuration setup for your institution.
 
-
 ## Alternative SSO Options
 
-COS strongly recommends using this Shibboleth-based SSO when connecting to the OSF. However, if this is not available at your institution, please inform COS of alternative SSO options you have. We may support them in the future.
+COS strongly recommends using this Shibboleth-based SSO when connecting to the OSF. However, if this is not available at your institution, inform COS of alternative SSO options you have. We may support them in the future.
 
 One alternative that COS currently supports is the CAS-based SSO, please refer to [Connecting to the Open Science Framework (OSF) via CAS-based Single Sign-On (SSO)](https://github.com/CenterForOpenScience/cas-overlay/blob/develop/docs/osf-institutions-sso-via-cas.md) for technical details.

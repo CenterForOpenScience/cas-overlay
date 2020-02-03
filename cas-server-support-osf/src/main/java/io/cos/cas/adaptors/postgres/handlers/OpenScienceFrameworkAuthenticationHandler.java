@@ -15,34 +15,38 @@
  */
 package io.cos.cas.adaptors.postgres.handlers;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
+import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
+import io.cos.cas.authentication.exceptions.AccountNotConfirmedIdPLoginException;
+import io.cos.cas.authentication.exceptions.AccountNotConfirmedOsfLoginException;
+import io.cos.cas.authentication.InvalidVerificationKeyException;
+import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
+import io.cos.cas.authentication.OneTimePasswordRequiredException;
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
+import io.cos.cas.authentication.ShouldNotHappenException;
+import io.cos.cas.authentication.oath.TotpUtils;
+
+import org.jasig.cas.authentication.AccountDisabledException;
+import org.jasig.cas.authentication.Credential;
+import org.jasig.cas.authentication.handler.NoOpPrincipalNameTransformer;
+import org.jasig.cas.authentication.handler.PrincipalNameTransformer;
+import org.jasig.cas.authentication.handler.support.AbstractPreAndPostProcessingAuthenticationHandler;
+import org.jasig.cas.authentication.HandlerResult;
+import org.jasig.cas.authentication.PreventedException;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkGuid;
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimePassword;
-import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
-import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
-import io.cos.cas.authentication.InvalidVerificationKeyException;
-import io.cos.cas.authentication.LoginNotAllowedException;
-import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
-import io.cos.cas.authentication.OneTimePasswordRequiredException;
-import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-
-import io.cos.cas.authentication.ShouldNotHappenException;
-import io.cos.cas.authentication.oath.TotpUtils;
-import org.jasig.cas.authentication.AccountDisabledException;
-import org.jasig.cas.authentication.Credential;
-import org.jasig.cas.authentication.HandlerResult;
-import org.jasig.cas.authentication.PreventedException;
-import org.jasig.cas.authentication.handler.NoOpPrincipalNameTransformer;
-import org.jasig.cas.authentication.handler.PrincipalNameTransformer;
-import org.jasig.cas.authentication.handler.support.AbstractPreAndPostProcessingAuthenticationHandler;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import javax.security.auth.login.AccountNotFoundException;
 import javax.security.auth.login.FailedLoginException;
@@ -54,7 +58,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 19.0.0
  */
 public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPostProcessingAuthenticationHandler
         implements InitializingBean {
@@ -65,7 +69,8 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
 
     // user status
     private static final String USER_ACTIVE = "ACTIVE";
-    private static final String USER_NOT_CONFIRMED = "NOT_CONFIRMED";
+    private static final String USER_NOT_CONFIRMED_OSF = "NOT_CONFIRMED_OSF";
+    private static final String USER_NOT_CONFIRMED_IDP = "NOT_CONFIRMED_IDP";
     private static final String USER_NOT_CLAIMED = "NOT_CLAIMED";
     private static final String USER_MERGED = "MERGED";
     private static final String USER_DISABLED = "DISABLED";
@@ -183,9 +188,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }
 
         // Check user's status, and only ACTIVE user can sign in
-        if (USER_NOT_CONFIRMED.equals(userStatus)) {
-            throw new LoginNotAllowedException(username + " is registered but not confirmed");
-        } else if (USER_DISABLED.equals(userStatus)) {
+        if (USER_NOT_CONFIRMED_OSF.equals(userStatus)) {
+            throw new AccountNotConfirmedOsfLoginException(username + " is registered but not confirmed");
+        } else if (USER_NOT_CONFIRMED_IDP.equals(userStatus)) {
+            throw new AccountNotConfirmedIdPLoginException(username + " is registered via external IdP but not confirmed ");
+        }  else if (USER_DISABLED.equals(userStatus)) {
             throw new AccountDisabledException(username + " is disabled");
         } else if (USER_NOT_CLAIMED.equals(userStatus)) {
             throw new ShouldNotHappenException(username + " is not claimed");
@@ -215,24 +222,28 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
     }
 
     /**
-     * Verify user status.
+     * Check and verify user status.
      *
-     * USER_ACTIVE:             Active user found, proceed.
+     * USER_ACTIVE:             The user is active.
      *
-     * USER_NOT_CONFIRMED:      Inform users that the account is created but not confirmed. In addition, provide them
-     *                          with a link to resend confirmation email.
+     * USER_NOT_CONFIRMED_OSF:  The user is created via default username / password sign-up but not confirmed.
      *
-     * USER_DISABLED:           Inform users that the account is disable and that they should contact OSF support.
+     * USER_NOT_CONFIRMED_IDP:  The user is created via via external IdP (e.g. ORCiD) login but not confirmed.
      *
-     * USER_MERGED,
-     * USER_NOT_CLAIMED,
-     * USER_STATUS_UNKNOWN:     These three are internal or invalid user status that are not supposed to happen with
-     *                          normal authentication and authorization flow.
+     * USER_NOT_CLAIMED:        The user is created as an unclaimed contributor but not claimed.
      *
-     * @param user the OSF user
-     * @return the user status
+     * USER_DISABLED:           The user has been deactivated.
+     *
+     * USER_MERGED:             The user has been merged into another user.
+     *
+     * USER_STATUS_UNKNOWN:     Unknown or invalid status. This usually indicates that there is something wrong with
+     *                          the OSF-CAS auth logic and / or the OSF user model.
+     *
+     * @param user an {@link OpenScienceFrameworkUser} instance
+     * @return a {@link String} that represents the user status
      */
     private String verifyUserStatus(final OpenScienceFrameworkUser user) {
+
         // An active user must be registered, not disabled, not merged and has a not null password.
         // Only active users can pass the verification.
         if (user.isActive()) {
@@ -240,17 +251,29 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             return USER_ACTIVE;
         } else {
             // If the user instance is neither registered nor not confirmed, it can be either an unclaimed contributor
-            // or a newly created user pending confirmation. The difference is whether it has a usable password.
+            // or a newly created user pending confirmation.
             if (!user.isRegistered() && !user.isConfirmed()) {
                 if (isUnusablePassword(user.getPassword())) {
-                    // If the user instance has an unusable password, it must be an unclaimed contributor.
+                    // If the user instance has an unusable password but also has a pending external identity "CREATE"
+                    // confirmation, it must be an unconfirmed user created via external IdP login.
+                    try {
+                        if (isCreatedByExternalIdp(user.getExternalIdentity())) {
+                            logger.info("User Status Check: {}", USER_NOT_CONFIRMED_IDP);
+                            return USER_NOT_CONFIRMED_IDP;
+                        }
+                    } catch (final ShouldNotHappenException e) {
+                        logger.error("User Status Check: {}", USER_STATUS_UNKNOWN);
+                        return USER_STATUS_UNKNOWN;
+                    }
+                    // If the user instance has an unusable password without any pending external identity "CREATE"
+                    // confirmation, it must be an unclaimed contributor.
                     logger.info("User Status Check: {}", USER_NOT_CLAIMED);
                     return USER_NOT_CLAIMED;
                 } else if (checkPasswordPrefix(user.getPassword())) {
                     // If the user instance has a password with a valid prefix, it must be a unconfirmed user who
                     // has registered for a new account.
-                    logger.info("User Status Check: {}", USER_NOT_CONFIRMED);
-                    return USER_NOT_CONFIRMED;
+                    logger.info("User Status Check: {}", USER_NOT_CONFIRMED_OSF);
+                    return USER_NOT_CONFIRMED_OSF;
                 }
             }
             // If the user instance has been merged by another user, it stays registered and confirmed. The username is
@@ -305,6 +328,33 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
             logger.error(String.format("CAS has encountered a problem when verifying the password: %s.", e.toString()));
             return false;
         }
+    }
+
+    /**
+     * Check if the user instance is created by an external identity provider and is pending confirmation.
+     *
+     * @param externalIdentity a {@link JsonObject} that stores all external identities of a user instance
+     * @return {@code true} if so and {@code false} otherwise
+     * @throws ShouldNotHappenException if {@code externalIdentity} fails JSON parsing.
+     */
+    private boolean isCreatedByExternalIdp(final JsonObject externalIdentity) throws ShouldNotHappenException {
+
+        for (final Map.Entry<String, JsonElement> provider : externalIdentity.entrySet()) {
+            try {
+                for (final Map.Entry<String, JsonElement> identity : provider.getValue().getAsJsonObject().entrySet()) {
+                    if (!identity.getValue().isJsonPrimitive()) {
+                        throw new ShouldNotHappenException();
+                    }
+                    if ("CREATE".equals(identity.getValue().getAsString())) {
+                        logger.info("New and unconfirmed OSF user: {} : {}", identity.getKey(), identity.getValue().toString());
+                        return true;
+                    }
+                }
+            } catch (final IllegalStateException e) {
+                throw new ShouldNotHappenException();
+            }
+        }
+        return false;
     }
 
     /**
