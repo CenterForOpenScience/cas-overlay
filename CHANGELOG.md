@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.0.1 (2020-02-06)
+===================
+
+- Branded sign-in for HSRxiv
+
 20.0.0 (2020-02-03)
 ===================
 
