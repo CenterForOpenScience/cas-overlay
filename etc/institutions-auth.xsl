@@ -116,6 +116,18 @@
                             <suffix/>
                         </user>
                     </xsl:when>
+                    <!-- Concordia College (CORD) -->
+                    <xsl:when test="$idp='cord'">
+                        <id>cord</id>
+                        <user>
+                            <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
+                            <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
+                            <familyName />
+                            <givenName />
+                            <middleNames/>
+                            <suffix/>
+                        </user>
+                    </xsl:when>
                     <!-- California Lutheran University [CAS SSO] (CALLUTHERAN2)-->
                     <xsl:when test="$idp='callutheran'">
                         <id>callutheran2</id>
