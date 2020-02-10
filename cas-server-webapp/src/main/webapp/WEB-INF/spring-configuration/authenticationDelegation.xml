@@ -47,6 +47,13 @@
         <property name="name" value="${cas.callutheran.client.name}" />
         <property name="casProtocol" value="${cas.callutheran.cas.protocol}" />
     </bean>
+    <!-- Concordia College -->
+    <bean id="cord" class="org.pac4j.cas.client.CasClient">
+        <property name="casLoginUrl" value="${cas.cord.login.url}" />
+        <property name="casPrefixUrl" value="${cas.cord.prefix.url}" />
+        <property name="name" value="${cas.cord.client.name}" />
+        <property name="casProtocol" value="${cas.cord.cas.protocol}" />
+    </bean>
 
     <!-- General Configuration for All Clients -->
     <bean id="clients" class="org.pac4j.core.client.Clients">
@@ -56,6 +63,7 @@
                 <ref bean="orcid" />
                 <ref bean="okstate" />
                 <ref bean="callutheran" />
+                <ref bean="cord" />
             </list>
         </property>
     </bean>

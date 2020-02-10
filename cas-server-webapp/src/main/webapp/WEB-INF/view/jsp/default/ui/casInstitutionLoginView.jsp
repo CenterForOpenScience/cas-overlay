@@ -87,6 +87,8 @@
                 institutionLoginUrl = "${callutheranUrl}";
             } else if (institutionLoginUrl === "okstate") {
                 institutionLoginUrl = "${okstateUrl}";
+            } else if (institutionLoginUrl === "cord") {
+                institutionLoginUrl = "${cordUrl}"
             }
 
             var consentCheckbox = document.getElementById('consent-checkbox');
