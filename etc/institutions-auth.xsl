@@ -44,6 +44,19 @@
                             <suffix/>
                         </user>
                     </xsl:when>
+                    <!-- Boys Town [PROD & Test] (BT) -->
+                    <!-- Prod and Test IdP of Boys Town share the entity ID but the metadata itself is different. -->
+                    <xsl:when test="$idp='https://sts.windows.net/e2ab7419-36ab-4a95-a19f-ee90b6a9b8ac/'">
+                        <id>bt</id>
+                        <user>
+                            <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
+                            <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
+                            <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
+                            <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
+                            <middleNames/>
+                            <suffix/>
+                        </user>
+                    </xsl:when>
                     <!-- California Lutheran University [SAML SSO] (CALLUTHERAN)-->
                     <xsl:when test="$idp='login.callutheran.edu'">
                         <id>callutheran</id>
