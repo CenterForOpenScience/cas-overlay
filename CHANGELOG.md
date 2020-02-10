@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.0.2 (2020-02-10)
+===================
+
+- Add Concordia College to institution SSO via CAS
+
 20.0.1 (2020-02-06)
 ===================
 
