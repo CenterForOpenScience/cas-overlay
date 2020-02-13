@@ -23,7 +23,7 @@ import javax.security.auth.login.FailedLoginException;
  * This is a generic login exception for authentication via delegated client.
  *
  * @author Longze Chen
- * @since 4.1.5
+ * @since 19.3.0
  */
 public class DelegatedLoginException extends FailedLoginException {
 

@@ -25,11 +25,11 @@ import io.cos.cas.authentication.exceptions.AccountNotConfirmedOsfLoginException
 import io.cos.cas.authentication.exceptions.CasClientLoginException;
 import io.cos.cas.authentication.exceptions.DelegatedLoginException;
 import io.cos.cas.authentication.exceptions.OrcidClientLoginException;
-import io.cos.cas.authentication.InvalidVerificationKeyException;
-import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
-import io.cos.cas.authentication.OneTimePasswordRequiredException;
-import io.cos.cas.authentication.RemoteUserFailedLoginException;
-import io.cos.cas.authentication.ShouldNotHappenException;
+import io.cos.cas.authentication.exceptions.InvalidVerificationKeyException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
+import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
+import io.cos.cas.authentication.exceptions.ShouldNotHappenException;
 
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.AccountPasswordMustChangeException;

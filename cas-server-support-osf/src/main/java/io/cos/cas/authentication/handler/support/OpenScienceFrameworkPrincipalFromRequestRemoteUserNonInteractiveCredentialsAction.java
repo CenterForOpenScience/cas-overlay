@@ -30,7 +30,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.authentication.RemoteUserFailedLoginException;
+import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;

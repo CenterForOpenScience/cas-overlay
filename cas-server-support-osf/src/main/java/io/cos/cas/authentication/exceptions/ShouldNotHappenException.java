@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Center for Open Science
+ * Copyright (c) 2020. Center for Open Science
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.cos.cas.authentication;
+package io.cos.cas.authentication.exceptions;
 
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication failed with invalid verification key.
+ * Describes an error condition where authentication occurs from an account that:
+ *
+ * 1. is an unclaimed user which has been created as a new contributor
+ * 2. is an inactive user which has been merged into another account
+ * 3. has other undefined/unknown status, possibly due to internal bug or user model changes
  *
  * @author Longze Chen
- * @since 4.1.5
+ * @since 20.1.0
  */
-public class InvalidVerificationKeyException extends AccountException {
+public class ShouldNotHappenException extends AccountException {
 
-    private static final long serialVersionUID = -4572658985746454304L;
+    private static final long serialVersionUID = 8296529645368130304L;
 
     /** Instantiates a new exception (default). */
-    public InvalidVerificationKeyException() {
+    public ShouldNotHappenException() {
         super();
     }
 
@@ -37,7 +41,7 @@ public class InvalidVerificationKeyException extends AccountException {
      *
      * @param message the message
      */
-    public InvalidVerificationKeyException(final String message) {
+    public ShouldNotHappenException(final String message) {
         super(message);
     }
 }
