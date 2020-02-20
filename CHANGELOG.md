@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.0.3 (2020-2-20)
+==================
+
+- Update institutions-auth.xsl to normalize BT attributes
+
 20.0.2 (2020-02-10)
 ===================
 
