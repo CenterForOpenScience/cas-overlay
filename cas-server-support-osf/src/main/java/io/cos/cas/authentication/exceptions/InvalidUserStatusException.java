@@ -18,21 +18,22 @@ package io.cos.cas.authentication.exceptions;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication occurs from an account that:
+ * Describes an error condition where user status is invalid, which currently includes the following cases.
  *
  * 1. is an unclaimed user which has been created as a new contributor
  * 2. is an inactive user which has been merged into another account
- * 3. has other undefined/unknown status, possibly due to internal bug or user model changes
+ * 3. has an external identity that can not be parsed
+ * 4. has other undefined status, possibly due to internal bug or user model changes
  *
  * @author Longze Chen
  * @since 20.1.0
  */
-public class ShouldNotHappenException extends AccountException {
+public class InvalidUserStatusException extends AccountException {
 
     private static final long serialVersionUID = 8296529645368130304L;
 
     /** Instantiates a new exception (default). */
-    public ShouldNotHappenException() {
+    public InvalidUserStatusException() {
         super();
     }
 
@@ -41,7 +42,7 @@ public class ShouldNotHappenException extends AccountException {
      *
      * @param message the message
      */
-    public ShouldNotHappenException(final String message) {
+    public InvalidUserStatusException(final String message) {
         super(message);
     }
 }
