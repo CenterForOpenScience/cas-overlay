@@ -18,7 +18,11 @@ package io.cos.cas.authentication.exceptions;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication has failed during authentication delegation.
+ * Describes an error condition where authentication has failed during institutional authentication delegation.
+ *
+ * TODO: Divide this exception into two or more detailed ones. For example, one for failure in parsing required
+ *       attributes from authenticated Shibboleth session (InstitutionLoginFailedException), one for failure in
+ *       communicating with OSF API (OsfApiFailedException), etc.
  *
  * @author Michael Haselton
  * @author Longze Chen
