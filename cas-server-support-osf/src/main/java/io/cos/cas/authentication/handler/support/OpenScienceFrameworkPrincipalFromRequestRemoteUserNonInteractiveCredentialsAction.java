@@ -15,6 +15,8 @@
  */
 package io.cos.cas.authentication.handler.support;
 
+import com.nimbusds.jose.crypto.DirectEncrypter;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEAlgorithm;
@@ -24,20 +26,20 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.DirectEncrypter;
-import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
-import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
+import io.cos.cas.authentication.OpenScienceFrameworkCredential;
+
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.message.BasicHeader;
-import org.jasig.cas.CentralAuthenticationService;
+
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.AuthenticationException;
 import org.jasig.cas.authentication.Credential;
@@ -45,22 +47,28 @@ import org.jasig.cas.authentication.principal.DefaultPrincipalFactory;
 import org.jasig.cas.authentication.principal.Principal;
 import org.jasig.cas.authentication.principal.PrincipalFactory;
 import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.TicketException;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.web.support.WebUtils;
+
 import org.json.JSONObject;
 import org.json.XML;
+
 import org.pac4j.oauth.client.OrcidClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.core.collection.LocalAttributeMap;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -78,6 +86,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -86,8 +95,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-
 /**
+ *
  * Implementation of the NonInteractiveCredentialsAction that looks for a remote
  * user that is set in the <code>HttpServletRequest</code> and attempts to
  * construct a Principal (and thus a PrincipalBearingCredential). If it doesn't
@@ -99,17 +108,18 @@ import java.util.Map;
  *  2.  Institution login Using CAS with implementation from pac4j
  *  3.  Normal login with username and verification key
  *
+ * TODO: rewrite this outdated JavaDoc along with refactoring {@link RemoteUserFailedLoginException}
+ *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.5
+ * @since 19.3.0
  */
-public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction
-            extends AbstractAction {
+public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction extends AbstractAction {
     /**
      * The Principal Authentication Result.
      *
      * @author Longze Chen
-     * @since 4.1.5
+     * @since 19.3.0
      */
     public static class PrincipalAuthenticationResult {
 
