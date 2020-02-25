@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Center for Open Science
+ * Copyright (c) 2020. Center for Open Science
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.cos.cas.authentication;
+package io.cos.cas.authentication.exceptions;
 
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication has failed during authentication delegation.
+ * Describes an error condition where user status is invalid, which currently includes the following cases.
  *
- * @author Michael Haselton
+ * 1. is an unclaimed user which has been created as a new contributor
+ * 2. is an inactive user which has been merged into another account
+ * 3. has an external identity that can not be parsed
+ * 4. has other undefined status, possibly due to internal bug or user model changes
+ *
  * @author Longze Chen
- * @since 4.1.5
+ * @since 20.1.0
  */
-public class RemoteUserFailedLoginException extends AccountException {
+public class InvalidUserStatusException extends AccountException {
 
-    private static final long serialVersionUID = 3472948140572518658L;
+    private static final long serialVersionUID = 8296529645368130304L;
 
     /** Instantiates a new exception (default). */
-    public RemoteUserFailedLoginException() {
+    public InvalidUserStatusException() {
         super();
     }
 
@@ -38,7 +42,7 @@ public class RemoteUserFailedLoginException extends AccountException {
      *
      * @param message the message
      */
-    public RemoteUserFailedLoginException(final String message) {
+    public InvalidUserStatusException(final String message) {
         super(message);
     }
 }

@@ -22,7 +22,7 @@ package io.cos.cas.authentication.exceptions;
  * {@link org.jasig.cas.support.pac4j.web.flow.ClientAction} and {@link org.pac4j.cas.client.CasClient}.
  *
  * @author Longze Chen
- * @since 4.1.5
+ * @since 19.3.0
  */
 public class CasClientLoginException extends DelegatedLoginException {
 

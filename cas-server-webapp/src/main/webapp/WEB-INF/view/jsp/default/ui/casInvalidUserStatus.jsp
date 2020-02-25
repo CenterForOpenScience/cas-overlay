@@ -21,8 +21,8 @@
 <jsp:directive.include file="includes/top.jsp"/>
 
 <div id="msg" class="errors">
-    <h2><spring:message code="screen.shouldnothappen.heading"/></h2>
-    <p><spring:message code="screen.shouldnothappen.message"/></p>
+    <h2><spring:message code="screen.invaliduserstatus.heading"/></h2>
+    <p><spring:message code="screen.invaliduserstatus.message"/></p>
 </div>
 
 <spring:message code="screen.osf.login.message.error" var="errorDescription"/>
