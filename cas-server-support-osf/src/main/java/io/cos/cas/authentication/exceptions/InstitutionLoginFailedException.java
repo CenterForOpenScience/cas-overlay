@@ -18,22 +18,17 @@ package io.cos.cas.authentication.exceptions;
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where authentication has failed during institutional authentication delegation.
+ * Describes an error condition where authentication has failed during institution login.
  *
- * TODO: Divide this exception into two or more detailed ones. For example, one for failure in parsing required
- *       attributes from authenticated Shibboleth session (InstitutionLoginFailedException), one for failure in
- *       communicating with OSF API (OsfApiFailedException), etc.
- *
- * @author Michael Haselton
  * @author Longze Chen
  * @since 20.1.0
  */
-public class RemoteUserFailedLoginException extends AccountException {
+public class InstitutionLoginFailedException extends AccountException {
 
     private static final long serialVersionUID = 3472948140572518658L;
 
     /** Instantiates a new exception (default). */
-    public RemoteUserFailedLoginException() {
+    public InstitutionLoginFailedException() {
         super();
     }
 
@@ -42,7 +37,7 @@ public class RemoteUserFailedLoginException extends AccountException {
      *
      * @param message the message
      */
-    public RemoteUserFailedLoginException(final String message) {
+    public InstitutionLoginFailedException(final String message) {
         super(message);
     }
 }

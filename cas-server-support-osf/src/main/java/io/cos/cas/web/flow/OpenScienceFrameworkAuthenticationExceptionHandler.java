@@ -24,12 +24,12 @@ import io.cos.cas.authentication.exceptions.AccountNotConfirmedIdPLoginException
 import io.cos.cas.authentication.exceptions.AccountNotConfirmedOsfLoginException;
 import io.cos.cas.authentication.exceptions.CasClientLoginException;
 import io.cos.cas.authentication.exceptions.DelegatedLoginException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedException;
 import io.cos.cas.authentication.exceptions.InvalidUserStatusException;
 import io.cos.cas.authentication.exceptions.InvalidVerificationKeyException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.OrcidClientLoginException;
-import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
 
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.AccountPasswordMustChangeException;
@@ -82,11 +82,11 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
     static {
         DEFAULT_ERROR_LIST.add(AccountNotConfirmedOsfLoginException.class);
         DEFAULT_ERROR_LIST.add(AccountNotConfirmedIdPLoginException.class);
+        DEFAULT_ERROR_LIST.add(InstitutionLoginFailedException.class);
         DEFAULT_ERROR_LIST.add(InvalidVerificationKeyException.class);
         DEFAULT_ERROR_LIST.add(InvalidUserStatusException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
-        DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
     }
 
     // Customized exceptions for delegated login

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.cos.cas.authentication.handler.support;
 
 import com.nimbusds.jose.crypto.DirectEncrypter;
@@ -30,7 +31,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
-import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 
 import org.apache.http.client.fluent.Request;
@@ -108,7 +109,7 @@ import java.util.Map;
  *  2.  Institution login Using CAS with implementation from pac4j
  *  3.  Normal login with username and verification key
  *
- * TODO: rewrite this outdated JavaDoc along with refactoring {@link RemoteUserFailedLoginException}
+ * TODO: rewrite this outdated JavaDoc along with refactoring {@link InstitutionLoginFailedException}
  *
  * @author Michael Haselton
  * @author Longze Chen
@@ -321,7 +322,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 logger.error("Invalid Remote User Specified as Empty");
                 // _TO_DO_: Re-enable non-empty remote user requirement
                 // _TO_DO_: Delay the exception until we know which the institution is and who the user is.
-                // throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
+                // throw new InstitutionLoginFailedException("Invalid Remote User specified as Empty");
             } else {
                 logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
             }
@@ -375,7 +376,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 principal = authentication.getPrincipal();
             } catch (final NullPointerException e) {
                 logger.error("Cannot Retrieve Authentication Principal");
-                throw new RemoteUserFailedLoginException("Cannot Retrieve Authentication Principal");
+                throw new InstitutionLoginFailedException("Cannot Retrieve Authentication Principal");
             }
 
             String clientName = null;
@@ -444,24 +445,24 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         } catch (final ParserConfigurationException | TransformerException e) {
             logger.error("Failed to normalize remote principal: {}", e.getMessage());
             logger.trace("Failed to normalize remote principal: {}", e);
-            throw new RemoteUserFailedLoginException("Failed to normalize remote principal.");
+            throw new InstitutionLoginFailedException("Failed to normalize remote principal.");
         }
 
         // Step 2 - Verify institution and user info in the normalized payload
         final JSONObject provider = normalizedPayload.optJSONObject("provider");
         if (provider == null) {
             logger.error("Invalid remote principal: provider is required");
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing provider.");
+            throw new InstitutionLoginFailedException("Invalid remote principal: missing provider.");
         }
         final String institutionId = provider.optString("id").trim();
         if (institutionId.isEmpty()) {
             logger.error("Invalid remote principal: institution provider ID is required");
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing institution.");
+            throw new InstitutionLoginFailedException("Invalid remote principal: missing institution.");
         }
         final JSONObject user = provider.optJSONObject("user");
         if (user == null) {
             logger.error("Invalid remote principal: user is required");
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing user.");
+            throw new InstitutionLoginFailedException("Invalid remote principal: missing user.");
         }
         final String username = user.optString("username").trim();
         final String fullname = user.optString("fullname").trim();
@@ -469,11 +470,11 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         final String familyName = user.optString("familyName").trim();
         if (username.isEmpty()) {
             logger.error("Invalid remote principal: username (email) is required for institution '{}'", institutionId);
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing username.");
+            throw new InstitutionLoginFailedException("Invalid remote principal: missing username.");
         }
         if (fullname.isEmpty() && (givenName.isEmpty() || familyName.isEmpty())) {
             logger.error("Invalid remote principal: fullname or (givenNaame, familyName) is required for institution '{}'", institutionId);
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing names.");
+            throw new InstitutionLoginFailedException("Invalid remote principal: missing names.");
         }
         final String payload = normalizedPayload.toString();
         logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
@@ -506,7 +507,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         } catch (final JOSEException e) {
             logger.error("Failed to build JWE payload: {}", e.getMessage());
             logger.trace("Failed to build JWE payload: {}", e);
-            throw new RemoteUserFailedLoginException("Failed to build JWE payload for institution authentication");
+            throw new InstitutionLoginFailedException("Failed to build JWE payload for institution authentication");
         }
 
         // Step 4 - Make the API request with encrypted payload.
@@ -528,7 +529,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             if (statusCode != HttpStatus.SC_NO_CONTENT) {
                 final String responseString = new BasicResponseHandler().handleResponse(httpResponse);
                 logger.error("Notify Remote Principal Authenticated [OSF API] Response Body: '{}'", responseString);
-                throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");
+                throw new InstitutionLoginFailedException("Invalid Status Code from OSF API Endpoint");
             }
 
             // Return the username for the credential build.
@@ -536,7 +537,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         } catch (final IOException e) {
             logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
             logger.trace("Notify Remote Principal Authenticated Exception: {}", e);
-            throw new RemoteUserFailedLoginException("Failed to communicate with OSF API endpoint.");
+            throw new InstitutionLoginFailedException("Failed to communicate with OSF API endpoint.");
         }
     }
 
