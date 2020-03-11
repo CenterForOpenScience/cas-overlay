@@ -25,6 +25,9 @@ import io.cos.cas.authentication.exceptions.AccountNotConfirmedOsfLoginException
 import io.cos.cas.authentication.exceptions.CasClientLoginException;
 import io.cos.cas.authentication.exceptions.DelegatedLoginException;
 import io.cos.cas.authentication.exceptions.InstitutionLoginFailedException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedAttributesMissingException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedAttributesParsingException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedOsfApiException;
 import io.cos.cas.authentication.exceptions.InvalidUserStatusException;
 import io.cos.cas.authentication.exceptions.InvalidVerificationKeyException;
 import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
@@ -83,6 +86,9 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
         DEFAULT_ERROR_LIST.add(AccountNotConfirmedOsfLoginException.class);
         DEFAULT_ERROR_LIST.add(AccountNotConfirmedIdPLoginException.class);
         DEFAULT_ERROR_LIST.add(InstitutionLoginFailedException.class);
+        DEFAULT_ERROR_LIST.add(InstitutionLoginFailedAttributesMissingException.class);
+        DEFAULT_ERROR_LIST.add(InstitutionLoginFailedAttributesParsingException.class);
+        DEFAULT_ERROR_LIST.add(InstitutionLoginFailedOsfApiException.class);
         DEFAULT_ERROR_LIST.add(InvalidVerificationKeyException.class);
         DEFAULT_ERROR_LIST.add(InvalidUserStatusException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
