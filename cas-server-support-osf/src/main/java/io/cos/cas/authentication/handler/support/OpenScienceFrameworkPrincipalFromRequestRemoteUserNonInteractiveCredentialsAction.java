@@ -212,7 +212,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         final OpenScienceFrameworkCredential credential;
         try {
             credential = constructCredential(context);
-        } catch (final AccountException e) {
+        } catch (final AccountException | FailedLoginException e) {
             final Map<String, Class<? extends Exception>> failures = new LinkedHashMap<>();
             failures.put(e.getClass().getSimpleName(), e.getClass());
             return getEventFactorySupport().event(
@@ -307,7 +307,8 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
      * @param context a {@link RequestContext} object which stores the current request context
      * @return the constructed {@link OpenScienceFrameworkCredential} object or <code>null</code> if neither a valid
      * TGT nor a Shibboleth session is found
-     * @throws AccountException if errors happen during credential construction.
+     * @throws AccountException for institution exceptions
+     * @throws FailedLoginException for delegation exceptions
      */
     protected OpenScienceFrameworkCredential constructCredential(
             final RequestContext context

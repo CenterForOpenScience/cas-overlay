@@ -61,7 +61,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Invalid remote principal: missing institution.");
+            assertEquals(e.getMessage(), "Empty identity provider");
             throw e;
         }
     }
@@ -80,7 +80,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Invalid remote principal: missing username.");
+            assertEquals(e.getMessage(), "Missing email (username)");
             throw e;
         }
     }
@@ -99,7 +99,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Invalid remote principal: missing names.");
+            assertEquals(e.getMessage(), "Missing user's names");
             throw e;
         }
     }
@@ -119,7 +119,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Failed to communicate with OSF API endpoint.");
+            assertEquals(e.getMessage(), "Communication Error between OSF CAS and OSF API");
             throw e;
         }
     }
