@@ -100,19 +100,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * Implementation of {@link AbstractAction} to handle the retrieval and authentication of non-interactive credential
+ * such as verification key login and delegated authentication.
  *
- * Implementation of the NonInteractiveCredentialsAction that looks for a remote
- * user that is set in the <code>HttpServletRequest</code> and attempts to
- * construct a Principal (and thus a PrincipalBearingCredential). If it doesn't
- * find one, this class returns and error event which tells the web flow it
- * could not find any credentials.
+ * Specifically, it looks for any authenticated state that is set in the {@link HttpServletRequest} and attempts to
+ * construct a {@link Principal} and thus a principal-bearing {@link Credential}>. If found (and valid), this class
+ * returns a {@link AbstractAction#success()} event telling the web flow to grant or send the ticket granting ticket.
+ * If not, it returns an {@link AbstractAction#error()} event informing the flow to go ahead to the interactive login
+ * flow (i.e. login page). If any exception happens, the web flow goes to the authentication exception handler.
  *
- * Since 4.1.5, the functionality of this Action has been expanded to
- *  1.  Institution login using SAML with implementation from Shibboleth
- *  2.  Institution login Using CAS with implementation from pac4j
- *  3.  Normal login with username and verification key
+ * Below are the non-interactive states that are considered as authenticated.
  *
- * TODO: rewrite this outdated JavaDoc along with refactoring {@link InstitutionLoginFailedException}
+ * 1. Username and one-time verification key login
+ * 2. Institution login via SAML / Shibboleth
+ * 3. Institution login via CAS / Pac4j
+ * 4. ORCiD login via OAuth / Pac4j
+ *
+ * Note: It is unclear why the initial implementation skips <code>AbstractNonInteractiveCredentialsAction</code> and
+ *       implements the {@link AbstractAction} directly. It's likely that the abstract class for non-interactive was
+ *       not available at the time of implementation. This implementation is probably a customized version of the
+ *       then-existing implementation <code>NonInteractiveCredentialsAction</code>.
  *
  * @author Michael Haselton
  * @author Longze Chen
@@ -201,6 +208,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
     @Override
     protected Event doExecute(final RequestContext context) throws Exception {
+
         final OpenScienceFrameworkCredential credential;
         try {
             credential = constructCredential(context);
@@ -217,19 +225,26 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             );
         }
 
+        // CASE 1: `null` credential without any exception indicates an unauthenticated session. Return error to direct
+        //         the web flow to interactive login (i.e. the login page).
         if (credential == null) {
             return error();
         }
 
-        // PAC4J OAuth needs to retain existing credential/tgt for special case login w/ email request on OSF side,
-        // send tgt on success is the most appropriate next step.
+        // CASE 2: PAC4J OAuth needs to retain existing credential / TGT for the special login case which requests
+        //         users' emails and optionally their names on the OSF side. Return success and send the TGT is the
+        //         most appropriate next step.
         if (DelegationProtocol.OAUTH_PAC4J.equals(credential.getDelegationProtocol())) {
             return success();
         }
 
+        // CASE 3: For all other cases, create a new TGT with the constructed credential. Return success if TGT is
+        //         created; return error otherwise.
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
         final Service service = WebUtils.getService(context);
 
+        // Note: This condition should never happen since TGT has already been destroyed in `constructCredential()`
+        //       except for PAC4J OAuth which already returns success a few lines above.
         if (isRenewPresent(context) && ticketGrantingTicketId != null && service != null) {
             try {
                 final ServiceTicket serviceTicketId = this.centralAuthenticationService.grantServiceTicket(
@@ -247,7 +262,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 logger.debug("Attempted to generate a ServiceTicket using renew=true with different credential", e);
             }
         }
-
+        // Note: Create the ticket granting ticket, put it in the flow context and return.
         try {
             WebUtils.putTicketGrantingTicketInScopes(
                     context,
