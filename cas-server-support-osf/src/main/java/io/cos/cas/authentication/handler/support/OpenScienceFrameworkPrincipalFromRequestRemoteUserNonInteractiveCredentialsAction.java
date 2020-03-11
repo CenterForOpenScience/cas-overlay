@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.cos.cas.authentication.handler.support;
 
 import com.nimbusds.jose.crypto.DirectEncrypter;
@@ -31,7 +30,10 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedAttributesMissingException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedAttributesParsingException;
 import io.cos.cas.authentication.exceptions.InstitutionLoginFailedException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedOsfApiException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 
 import org.apache.http.client.fluent.Request;
@@ -427,12 +429,15 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
     }
 
     /**
-     * Securely notify the OSF of a Remote Principal Authentication credential. Allows the OSF the opportunity
-     * to create a verified user account and/or assign institutional affiliation to the user's account.
+     * Securely notify OSF API of a successful institution login between OSF CAS and an external identity provider.
+     * Allows OSF API the opportunity to create a verified user account and assign institutional affiliation to the
+     * user's OSF account. Refer to the following code for the latest behavior of how OSF API handles the request.
      *
-     * @param credential the credential object bearing the authentication headers from the idp
-     * @return the username from the idp and setup on the OSF
-     * @throws AccountException a account exception
+     * OSF API: https://github.com/CenterForOpenScience/osf.io/blob/develop/api/institutions/authentication.py
+     *
+     * @param credential the credential object bearing the authentication headers from the IdP
+     * @return {@link PrincipalAuthenticationResult} an object that stores the institution's ID and the user's username
+     * @throws AccountException if there is an issue with the attributes or the API request
      */
     protected PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
             final OpenScienceFrameworkCredential credential
@@ -443,43 +448,42 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             normalizedPayload = this.normalizeRemotePrincipal(credential);
         } catch (final ParserConfigurationException | TransformerException e) {
-            logger.error("Failed to normalize remote principal: {}", e.getMessage());
-            logger.trace("Failed to normalize remote principal: {}", e);
-            throw new InstitutionLoginFailedException("Failed to normalize remote principal.");
+            logger.error("[CAS XSLT] Failed to normalize attributes in the credential: {}", e.getMessage());
+            throw new InstitutionLoginFailedAttributesParsingException("Attribute normalization failure");
         }
 
         // Step 2 - Verify institution and user info in the normalized payload
         final JSONObject provider = normalizedPayload.optJSONObject("provider");
         if (provider == null) {
-            logger.error("Invalid remote principal: provider is required");
-            throw new InstitutionLoginFailedException("Invalid remote principal: missing provider.");
+            logger.error("[CAS XSLT] Missing identity provider.");
+            throw new InstitutionLoginFailedAttributesMissingException("Missing identity provider");
         }
         final String institutionId = provider.optString("id").trim();
         if (institutionId.isEmpty()) {
-            logger.error("Invalid remote principal: institution provider ID is required");
-            throw new InstitutionLoginFailedException("Invalid remote principal: missing institution.");
+            logger.error("[CAS XSLT] Empty identity provider");
+            throw new InstitutionLoginFailedAttributesMissingException("Empty identity provider");
         }
         final JSONObject user = provider.optJSONObject("user");
         if (user == null) {
-            logger.error("Invalid remote principal: user is required");
-            throw new InstitutionLoginFailedException("Invalid remote principal: missing user.");
+            logger.error("[CAS XSLT] Missing institutional user");
+            throw new InstitutionLoginFailedAttributesMissingException("Missing institutional user");
         }
         final String username = user.optString("username").trim();
         final String fullname = user.optString("fullname").trim();
         final String givenName = user.optString("givenName").trim();
         final String familyName = user.optString("familyName").trim();
         if (username.isEmpty()) {
-            logger.error("Invalid remote principal: username (email) is required for institution '{}'", institutionId);
-            throw new InstitutionLoginFailedException("Invalid remote principal: missing username.");
+            logger.error("[CAS XSLT] Missing email (username) for user at institution '{}'", institutionId);
+            throw new InstitutionLoginFailedAttributesMissingException("Missing email (username)");
         }
         if (fullname.isEmpty() && (givenName.isEmpty() || familyName.isEmpty())) {
-            logger.error("Invalid remote principal: fullname or (givenNaame, familyName) is required for institution '{}'", institutionId);
-            throw new InstitutionLoginFailedException("Invalid remote principal: missing names.");
+            logger.error("[CAS XSLT] Missing names: username={}, institution={}", username, institutionId);
+            throw new InstitutionLoginFailedAttributesMissingException("Missing user's names");
         }
         final String payload = normalizedPayload.toString();
-        logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
+        logger.info("[CAS XSLT] All attributes checked: username={}, institution={}", username, institutionId);
         logger.debug(
-                "Notify Remote Principal Authenticated: username={}, institution={}, normalizedPayload = {}",
+                "[CAS XSLT] All attributes checked: username={}, institution={}, normalizedPayload={}",
                 username,
                 institutionId,
                 payload
@@ -505,15 +509,15 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             jweObject.encrypt(new DirectEncrypter(this.institutionsAuthJweSecret.getBytes()));
             jweString = jweObject.serialize();
         } catch (final JOSEException e) {
-            logger.error("Failed to build JWE payload: {}", e.getMessage());
-            logger.trace("Failed to build JWE payload: {}", e);
-            throw new InstitutionLoginFailedException("Failed to build JWE payload for institution authentication");
+            logger.error(
+                    "[OSF API] Notify Remote Principal Authenticated Failed: Payload Error - {}",
+                    e.getMessage()
+            );
+            throw new InstitutionLoginFailedOsfApiException("OSF CAS failed to build JWT / JWE payload for OSF API");
         }
 
-        // Step 4 - Make the API request with encrypted payload.
+        // Step 4 - Make the OSF API request with the encrypted payload.
         try {
-            // A call is made to the OSF CAS institution login endpoint to create a registered user (if one does not
-            // already exist) and apply institutional affiliation (if the user is not already registered).
             final HttpResponse httpResponse = Request.Post(this.institutionsAuthUrl)
                     .addHeader(new BasicHeader("Content-Type", "text/plain"))
                     .bodyString(jweString, ContentType.APPLICATION_JSON)
@@ -521,23 +525,29 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                     .returnResponse();
             final int statusCode = httpResponse.getStatusLine().getStatusCode();
             logger.info(
-                    "Notify Remote Principal Authenticated [OSF API] Response: <{}> Status Code {}",
+                    "[OSF API] Notify Remote Principal Authenticated Response: username={} statusCode={}",
                     username,
                     statusCode
             );
-            // The institutional authentication endpoint should always respond with a 204 No Content when successful.
+            // The OSF API institution authentication endpoint always returns the HTTP 204 No Content if successful.
             if (statusCode != HttpStatus.SC_NO_CONTENT) {
                 final String responseString = new BasicResponseHandler().handleResponse(httpResponse);
-                logger.error("Notify Remote Principal Authenticated [OSF API] Response Body: '{}'", responseString);
-                throw new InstitutionLoginFailedException("Invalid Status Code from OSF API Endpoint");
+                logger.error(
+                        "[OSF API] Notify Remote Principal Authenticated Failed: statusCode={}, body={}",
+                        statusCode,
+                        responseString
+                );
+                throw new InstitutionLoginFailedOsfApiException("OSF API failed to process CAS request");
             }
 
-            // Return the username for the credential build.
+            // Return user's username and the institution ID to build the OSF credential
             return new PrincipalAuthenticationResult(username, institutionId);
         } catch (final IOException e) {
-            logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
-            logger.trace("Notify Remote Principal Authenticated Exception: {}", e);
-            throw new InstitutionLoginFailedException("Failed to communicate with OSF API endpoint.");
+            logger.error(
+                    "[OSF API] Notify Remote Principal Authenticated Failed: Communication Error - {}",
+                    e.getMessage()
+            );
+            throw new InstitutionLoginFailedOsfApiException("Communication Error between OSF CAS and OSF API");
         }
     }
 
