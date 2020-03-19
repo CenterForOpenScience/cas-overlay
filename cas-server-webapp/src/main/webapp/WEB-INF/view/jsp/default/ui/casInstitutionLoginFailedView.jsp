@@ -21,8 +21,9 @@
 <jsp:directive.include file="includes/top.jsp"/>
 
 <div id="msg" class="errors">
-    <h2><spring:message code="screen.remoteuserfailedlogin.heading"/></h2>
-    <p><spring:message code="screen.remoteuserfailedlogin.message"/></p>
+    <h2><spring:message code="screen.institutionloginfailed.heading"/></h2>
+    <p><spring:message code="screen.institutionloginfailed.message"/></p>
+    <p>errorCode=${casViewErrorCode}</p>
 </div>
 
 <spring:message code="screen.osf.login.message.error" var="errorDescription"/>

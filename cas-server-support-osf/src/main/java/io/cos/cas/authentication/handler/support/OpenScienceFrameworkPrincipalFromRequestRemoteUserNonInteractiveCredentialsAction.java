@@ -30,7 +30,10 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
-import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
+import io.cos.cas.authentication.exceptions.DelegatedLoginException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedAttributesMissingException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedAttributesParsingException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedOsfApiException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 
 import org.apache.http.client.fluent.Request;
@@ -73,6 +76,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.security.auth.login.AccountException;
+import javax.security.auth.login.FailedLoginException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -96,19 +100,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * Implementation of {@link AbstractAction} to handle the retrieval and authentication of non-interactive credential
+ * such as verification key login and delegated authentication.
  *
- * Implementation of the NonInteractiveCredentialsAction that looks for a remote
- * user that is set in the <code>HttpServletRequest</code> and attempts to
- * construct a Principal (and thus a PrincipalBearingCredential). If it doesn't
- * find one, this class returns and error event which tells the web flow it
- * could not find any credentials.
+ * Specifically, it looks for any authenticated state that is set in the {@link HttpServletRequest} and attempts to
+ * construct a {@link Principal} and thus a principal-bearing {@link Credential}>. If found (and valid), this class
+ * returns a {@link AbstractAction#success()} event telling the web flow to grant or send the ticket granting ticket.
+ * If not, it returns an {@link AbstractAction#error()} event informing the flow to go ahead to the interactive login
+ * flow (i.e. login page). If any exception happens, the web flow goes to the authentication exception handler.
  *
- * Since 4.1.5, the functionality of this Action has been expanded to
- *  1.  Institution login using SAML with implementation from Shibboleth
- *  2.  Institution login Using CAS with implementation from pac4j
- *  3.  Normal login with username and verification key
+ * Below are the non-interactive states that are considered as authenticated.
  *
- * TODO: rewrite this outdated JavaDoc along with refactoring {@link RemoteUserFailedLoginException}
+ * 1. Username and one-time verification key login
+ * 2. Institution login via SAML / Shibboleth
+ * 3. Institution login via CAS / Pac4j
+ * 4. ORCiD login via OAuth / Pac4j
+ *
+ * Note: It is unclear why the initial implementation skips <code>AbstractNonInteractiveCredentialsAction</code> and
+ *       implements the {@link AbstractAction} directly. It's likely that the abstract class for non-interactive was
+ *       not available at the time of implementation. This implementation is probably a customized version of the
+ *       then-existing implementation <code>NonInteractiveCredentialsAction</code>.
  *
  * @author Michael Haselton
  * @author Longze Chen
@@ -197,10 +208,11 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
     @Override
     protected Event doExecute(final RequestContext context) throws Exception {
+
         final OpenScienceFrameworkCredential credential;
         try {
             credential = constructCredential(context);
-        } catch (final AccountException e) {
+        } catch (final AccountException | FailedLoginException e) {
             final Map<String, Class<? extends Exception>> failures = new LinkedHashMap<>();
             failures.put(e.getClass().getSimpleName(), e.getClass());
             return getEventFactorySupport().event(
@@ -213,19 +225,26 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             );
         }
 
+        // CASE 1: `null` credential without any exception indicates an unauthenticated session. Return error to direct
+        //         the web flow to interactive login (i.e. the login page).
         if (credential == null) {
             return error();
         }
 
-        // PAC4J OAuth needs to retain existing credential/tgt for special case login w/ email request on OSF side,
-        // send tgt on success is the most appropriate next step.
+        // CASE 2: PAC4J OAuth needs to retain existing credential / TGT for the special login case which requests
+        //         users' emails and optionally their names on the OSF side. Return success and send the TGT is the
+        //         most appropriate next step.
         if (DelegationProtocol.OAUTH_PAC4J.equals(credential.getDelegationProtocol())) {
             return success();
         }
 
+        // CASE 3: For all other cases, create a new TGT with the constructed credential. Return success if TGT is
+        //         created; return error otherwise.
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
         final Service service = WebUtils.getService(context);
 
+        // Note: This condition should never happen since TGT has already been destroyed in `constructCredential()`
+        //       except for PAC4J OAuth which already returns success a few lines above.
         if (isRenewPresent(context) && ticketGrantingTicketId != null && service != null) {
             try {
                 final ServiceTicket serviceTicketId = this.centralAuthenticationService.grantServiceTicket(
@@ -243,7 +262,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 logger.debug("Attempted to generate a ServiceTicket using renew=true with different credential", e);
             }
         }
-
+        // Note: Create the ticket granting ticket, put it in the flow context and return.
         try {
             WebUtils.putTicketGrantingTicketInScopes(
                     context,
@@ -273,64 +292,85 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
     }
 
     /**
-     * Construct the credential from the web flow.
+     * Construct the OSF credential from the request context if any of the following non-interactive authenticated
+     * states is found. Return NULL otherwise if not found or if invalid.
      *
-     * @param context the context for this request.
-     * @return the constructed credential or null if none could be constructed from the request.
-     * @throws AccountException an account exception
+     * 1. Institution login via SAML / Shibboleth
+     * 2. ORCiD login via OAuth / Pac4j
+     * 3. Institution login via CAS / Pac4j
+     * 4. Username and one-time verification key login
+     *
+     * Note: The order matters here. For example, if an Shibboleth session is found, none of the other cases will be
+     *       handled. In addition, they are mutually exclusive. For example, if one is detected but failed, the method
+     *       either returns NULL or raises an exception without checking others.
+     *
+     * @param context a {@link RequestContext} object which stores the current request context
+     * @return the constructed {@link OpenScienceFrameworkCredential} object or <code>null</code> if neither a valid
+     * TGT nor a Shibboleth session is found
+     * @throws AccountException for institution exceptions
+     * @throws FailedLoginException for delegation exceptions
      */
-    protected OpenScienceFrameworkCredential constructCredential(final RequestContext context) throws AccountException {
+    protected OpenScienceFrameworkCredential constructCredential(
+            final RequestContext context
+    ) throws AccountException, FailedLoginException {
 
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
 
-        // WARNING: Do not use ``WebUtils.getCredential(RequestContext context)``, it will make the credential ``null``.
-        // _TO_DO_: Check both ``FlowScope`` and ``RequestScope``. Write a ``.getCredential(RequestContext context)``
-        //          which are compatible with ``OpenScienceFrameworkCredential``.
+        // WARN: Do not use `WebUtils.getCredential(RequestContext context)`, it will make the credential `null`.
+        // TODO: Check both `FlowScope` and `RequestScope`. Write a `.getCredential(RequestContext context)` which
+        //       will be compatible with `OpenScienceFrameworkCredential`.
         final OpenScienceFrameworkCredential credential
                 = (OpenScienceFrameworkCredential) context.getFlowScope().get(CONST_CREDENTIAL);
 
         final String ticketGrantingTicketId = WebUtils.getTicketGrantingTicketId(context);
 
-        // WARNING: Do not assume this works w/o acceptance testing in a Production environment.
+        // WARN: Do not assume this works w/o acceptance testing in a Production environment.
         // The call is made to trust these headers only because we assume the Apache Shibboleth Service Provider module
         // rejects any conflicting / forged headers.
         final String shibbolethSession = request.getHeader(SHIBBOLETH_SESSION_HEADER);
 
         if (StringUtils.hasText(shibbolethSession)) {
 
-            // Auth type 1: Institution login via Shibboleth with SAML2
+            // AUTH TYPE 1: Institution login via Shibboleth with SAML
             credential.setDelegationProtocol(DelegationProtocol.SAML_SHIB);
             credential.setRemotePrincipal(Boolean.TRUE);
 
-            // Remove the shibboleth cookie. 1) Do not rely on the Shibboleth server to remove this cookie, which only
-            // works only for normal flow. 2) CAS takes over and the cookie is no longer needed.
+            // Remove the Shibboleth cookie since: 1) we can not rely on the Shibboleth server to remove this cookie,
+            // which only works for normal web flow; and 2) CAS takes over after successful SAML authentication and the
+            // cookie is no longer needed anyway.
             removeShibbolethSessionCookie(context);
 
-            // The header "REMOTE_USER" is still REQUIRED as an identifier for institution users although 1) OSF and CAS
-            // already rely on ``username`` for identification purpose and 2) ``notifyRemotePrincipalAuthenticated()``
-            // guarantees that ``username`` is provided. The reason for keeping this extra check in place is that
-            // ``username`` is not always the identifier since it can be ``eppn``, ``mail`` or other attributes. The
-            // header "REMOTE_USER" is defined as ``REMOTE_USER="eppn uid persistent-id targeted-id"``, in which every
-            // attribute can be considered as the users' institution identity. In short, CAS requires at least one of
-            // the four ID attributes ``eppn``, ``uid``, ``persistent-id``, ``targeted-id`` in addition to attributes
-            // that are mapped to ``username`` and ``fullname``. Please see our Shibboleth server's configuration for
-            // detailed mapping for attributes. The following link provides the best practice of using "REMOTE_USER":
-            // https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAttributeAccess
+            // The header "REMOTE_USER" is still REQUIRED as an identifier for institution users although: 1) OSF only
+            // relies on `username` (email) for identification purpose; and 2) `notifyRemotePrincipalAuthenticated()`
+            // guarantees that `username` is provided. The reason for keeping this extra check in place is that email
+            // and identity should be separated though institutional emails are usually unique and are not reusable.
+            // The header "REMOTE_USER" is defined as `REMOTE_USER="eppn persistent-id targeted-id uid upn"`, in which
+            // each can be considered as a user's institution identity. In short, CAS requires at least one of them
+            // in addition to attributes that are mapped to `username` and `fullname`. Please refer to the Shibboleth
+            // server's configuration for detailed attribute mapping. The following link provides the best practice
+            // of using "REMOTE_USER": https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPAttributeAccess
             final String remoteUser = request.getHeader(REMOTE_USER);
             if (StringUtils.isEmpty(remoteUser)) {
-                logger.error("Invalid Remote User Specified as Empty");
-                // _TO_DO_: Re-enable non-empty remote user requirement
-                // _TO_DO_: Delay the exception until we know which the institution is and who the user is.
-                // throw new RemoteUserFailedLoginException("Invalid Remote User specified as Empty");
+                logger.warn("[SAML Shibboleth] Missing or empty Shibboleth header: {}", REMOTE_USER);
+                // TODO: Re-enable non-empty `REMOTE_USER` requirement
+                // TODO: Delay throwing the exception until we know which the institution is and who the user is.
+                // NOTE: Current warn instead of error due to the fact that some institutions have issue with releasing
+                //       the identification attribute correctly.
+                // throw new InstitutionLoginFailedException("Missing user's institutional identity");
             } else {
-                logger.info("Remote User from HttpServletRequest '{}'", remoteUser);
+                logger.info("[SAML Shibboleth] User's institutional identity: '{}'", remoteUser);
             }
 
-            // Retrieve all attributes from the headers
+            // Retrieve all attributes from the Shibboleth request headers.
             for (final String headerName : Collections.list(request.getHeaderNames())) {
                 if (headerName.startsWith(ATTRIBUTE_PREFIX)) {
                     final String headerValue = request.getHeader(headerName);
-                    logger.debug("Remote User [{}] Auth Header '{}': '{}'", remoteUser, headerName, headerValue);
+                    logger.debug(
+                            "[SAML Shibboleth] User's institutional identity '{}' - auth header '{}': '{}'",
+                            remoteUser,
+                            headerName,
+                            headerValue
+                    );
                     credential.getDelegationAttributes().put(
                             headerName.substring(ATTRIBUTE_PREFIX.length()),
                             headerValue
@@ -338,21 +378,23 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                 }
             }
 
-            // Parse the attributes and notify OSF of the remote principal authentication
-            final PrincipalAuthenticationResult remoteUserInfo
-                    = notifyRemotePrincipalAuthenticated(credential);
+            // Parse the attributes and notify OSF API of the remote principal authentication
+            final PrincipalAuthenticationResult remoteUserInfo = notifyRemotePrincipalAuthenticated(credential);
 
-            // Build and return the credential
+            // Build and return the OSF-specific credential
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
             if (StringUtils.isEmpty(remoteUser)) {
-                logger.error(
-                        "Empty Remote User: username={}, institutionId={}",
+                // This is a necessary duplicate warning log for missing user's institutional identity since it is not
+                // until now / here that OSF CAS finally knows the user's email and the institution ID.
+                logger.warn(
+                        "[SAML Shibboleth] Missing user's institutional identity: username={}, institutionId={}",
                         remoteUserInfo.getUsername(),
                         remoteUserInfo.getInstitutionId()
                 );
             }
 
+            // Return the OSF credential
             return credential;
         } else if (ticketGrantingTicketId != null) {
             final TicketGrantingTicket ticketGrantingTicket;
@@ -362,76 +404,90 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                         TicketGrantingTicket.class
                 );
             } catch (final InvalidTicketException e) {
-                // The TGT associated with the tgtId has been expired or removed. Return `null`.
-                logger.warn("Invalid Ticket Granting Ticket");
+                // Return NULL (no credential) for invalid (expired or deleted) TGT.
+                logger.warn("Invalid ticket granting ticket");
                 return null;
             }
 
-            // Auth type 2: pac4j-based auth delegation login
+            // AUTH TYPE 2: Delegated login via non-SAML protocols implemented by PAC4J
             final Authentication authentication;
             final Principal principal;
             try {
                 authentication = ticketGrantingTicket.getAuthentication();
                 principal = authentication.getPrincipal();
             } catch (final NullPointerException e) {
-                logger.error("Cannot Retrieve Authentication Principal");
-                throw new RemoteUserFailedLoginException("Cannot Retrieve Authentication Principal");
+                logger.error("[PAC4J Delegation] Failed to retrieve authentication principal");
+                throw new DelegatedLoginException("Failed to retrieve authentication principal");
             }
 
             String clientName = null;
             if (authentication.getAttributes().containsKey("clientName")) {
                 clientName = (String) authentication.getAttributes().get("clientName");
+                // TODO: Log (info-level) the client name and principal ID here
             }
 
-            // Auth type 2.1: ORCiD login via OAuth
+            // AUTH TYPE 2.1: ORCiD login via the OAuth protocol
             if (OrcidClient.class.getSimpleName().equals(clientName)) {
                 credential.setDelegationProtocol(DelegationProtocol.OAUTH_PAC4J);
                 credential.setRemotePrincipal(Boolean.TRUE);
                 return credential;
             }
 
-            // Auth type 2.2: Institution login via CAS
-            // _TODO_: Please add a check here to ensure that 1) `clientName` is not null and that 2) `clientName`
-            //         matches one of the configured institutions that uses CAS for delegation
+            // AUTH TYPE 2.2: Institution login via the CAS protocol
+            // TODO: Add a check here to ensure that 1) `clientName` is not null and that 2) `clientName` matches one
+            //       of the configured institutions that uses the CAS protocol for delegation
             credential.setDelegationProtocol(DelegationProtocol.CAS_PAC4J);
             credential.setRemotePrincipal(Boolean.TRUE);
             credential.getDelegationAttributes().put("Cas-Identity-Provider", clientName);
             if (principal.getAttributes().size() > 0) {
                 for (final Map.Entry<String, Object> entry : principal.getAttributes().entrySet()) {
-                    logger.debug("Remote User [{}] Auth Header '{}': '{}'", principal.getId(), entry.getKey(), entry.getValue());
+                    logger.debug(
+                            "[CAS PAC4J] User's institutional identity '{}' - auth header '{}': '{}'",
+                            principal.getId(),
+                            entry.getKey(),
+                            entry.getValue()
+                    );
                     credential.getDelegationAttributes().put(entry.getKey(), (String) entry.getValue());
                 }
             } else {
-                // CAS servers must provide required attributes such as user's email and one valid type of name
-                logger.error("Empty Attributes Map for Remote User [{}] with Client [{}]", principal.getId(), clientName);
+                // CAS IdP servers must provide required attributes such as user's email and full name.
+                logger.error("[CAS PAC4J] No attributes for user '{} with client '{}'", principal.getId(), clientName);
             }
 
-            // Notify the OSF of the remote principal authentication.
-            final PrincipalAuthenticationResult remoteUserInfo
-                    = notifyRemotePrincipalAuthenticated(credential);
+            // Parse the attributes and notify OSF API of the remote principal authentication
+            final PrincipalAuthenticationResult remoteUserInfo = notifyRemotePrincipalAuthenticated(credential);
 
             credential.setUsername(remoteUserInfo.getUsername());
             credential.setInstitutionId(remoteUserInfo.getInstitutionId());
 
-            // We create a new tgt w/ the osf specific credential, cleanup the existing one from pac4j.
+            // OSF CAS will create a new TGT with the to-be-returned OSF credential; and thus the existing TGT granted
+            // from the successful PAC4J authentication must be cleared.
             this.centralAuthenticationService.destroyTicketGrantingTicket(ticketGrantingTicketId);
+
+            // Return the OSF credential
             return credential;
         } else if (request.getParameter("username") != null && request.getParameter("verification_key") != null) {
-            // Authentication through username and verification key.
+            // AUTH TYPE 3: Username and one-time verification key login
             credential.setUsername(request.getParameter("username"));
             credential.setVerificationKey(request.getParameter("verification_key"));
+            // Return the OSF credential
             return credential;
         }
+
+        // Return NULL (no credential) if neither Shibboleth session nor a valid TGT exists.
         return null;
     }
 
     /**
-     * Securely notify the OSF of a Remote Principal Authentication credential. Allows the OSF the opportunity
-     * to create a verified user account and/or assign institutional affiliation to the user's account.
+     * Securely notify OSF API of a successful institution login between OSF CAS and an external identity provider.
+     * Allows OSF API the opportunity to create a verified user account and assign institutional affiliation to the
+     * user's OSF account. Refer to the following code for the latest behavior of how OSF API handles the request.
      *
-     * @param credential the credential object bearing the authentication headers from the idp
-     * @return the username from the idp and setup on the OSF
-     * @throws AccountException a account exception
+     * OSF API: https://github.com/CenterForOpenScience/osf.io/blob/develop/api/institutions/authentication.py
+     *
+     * @param credential the credential object bearing the authentication headers from the IdP
+     * @return {@link PrincipalAuthenticationResult} an object that stores the institution's ID and the user's username
+     * @throws AccountException if there is an issue with the attributes or the API request
      */
     protected PrincipalAuthenticationResult notifyRemotePrincipalAuthenticated(
             final OpenScienceFrameworkCredential credential
@@ -442,43 +498,42 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             normalizedPayload = this.normalizeRemotePrincipal(credential);
         } catch (final ParserConfigurationException | TransformerException e) {
-            logger.error("Failed to normalize remote principal: {}", e.getMessage());
-            logger.trace("Failed to normalize remote principal: {}", e);
-            throw new RemoteUserFailedLoginException("Failed to normalize remote principal.");
+            logger.error("[CAS XSLT] Failed to normalize attributes in the credential: {}", e.getMessage());
+            throw new InstitutionLoginFailedAttributesParsingException("Attribute normalization failure");
         }
 
         // Step 2 - Verify institution and user info in the normalized payload
         final JSONObject provider = normalizedPayload.optJSONObject("provider");
         if (provider == null) {
-            logger.error("Invalid remote principal: provider is required");
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing provider.");
+            logger.error("[CAS XSLT] Missing identity provider.");
+            throw new InstitutionLoginFailedAttributesMissingException("Missing identity provider");
         }
         final String institutionId = provider.optString("id").trim();
         if (institutionId.isEmpty()) {
-            logger.error("Invalid remote principal: institution provider ID is required");
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing institution.");
+            logger.error("[CAS XSLT] Empty identity provider");
+            throw new InstitutionLoginFailedAttributesMissingException("Empty identity provider");
         }
         final JSONObject user = provider.optJSONObject("user");
         if (user == null) {
-            logger.error("Invalid remote principal: user is required");
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing user.");
+            logger.error("[CAS XSLT] Missing institutional user");
+            throw new InstitutionLoginFailedAttributesMissingException("Missing institutional user");
         }
         final String username = user.optString("username").trim();
         final String fullname = user.optString("fullname").trim();
         final String givenName = user.optString("givenName").trim();
         final String familyName = user.optString("familyName").trim();
         if (username.isEmpty()) {
-            logger.error("Invalid remote principal: username (email) is required for institution '{}'", institutionId);
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing username.");
+            logger.error("[CAS XSLT] Missing email (username) for user at institution '{}'", institutionId);
+            throw new InstitutionLoginFailedAttributesMissingException("Missing email (username)");
         }
         if (fullname.isEmpty() && (givenName.isEmpty() || familyName.isEmpty())) {
-            logger.error("Invalid remote principal: fullname or (givenNaame, familyName) is required for institution '{}'", institutionId);
-            throw new RemoteUserFailedLoginException("Invalid remote principal: missing names.");
+            logger.error("[CAS XSLT] Missing names: username={}, institution={}", username, institutionId);
+            throw new InstitutionLoginFailedAttributesMissingException("Missing user's names");
         }
         final String payload = normalizedPayload.toString();
-        logger.info("Notify Remote Principal Authenticated: username={}, institution={}", username, institutionId);
+        logger.info("[CAS XSLT] All attributes checked: username={}, institution={}", username, institutionId);
         logger.debug(
-                "Notify Remote Principal Authenticated: username={}, institution={}, normalizedPayload = {}",
+                "[CAS XSLT] All attributes checked: username={}, institution={}, normalizedPayload={}",
                 username,
                 institutionId,
                 payload
@@ -504,15 +559,15 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             jweObject.encrypt(new DirectEncrypter(this.institutionsAuthJweSecret.getBytes()));
             jweString = jweObject.serialize();
         } catch (final JOSEException e) {
-            logger.error("Failed to build JWE payload: {}", e.getMessage());
-            logger.trace("Failed to build JWE payload: {}", e);
-            throw new RemoteUserFailedLoginException("Failed to build JWE payload for institution authentication");
+            logger.error(
+                    "[OSF API] Notify Remote Principal Authenticated Failed: Payload Error - {}",
+                    e.getMessage()
+            );
+            throw new InstitutionLoginFailedOsfApiException("OSF CAS failed to build JWT / JWE payload for OSF API");
         }
 
-        // Step 4 - Make the API request with encrypted payload.
+        // Step 4 - Make the OSF API request with the encrypted payload.
         try {
-            // A call is made to the OSF CAS institution login endpoint to create a registered user (if one does not
-            // already exist) and apply institutional affiliation (if the user is not already registered).
             final HttpResponse httpResponse = Request.Post(this.institutionsAuthUrl)
                     .addHeader(new BasicHeader("Content-Type", "text/plain"))
                     .bodyString(jweString, ContentType.APPLICATION_JSON)
@@ -520,23 +575,29 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                     .returnResponse();
             final int statusCode = httpResponse.getStatusLine().getStatusCode();
             logger.info(
-                    "Notify Remote Principal Authenticated [OSF API] Response: <{}> Status Code {}",
+                    "[OSF API] Notify Remote Principal Authenticated Response: username={} statusCode={}",
                     username,
                     statusCode
             );
-            // The institutional authentication endpoint should always respond with a 204 No Content when successful.
+            // The OSF API institution authentication endpoint always returns the HTTP 204 No Content if successful.
             if (statusCode != HttpStatus.SC_NO_CONTENT) {
                 final String responseString = new BasicResponseHandler().handleResponse(httpResponse);
-                logger.error("Notify Remote Principal Authenticated [OSF API] Response Body: '{}'", responseString);
-                throw new RemoteUserFailedLoginException("Invalid Status Code from OSF API Endpoint");
+                logger.error(
+                        "[OSF API] Notify Remote Principal Authenticated Failed: statusCode={}, body={}",
+                        statusCode,
+                        responseString
+                );
+                throw new InstitutionLoginFailedOsfApiException("OSF API failed to process CAS request");
             }
 
-            // Return the username for the credential build.
+            // Return user's username and the institution ID to build the OSF credential
             return new PrincipalAuthenticationResult(username, institutionId);
         } catch (final IOException e) {
-            logger.error("Notify Remote Principal Authenticated Exception: {}", e.getMessage());
-            logger.trace("Notify Remote Principal Authenticated Exception: {}", e);
-            throw new RemoteUserFailedLoginException("Failed to communicate with OSF API endpoint.");
+            logger.error(
+                    "[OSF API] Notify Remote Principal Authenticated Failed: Communication Error - {}",
+                    e.getMessage()
+            );
+            throw new InstitutionLoginFailedOsfApiException("Communication Error between OSF CAS and OSF API");
         }
     }
 

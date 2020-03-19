@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.cos.cas.authentication.exceptions;
 
-import javax.security.auth.login.AccountException;
-
 /**
- * Describes an error condition where authentication has failed during institutional authentication delegation.
+ * Describes an error condition where institution login fails due to attributes normalization failure.
  *
- * TODO: Divide this exception into two or more detailed ones. For example, one for failure in parsing required
- *       attributes from authenticated Shibboleth session (InstitutionLoginFailedException), one for failure in
- *       communicating with OSF API (OsfApiFailedException), etc.
- *
- * @author Michael Haselton
  * @author Longze Chen
  * @since 20.1.0
  */
-public class RemoteUserFailedLoginException extends AccountException {
+public class InstitutionLoginFailedAttributesParsingException extends InstitutionLoginFailedException {
 
-    private static final long serialVersionUID = 3472948140572518658L;
+    private static final long serialVersionUID = 1678051762557685138L;
 
     /** Instantiates a new exception (default). */
-    public RemoteUserFailedLoginException() {
+    public InstitutionLoginFailedAttributesParsingException() {
         super();
     }
 
@@ -42,7 +36,7 @@ public class RemoteUserFailedLoginException extends AccountException {
      *
      * @param message the message
      */
-    public RemoteUserFailedLoginException(final String message) {
+    public InstitutionLoginFailedAttributesParsingException(final String message) {
         super(message);
     }
 }

@@ -2,7 +2,7 @@ package io.cos.cas.authentication.handler.support;
 
 import io.cos.cas.AbstractTestUtils;
 import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
-import io.cos.cas.authentication.exceptions.RemoteUserFailedLoginException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
 import io.cos.cas.mock.MockNormalizeRemotePrincipal;
 import io.cos.cas.mock.MockNotifyRemotePrincipalAuthenticated;
@@ -47,7 +47,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
     private static final String CONST_ORCID_CLIENT_NAME = "OrcidClient";
 
-    @Test (expected = RemoteUserFailedLoginException.class)
+    @Test (expected = InstitutionLoginFailedException.class)
     public void handleInstitutionMissingInstitutionId() throws Exception {
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
@@ -61,12 +61,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Invalid remote principal: missing institution.");
+            assertEquals(e.getMessage(), "Empty identity provider");
             throw e;
         }
     }
 
-    @Test (expected = RemoteUserFailedLoginException.class)
+    @Test (expected = InstitutionLoginFailedException.class)
     public void handleInstitutionMissingUsername() throws Exception {
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
@@ -80,12 +80,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Invalid remote principal: missing username.");
+            assertEquals(e.getMessage(), "Missing email (username)");
             throw e;
         }
     }
 
-    @Test (expected = RemoteUserFailedLoginException.class)
+    @Test (expected = InstitutionLoginFailedException.class)
     public void handleInstitutionMissingNames() throws Exception {
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
@@ -99,12 +99,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Invalid remote principal: missing names.");
+            assertEquals(e.getMessage(), "Missing user's names");
             throw e;
         }
     }
 
-    @Test (expected = RemoteUserFailedLoginException.class)
+    @Test (expected = InstitutionLoginFailedException.class)
     public void handleInstitutionValidRemotePrincipal() throws Exception {
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
@@ -119,7 +119,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Failed to communicate with OSF API endpoint.");
+            assertEquals(e.getMessage(), "Communication Error between OSF CAS and OSF API");
             throw e;
         }
     }

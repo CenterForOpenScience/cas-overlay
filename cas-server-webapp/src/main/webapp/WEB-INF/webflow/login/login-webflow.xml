@@ -205,11 +205,14 @@
         <!-- Customized exceptions for OSF -->
         <transition on="AccountNotConfirmedOsfLoginException" to="casAccountNotConfirmedOsfLoginView"/>
         <transition on="AccountNotConfirmedIdPLoginException" to="casAccountNotConfirmedIdPLoginView"/>
+        <transition on="InstitutionLoginFailedException" to="casInstitutionLoginFailedView"/>
+        <transition on="InstitutionLoginFailedAttributesMissingException" to="casInstitutionLoginFailedAttributesMissingView"/>
+        <transition on="InstitutionLoginFailedAttributesParsingException" to="casInstitutionLoginFailedAttributesParsingView"/>
+        <transition on="InstitutionLoginFailedOsfApiException" to="casInstitutionLoginFailedOsfApiView"/>
         <transition on="InvalidUserStatusException" to="casInvalidUserStatusView"/>
         <transition on="InvalidVerificationKeyException" to="casInvalidVerificationKeyView"/>
         <transition on="OneTimePasswordRequiredException" to="casOtpLoginView"/>
         <transition on="OneTimePasswordFailedLoginException" to="casOtpLoginView"/>
-        <transition on="RemoteUserFailedLoginException" to="casRemoteUserFailedLoginView"/>
         <!-- Customized exceptions for delegated login -->
         <transition on="CasClientLoginException" to="delegatedLoginCasErrorView"/>
         <transition on="OrcidClientLoginException" to="delegatedLoginOrcidErrorView"/>
@@ -285,14 +288,33 @@
     <end-state id="casBadWorkstationView" view="casBadWorkstationView"/>
     <!-- OSF Customized Exception Views -->
     <end-state id="casAccountDisabledView" view="casAccountDisabledView"/>
-    <end-state id="casAccountNotConfirmedIdPLoginView" view="casAccountNotConfirmedIdPLoginView" />
-    <end-state id="casAccountNotConfirmedOsfLoginView" view="casAccountNotConfirmedOsfLoginView" />
+    <end-state id="casAccountNotConfirmedIdPLoginView" view="casAccountNotConfirmedIdPLoginView"/>
+    <end-state id="casAccountNotConfirmedOsfLoginView" view="casAccountNotConfirmedOsfLoginView"/>
+    <end-state id="casInstitutionLoginFailedView" view="casInstitutionLoginFailedView">
+        <on-entry>
+            <set name="flowScope.casViewErrorCode" value="2000"/>
+        </on-entry>
+    </end-state>
+    <end-state id="casInstitutionLoginFailedAttributesMissingView" view="casInstitutionLoginFailedView">
+        <on-entry>
+            <set name="flowScope.casViewErrorCode" value="2001"/>
+        </on-entry>
+    </end-state>
+    <end-state id="casInstitutionLoginFailedAttributesParsingView" view="casInstitutionLoginFailedView">
+        <on-entry>
+            <set name="flowScope.casViewErrorCode" value="2002"/>
+        </on-entry>
+    </end-state>
+    <end-state id="casInstitutionLoginFailedOsfApiView" view="casInstitutionLoginFailedView">
+        <on-entry>
+            <set name="flowScope.casViewErrorCode" value="2003"/>
+        </on-entry>
+    </end-state>
     <end-state id="casInvalidUserStatusView" view="casInvalidUserStatusView"/>
     <end-state id="casInvalidVerificationKeyView" view="casInvalidVerificationKeyView"/>
-    <end-state id="casRemoteUserFailedLoginView" view="casRemoteUserFailedLoginView"/>
     <end-state id="delegatedLoginCasErrorView" view="delegatedLoginCasErrorView"/>
     <end-state id="delegatedLoginGenericErrorView" view="delegatedLoginGenericErrorView"/>
-    <end-state id="delegatedLoginOrcidErrorView" view="delegatedLoginOrcidErrorView" />
+    <end-state id="delegatedLoginOrcidErrorView" view="delegatedLoginOrcidErrorView"/>
 
     <end-state id="postView" view="postResponseView">
         <on-entry>
