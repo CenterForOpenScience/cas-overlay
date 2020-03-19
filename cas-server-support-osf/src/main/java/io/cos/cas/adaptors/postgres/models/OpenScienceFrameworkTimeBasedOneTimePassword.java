@@ -23,14 +23,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import javax.xml.bind.DatatypeConverter;
+
+import java.util.Date;
 
 /**
  * The Open Science Framework Two Factor User Settings.
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 19.3.0
  */
 @Entity
 @Table(name = "addons_twofactor_usersettings")
@@ -50,8 +55,9 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     @Column(name = "is_confirmed", nullable = false)
     private Boolean confirmed;
 
-    @Column(name = "is_deleted", nullable = false)
-    private Boolean deleted;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "deleted")
+    private Date deleted;
 
     /** Default Constructor. */
     public OpenScienceFrameworkTimeBasedOneTimePassword() {}
@@ -69,7 +75,7 @@ public class OpenScienceFrameworkTimeBasedOneTimePassword {
     }
 
     public Boolean isDeleted() {
-        return deleted;
+        return deleted != null;
     }
 
     /**
