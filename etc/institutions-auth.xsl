@@ -36,10 +36,12 @@
                         <id>esu</id>
                         <user>
                             <!--  Each institution has its customized mapping of attributes  -->
-                            <username><xsl:value-of select="//attribute[@name='eppn']/@value"/></username>
+                            <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
                             <fullname><xsl:value-of select="//attribute[@name='displayedName']/@value"/></fullname>
                             <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
                             <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
+                            <departmentRaw><xsl:value-of select="//attribute[@name='department']/@value"/></departmentRaw>
+                            <eduPerson>true</eduPerson>
                             <middleNames/>
                             <suffix/>
                         </user>
@@ -150,6 +152,8 @@
                             <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
                             <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
                             <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
+                            <departmentRaw><xsl:value-of select="//attribute[@name='department']/@value"/></departmentRaw>
+                            <eduPerson>false</eduPerson>
                             <middleNames/>
                             <suffix/>
                         </user>
