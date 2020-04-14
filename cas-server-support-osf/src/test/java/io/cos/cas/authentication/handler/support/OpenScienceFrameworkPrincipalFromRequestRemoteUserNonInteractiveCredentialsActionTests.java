@@ -2,13 +2,13 @@ package io.cos.cas.authentication.handler.support;
 
 import io.cos.cas.AbstractTestUtils;
 import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.authentication.RemoteUserFailedLoginException;
 import io.cos.cas.mock.MockNormalizeRemotePrincipal;
 import io.cos.cas.mock.MockNotifyRemotePrincipalAuthenticated;
 
-import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Authentication;
+import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 
 import org.junit.Test;
@@ -18,6 +18,7 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.test.MockRequestContext;
 
 import javax.security.auth.login.AccountException;
+
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.when;
  * This class tests the {@link OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction} class.
  *
  * @author Longze Chen
- * @since  4.1.5
+ * @since  19.3.0
  */
 public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsActionTests {
 
@@ -46,7 +47,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
 
     private static final String CONST_ORCID_CLIENT_NAME = "OrcidClient";
 
-    @Test (expected = RemoteUserFailedLoginException.class)
+    @Test (expected = InstitutionLoginFailedException.class)
     public void handleInstitutionMissingInstitutionId() throws Exception {
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
@@ -60,12 +61,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Invalid remote principal: missing institution.");
+            assertEquals(e.getMessage(), "Empty identity provider");
             throw e;
         }
     }
 
-    @Test (expected = RemoteUserFailedLoginException.class)
+    @Test (expected = InstitutionLoginFailedException.class)
     public void handleInstitutionMissingUsername() throws Exception {
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
@@ -79,12 +80,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Invalid remote principal: missing username.");
+            assertEquals(e.getMessage(), "Missing email (username)");
             throw e;
         }
     }
 
-    @Test (expected = RemoteUserFailedLoginException.class)
+    @Test (expected = InstitutionLoginFailedException.class)
     public void handleInstitutionMissingNames() throws Exception {
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
@@ -98,12 +99,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Invalid remote principal: missing names.");
+            assertEquals(e.getMessage(), "Missing user's names");
             throw e;
         }
     }
 
-    @Test (expected = RemoteUserFailedLoginException.class)
+    @Test (expected = InstitutionLoginFailedException.class)
     public void handleInstitutionValidRemotePrincipal() throws Exception {
         final MockHttpServletRequest mockHttpServletRequest = AbstractTestUtils.getRequestWithShibbolethHeaders();
         final MockRequestContext mockContext = AbstractTestUtils.getContextWithCredentials(mockHttpServletRequest);
@@ -118,7 +119,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         try {
             osfRemoteAuthenticate.notifyRemotePrincipalAuthenticated(osfCredential);
         } catch (final AccountException e) {
-            assertEquals(e.getMessage(), "Failed to communicate with OSF API endpoint.");
+            assertEquals(e.getMessage(), "Communication Error between OSF CAS and OSF API");
             throw e;
         }
     }

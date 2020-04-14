@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015. Center for Open Science
+ * Copyright (c) 2020. Center for Open Science
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.cos.cas.authentication;
 
-import javax.security.auth.login.AccountException;
+package io.cos.cas.authentication.exceptions;
 
 /**
- * Describes an error condition where authentication occurs from an account which requires two-factor authentication.
+ * Describes an error condition where institution login fails due to missing required attributes.
  *
- * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.5
+ * @since 20.1.0
  */
-public class OneTimePasswordRequiredException extends AccountException {
+public class InstitutionLoginFailedAttributesMissingException extends InstitutionLoginFailedException {
 
-    private static final long serialVersionUID = -735616010527704206L;
+    private static final long serialVersionUID = -5992158588780483730L;
 
     /** Instantiates a new exception (default). */
-    public OneTimePasswordRequiredException() {
+    public InstitutionLoginFailedAttributesMissingException() {
         super();
     }
 
@@ -38,7 +36,7 @@ public class OneTimePasswordRequiredException extends AccountException {
      *
      * @param message the message
      */
-    public OneTimePasswordRequiredException(final String message) {
+    public InstitutionLoginFailedAttributesMissingException(final String message) {
         super(message);
     }
 }

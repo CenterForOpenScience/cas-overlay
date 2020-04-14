@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016. Center for Open Science
+ * Copyright (c) 2020. Center for Open Science
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.cos.cas.authentication;
 
-import javax.security.auth.login.AccountException;
+package io.cos.cas.authentication.exceptions;
 
 /**
- * Describes an error condition where authentication has failed during authentication delegation.
+ * Describes an error condition where institution login fails when communicating with OSF API.
  *
- * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.5
+ * @since 20.1.0
  */
-public class RemoteUserFailedLoginException extends AccountException {
+public class InstitutionLoginFailedOsfApiException extends InstitutionLoginFailedException {
 
-    private static final long serialVersionUID = 3472948140572518658L;
+    private static final long serialVersionUID = 1737367176204402913L;
 
     /** Instantiates a new exception (default). */
-    public RemoteUserFailedLoginException() {
+    public InstitutionLoginFailedOsfApiException() {
         super();
     }
 
@@ -38,7 +36,7 @@ public class RemoteUserFailedLoginException extends AccountException {
      *
      * @param message the message
      */
-    public RemoteUserFailedLoginException(final String message) {
+    public InstitutionLoginFailedOsfApiException(final String message) {
         super(message);
     }
 }

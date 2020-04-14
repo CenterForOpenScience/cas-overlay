@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015. Center for Open Science
+ * Copyright (c) 2020. Center for Open Science
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.cos.cas.authentication;
+package io.cos.cas.authentication.exceptions;
 
 import javax.security.auth.login.AccountException;
 
 /**
- * Describes an error condition where two-factor authentication has failed.
+ * Describes an error condition where authentication failed with invalid verification key.
  *
- * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.5
+ * @since 20.1.0
  */
-public class OneTimePasswordFailedLoginException extends AccountException {
+public class InvalidVerificationKeyException extends AccountException {
 
-    private static final long serialVersionUID = 1973864633797308866L;
+    private static final long serialVersionUID = -4572658985746454304L;
 
     /** Instantiates a new exception (default). */
-    public OneTimePasswordFailedLoginException() {
+    public InvalidVerificationKeyException() {
         super();
     }
 
@@ -38,7 +37,7 @@ public class OneTimePasswordFailedLoginException extends AccountException {
      *
      * @param message the message
      */
-    public OneTimePasswordFailedLoginException(final String message) {
+    public InvalidVerificationKeyException(final String message) {
         super(message);
     }
 }

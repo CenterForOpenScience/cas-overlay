@@ -24,11 +24,11 @@ import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkTimeBasedOneTimeP
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkUser;
 import io.cos.cas.authentication.exceptions.AccountNotConfirmedIdPLoginException;
 import io.cos.cas.authentication.exceptions.AccountNotConfirmedOsfLoginException;
-import io.cos.cas.authentication.InvalidVerificationKeyException;
-import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
-import io.cos.cas.authentication.OneTimePasswordRequiredException;
+import io.cos.cas.authentication.exceptions.InvalidVerificationKeyException;
+import io.cos.cas.authentication.exceptions.InvalidUserStatusException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.OpenScienceFrameworkCredential;
-import io.cos.cas.authentication.ShouldNotHappenException;
 import io.cos.cas.authentication.oath.TotpUtils;
 
 import org.jasig.cas.authentication.AccountDisabledException;
@@ -195,11 +195,11 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
         }  else if (USER_DISABLED.equals(userStatus)) {
             throw new AccountDisabledException(username + " is disabled");
         } else if (USER_NOT_CLAIMED.equals(userStatus)) {
-            throw new ShouldNotHappenException(username + " is not claimed");
+            throw new InvalidUserStatusException(username + " is not claimed");
         } else if (USER_MERGED.equals(userStatus)) {
-            throw new ShouldNotHappenException("Cannot log in to a merged user " + username);
+            throw new InvalidUserStatusException("Cannot log in to a merged user " + username);
         } else if (USER_STATUS_UNKNOWN.equals(userStatus)) {
-            throw new ShouldNotHappenException(username + " is not active: unknown status");
+            throw new InvalidUserStatusException(username + " is not active: unknown status");
         }
         final Map<String, Object> attributes = new HashMap<>();
         attributes.put("username", user.getUsername());
@@ -261,7 +261,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                             logger.info("User Status Check: {}", USER_NOT_CONFIRMED_IDP);
                             return USER_NOT_CONFIRMED_IDP;
                         }
-                    } catch (final ShouldNotHappenException e) {
+                    } catch (final InvalidUserStatusException e) {
                         logger.error("User Status Check: {}", USER_STATUS_UNKNOWN);
                         return USER_STATUS_UNKNOWN;
                     }
@@ -335,15 +335,15 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
      *
      * @param externalIdentity a {@link JsonObject} that stores all external identities of a user instance
      * @return {@code true} if so and {@code false} otherwise
-     * @throws ShouldNotHappenException if {@code externalIdentity} fails JSON parsing.
+     * @throws InvalidUserStatusException if {@code externalIdentity} fails JSON parsing.
      */
-    private boolean isCreatedByExternalIdp(final JsonObject externalIdentity) throws ShouldNotHappenException {
+    private boolean isCreatedByExternalIdp(final JsonObject externalIdentity) throws InvalidUserStatusException {
 
         for (final Map.Entry<String, JsonElement> provider : externalIdentity.entrySet()) {
             try {
                 for (final Map.Entry<String, JsonElement> identity : provider.getValue().getAsJsonObject().entrySet()) {
                     if (!identity.getValue().isJsonPrimitive()) {
-                        throw new ShouldNotHappenException();
+                        throw new InvalidUserStatusException();
                     }
                     if ("CREATE".equals(identity.getValue().getAsString())) {
                         logger.info("New and unconfirmed OSF user: {} : {}", identity.getKey(), identity.getValue().toString());
@@ -351,7 +351,7 @@ public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPos
                     }
                 }
             } catch (final IllegalStateException e) {
-                throw new ShouldNotHappenException();
+                throw new InvalidUserStatusException();
             }
         }
         return false;

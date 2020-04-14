@@ -162,6 +162,7 @@ public class OpenScienceFrameworkLoginHandler {
         }
         jsonLoginContext = osfLoginContext.toJson();
         context.getFlowScope().put("jsonLoginContext", jsonLoginContext);
+        context.getFlowScope().put("casViewErrorCode", "0000");
 
         // Go to the institution login page. Note: the institution login flag rules over the ORCiD redirect flag
         if (osfLoginContext.isInstitutionLogin()) {

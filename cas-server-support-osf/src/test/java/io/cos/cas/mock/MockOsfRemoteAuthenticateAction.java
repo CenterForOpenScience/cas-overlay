@@ -8,10 +8,10 @@ import org.jasig.cas.CentralAuthenticationService;
  * This class mocks the {@link OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction} class.
  *
  * @author Longze Chen
- * @since  4.1.5
+ * @since  19.3.0
  */
 public class MockOsfRemoteAuthenticateAction
-    extends OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction {
+        extends OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction {
 
     protected static final String INSTITUTION_AUTH_URL = "institution_auth_url";
     protected static final String INSTITUTION_AUTH_JWE_SECRET = "osf_api_cas_login_jwe_secret_32b";

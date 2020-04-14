@@ -24,12 +24,15 @@ import io.cos.cas.authentication.exceptions.AccountNotConfirmedIdPLoginException
 import io.cos.cas.authentication.exceptions.AccountNotConfirmedOsfLoginException;
 import io.cos.cas.authentication.exceptions.CasClientLoginException;
 import io.cos.cas.authentication.exceptions.DelegatedLoginException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedAttributesMissingException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedAttributesParsingException;
+import io.cos.cas.authentication.exceptions.InstitutionLoginFailedOsfApiException;
+import io.cos.cas.authentication.exceptions.InvalidUserStatusException;
+import io.cos.cas.authentication.exceptions.InvalidVerificationKeyException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordFailedLoginException;
+import io.cos.cas.authentication.exceptions.OneTimePasswordRequiredException;
 import io.cos.cas.authentication.exceptions.OrcidClientLoginException;
-import io.cos.cas.authentication.InvalidVerificationKeyException;
-import io.cos.cas.authentication.OneTimePasswordFailedLoginException;
-import io.cos.cas.authentication.OneTimePasswordRequiredException;
-import io.cos.cas.authentication.RemoteUserFailedLoginException;
-import io.cos.cas.authentication.ShouldNotHappenException;
 
 import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.AccountPasswordMustChangeException;
@@ -64,42 +67,45 @@ public class OpenScienceFrameworkAuthenticationExceptionHandler extends Authenti
 
     // Built-in exceptions that are not explicitly used
     static {
+        DEFAULT_ERROR_LIST.add(AccountLockedException.class);
         DEFAULT_ERROR_LIST.add(AccountPasswordMustChangeException.class);
+        DEFAULT_ERROR_LIST.add(CredentialExpiredException.class);
         DEFAULT_ERROR_LIST.add(InvalidLoginLocationException.class);
         DEFAULT_ERROR_LIST.add(InvalidLoginTimeException.class);
-        DEFAULT_ERROR_LIST.add(AccountLockedException.class);
-        DEFAULT_ERROR_LIST.add(CredentialExpiredException.class);
     }
 
     // Built-in exceptions that are used for OSF
     static {
-        DEFAULT_ERROR_LIST.add(FailedLoginException.class);
         DEFAULT_ERROR_LIST.add(AccountDisabledException.class);
         DEFAULT_ERROR_LIST.add(AccountNotFoundException.class);
+        DEFAULT_ERROR_LIST.add(FailedLoginException.class);
     }
 
     // Customized exceptions for OSF
     static {
-        DEFAULT_ERROR_LIST.add(InvalidVerificationKeyException.class);
         DEFAULT_ERROR_LIST.add(AccountNotConfirmedOsfLoginException.class);
         DEFAULT_ERROR_LIST.add(AccountNotConfirmedIdPLoginException.class);
-        DEFAULT_ERROR_LIST.add(ShouldNotHappenException.class);
-        DEFAULT_ERROR_LIST.add(RemoteUserFailedLoginException.class);
+        DEFAULT_ERROR_LIST.add(InstitutionLoginFailedException.class);
+        DEFAULT_ERROR_LIST.add(InstitutionLoginFailedAttributesMissingException.class);
+        DEFAULT_ERROR_LIST.add(InstitutionLoginFailedAttributesParsingException.class);
+        DEFAULT_ERROR_LIST.add(InstitutionLoginFailedOsfApiException.class);
+        DEFAULT_ERROR_LIST.add(InvalidVerificationKeyException.class);
+        DEFAULT_ERROR_LIST.add(InvalidUserStatusException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordFailedLoginException.class);
         DEFAULT_ERROR_LIST.add(OneTimePasswordRequiredException.class);
     }
 
     // Customized exceptions for delegated login
     static {
+        DEFAULT_ERROR_LIST.add(CasClientLoginException.class);
         DEFAULT_ERROR_LIST.add(DelegatedLoginException.class);
         DEFAULT_ERROR_LIST.add(OrcidClientLoginException.class);
-        DEFAULT_ERROR_LIST.add(CasClientLoginException.class);
     }
 
     // Exceptions that should count against the login rate limiting
     static {
-        THROTTLE_INCREASE_SET.add(FailedLoginException.class.getSimpleName());                // Wrong password
         THROTTLE_INCREASE_SET.add(AccountNotFoundException.class.getSimpleName());            // Username does not exist
+        THROTTLE_INCREASE_SET.add(FailedLoginException.class.getSimpleName());                // Wrong password
         THROTTLE_INCREASE_SET.add(OneTimePasswordFailedLoginException.class.getSimpleName()); // Wrong one time password
     }
 

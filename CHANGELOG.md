@@ -2,8 +2,17 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
-20.0.3 (2020-2-20)
-==================
+20.1.0 (2020-04-14)
+===================
+
+- Move all OSF-customized auth exceptions to their decidated package
+- Split the general institution login exception into three specialized ones
+- Fixed an issue where the institution exception may be thrown for general OAuth failures
+- Rewrite JavaDoc, comments, log messages and auth exceptions for non-interative login actions
+- OSF TOTP model change: the "deleted" field is now a timestamp (which was a boolean)
+
+20.0.3 (2020-02-20)
+===================
 
 - Update institutions-auth.xsl to normalize BT attributes
 

@@ -16,13 +16,14 @@
 
 --%>
 
-<%-- Login exception page: invalid or unexpected user status --%>
+<%-- Institution login exception page --%>
 
 <jsp:directive.include file="includes/top.jsp"/>
 
 <div id="msg" class="errors">
-    <h2><spring:message code="screen.shouldnothappen.heading"/></h2>
-    <p><spring:message code="screen.shouldnothappen.message"/></p>
+    <h2><spring:message code="screen.institutionloginfailed.heading"/></h2>
+    <p><spring:message code="screen.institutionloginfailed.message"/></p>
+    <p>errorCode=${casViewErrorCode}</p>
 </div>
 
 <spring:message code="screen.osf.login.message.error" var="errorDescription"/>
@@ -30,7 +31,7 @@
     description = document.getElementById("description");
     if (description != null) {
         description.innerHTML = "<br><br>${errorDescription}";
-   }
+    }
 </script>
 
 <c:set var="linkSignIn" value="false"/>

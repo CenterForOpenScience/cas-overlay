@@ -7,10 +7,10 @@ import org.jasig.cas.CentralAuthenticationService;
 import org.json.JSONObject;
 
 /**
- * This class mocks the {@link OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction} class.
+ * This class mocks the {@code OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCredentialsAction} class.
  *
  * @author Longze Chen
- * @since  4.1.5
+ * @since  19.3.0
  */
 public class MockNormalizeRemotePrincipal extends MockOsfRemoteAuthenticateAction {
 
