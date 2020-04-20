@@ -68,9 +68,27 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
             throw new AssertionError("UTF-8 is unknown");
         }
 
-        final Map<String, String> institutions = this.institutionHandler.getInstitutionLoginUrls(target);
-        institutions.put("", " -- select an institution -- ");
-        final Map<String, String> sortedInstitutions = sortByValue(institutions);
+        // Retrieve institution ID from flow context instead of URL params
+        String institutionId = null;
+        final String loginContext = (String) context.getFlowScope().get("jsonLoginContext");
+        final OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext osfLoginContext
+                = OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext.fromJson(loginContext);
+        if (osfLoginContext != null) {
+            institutionId = osfLoginContext.getInstitutionId();
+        }
+
+        // One institution (a.k.a. auto selecting preferred institution)
+        Map<String, String> sortedInstitutions = null;
+        if (institutionId != null) {
+            sortedInstitutions = this.institutionHandler.getInstitutionLoginUrls(target, institutionId);
+        }
+
+        // All institutions if auto selection is disabled or if auto selection is invalid
+        if (institutionId == null || sortedInstitutions == null) {
+            final Map<String, String> institutions = this.institutionHandler.getInstitutionLoginUrls(target);
+            institutions.put("", " -- select an institution -- ");
+            sortedInstitutions = sortByValue(institutions);
+        }
         context.getFlowScope().put("institutions", sortedInstitutions);
         return new Event(this, "success");
     }
