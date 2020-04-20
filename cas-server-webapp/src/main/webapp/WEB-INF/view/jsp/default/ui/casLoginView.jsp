@@ -80,8 +80,9 @@
         <%-- Institution Login --%>
         <spring:eval var="institutionLoginUrl" expression="@casProperties.getProperty('cas.institution.login.url')"/>
         <c:set var="serviceParam" value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
+        <c:set var="institutionIdParam" value="&institutionId=${osfLoginContext.getInstitutionId()}"/>
         <section class="row">
-            <a id="alt-login-inst" class="btn-alt-login" href="${institutionLoginUrl}${serviceParam}">
+            <a id="alt-login-inst" class="btn-alt-login" href="${institutionLoginUrl}${serviceParam}${institutionIdParam}">
                 <img class="osf-alt-logo" src="../images/institution-logo.png">
                 <span class="label-login"><spring:message code="screen.welcome.button.login.institution"/></span>
             </a>
@@ -122,7 +123,7 @@
             <input type="checkbox" name="rememberMe" id="rememberMe" value="true" checked tabindex="5"/>
             <label for="rememberMe"><spring:message code="screen.rememberme.checkbox.title"/></label>
             <spring:eval var="forgotPasswordUrl" expression="@casProperties.getProperty('osf.forgotPassword.url')"/>
-            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}" title="<spring:message code="logo.title" />"><spring:message code="screen.general.link.forgotPassword"/></a>
+            <a id="forgot-password" class='need-help' href="${forgotPasswordUrl}"><spring:message code="screen.general.link.forgotPassword"/></a>
         </section>
 
     </form:form>

@@ -81,6 +81,11 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
         Map<String, String> sortedInstitutions = null;
         if (institutionId != null) {
             sortedInstitutions = this.institutionHandler.getInstitutionLoginUrls(target, institutionId);
+            // Set institution ID to null if not found
+            if (sortedInstitutions == null) {
+                osfLoginContext.setInstitutionId(null);
+                context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
+            }
         }
 
         // All institutions if auto selection is disabled or if auto selection is invalid

@@ -22,6 +22,8 @@
 
 <div id="inst-login">
 
+    <c:set var="serviceParam" value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
+
     <script>resizeCasContent();</script>
 
     <section class="row">
@@ -30,16 +32,38 @@
         </div>
     </section><br/>
 
-    <section class="row">
-        <div class="select">
-            <label for="select-institution"><spring:message code="screen.institution.login.select" /></label>
-        </div>
-    </section>
-    <section class="row">
-        <div class="select">
-            <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" onchange="checkSelect()" autofocus="autofocus"/>
-        </div>
-    </section><br/>
+    <c:choose>
+        <c:when test="${osfLoginContext.getInstitutionId() != null}">
+            <section class="row">
+                <div class="select">
+                    <label for="select-institution"><spring:message code="screen.institution.login.select.auto" /></label>
+                </div>
+            </section>
+            <section class="row">
+                <div class="select">
+                    <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" onchange="checkSelect()" autofocus="autofocus" disabled="true"/>
+                </div>
+            </section>
+            <spring:eval var="defaultInstitutionLoginURL" expression="@casProperties.getProperty('cas.institution.login.url')"/>
+            <a id="not-your-institution" class='need-help' href="${defaultInstitutionLoginURL}${serviceParam}"><spring:message code="screen.institution.login.select.all"/></a>
+            <br/>
+            <c:set var="institutionIdParam" value="&institutionId=${osfLoginContext.getInstitutionId()}"/>
+        </c:when>
+        <c:otherwise>
+            <section class="row">
+                <div class="select">
+                    <label for="select-institution"><spring:message code="screen.institution.login.select" /></label>
+                </div>
+            </section>
+            <section class="row">
+                <div class="select">
+                    <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" onchange="checkSelect()" autofocus="autofocus" disabled="false"/>
+                </div>
+            </section>
+            <c:set var="institutionIdParam" value="&institutionId="/>
+        </c:otherwise>
+    </c:choose>
+    <br/>
 
     <section class="row">
         <div class="inst-message">
@@ -64,9 +88,8 @@
     <%-- OSF Username and Password Login --%>
     <hr/><br/>
     <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')"/>
-    <c:set var="serviceParam" value="&service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
     <section class="row">
-        <a id="alt-login-osf" class="btn-alt-login" href="${osfLoginUrl}${serviceParam}">
+        <a id="alt-login-osf" class="btn-alt-login" href="${osfLoginUrl}${serviceParam}${institutionIdParam}">
             <img class="osf-alt-logo" src="../images/osf-logo.png">
             <span class="label-login"><spring:message code="screen.institution.login.osf"/></span>
         </a>

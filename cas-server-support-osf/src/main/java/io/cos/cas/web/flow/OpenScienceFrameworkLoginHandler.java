@@ -101,7 +101,8 @@ public class OpenScienceFrameworkLoginHandler {
             this.institutionLogin = institutionLogin;
         }
 
-        String getInstitutionId() {
+        // Must be public to be accessible in the JSP page
+        public String getInstitutionId() {
             return institutionId;
         }
 
