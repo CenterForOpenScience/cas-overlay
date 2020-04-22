@@ -21,6 +21,7 @@ import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,9 +47,22 @@ public class OpenScienceFrameworkInstitutionHandler {
     }
 
     /**
+     * Check if an institution of a given ID exists and supports SSO.
+     *
+     * @param id the OSF institution ID that identifies the institution
+     * @return <code>true</code> if exists and <code>false </code> otherwise
+     */
+    public boolean validateInstitutionForLogin(final String id) {
+
+        final OpenScienceFrameworkInstitution institution
+                = openScienceFrameworkDao.findOneInstitutionById(id);
+        return institution != null && institution.getDelegationProtocol() != null;
+    }
+
+    /**
      * Find the logout url for given institution identified by institution _id.
      *
-     * @param id the institution _id
+     * @param id the OSF institution ID that identifies the institution
      * @return String or null
      */
     public String findInstitutionLogoutUrlById(final String id) {
@@ -57,52 +71,41 @@ public class OpenScienceFrameworkInstitutionHandler {
     }
 
     /**
-     * <p>Return a map of institution login url or institution ID as key and institution name as value for the
-     * specified institution.</p>
-     *
-     * @param target the osf service target after successful institution login, only used for "saml-shib" institutions
-     * @param institutionId the OSF institution ID that identifies the institution
-     * @return a single-entry {@link Map} if institution is found or <code>null</code> otherwise. For "saml-shib"
-     *         institutions, full login url as key and full institution display name as value; for "cas-pac4j" ones,
-     *         institution id as key and full institution display name as value.
-     */
-    public Map<String, String> getInstitutionLoginUrls(final String target, final String institutionId) {
-        final OpenScienceFrameworkInstitution institution
-                = openScienceFrameworkDao.findOneInstitutionById(institutionId);
-        if (institution == null) {
-            return null;
-        }
-        final Map<String, String> institutionLogin = new HashMap<>();
-        final DelegationProtocol delegationProtocol = institution.getDelegationProtocol();
-        if (DelegationProtocol.SAML_SHIB.equals(delegationProtocol)) {
-            institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
-        } else if (DelegationProtocol.CAS_PAC4J.equals(delegationProtocol)) {
-            institutionLogin.put(institution.getId(), institution.getName());
-        } else {
-            return null;
-        }
-        return institutionLogin;
-    }
-
-    /**
      * <p>Return a map of institution login url or institution ID as key and institution name as value.</p>
      *
+     * <p>For saml-shib institutions, the login url is the key and the institution display name is the value.</p>
+     *
+     * <p>For cas-pac4j institutions, the institution ID is the key and the institution display name is the value. </p>
+     *
      * @param target the osf service target after successful institution login, only used for "saml-shib" institutions
-     * @return a multi-entry {@link Map}. For "saml-shib" institutions, full login url as key and full institution
-     *         display name as value; for "cas-pac4j" ones, institution id as key and full institution display name as
-     *         value.
+     * @param id the OSF institution ID if auto-selection is enabled
+     * @return a single-entry {@link Map} if <code>id</code> presents and if the institution this <code>id</code>
+     *         identifies exists and supports institution SSO; otherwise return a multi-entry {@link Map} of all.
      */
-    public Map<String, String> getInstitutionLoginUrls(final String target) {
-        final List<OpenScienceFrameworkInstitution> institutionList = openScienceFrameworkDao.findAllInstitutions();
-        final Map<String, String> institutionLogin = new HashMap<>();
+    public Map<String, String> getInstitutionLoginUrlMap(final String target, final String id) {
+
+        List<OpenScienceFrameworkInstitution> institutionList = new LinkedList<>();
+        if (id == null || id.isEmpty()) {
+            institutionList = openScienceFrameworkDao.findAllInstitutions();
+        } else {
+            final OpenScienceFrameworkInstitution institution
+                    = openScienceFrameworkDao.findOneInstitutionById(id);
+            if (institution != null) {
+                institutionList.add(institution);
+            } else {
+                institutionList = openScienceFrameworkDao.findAllInstitutions();
+            }
+        }
+
+        final Map<String, String> institutionLoginUrlMap = new HashMap<>();
         for (final OpenScienceFrameworkInstitution institution: institutionList) {
             final DelegationProtocol delegationProtocol = institution.getDelegationProtocol();
             if (DelegationProtocol.SAML_SHIB.equals(delegationProtocol)) {
-                institutionLogin.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
+                institutionLoginUrlMap.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
             } else if (DelegationProtocol.CAS_PAC4J.equals(delegationProtocol)) {
-                institutionLogin.put(institution.getId(), institution.getName());
+                institutionLoginUrlMap.put(institution.getId(), institution.getName());
             }
         }
-        return institutionLogin;
+        return institutionLoginUrlMap;
     }
 }

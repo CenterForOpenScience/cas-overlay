@@ -16,6 +16,7 @@
 package io.cos.cas.web.flow;
 
 import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
+
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -75,26 +76,26 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
                 = OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext.fromJson(loginContext);
         if (osfLoginContext != null) {
             institutionId = osfLoginContext.getInstitutionId();
-        }
-
-        // One institution (a.k.a. auto selecting preferred institution)
-        Map<String, String> sortedInstitutions = null;
-        if (institutionId != null) {
-            sortedInstitutions = this.institutionHandler.getInstitutionLoginUrls(target, institutionId);
             // Set institution ID to null if not found
-            if (sortedInstitutions == null) {
+            if (!this.institutionHandler.validateInstitutionForLogin(institutionId)) {
                 osfLoginContext.setInstitutionId(null);
                 context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
+                institutionId = null;
             }
         }
 
-        // All institutions if auto selection is disabled or if auto selection is invalid
-        if (institutionId == null || sortedInstitutions == null) {
-            final Map<String, String> institutions = this.institutionHandler.getInstitutionLoginUrls(target);
-            institutions.put("", " -- select an institution -- ");
-            sortedInstitutions = sortByValue(institutions);
+        final Map<String, String> institutionLoginUrlMap
+                = this.institutionHandler.getInstitutionLoginUrlMap(target, institutionId);
+        final Map<String, String> institutionLoginUrlMapSorted;
+        if (institutionId != null) {
+            // One institution (a.k.a. auto selecting the preferred institution)
+            institutionLoginUrlMapSorted = institutionLoginUrlMap;
+        } else {
+            // All institutions with pending selection if auto selection is disabled or turns out to be invalid
+            institutionLoginUrlMap.put("", " -- select an institution -- ");
+            institutionLoginUrlMapSorted = sortByValue(institutionLoginUrlMap);
         }
-        context.getFlowScope().put("institutions", sortedInstitutions);
+        context.getFlowScope().put("institutions", institutionLoginUrlMapSorted);
         return new Event(this, "success");
     }
 
