@@ -158,10 +158,10 @@ public class OpenScienceFrameworkLoginHandler {
     public Event beforeLogin(final RequestContext context) {
 
         final OpenScienceFrameworkLoginContext osfLoginContext;
-        final String serviceUrl = getEncodedServiceUrl(context);
+        final String serviceUrl = getEncodedServiceUrlFromRequestContext(context);
         final boolean institutionLogin = isInstitutionLogin(context);
-        final String institutionId = getInstitutionId(context);
-        final boolean orcidRedirect = isOrcidRedirect(context);
+        final String institutionId = getInstitutionIdFromRequestContext(context);
+        final boolean orcidRedirect = checkOrcidRedirectFromRequestContext(context);
 
         String jsonLoginContext = (String) context.getFlowScope().get("jsonLoginContext");
         if (jsonLoginContext == null) {
@@ -215,7 +215,7 @@ public class OpenScienceFrameworkLoginHandler {
      * @param context the request context
      * @return the institution ID
      */
-    private String getInstitutionId(final RequestContext context) {
+    private String getInstitutionIdFromRequestContext(final RequestContext context) {
         final String institutionId = context.getRequestParameters().get("institutionId");
         return (institutionId == null || institutionId.isEmpty()) ? null : institutionId;
     }
@@ -226,7 +226,7 @@ public class OpenScienceFrameworkLoginHandler {
      * @param context the request context
      * @return true if `redirectOrcid=true` is present in the request parameters
      */
-    private boolean isOrcidRedirect(final RequestContext context) {
+    private boolean checkOrcidRedirectFromRequestContext(final RequestContext context) {
         final String orcidRedirect = context.getRequestParameters().get("redirectOrcid");
         return orcidRedirect != null && "true".equals(orcidRedirect.toLowerCase());
     }
@@ -241,7 +241,7 @@ public class OpenScienceFrameworkLoginHandler {
      * @return the encoded service url
      * @throws AssertionError if encoding fails
      */
-    private String getEncodedServiceUrl(final RequestContext context) throws AssertionError {
+    private String getEncodedServiceUrlFromRequestContext(final RequestContext context) throws AssertionError {
         final String serviceUrl = context.getRequestParameters().get("service");
         if (serviceUrl == null || serviceUrl.isEmpty()) {
             return null;
