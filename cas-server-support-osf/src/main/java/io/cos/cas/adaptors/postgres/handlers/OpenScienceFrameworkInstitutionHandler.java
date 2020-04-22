@@ -19,17 +19,18 @@ import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkInstitution;
 import io.cos.cas.adaptors.postgres.types.DelegationProtocol;
 
-import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * The Open Science Framework Institution Handler.
  *
  * @author Longze Chen
- * @since 4.1.5
+ * @since 19.3.0
  */
 public class OpenScienceFrameworkInstitutionHandler {
 
