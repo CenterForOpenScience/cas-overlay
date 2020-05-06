@@ -36,9 +36,17 @@
     <p><spring:message code="screen.success.security"/></p>
 </div>
 
+<spring:message code="screen.osf.login.message.continue" arguments="${osfUrl}" var="successDescription"/>
+<script>
+    description = document.getElementById("description");
+    if (description != null) {
+        description.innerHTML = "<br><br>${successDescription}";
+    }
+</script>
+
 <c:set var="linkSignIn" value="false"/>
 <c:set var="linkSignOut" value="true"/>
 <c:set var="linkCreateAccount" value="false"/>
-<c:set var="linkBackToOsf" value="true"/>
+<c:set var="linkBackToOsf" value="false"/>
 
 <jsp:directive.include file="includes/bottom.jsp"/>
