@@ -58,7 +58,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 19.0.0
+ * @since 19.3.0
  */
 public class OpenScienceFrameworkAuthenticationHandler extends AbstractPreAndPostProcessingAuthenticationHandler
         implements InitializingBean {
