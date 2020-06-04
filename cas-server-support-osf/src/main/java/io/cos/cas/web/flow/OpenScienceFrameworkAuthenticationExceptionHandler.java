@@ -55,7 +55,7 @@ import javax.security.auth.login.FailedLoginException;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 19.0.0
+ * @since 19.3.0
  */
 public class OpenScienceFrameworkAuthenticationExceptionHandler extends AuthenticationExceptionHandler {
 
