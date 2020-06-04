@@ -38,7 +38,7 @@ import javax.persistence.TemporalType;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 19.0.0
+ * @since 19.3.0
  */
 @Entity
 @Table(name = "osf_osfuser")

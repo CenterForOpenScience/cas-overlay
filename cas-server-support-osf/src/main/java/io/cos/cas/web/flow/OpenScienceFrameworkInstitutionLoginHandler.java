@@ -16,6 +16,7 @@
 package io.cos.cas.web.flow;
 
 import io.cos.cas.adaptors.postgres.handlers.OpenScienceFrameworkInstitutionHandler;
+
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -32,7 +33,7 @@ import java.util.Map;
  * Open Science Framework Institution Login Handler.
  *
  * @author Longze Chen
- * @since 4.1.5
+ * @since 19.3.0
  */
 public class OpenScienceFrameworkInstitutionLoginHandler {
 
@@ -68,10 +69,33 @@ public class OpenScienceFrameworkInstitutionLoginHandler {
             throw new AssertionError("UTF-8 is unknown");
         }
 
-        final Map<String, String> institutions = this.institutionHandler.getInstitutionLoginUrls(target);
-        institutions.put("", " -- select an institution -- ");
-        final Map<String, String> sortedInstitutions = sortByValue(institutions);
-        context.getFlowScope().put("institutions", sortedInstitutions);
+        // Retrieve institution ID from flow context instead of URL params
+        String institutionId = null;
+        final String loginContext = (String) context.getFlowScope().get("jsonLoginContext");
+        final OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext osfLoginContext
+                = OpenScienceFrameworkLoginHandler.OpenScienceFrameworkLoginContext.fromJson(loginContext);
+        if (osfLoginContext != null) {
+            institutionId = osfLoginContext.getInstitutionId();
+            // Set institution ID to null if not found
+            if (!this.institutionHandler.validateInstitutionForLogin(institutionId)) {
+                osfLoginContext.setInstitutionId(null);
+                context.getFlowScope().put("jsonLoginContext", osfLoginContext.toJson());
+                institutionId = null;
+            }
+        }
+
+        final Map<String, String> institutionLoginUrlMap
+                = this.institutionHandler.getInstitutionLoginUrlMap(target, institutionId);
+        final Map<String, String> institutionLoginUrlMapSorted;
+        if (institutionId != null) {
+            // One institution (a.k.a. auto selecting the preferred institution)
+            institutionLoginUrlMapSorted = institutionLoginUrlMap;
+        } else {
+            // All institutions with pending selection if auto selection is disabled or turns out to be invalid
+            institutionLoginUrlMap.put("", " -- select an institution -- ");
+            institutionLoginUrlMapSorted = sortByValue(institutionLoginUrlMap);
+        }
+        context.getFlowScope().put("institutions", institutionLoginUrlMapSorted);
         return new Event(this, "success");
     }
 

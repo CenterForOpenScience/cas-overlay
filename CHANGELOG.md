@@ -2,6 +2,14 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.2.0 (2020-06-04)
+===================
+
+- Added automatic institution selection
+- Fixed branded sign-in for frenxiv
+- Fixed heading for authorization failure page
+- Improved generic login success page
+
 20.1.0 (2020-04-14)
 ===================
 
