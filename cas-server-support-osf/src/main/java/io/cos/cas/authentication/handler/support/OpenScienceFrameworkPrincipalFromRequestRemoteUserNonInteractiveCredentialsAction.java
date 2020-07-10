@@ -94,6 +94,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -423,8 +424,16 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             String clientName = null;
             if (authentication.getAttributes().containsKey("clientName")) {
                 clientName = (String) authentication.getAttributes().get("clientName");
-                // TODO: Log (info-level) the client name and principal ID here
             }
+            // If a valid TGT exists and if it is not a PAC4J authenticated one, it is impossible for the authentication
+            // flow to ever reach this `remoteAuthenticate` action state in the first place as is configured in the file
+            // `login-webflow.xml`. Thus `clientName` should never be null or empty here and its value must be equal to
+            // one of the clients registered in the file `authenticationDelegation.xml`.
+            if (clientName == null || clientName.isEmpty()) {
+                logger.error("[PAC4J Delegation] Invalid TGT with null or empty PAC4J client");
+                throw new DelegatedLoginException("Invalid TGT with null or empty PAC4J client");
+            }
+            logger.info("[PAC4J Delegation] Auth client: {} w/ principal ID: {}", clientName, principal.getId());
 
             // AUTH TYPE 2.1: ORCiD login via the OAuth protocol
             if (OrcidClient.class.getSimpleName().equals(clientName)) {
@@ -434,20 +443,54 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             }
 
             // AUTH TYPE 2.2: Institution login via the CAS protocol
-            // TODO: Add a check here to ensure that 1) `clientName` is not null and that 2) `clientName` matches one
-            //       of the configured institutions that uses the CAS protocol for delegation
             credential.setDelegationProtocol(DelegationProtocol.CAS_PAC4J);
             credential.setRemotePrincipal(Boolean.TRUE);
             credential.getDelegationAttributes().put("Cas-Identity-Provider", clientName);
             if (principal.getAttributes().size() > 0) {
                 for (final Map.Entry<String, Object> entry : principal.getAttributes().entrySet()) {
                     logger.debug(
-                            "[CAS PAC4J] User's institutional identity '{}' - auth header '{}': '{}'",
+                            "[CAS PAC4J] User's institutional identity '{}': '{}' with attribute '{}': '{}'",
+                            clientName,
                             principal.getId(),
                             entry.getKey(),
                             entry.getValue()
                     );
-                    credential.getDelegationAttributes().put(entry.getKey(), (String) entry.getValue());
+                    // As for the CAS protocol with SAML validation, the attributes we need (a.k.a email and names) are
+                    // expected to be of the type `String` when they are parsed from the SAML response XML and stored in
+                    // the `attribute` map of the `Principal` object.
+                    if (entry.getValue() instanceof String) {
+                        logger.info(
+                                "[CAS PAC4J] Delegation attribute map updated: '{}', '{}', '{}', '{}'",
+                                clientName,
+                                principal.getId(),
+                                entry.getKey(),
+                                entry.getValue()
+                        );
+                        credential.getDelegationAttributes().put(entry.getKey(), String.valueOf(entry.getValue()));
+                    } else if (entry.getValue() instanceof ArrayList) {
+                        // CAS doesn't support multi-value attributes. Don't store them in the delegation attribute map.
+                        // Use error level logging to inform Sentry
+                        logger.error(
+                                "[CAS PAC4J] Multi-value attribute detected: '{}', '{}', '{}', '{}', '{}'",
+                                clientName,
+                                principal.getId(),
+                                entry.getKey(),
+                                entry.getValue(),
+                                entry.getValue().getClass().getName()
+                        );
+                    } else {
+                        // CAS does not expect other value types such as `Integer`, `Boolean`, etc. Don't store them in
+                        // the delegation attribute map.
+                        // Use error level logging to inform Sentry
+                        logger.error(
+                                "[CAS PAC4J] Attribute w/ value of other types detected: '{}', '{}', '{}', '{}', '{}'",
+                                clientName,
+                                principal.getId(),
+                                entry.getKey(),
+                                entry.getValue(),
+                                entry.getValue().getClass().getName()
+                        );
+                    }
                 }
             } else {
                 // CAS IdP servers must provide required attributes such as user's email and full name.
