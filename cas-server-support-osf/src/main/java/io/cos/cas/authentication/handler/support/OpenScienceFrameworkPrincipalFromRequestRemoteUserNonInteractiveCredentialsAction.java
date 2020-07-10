@@ -424,8 +424,16 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             String clientName = null;
             if (authentication.getAttributes().containsKey("clientName")) {
                 clientName = (String) authentication.getAttributes().get("clientName");
-                // TODO: Log (info-level) the client name and principal ID here
             }
+            // If a valid TGT exists and if it is not a PAC4J authenticated one, it is impossible for the authentication
+            // flow to ever reach this `remoteAuthenticate` action state in the first place as is configured in the file
+            // `login-webflow.xml`. Thus `clientName` should never be null or empty here and its value must be equal to
+            // one of the clients registered in the file `authenticationDelegation.xml`.
+            if (clientName == null || clientName.isEmpty()) {
+                logger.error("[PAC4J Delegation] Invalid TGT with null or empty PAC4J client");
+                throw new DelegatedLoginException("Invalid TGT with null or empty PAC4J client");
+            }
+            logger.info("[PAC4J Delegation] Auth client: {} w/ principal ID: {}", clientName, principal.getId());
 
             // AUTH TYPE 2.1: ORCiD login via the OAuth protocol
             if (OrcidClient.class.getSimpleName().equals(clientName)) {
@@ -435,8 +443,6 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             }
 
             // AUTH TYPE 2.2: Institution login via the CAS protocol
-            // TODO: Add a check here to ensure that 1) `clientName` is not null and that 2) `clientName` matches one
-            //       of the configured institutions that uses the CAS protocol for delegation
             credential.setDelegationProtocol(DelegationProtocol.CAS_PAC4J);
             credential.setRemotePrincipal(Boolean.TRUE);
             credential.getDelegationAttributes().put("Cas-Identity-Provider", clientName);
