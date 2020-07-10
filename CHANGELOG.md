@@ -2,6 +2,13 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.2.1 (2020-07-10)
+===================
+
+- Fixed broken OKState SSO due to multi-factor update at their end
+- Ignored non-String and multi-value attributes for institutions using CAS-pac4j based SSO
+- Improved logging for pac4j auth delegation
+
 20.2.0 (2020-06-04)
 ===================
 
