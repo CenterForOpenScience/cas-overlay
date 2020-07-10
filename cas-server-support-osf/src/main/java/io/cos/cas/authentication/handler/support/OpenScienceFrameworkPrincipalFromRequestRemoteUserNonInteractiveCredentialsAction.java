@@ -455,6 +455,9 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                             entry.getKey(),
                             entry.getValue()
                     );
+                    // As for the CAS protocol with SAML validation, the attributes we need (a.k.a email and names) are
+                    // expected to be of the type `String` when they are parsed from the SAML response XML and stored in
+                    // the `attribute` map of the `Principal` object.
                     if (entry.getValue() instanceof String) {
                         logger.info(
                                 "[CAS PAC4J] Delegation attribute map updated: '{}', '{}', '{}', '{}'",
@@ -463,10 +466,12 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                                 entry.getKey(),
                                 entry.getValue()
                         );
-                        credential.getDelegationAttributes().put(entry.getKey(), (String) entry.getValue());
+                        credential.getDelegationAttributes().put(entry.getKey(), String.valueOf(entry.getValue()));
                     } else if (entry.getValue() instanceof ArrayList) {
+                        // CAS doesn't support multi-value attributes. Don't store them in the delegation attribute map.
+                        // Use error level logging to inform Sentry
                         logger.error(
-                                "[CAS PAC4J] Multi-value attribute is not supported: '{}', '{}', '{}', '{}', '{}'",
+                                "[CAS PAC4J] Multi-value attribute detected: '{}', '{}', '{}', '{}', '{}'",
                                 clientName,
                                 principal.getId(),
                                 entry.getKey(),
@@ -474,14 +479,16 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
                                 entry.getValue().getClass().getName()
                         );
                     } else {
+                        // CAS does not expect other value types such as `Integer`, `Boolean`, etc. Don't store them in
+                        // the delegation attribute map.
+                        // Use error level logging to inform Sentry
                         logger.error(
-                                "[CAS PAC4J] Attribute with value of unexpected type: '{}', '{}', '{}', '{}', '{}'",
+                                "[CAS PAC4J] Attribute w/ value of other types detected: '{}', '{}', '{}', '{}', '{}'",
                                 clientName,
                                 principal.getId(),
                                 entry.getKey(),
                                 entry.getValue(),
                                 entry.getValue().getClass().getName()
-
                         );
                     }
                 }
