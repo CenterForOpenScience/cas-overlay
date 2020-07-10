@@ -94,6 +94,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -442,12 +443,41 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             if (principal.getAttributes().size() > 0) {
                 for (final Map.Entry<String, Object> entry : principal.getAttributes().entrySet()) {
                     logger.debug(
-                            "[CAS PAC4J] User's institutional identity '{}' - auth header '{}': '{}'",
+                            "[CAS PAC4J] User's institutional identity '{}': '{}' with attribute '{}': '{}'",
+                            clientName,
                             principal.getId(),
                             entry.getKey(),
                             entry.getValue()
                     );
-                    credential.getDelegationAttributes().put(entry.getKey(), (String) entry.getValue());
+                    if (entry.getValue() instanceof String) {
+                        logger.info(
+                                "[CAS PAC4J] Delegation attribute map updated: '{}', '{}', '{}', '{}'",
+                                clientName,
+                                principal.getId(),
+                                entry.getKey(),
+                                entry.getValue()
+                        );
+                        credential.getDelegationAttributes().put(entry.getKey(), (String) entry.getValue());
+                    } else if (entry.getValue() instanceof ArrayList) {
+                        logger.error(
+                                "[CAS PAC4J] Multi-value attribute is not supported: '{}', '{}', '{}', '{}', '{}'",
+                                clientName,
+                                principal.getId(),
+                                entry.getKey(),
+                                entry.getValue(),
+                                entry.getValue().getClass().getName()
+                        );
+                    } else {
+                        logger.error(
+                                "[CAS PAC4J] Attribute with value of unexpected type: '{}', '{}', '{}', '{}', '{}'",
+                                clientName,
+                                principal.getId(),
+                                entry.getKey(),
+                                entry.getValue(),
+                                entry.getValue().getClass().getName()
+
+                        );
+                    }
                 }
             } else {
                 // CAS IdP servers must provide required attributes such as user's email and full name.
