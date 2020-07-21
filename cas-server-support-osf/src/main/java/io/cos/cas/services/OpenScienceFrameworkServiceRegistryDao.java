@@ -30,8 +30,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Implementation of <code>ServiceRegistryDao</code> that reads services definition from the
- * Open Science Framework at the Spring Application Context initialization time.
+ * Implementation of {@link ServiceRegistryDao} that reads services definition from the OSF at the initialization time
+ * of Spring Application Context.
+ *
+ * Note: Similar to the OSF and its services (e.g. preprints, registries, etc.), OSF developer apps loaded from the OSF
+ *       database are treated as {@link RegisteredService}. CAS determines which service it is by "regex" checking the
+ *       "service" query parameter in the login URL against the {@link RegisteredService#getServiceId()}. If a service
+ *       matches two or more {@code serviceId}, the one with the highest {@link RegisteredService#getEvaluationOrder()}
+ *       will be matched. The order is a non-negative integer, {@code 0} is the highest and the order decreases as the
+ *       value grows larger.
+ *
+ *       {@link OpenScienceFrameworkApiOauth2Application#getCallbackUrl()} is entered by the owner of the developer app
+ *       via OSF and it is used here in CAS to set the {@code serviceId}. Thus we must set the evaluation order to the
+ *       lowest so that it does not take over other services. Here are a list of evaluation orders:
+ *
+ *       1. 1000: branded preprints, CAS oauth callback authorization service
+ *       2. 1500: OSF preprints, OSF registries
+ *       3. 2000: OSF, CAS
+ *       4. 3000: OSF developer apps
  *
  * @author Michael Haselton
  * @author Longze Chen
@@ -42,6 +58,8 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenScienceFrameworkServiceRegistryDao.class);
 
     private static final int HEX_RADIX = 16;
+
+    private static final int EVALUATION_ORDER = 3000;
 
     /** Map of service ID to registered service. */
     private Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
@@ -88,6 +106,7 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             service.setName(oAuthService.getName());
             service.setDescription(oAuthService.getDescription());
             service.setServiceId(oAuthService.getCallbackUrl());
+            service.setEvaluationOrder(EVALUATION_ORDER);
             service.setBypassApprovalPrompt(Boolean.FALSE);
             service.setClientId(oAuthService.getClientId());
             service.setClientSecret(oAuthService.getClientSecret());
