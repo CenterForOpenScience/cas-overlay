@@ -2,6 +2,13 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.2.2 (2020-07-22)
+===================
+
+- Fixed an issue that OSF developer apps may take over branded info on the login page by
+  decreasing registered service evaluation order to the lowest for OAuth apps
+
+
 20.2.1 (2020-07-10)
 ===================
 
