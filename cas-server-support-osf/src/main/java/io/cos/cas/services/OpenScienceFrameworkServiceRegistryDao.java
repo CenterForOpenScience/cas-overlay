@@ -17,12 +17,15 @@ package io.cos.cas.services;
 
 import io.cos.cas.adaptors.postgres.daos.OpenScienceFrameworkDaoImpl;
 import io.cos.cas.adaptors.postgres.models.OpenScienceFrameworkApiOauth2Application;
+
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.jasig.cas.services.ServiceRegistryDao;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Michael Haselton
  * @author Longze Chen
- * @since 4.1.0
+ * @since 19.3.0
  */
 public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDao {
 
@@ -88,18 +91,18 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
 
     @Override
     public final synchronized List<RegisteredService> load() {
-        final List<OpenScienceFrameworkApiOauth2Application> oAuthServices = openScienceFrameworkDao.findOauthApplications();
 
+        // Load all OSF developer apps from the OSF database via OSF DAO
+        final List<OpenScienceFrameworkApiOauth2Application> oAuthServices
+                = openScienceFrameworkDao.findOauthApplications();
+
+        // Init attribute release policy
         final ReturnAllowedAttributeReleasePolicy attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
-        final Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
         final ArrayList<String> allowedAttributes = new ArrayList<>();
-        /**
-         * e.g. global attribute release
-         * allowedAttributes.add("username");
-         * allowedAttributes.add("givenName");
-         * allowedAttributes.add("familyName");
-         */
         attributeReleasePolicy.setAllowedAttributes(allowedAttributes);
+
+        // Create the registered service for each developer app and put them into  a service map
+        final Map<Long, RegisteredService> serviceMap = new ConcurrentHashMap<>();
         for (final OpenScienceFrameworkApiOauth2Application oAuthService : oAuthServices) {
             final OAuthRegisteredService service = new OAuthRegisteredService();
             service.setId(new BigInteger(oAuthService.getId(), HEX_RADIX).longValue());
@@ -113,6 +116,8 @@ public class OpenScienceFrameworkServiceRegistryDao implements ServiceRegistryDa
             service.setAttributeReleasePolicy(attributeReleasePolicy);
             serviceMap.put(service.getId(), service);
         }
+
+        // Set the service map and return a list of services
         this.serviceMap = serviceMap;
         return new ArrayList<>(this.serviceMap.values());
     }
