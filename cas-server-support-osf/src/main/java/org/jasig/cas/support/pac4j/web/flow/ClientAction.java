@@ -269,6 +269,14 @@ public final class ClientAction extends AbstractAction {
             final BaseClient baseClient = (BaseClient) client;
             final String redirectionUrl = baseClient.getRedirectionUrl(webContext);
             logger.debug("{} -> {}", key, redirectionUrl);
+            if (client instanceof OrcidClient) {
+                logger.debug(
+                        "{} network timeouts (ms): connection={}, read={}",
+                        client.getName(),
+                        ((OrcidClient) client).getConnectTimeout(),
+                        ((OrcidClient) client).getReadTimeout()
+                );
+            }
             context.getFlowScope().put(key, redirectionUrl);
         }
     }
