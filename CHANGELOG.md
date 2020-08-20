@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.2.3 (2020-08-20)
+===================
+
+- Fixed ORCID login failure due to OAuth profile timeout
+
 20.2.2 (2020-07-22)
 ===================
 
