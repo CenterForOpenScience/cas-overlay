@@ -30,6 +30,8 @@
         <property name="secret" value="${oauth.orcid.client.secret}" />
         <property name="scope" value="${oauth.orcid.scope}" />
         <property name="member" value="${oauth.orcid.member}" />
+        <property name="connectTimeout" value="${oauth.orcid.connect.timeout}"/>
+        <property name="readTimeout" value="${oauth.orcid.read.timeout}"/>
     </bean>
 
     <!-- CAS Clients -->

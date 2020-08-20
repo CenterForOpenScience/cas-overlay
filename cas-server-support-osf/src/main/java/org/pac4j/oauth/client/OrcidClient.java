@@ -73,13 +73,27 @@ public class OrcidClient extends BaseOAuth20Client<OrcidProfile> {
     /**
      * Instantiate a new {@link OrcidClient}.
      *
-     * @param key the key
-     * @param secret the secret
+     * @param key the client key
+     * @param secret the client secret
+     * @param connectTimeout the timeout for connection
+     * @param readTimeout the timeout for read
+     */
+    public OrcidClient(final String key, final String secret, final int connectTimeout, final int readTimeout) {
+        this(key, secret);
+        setConnectTimeout(connectTimeout);
+        setReadTimeout(readTimeout);
+    }
+
+    /**
+     * Instantiate a new {@link OrcidClient}.
+     *
+     * @param key the client key
+     * @param secret the client secret
      */
     public OrcidClient(final String key, final String secret) {
+        this();
         setKey(key);
         setSecret(secret);
-        setTokenAsHeader(true);
     }
 
     /**
