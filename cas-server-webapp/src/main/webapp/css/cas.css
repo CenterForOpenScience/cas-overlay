@@ -498,6 +498,29 @@ footer a:link, footer a:visited {
     color: #BB0000;
 }
 
+#unknown-institution-login, #unknown-institution-login:active {
+    background-image: linear-gradient(to bottom, #2bc1f3 0, #337591 100%);
+    color: white;
+    font-weight: bold;
+}
+
+#unknown-institution-login:hover {
+    cursor: pointer;
+    -webkit-box-shadow: 0px 0px 5px 0px #337591;
+    -moz-box-shadow: 0px 0px 5px 0px #337591;
+    box-shadow: 0px 0px 5px 0px #337591;
+}
+
+#unknown-institution-login .label-login {
+    opacity: 0.9;
+    font-size: 1em;
+}
+
+.unsupported-inst-body-header {
+    font-weight: bold;
+    font-size: 110%;
+}
+
 #service-logo {
     width: 50px;
     text-align: center;

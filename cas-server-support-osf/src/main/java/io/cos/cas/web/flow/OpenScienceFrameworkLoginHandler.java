@@ -48,6 +48,9 @@ public class OpenScienceFrameworkLoginHandler {
         /** The flag for institution login instead of normal OSF login. */
         private boolean institutionLogin;
 
+        /** The flag for institution login instead of normal OSF login. */
+        private boolean unsupportedInstitutionLogin;
+
         /** The OSF institution ID for an auto-selected institution. */
         private String institutionId;
 
@@ -60,18 +63,21 @@ public class OpenScienceFrameworkLoginHandler {
          * @param serviceUrl the service URL
          * @param institutionLogin the flag for institution login
          * @param institutionId the auto-selected institution ID
+         * @param unsupportedInstitutionLogin the flag for unsupported institution login
          * @param orcidRedirect the flag for ORCiD redirect
          */
         private OpenScienceFrameworkLoginContext(
                 final String serviceUrl,
                 final boolean institutionLogin,
                 final String institutionId,
+                final boolean unsupportedInstitutionLogin,
                 final boolean orcidRedirect
         ) {
             this.serviceUrl = serviceUrl;
             this.handleErrorName = null;
             this.institutionLogin = institutionLogin;
             this.institutionId = institutionId;
+            this.unsupportedInstitutionLogin = unsupportedInstitutionLogin;
             this.orcidRedirect = orcidRedirect;
         }
 
@@ -108,6 +114,14 @@ public class OpenScienceFrameworkLoginHandler {
 
         void setInstitutionId(final String institutionId) {
             this.institutionId = institutionId;
+        }
+
+        public boolean isUnsupportedInstitutionLogin() {
+            return unsupportedInstitutionLogin;
+        }
+
+        void setUnsupportedInstitutionLogin(final boolean unsupportedInstitutionLogin) {
+            this.unsupportedInstitutionLogin = unsupportedInstitutionLogin;
         }
 
         boolean isOrcidRedirect() {
@@ -161,6 +175,7 @@ public class OpenScienceFrameworkLoginHandler {
         final String serviceUrl = getEncodedServiceUrlFromRequestContext(context);
         final boolean institutionLogin = isInstitutionLogin(context);
         final String institutionId = getInstitutionIdFromRequestContext(context);
+        final boolean unsupportedInstitutionLogin = isUnsupportedInstitutionLogin(context);
         final boolean orcidRedirect = checkOrcidRedirectFromRequestContext(context);
 
         String jsonLoginContext = (String) context.getFlowScope().get("jsonLoginContext");
@@ -170,6 +185,7 @@ public class OpenScienceFrameworkLoginHandler {
                     serviceUrl,
                     institutionLogin,
                     institutionId,
+                    unsupportedInstitutionLogin,
                     orcidRedirect
             );
         } else {
@@ -179,6 +195,7 @@ public class OpenScienceFrameworkLoginHandler {
             osfLoginContext.setServiceUrl(serviceUrl);
             osfLoginContext.setInstitutionLogin(institutionLogin);
             osfLoginContext.setInstitutionId(institutionId);
+            osfLoginContext.setUnsupportedInstitutionLogin(unsupportedInstitutionLogin);
             // Only allow ORCiD login redirect from a brand new login flow
             osfLoginContext.setOrcidRedirect(false);
         }
@@ -189,6 +206,10 @@ public class OpenScienceFrameworkLoginHandler {
         // Go to the institution login page. Note: the institution login flag rules over the ORCiD redirect flag
         if (osfLoginContext.isInstitutionLogin()) {
             return new Event(this, "institutionLogin");
+        }
+        // Go to the unsupported institution login page.
+        if (osfLoginContext.isUnsupportedInstitutionLogin()) {
+            return new Event(this, "unsupportedInstitutionLogin");
         }
         // Go to the dedicated redirect view for ORCiD login
         if (osfLoginContext.isOrcidRedirect()) {
@@ -218,6 +239,17 @@ public class OpenScienceFrameworkLoginHandler {
     private String getInstitutionIdFromRequestContext(final RequestContext context) {
         final String institutionId = context.getRequestParameters().get("institutionId");
         return (institutionId == null || institutionId.isEmpty()) ? null : institutionId;
+    }
+
+    /**
+     * Check if the request is unsupported institution login.
+     *
+     * @param context the request context
+     * @return true if `campaign=unsupported-institution` is present in the request parameters
+     */
+    private boolean isUnsupportedInstitutionLogin(final RequestContext context) {
+        final String campaign = context.getRequestParameters().get("campaign");
+        return campaign != null && "unsupportedinstitution".equals(campaign.toLowerCase());
     }
 
     /**

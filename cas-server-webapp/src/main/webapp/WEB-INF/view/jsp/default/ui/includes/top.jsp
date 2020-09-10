@@ -99,6 +99,10 @@
                             <c:when test="${osfLoginContext.isInstitutionLogin()}">
                                 <spring:message code="screen.institution.login.message" />
                             </c:when>
+                            <c:when test="${osfLoginContext.isUnsupportedInstitutionLogin()}">
+                                <spring:eval var="defaultOsfiURL" expression="@casProperties.getProperty('osf.osfi.url')"/>
+                                <spring:message code="screen.unsupportedinstitution.login.message" arguments="${defaultOsfiURL}" />
+                            </c:when>
                             <c:otherwise>
                                 <spring:message code="screen.osf.login.message" />
                             </c:otherwise>

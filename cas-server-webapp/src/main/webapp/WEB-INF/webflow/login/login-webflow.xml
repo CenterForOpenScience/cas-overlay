@@ -106,6 +106,7 @@
         <evaluate expression="loginHandler.beforeLogin(flowRequestContext)" />
         <transition on="osfDefaultLogin" to="viewLoginForm" />
         <transition on="institutionLogin" to="osfInstitutionLogin" />
+        <transition on="unsupportedInstitutionLogin" to="viewUnsupportedInstitutionLoginPage" />
         <transition on="orcidLoginRedirect" to="viewOrcidLoginRedirectPage" />
     </action-state>
 
@@ -115,6 +116,9 @@
     </action-state>
 
     <view-state id="viewInstitutionLoginForm" view="casInstitutionLoginView" model="credential">
+    </view-state>
+
+    <view-state id="viewUnsupportedInstitutionLoginPage" view="casUnsupportedInstitutionLoginView" model="credential">
     </view-state>
 
     <view-state id="viewOrcidLoginRedirectPage" view="casOrcidLoginRedirectView" model="credential">
