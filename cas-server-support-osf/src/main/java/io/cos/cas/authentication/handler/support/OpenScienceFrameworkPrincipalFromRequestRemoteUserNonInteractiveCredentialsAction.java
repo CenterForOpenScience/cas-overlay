@@ -565,6 +565,7 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
         final String fullname = user.optString("fullname").trim();
         final String givenName = user.optString("givenName").trim();
         final String familyName = user.optString("familyName").trim();
+        final String isMemberOf = user.optString("isMemberOf").trim();
         if (username.isEmpty()) {
             logger.error("[CAS XSLT] Missing email (username) for user at institution '{}'", institutionId);
             throw new InstitutionLoginFailedAttributesMissingException("Missing email (username)");
@@ -573,12 +574,25 @@ public class OpenScienceFrameworkPrincipalFromRequestRemoteUserNonInteractiveCre
             logger.error("[CAS XSLT] Missing names: username={}, institution={}", username, institutionId);
             throw new InstitutionLoginFailedAttributesMissingException("Missing user's names");
         }
+        if (!isMemberOf.isEmpty()) {
+            logger.info(
+                    "[CAS XSLT] Secondary institution detected. SSO is '{}' and member is '{}'",
+                    institutionId,
+                    isMemberOf
+            );
+        }
         final String payload = normalizedPayload.toString();
-        logger.info("[CAS XSLT] All attributes checked: username={}, institution={}", username, institutionId);
-        logger.debug(
-                "[CAS XSLT] All attributes checked: username={}, institution={}, normalizedPayload={}",
+        logger.info(
+                "[CAS XSLT] All attributes checked: username={}, institution={}, member={}",
                 username,
                 institutionId,
+                isMemberOf
+        );
+        logger.debug(
+                "[CAS XSLT] All attributes checked: username={}, institution={}, member={}, normalizedPayload={}",
+                username,
+                institutionId,
+                isMemberOf,
                 payload
         );
 
