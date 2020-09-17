@@ -2,6 +2,14 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.2.4 (2020-09-17)
+===================
+
+- Updated institutions-auth.xsl to normalize princeton and brown attributes
+- Added extra logging for shared-SSO attribute isMemberOf for thepolicylab
+- Supports https://github.com/CenterForOpenScience/osf.io/pull/9484
+- Supports https://github.com/CenterForOpenScience/osf.io/pull/9447
+
 20.2.3 (2020-08-20)
 ===================
 
