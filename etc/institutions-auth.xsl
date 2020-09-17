@@ -65,6 +65,7 @@
                             <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
                             <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
                             <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
+                            <isMemberOf><xsl:value-of select="//attribute[@name='isMemberOf']/@value"/></isMemberOf>
                             <middleNames/>
                             <suffix/>
                         </user>
