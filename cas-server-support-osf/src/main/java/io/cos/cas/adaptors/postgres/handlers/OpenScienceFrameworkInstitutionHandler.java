@@ -72,13 +72,16 @@ public class OpenScienceFrameworkInstitutionHandler {
     }
 
     /**
-     * <p>Return a map of institution login url or institution ID as key and institution name as value.</p>
+     * <p>Return a map, in which the institution ID or login URL is the key and the institution name is the value.</p>
      *
-     * <p>For saml-shib institutions, the login url is the key and the institution display name is the value.</p>
+     * <p>For saml-shib institutions, the login URL is the key and the institution's display name is the value. A
+     * fragment hash followed by the institution ID is appended to each login URL to ensure key uniqueness in the
+     * presence of shared SSO between institutions. The fragment part does not affect the functionality of the login
+     * URL but it will be removed anyway by a script on the front-end page before being set to the window location.</p>
      *
-     * <p>For cas-pac4j institutions, the institution ID is the key and the institution display name is the value. </p>
+     * <p>For cas-pac4j institutions, the institution ID is the key and the institution's display name is the value.</p>
      *
-     * @param target the osf service target after successful institution login, only used for "saml-shib" institutions
+     * @param target the OSF service target after successful institution login, only used for "saml-shib" institutions
      * @param id the OSF institution ID if auto-selection is enabled
      * @return a single-entry {@link Map} if <code>id</code> presents and if the institution this <code>id</code>
      *         identifies exists and supports institution SSO; otherwise return a multi-entry {@link Map} of all.
@@ -102,7 +105,12 @@ public class OpenScienceFrameworkInstitutionHandler {
         for (final OpenScienceFrameworkInstitution institution: institutionList) {
             final DelegationProtocol delegationProtocol = institution.getDelegationProtocol();
             if (DelegationProtocol.SAML_SHIB.equals(delegationProtocol)) {
-                institutionLoginUrlMap.put(institution.getLoginUrl() + "&target=" + target, institution.getName());
+                // With shared SSO between institutions such as Brown University and The Policy Lab, the login URL is
+                // the same for both. Must add "#" with institution ID to enforce key uniqueness.
+                institutionLoginUrlMap.put(
+                        institution.getLoginUrl() + "&target=" + target + '#' + institution.getId(),
+                        institution.getName()
+                );
             } else if (DelegationProtocol.CAS_PAC4J.equals(delegationProtocol)) {
                 institutionLoginUrlMap.put(institution.getId(), institution.getName());
             }
