@@ -2,6 +2,11 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.2.5 (2020-09-18)
+===================
+
+- Fixed key uniqueness of institution login URL map for shared-SSO
+
 20.2.4 (2020-09-17)
 ===================
 

@@ -99,9 +99,9 @@
 
         function institutionLogin () {
 
-            var institutionForm = document.getElementById("institution-form-select");
-            var institutionLoginUrl = institutionForm.options[institutionForm.selectedIndex].value;
-            var selectErrorMessage = document.getElementById("select-error-message");
+            let institutionForm = document.getElementById("institution-form-select");
+            let institutionLoginUrl = institutionForm.options[institutionForm.selectedIndex].value;
+            let selectErrorMessage = document.getElementById("select-error-message");
 
             if(institutionLoginUrl == null || institutionLoginUrl === "") {
                 selectErrorMessage.style.display = "inline";
@@ -112,10 +112,17 @@
                 institutionLoginUrl = "${okstateUrl}";
             } else if (institutionLoginUrl === "cord") {
                 institutionLoginUrl = "${cordUrl}"
+            } else {
+                // Removing the fragment part of the login URL is not necessary but a good-to-have. Thus, neither will
+                // we run into nor do we need to worry about weird corner cases if somehow it breaks login endpoints.
+                let lastIndexOfHash = institutionLoginUrl.lastIndexOf("#");
+                if (lastIndexOfHash >= 0) {
+                    institutionLoginUrl = institutionLoginUrl.substring(0, lastIndexOfHash);
+                }
             }
 
-            var consentCheckbox = document.getElementById('consent-checkbox');
-            var consentErrorMessage = document.getElementById("consent-error-message");
+            let consentCheckbox = document.getElementById('consent-checkbox');
+            let consentErrorMessage = document.getElementById("consent-error-message");
             if (consentCheckbox != null && !consentCheckbox.checked) {
                 consentErrorMessage.style.display = "inline";
             } else {
@@ -125,7 +132,7 @@
 
         function checkConsent(checkbox) {
 
-            var consentErrorMessage = document.getElementById("consent-error-message");
+            let consentErrorMessage = document.getElementById("consent-error-message");
             if (consentErrorMessage != null) {
                 consentErrorMessage.style.display = checkbox.checked ? "none" : "inline";
             }
@@ -133,12 +140,12 @@
 
         function checkSelect() {
 
-            var selectErrorMessage = document.getElementById("select-error-message");
+            let selectErrorMessage = document.getElementById("select-error-message");
             if (selectErrorMessage != null) {
                 selectErrorMessage.style.display = "none";
             }
 
-            var consentErrorMessage = document.getElementById("consent-error-message");
+            let consentErrorMessage = document.getElementById("consent-error-message");
             if (consentErrorMessage != null) {
                 consentErrorMessage.style.display = "none";
             }
