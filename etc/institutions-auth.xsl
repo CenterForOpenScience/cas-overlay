@@ -85,6 +85,10 @@
                         </user>
                     </xsl:when>
                     <!-- Princeton University (PU) -->
+                    <!--
+                        The departmentRaw and eduPerson attributes are for local testing purpose only.
+                        Princeton does not release such an attribute yet.
+                    -->
                     <xsl:when test="$idp='https://idp.princeton.edu/idp/shibboleth'">
                         <id>pu</id>
                         <user>
@@ -92,6 +96,25 @@
                             <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
                             <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
                             <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
+                            <departmentRaw><xsl:value-of select="//attribute[@name='department']/@value"/></departmentRaw>
+                            <eduPerson>true</eduPerson>
+                            <suffix/>
+                        </user>
+                    </xsl:when>
+                    <!-- University of Arizona (UA) -->
+                    <!--
+                        The departmentRaw and eduPerson attributes are both for production and local testing purposes.
+                        University of Arizona is the first institution to release the department attribute to OSF.
+                    -->
+                    <xsl:when test="$idp='urn:mace:incommon:arizona.edu'">
+                        <id>ua</id>
+                        <user>
+                            <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
+                            <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
+                            <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
+                            <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
+                            <departmentRaw><xsl:value-of select="//attribute[@name='department']/@value"/></departmentRaw>
+                            <eduPerson>false</eduPerson>
                             <middleNames/>
                             <suffix/>
                         </user>
