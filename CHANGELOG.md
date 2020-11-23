@@ -2,6 +2,12 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+20.3.0 (2020-11-23)
+===================
+
+- Supports the department attribute for institution SSO
+- Added postman tests for testing SAML institutions
+
 20.2.5 (2020-09-18)
 ===================
 

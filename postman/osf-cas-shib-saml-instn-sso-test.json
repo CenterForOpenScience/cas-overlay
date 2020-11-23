@@ -1,0 +1,270 @@
+{
+	"info": {
+		"_postman_id": "390768cf-591d-455f-a623-d0734d07adfe",
+		"name": "OSF Institution Shib-SAML SSO",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Brown University User",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "AUTH-mail",
+						"value": "chen@brown.edu",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-displayName",
+						"value": "Longzebrown Chenbrown",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-givenName",
+						"value": "Longzebrown",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-sn",
+						"value": "Chenbrown",
+						"type": "text"
+					},
+					{
+						"key": "REMOTE_USER",
+						"value": "chenbrown123",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-Shib-Session-ID",
+						"value": "1234567812345678",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-Shib-Identity-Provider",
+						"value": "https://sso.brown.edu/idp/shibboleth",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"login"
+					]
+				},
+				"description": "Standard SAML SSO without shared SSO and without the department attribute."
+			},
+			"response": []
+		},
+		{
+			"name": "The Policy Lab User",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "AUTH-mail",
+						"value": "chen@policylab.io",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-displayName",
+						"value": "Longzepolicylab Chenpolicylab",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-givenName",
+						"value": "Longzepolicylab",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-sn",
+						"value": "Chenpolicylab",
+						"type": "text"
+					},
+					{
+						"key": "REMOTE_USER",
+						"value": "chenpolicylab123",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-Shib-Session-ID",
+						"value": "1234567812345678",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-Shib-Identity-Provider",
+						"value": "https://sso.brown.edu/idp/shibboleth",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-isMemberOf",
+						"value": "thepolicylab",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"login"
+					]
+				},
+				"description": "A SAML SSO institution user using another (the primary) institution's SSO server with an extra attribute indicate which secondary institution the user belongs to."
+			},
+			"response": []
+		},
+		{
+			"name": "University of Arizona User",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "AUTH-mail",
+						"type": "text",
+						"value": "chen@ua.edu"
+					},
+					{
+						"key": "AUTH-displayName",
+						"type": "text",
+						"value": "Longzeua Chenua"
+					},
+					{
+						"key": "AUTH-givenName",
+						"type": "text",
+						"value": "Longzeua"
+					},
+					{
+						"key": "AUTH-sn",
+						"type": "text",
+						"value": "Chenua"
+					},
+					{
+						"key": "REMOTE_USER",
+						"type": "text",
+						"value": "chenua12"
+					},
+					{
+						"key": "AUTH-Shib-Session-ID",
+						"type": "text",
+						"value": "1234567812345678"
+					},
+					{
+						"key": "AUTH-Shib-Identity-Provider",
+						"type": "text",
+						"value": "urn:mace:incommon:arizona.edu"
+					},
+					{
+						"key": "AUTH-department",
+						"value": "Department of Computer Science",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"login"
+					]
+				},
+				"description": "A SAML SSO institution user with the department information released using a customized attribute. OSF CAS will take it as it is."
+			},
+			"response": []
+		},
+		{
+			"name": "Clear CAS Session",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"logout"
+					]
+				},
+				"description": "Clear successful SSO sessions created by each test."
+			},
+			"response": []
+		},
+		{
+			"name": "Princeton User",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "AUTH-mail",
+						"value": "chen@princeton.edu",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-displayName",
+						"value": "Longzepu Chen pu",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-givenName",
+						"value": "Longzepu",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-sn",
+						"value": "Chenpu",
+						"type": "text"
+					},
+					{
+						"key": "REMOTE_USER",
+						"value": "chenpu12",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-Shib-Identity-Provider",
+						"value": "https://idp.princeton.edu/idp/shibboleth",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-department",
+						"value": "ou=Music Department, o=Princton Uiniversity, dc=princeton, dc=edu",
+						"type": "text"
+					},
+					{
+						"key": "AUTH-Shib-Session-Id",
+						"value": "1234567812345678",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"login"
+					]
+				},
+				"description": "A SAML SSO institution user with the department attribute released using eduPerson of which the syntax is LDAP Distinguished Names."
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
+
