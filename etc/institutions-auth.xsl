@@ -84,6 +84,18 @@
                             <suffix/>
                         </user>
                     </xsl:when>
+                    <!-- KU Leuven Libraries (KULEUVEN)-->
+                    <xsl:when test="$idp='urn:mace:kuleuven.be:kulassoc:kuleuven.be'">
+                        <id>kuleuven</id>
+                        <user>
+                            <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
+                            <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
+                            <familyName><xsl:value-of select="//attribute[@name='sn']/@value"/></familyName>
+                            <givenName><xsl:value-of select="//attribute[@name='givenName']/@value"/></givenName>
+                            <middleNames/>
+                            <suffix/>
+                        </user>
+                    </xsl:when>
                     <!-- Princeton University (PU) -->
                     <!--
                         The departmentRaw and eduPerson attributes are for local testing purpose only.

@@ -2,6 +2,12 @@
 
 We follow the CalVer (https://calver.org/) versioning scheme: YY.MINOR.MICRO.
 
+21.0.0 (2021-01-06)
+===================
+
+- Updated institutions-auth.xsl for kuleuven
+- Updated copyright year 2021
+
 20.3.0 (2020-11-23)
 ===================
 
