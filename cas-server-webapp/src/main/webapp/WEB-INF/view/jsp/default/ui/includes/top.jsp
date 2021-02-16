@@ -83,7 +83,7 @@
                 <div class="center">
                     <span id="title">
                         <c:choose>
-                            <c:when test="${osfLoginContext.isInstitutionLogin()}">
+                            <c:when test="${osfLoginContext.isInstitutionLogin() or osfLoginContext.isUnsupportedInstitutionLogin()}">
                                 <span>OSF Institutions</span>
                             </c:when>
                             <c:otherwise>

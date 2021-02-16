@@ -1,6 +1,6 @@
 <%--
 
-    Copyright (c) 2016. Center for Open Science
+    Copyright (c) 2021. Center for Open Science
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -29,10 +29,12 @@
     </section>
     <br/>
     <section class="row">
-        <spring:eval var="osfLoginURL" expression="@casProperties.getProperty('cas.osf.login.url')"/>
-        <c:set var="serviceParam" value="service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
         <span><spring:message code="screen.unsupportedinstitution.login.existing.osf.message"/></span>
-        <br/>
+    </section>
+    <br/>
+    <section class="row">
+        <spring:eval var="osfLoginUrl" expression="@casProperties.getProperty('cas.osf.login.url')"/>
+        <c:set var="serviceParam" value="service=${osfLoginContext.isServiceUrl() ? osfLoginContext.getServiceUrl() : ''}"/>
         <a id="alt-login-osf" class="btn-alt-login" href="${osfLoginUrl}${serviceParam}">
             <img class="osf-alt-logo" src="../images/osf-logo.png">
             <span class="label-login"><spring:message code="screen.unsupportedinstitution.login.existing.osf.button"/></span>
