@@ -60,6 +60,9 @@
                     <form:select class="select" id="institution-form-select" name="select-institution" path="institutions" items="${institutions}" onchange="checkSelect()" autofocus="autofocus" disabled="false"/>
                 </div>
             </section>
+            <spring:eval var="unsupportedInstitutionUrl" expression="@casProperties.getProperty('cas.institution.unsupported.url')"/>
+            <a id="not-your-institution" class='need-help' href="${unsupportedInstitutionUrl}${serviceParam}${institutionIdParam}"><spring:message code="screen.institution.login.select.unsupported"/></a>
+            <br/>
             <c:set var="institutionIdParam" value="&institutionId="/>
         </c:otherwise>
     </c:choose>

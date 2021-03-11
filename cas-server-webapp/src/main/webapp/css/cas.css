@@ -433,7 +433,8 @@ footer a:link, footer a:visited {
     padding: 0 0 10px 0;
 }
 
-#inst-login .select label {
+#inst-login .select label,
+.unsupported-inst-body-header {
     font-size: 15px;
     font-weight: bolder;
 }
