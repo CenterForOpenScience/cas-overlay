@@ -27,6 +27,7 @@ import java.net.URLEncoder;
  * Open Science Framework Login Handler.
  *
  * @author Longze Chen
+ * @author Fitzhugh Elliott
  * @since 19.3.0
  */
 public class OpenScienceFrameworkLoginHandler {
