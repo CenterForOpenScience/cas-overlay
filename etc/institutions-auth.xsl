@@ -167,6 +167,20 @@
                             <suffix/>
                         </user>
                     </xsl:when>
+                    <!-- Virginia Commonwealth University (VCU) -->
+                    <xsl:when test="$idp='https://shibboleth.vcu.edu/idp/shibboleth'">
+                        <id>vcu</id>
+                        <user>
+                            <username><xsl:value-of select="//attribute[@name='mail']/@value"/></username>
+                            <departmentRaw><xsl:value-of select="//attribute[@name='department']/@value"/></departmentRaw>
+                            <eduPerson>false</eduPerson>
+                            <fullname><xsl:value-of select="//attribute[@name='displayName']/@value"/></fullname>
+                            <familyName/>
+                            <givenName/>
+                            <middleNames/>
+                            <suffix/>
+                        </user>
+                    </xsl:when>
                     <!--  Unknown Identity Provider  -->
                     <xsl:otherwise>
                         <xsl:message terminate="yes">Error: Unknown Identity Provider '<xsl:value-of select="$idp"/>'</xsl:message>
